@@ -1,3 +1,4 @@
+import { LoginTrigger } from "@/components/auth/login-modal";
 import { addOns, comparison, faqs, plans } from "./data";
 
 export function Comparison() {
@@ -39,7 +40,7 @@ export function Pricing() {
                 {"lead" in plan ? <b>{plan.lead}</b> : null}
                 {plan.features.map((feature) => <span key={feature}><i>✓</i>&nbsp; {feature}</span>)}
               </div>
-              <a className={"featured" in plan ? "button plan-button" : "plan-button"} href="#">Izberi {plan.name}</a>
+              <LoginTrigger className={"featured" in plan ? "button plan-button" : "plan-button"} callbackUrl="/admin/events/new">Izberi {plan.name}</LoginTrigger>
             </article>
           ))}
         </div>

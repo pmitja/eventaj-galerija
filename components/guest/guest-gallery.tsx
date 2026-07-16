@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { EventUpload } from "@/components/event/event-upload";
+import { shareGallery, type GalleryShareResult } from "@/lib/client/share-gallery";
 import styles from "./guest-gallery.module.css";
 
 const demoPhotos = [
@@ -34,12 +35,36 @@ function HeartIcon({ filled = false }: { filled?: boolean }) {
   );
 }
 
+function copyWithLegacySelection(url: string) {
+  const textArea = document.createElement("textarea");
+  textArea.value = url;
+  textArea.setAttribute("readonly", "");
+  textArea.style.position = "fixed";
+  textArea.style.opacity = "0";
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  try {
+    return document.execCommand("copy");
+  } finally {
+    textArea.remove();
+  }
+}
+
+const shareMessages: Record<Exclude<GalleryShareResult, "cancelled">, { message: string; tone: "success" | "error" }> = {
+  shared: { message: "Galerija je bila deljena.", tone: "success" },
+  copied: { message: "Povezava do galerije je kopirana.", tone: "success" },
+  error: { message: "Povezave ni bilo mogoče deliti. Kopiraj naslov iz brskalnika.", tone: "error" },
+};
+
 export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: string }) {
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [liked, setLiked] = useState<number[]>([4]);
   const [visiblePhotoCount, setVisiblePhotoCount] = useState(6);
   const [livePhotos, setLivePhotos] = useState<Array<{ src: string; alt: string }>>([]);
   const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z" });
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const photos = livePhotos.length > 0 || eventSlug !== "ana-in-marko" ? livePhotos : [...demoPhotos];
 
   useEffect(() => {
@@ -66,6 +91,12 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   }, [eventSlug]);
 
   useEffect(() => {
+    if (!shareFeedback) return;
+    const timeout = window.setTimeout(() => setShareFeedback(null), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [shareFeedback]);
+
+  useEffect(() => {
     if (selectedPhoto === null) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelectedPhoto(null);
@@ -80,16 +111,55 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     setLiked((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index]);
   }
 
+  async function handleShare() {
+    if (isSharing) return;
+    setIsSharing(true);
+    setShareFeedback(null);
+    const shareUrl = new URL(window.location.href);
+    shareUrl.search = "";
+    shareUrl.hash = "";
+
+    const result = await shareGallery({
+      client: navigator,
+      data: {
+        title: `${eventInfo.name} | Eventaj Galerija`,
+        text: `Oglej si fotografije dogodka ${eventInfo.name}.`,
+        url: shareUrl.toString(),
+      },
+      legacyCopy: copyWithLegacySelection,
+    });
+
+    if (result !== "cancelled") setShareFeedback(shareMessages[result]);
+    setIsSharing(false);
+  }
+
   return (
     <main className={styles.page}>
       <header className={styles.header}>
         <a className={styles.brand} href="#top" aria-label="Na vrh galerije">
           eventaj<span>.</span>
         </a>
-        <button className={styles.shareButton} type="button" aria-label="Deli galerijo">
+        <button
+          className={styles.shareButton}
+          type="button"
+          onClick={handleShare}
+          disabled={isSharing}
+          aria-label={isSharing ? "Odpiram možnosti deljenja" : "Deli galerijo"}
+          aria-busy={isSharing}
+          aria-describedby={shareFeedback ? "share-feedback" : undefined}
+        >
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="m8.2 10.8 7.6-4.5M8.2 13.2l7.6 4.5" /></svg>
         </button>
       </header>
+      {shareFeedback ? (
+        <p
+          id="share-feedback"
+          className={`${styles.shareFeedback} ${shareFeedback.tone === "error" ? styles.shareFeedbackError : ""}`}
+          role={shareFeedback.tone === "error" ? "alert" : "status"}
+        >
+          {shareFeedback.message}
+        </p>
+      ) : null}
 
       <section className={styles.hero} id="top">
         <div className={styles.heroBackdrop} aria-hidden="true">

@@ -202,12 +202,18 @@
 
 .uploadCard,
 .successCard {
+  --event-brand: #9f1d52;
+  --event-brand-dark: #6f1239;
+  --event-ink: #2c1821;
+  --event-muted: #705f66;
+  --event-blush: #fce7f1;
   width: min(100%, 620px);
   margin-inline: auto;
   padding: 26px 20px 20px;
   border: 1px solid rgba(108,47,76,.08);
   border-radius: 24px;
   background: #fff;
+  color: var(--event-ink);
   box-shadow: 0 16px 50px rgba(91,32,60,.1);
 }
 
@@ -413,7 +419,7 @@
 .consentRow small { margin-top: 3px; color: var(--event-muted); font-size: 11px; line-height: 1.35; }
 
 .uploadButton { width: 100%; max-width: none; margin-top: 14px; }
-.uploadButton:disabled { background: #c9b6bf; box-shadow: none; cursor: not-allowed; }
+.uploadButton:disabled { background: #ddd2d7; color: #67555d; box-shadow: none; cursor: not-allowed; }
 
 .uploadPrivacy {
   margin: 14px 4px 0;
@@ -613,4 +619,3 @@
   .showMore,
   .progressTrack span { transition: none; }
 }
-

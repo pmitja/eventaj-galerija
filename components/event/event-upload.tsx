@@ -11,6 +11,8 @@ import {
   RetryIcon,
   UploadIcon,
 } from "./event-icons";
+import { getUploadActionState } from "./event-upload-state";
+import type { ClientUploadStatus } from "./event-upload-state";
 import styles from "../../app/(public)/e/[slug]/event-page.module.css";
 
 const ACCEPTED_TYPES = new Set([
@@ -22,14 +24,12 @@ const ACCEPTED_TYPES = new Set([
 ]);
 const IMAGE_LIMIT = 20 * 1024 * 1024;
 
-type UploadStatus = "ready" | "uploading" | "done" | "error";
-
 type UploadItem = {
   id: string;
   file: File;
   previewUrl: string;
   progress: number;
-  status: UploadStatus;
+  status: ClientUploadStatus;
   error?: string;
   serverFileId?: string;
   uploadUrl?: string;
@@ -64,6 +64,14 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+async function responseError(response: Response, fallback: string): Promise<Error> {
+  const body = await response.json().catch(() => null) as {
+    title?: string;
+    detail?: string;
+  } | null;
+  return new Error(body?.detail || body?.title || fallback);
+}
+
 export function EventUpload({ eventSlug }: { eventSlug: string }) {
   const [items, setItems] = useState<UploadItem[]>([]);
   const [allowPublishing, setAllowPublishing] = useState(false);
@@ -71,6 +79,7 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const itemsRef = useRef(items);
   const sessionTokenRef = useRef<string | null>(null);
+  const sessionPromiseRef = useRef<Promise<string> | null>(null);
 
   useEffect(() => {
     itemsRef.current = items;
@@ -100,11 +109,21 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
 
   const getSessionToken = useCallback(async () => {
     if (sessionTokenRef.current) return sessionTokenRef.current;
-    const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/upload-sessions`, { method: "POST" });
-    if (!response.ok) throw new Error("Nalaganje trenutno ni na voljo.");
-    const body = await response.json() as { token: string };
-    sessionTokenRef.current = body.token;
-    return body.token;
+    if (sessionPromiseRef.current) return sessionPromiseRef.current;
+
+    sessionPromiseRef.current = (async () => {
+      const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/upload-sessions`, { method: "POST" });
+      if (!response.ok) throw await responseError(response, "Nalaganje trenutno ni na voljo.");
+      const body = await response.json() as { token: string };
+      sessionTokenRef.current = body.token;
+      return body.token;
+    })();
+
+    try {
+      return await sessionPromiseRef.current;
+    } finally {
+      sessionPromiseRef.current = null;
+    }
   }, [eventSlug]);
 
   const uploadItem = useCallback(async (id: string) => {
@@ -138,7 +157,10 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
             publicationConsent: allowPublishing,
           }),
         });
-        if (!prepared.ok) throw new Error("Datoteke ni bilo mogoče pripraviti.");
+        if (!prepared.ok) {
+          if (prepared.status === 401) sessionTokenRef.current = null;
+          throw await responseError(prepared, "Datoteke ni bilo mogoče pripraviti.");
+        }
         const body = await prepared.json() as { fileId: string; uploadUrl: string };
         fileId = body.fileId;
         uploadUrl = body.uploadUrl;
@@ -160,7 +182,7 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
       });
 
       const completed = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/files/${fileId}/complete`, { method: "POST" });
-      if (!completed.ok) throw new Error("Zaključevanje prenosa ni uspelo.");
+      if (!completed.ok) throw await responseError(completed, "Zaključevanje prenosa ni uspelo.");
       setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, status: "done", progress: 100 } : candidate));
     } catch (error) {
       setItems((current) => current.map((candidate) => candidate.id === id ? {
@@ -172,16 +194,25 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
   }, [allowPublishing, getSessionToken]);
 
   const startUpload = () => {
-    const uploadableItems = items.filter((item) => item.status === "ready");
+    const uploadableItems = items.filter((item) => (
+      item.status === "ready" || (item.status === "error" && !validateFile(item.file))
+    ));
     uploadableItems.forEach((item, index) => {
       window.setTimeout(() => void uploadItem(item.id), index * 140);
     });
   };
 
-  const readyCount = items.filter((item) => item.status === "ready").length;
-  const isUploading = items.some((item) => item.status === "uploading");
-  const doneCount = items.filter((item) => item.status === "done").length;
-  const isComplete = items.length > 0 && items.every((item) => item.status === "done");
+  const {
+    readyCount,
+    retryableCount,
+    actionableCount,
+    isUploading,
+    doneCount,
+    isComplete,
+  } = getUploadActionState(items.map((item) => ({
+    status: item.status,
+    hasValidationError: Boolean(validateFile(item.file)),
+  })));
 
   if (isComplete) {
     return (
@@ -208,7 +239,7 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
   }
 
   return (
-    <section className={styles.uploadCard} id="dodaj" aria-labelledby="upload-title">
+    <section className={styles.uploadCard} id="dodaj" aria-labelledby="upload-title" aria-busy={isUploading}>
       <div className={styles.uploadHeading}>
         <span>Čisto preprosto</span>
         <h2 id="upload-title">Kaj želiš dodati?</h2>
@@ -259,7 +290,7 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
                 </div>
                 <div className={styles.fileInfo}>
                   <strong>{item.file.name}</strong>
-                  <span>
+                  <span role={item.status === "error" ? "alert" : undefined}>
                     {item.status === "ready" ? `${formatFileSize(item.file.size)} · Pripravljeno` : null}
                     {item.status === "uploading" ? `Nalaganje · ${item.progress} %` : null}
                     {item.status === "done" ? "Dodano" : null}
@@ -300,9 +331,13 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
             </span>
           </label>
 
-          <button className={styles.uploadButton} type="button" onClick={startUpload} disabled={readyCount === 0 || isUploading}>
-            <UploadIcon />
-            {isUploading ? "Nalaganje …" : `Dodaj ${readyCount || doneCount} ${readyCount === 1 ? "datoteko" : "datotek"}`}
+          <button className={styles.uploadButton} type="button" onClick={startUpload} disabled={actionableCount === 0 || isUploading}>
+            {retryableCount > 0 && readyCount === 0 ? <RetryIcon /> : <UploadIcon />}
+            {isUploading
+              ? "Nalaganje …"
+              : retryableCount > 0 && readyCount === 0
+                ? `Poskusi znova (${retryableCount})`
+                : `Dodaj ${actionableCount} ${actionableCount === 1 ? "datoteko" : "datotek"}`}
           </button>
         </>
       )}

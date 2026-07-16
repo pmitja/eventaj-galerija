@@ -18,6 +18,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
 
   const fileId = crypto.randomUUID();
   const objectKey = `originals/${session.event_id}/${fileId}/original`;
+  let uploadUrl: string;
+  try {
+    uploadUrl = await createPresignedUploadUrl(objectKey, parsed.data.mime);
+  } catch {
+    return problem(503, "UPLOAD_STORAGE_UNAVAILABLE", "Shramba za nalaganje trenutno ni dosegljiva");
+  }
   const media = await insertPendingMedia({
     sessionId: session.id,
     eventId: session.event_id,
@@ -29,7 +35,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   });
   return Response.json({
     fileId: media.id,
-    uploadUrl: await createPresignedUploadUrl(objectKey, parsed.data.mime),
+    uploadUrl,
     expiresAt: new Date(Date.now() + PRESIGNED_UPLOAD_TTL_SECONDS * 1000).toISOString(),
     expiresInSeconds: PRESIGNED_UPLOAD_TTL_SECONDS,
   }, { status: 201 });

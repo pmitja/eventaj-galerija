@@ -1,6 +1,17 @@
+"use client";
+
+import { useState } from "react";
+import { LoginTrigger, useLoginModal } from "@/components/auth/login-modal";
 import { VisualPlaceholder } from "./visual-placeholder";
 
 export function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { openLogin } = useLoginModal();
+
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
   return (
     <header className="site-header">
       <div className="header-inner shell">
@@ -14,13 +25,27 @@ export function Header() {
           <a href="#faq">FAQ</a>
         </nav>
         <div className="header-actions">
-          <a className="login-link" href="#">Prijava</a>
-          <a className="button button--small" href="#cene">Ustvari dogodek</a>
-          <button className="menu-button" type="button" aria-label="Odpri meni">
+          <LoginTrigger className="login-link">Prijava</LoginTrigger>
+          <LoginTrigger className="button button--small" callbackUrl="/admin/events/new">Ustvari dogodek</LoginTrigger>
+          <button
+            className={`menu-button ${menuOpen ? "menu-button--open" : ""}`}
+            type="button"
+            aria-label={menuOpen ? "Zapri meni" : "Odpri meni"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
             <span /><span /><span />
           </button>
         </div>
       </div>
+      <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`} aria-label="Mobilna navigacija" aria-hidden={!menuOpen}>
+        <a href="#kako-deluje" onClick={closeMenu}>Kako deluje</a>
+        <a href="#funkcije" onClick={closeMenu}>Funkcije</a>
+        <a href="#cene" onClick={closeMenu}>Cene</a>
+        <a href="#faq" onClick={closeMenu}>FAQ</a>
+        <button type="button" onClick={() => { closeMenu(); openLogin("/admin"); }}>Prijava</button>
+      </nav>
     </header>
   );
 }
@@ -60,7 +85,7 @@ export function Hero() {
         <h1>Vse fotografije vašega dogodka na enem mestu.</h1>
         <p>Gostje preprosto skenirajo QR kodo ali prislonijo telefon na NFC stojalo in delijo svoje fotografije — brez aplikacije in brez registracije.</p>
         <div className="hero-buttons">
-          <a className="button" href="#cene">Ustvari dogodek</a>
+          <LoginTrigger className="button" callbackUrl="/admin/events/new">Ustvari dogodek</LoginTrigger>
           <a className="button button--secondary" href="#kako-deluje">Oglej si predstavitev</a>
         </div>
         <div className="rating"><span>★★★★★</span><em className="desktop-only">Zaupa nam več kot 1.000 organizatorjev dogodkov</em><em className="mobile-only">Zaupa nam 1.000+ organizatorjev</em></div>

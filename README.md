@@ -19,6 +19,8 @@ pnpm lint
 pnpm build
 ```
 
+Za dejanski lokalni upload kopiraj `.dev.vars.example` v `.dev.vars` in dodaj R2 S3 poverilnici. Brez njiju UI deluje, priprava podpisanega neposrednega uploada pa namenoma vrne `503`; skrivnosti se ne zapisujejo v repozitorij.
+
 ## Dogovorjeni tehnološki temelj
 
 - Next.js App Router + TypeScript

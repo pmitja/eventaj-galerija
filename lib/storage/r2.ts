@@ -5,6 +5,9 @@ export const PRESIGNED_UPLOAD_TTL_SECONDS = 10 * 60;
 
 export async function createPresignedUploadUrl(objectKey: string, contentType: string): Promise<string> {
   const env = getCloudflareEnv();
+  if (!env.R2_ACCOUNT_ID || !env.R2_BUCKET_NAME || !env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY) {
+    throw new Error("R2 signing configuration is incomplete");
+  }
   const client = new AwsClient({
     accessKeyId: env.R2_ACCESS_KEY_ID,
     secretAccessKey: env.R2_SECRET_ACCESS_KEY,

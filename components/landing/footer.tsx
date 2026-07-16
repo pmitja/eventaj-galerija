@@ -1,3 +1,5 @@
+import { LoginTrigger } from "@/components/auth/login-modal";
+
 export function Footer() {
   return (
     <>
@@ -6,7 +8,7 @@ export function Footer() {
           <h2>Pripravljeni na svoj naslednji dogodek?</h2>
           <p className="desktop-only">Ustvarite galerijo v 2 minutah — plačate šele, ko ste pripravljeni.</p>
           <p className="mobile-only">Ustvarite galerijo v 2 minutah.</p>
-          <a className="button" href="#cene">Ustvari dogodek</a>
+          <LoginTrigger className="button" callbackUrl="/admin/events/new">Ustvari dogodek</LoginTrigger>
         </div>
         <div className="footer-links shell">
           <div className="footer-about">
@@ -19,7 +21,7 @@ export function Footer() {
         </div>
         <div className="copyright shell"><span>© 2026 Eventaj.si. Vse pravice pridržane.</span><span className="desktop-only">Pogoji uporabe · Zasebnost</span></div>
       </footer>
-      <div className="sticky-cta"><a className="button" href="#cene">Ustvari dogodek — od 19 €</a></div>
+      <div className="sticky-cta"><LoginTrigger className="button" callbackUrl="/admin/events/new">Ustvari dogodek — od 19 €</LoginTrigger></div>
     </>
   );
 }
