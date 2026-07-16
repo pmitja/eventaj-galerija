@@ -1,0 +1,102 @@
+.page {
+  --berry: #9f1d52;
+  --berry-dark: #6f1239;
+  --ink: #2c1821;
+  --muted: #705f66;
+  min-height: 100vh;
+  background: #fcfaf8;
+  color: var(--ink);
+}
+
+.header {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  color: white;
+}
+
+.brand { color: white; font-size: 21px; font-weight: 800; letter-spacing: -.05em; }
+.brand:hover { color: white; }
+.brand span { color: #f6a9c4; }
+.shareButton, .likeButton, .closeButton, .lightboxNav { cursor: pointer; }
+.shareButton { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.32); border-radius: 50%; background: rgba(37,17,26,.24); color: white; backdrop-filter: blur(12px); }
+.shareButton svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+.hero { position: relative; min-height: 560px; display: flex; align-items: flex-end; overflow: hidden; background: #392029; }
+.heroBackdrop { position: absolute; inset: 0; }
+.heroBackdrop img { object-fit: cover; object-position: 42% center; transform: scale(1.02); }
+.heroBackdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30,13,20,.2) 0%, rgba(30,13,20,.14) 32%, rgba(30,13,20,.9) 100%); }
+.heroContent { position: relative; z-index: 1; width: 100%; padding: 116px 24px 36px; color: white; text-align: center; }
+.kicker, .sectionEyebrow { margin: 0; color: #f4c6d6; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.hero h1 { margin: 10px 0 14px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(48px, 14vw, 70px); line-height: .95; font-weight: 400; letter-spacing: -.055em; text-wrap: balance; }
+.hero h1 i { color: #f2b5ca; font-weight: 400; }
+.welcome { max-width: 520px; margin: 0 auto 24px; color: rgba(255,255,255,.88); font-size: 16px; line-height: 1.55; text-wrap: pretty; }
+.heroCta { min-height: 54px; width: min(100%, 360px); display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 14px; background: white; color: var(--berry-dark); box-shadow: 0 12px 28px rgba(31,10,19,.26); cursor: pointer; font: inherit; font-size: 16px; font-weight: 800; transition: transform .2s ease, background .2s ease; }
+.heroCta:hover { color: var(--berry-dark); background: #fff6f8; transform: translateY(-1px); }
+.heroCta svg { width: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.uploadHint { margin: 12px 0 0; color: rgba(255,255,255,.67); font-size: 12px; }
+
+.uploadSection { position: relative; z-index: 2; width: min(100% - 24px, 620px); margin: -18px auto 0; }
+.gallerySection { width: min(100%, 1180px); margin: 0 auto; padding: 58px 12px 28px; }
+.galleryIntro { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 0 6px 22px; }
+.sectionEyebrow { color: var(--berry); }
+.galleryIntro h2 { margin: 5px 0 0; font-family: Georgia, "Times New Roman", serif; font-size: 29px; line-height: 1.05; font-weight: 400; letter-spacing: -.03em; }
+.count { flex: none; padding-bottom: 3px; color: var(--muted); font-size: 12px; }
+.selectionTray { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: -4px 4px 18px; padding: 14px 16px; border: 1px solid #f1c8d7; border-radius: 14px; background: #fff2f6; }
+.selectionTray div { display: flex; flex-direction: column; gap: 2px; }
+.selectionTray strong { font-size: 14px; }
+.selectionTray span { color: var(--muted); font-size: 12px; }
+.selectionTray button { min-height: 44px; border: 0; background: none; color: var(--berry); cursor: pointer; font-weight: 700; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.photoCard { position: relative; aspect-ratio: 1 / 1.16; content-visibility: auto; contain-intrinsic-size: 180px 208px; overflow: hidden; background: #eee8e4; }
+.photoCard:nth-child(3n + 2), .photoCard:nth-child(3n + 3) { aspect-ratio: 1 / 1; }
+.photoButton { position: absolute; inset: 0; display: block; width: 100%; border: 0; padding: 0; background: none; cursor: zoom-in; }
+.photoButton img { object-fit: cover; transition: transform .28s cubic-bezier(.22,1,.36,1); }
+.photoButton:hover img { transform: scale(1.025); }
+.likeButton { position: absolute; z-index: 1; top: 7px; right: 7px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(35,17,24,.3); color: white; backdrop-filter: blur(8px); }
+.likeButton svg { width: 20px; fill: transparent; stroke: currentColor; stroke-width: 1.8; transition: fill .18s ease, transform .18s ease; }
+.likeButton .filledHeart { fill: #ef6d9b; stroke: #ef6d9b; }
+.likeButton:active svg { transform: scale(.88); }
+.moreButton { min-height: 48px; display: block; margin: 24px auto 0; padding: 0 22px; border: 1px solid #ddcfd4; border-radius: 999px; background: white; color: var(--ink); cursor: pointer; font: inherit; font-size: 14px; font-weight: 750; }
+.privacy { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 420px; margin: 24px auto 0; color: #89777e; font-size: 12px; line-height: 1.45; text-align: center; }
+.privacy svg { width: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.lightbox { position: fixed; z-index: 40; inset: 0; display: grid; place-items: center; background: rgba(18,10,13,.96); }
+.lightboxImage { position: relative; width: 100%; height: min(76vh, 760px); }
+.lightboxImage img { object-fit: contain; }
+.closeButton { position: absolute; z-index: 2; top: max(14px, env(safe-area-inset-top)); right: 14px; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(255,255,255,.12); color: white; font-size: 30px; line-height: 1; }
+.lightboxNav { position: absolute; z-index: 2; top: 50%; width: 48px; height: 56px; border: 0; border-radius: 14px; background: rgba(255,255,255,.12); color: white; font-size: 38px; }
+.previous { left: 10px; }
+.next { right: 10px; }
+.lightboxCount { position: absolute; bottom: max(22px, env(safe-area-inset-bottom)); color: rgba(255,255,255,.72); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.page button:focus-visible, .page a:focus-visible { outline: 3px solid #ffd0e0; outline-offset: 3px; }
+
+@media (min-width: 768px) {
+  .header { position: absolute; height: 78px; padding: 0 36px; }
+  .hero { min-height: 640px; }
+  .heroContent { padding-bottom: 58px; }
+  .welcome { font-size: 17px; }
+  .gallerySection { padding: 54px 24px 64px; }
+  .uploadSection { margin-top: -34px; }
+  .galleryIntro { padding-inline: 0; }
+  .galleryIntro h2 { font-size: 38px; }
+  .count { font-size: 14px; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .photoCard, .photoCard:nth-child(3n + 2), .photoCard:nth-child(3n + 3) { aspect-ratio: 1 / 1; border-radius: 4px; }
+}
+
+@media (min-width: 1100px) {
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .photoCard:nth-child(5n + 1) { grid-row: span 2; aspect-ratio: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroCta, .photoButton img, .likeButton svg { transition: none; }
+}

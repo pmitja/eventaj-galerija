@@ -1,0 +1,41 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eventaj-galerija",
+  "workers_dev": true,
+  "preview_urls": false,
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "eventaj-galerija",
+      "database_id": "f8477fd1-4d6d-4ed0-aca6-000fdae35658"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "eventaj-galerija-media",
+      "jurisdiction": "eu"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  },
+  "cache": {
+    "enabled": true
+  },
+  "vars": {
+    "ADMIN_EMAIL": "info@eventaj.si",
+    "R2_ACCOUNT_ID": "a8061b4ae8e71cdcd6f6b69b8023f2e1",
+    "R2_BUCKET_NAME": "eventaj-galerija-media",
+    "PUBLIC_APP_URL": "https://eventaj-galerija.eventaj.workers.dev",
+    "RETENTION_DAYS": "90"
+  }
+}

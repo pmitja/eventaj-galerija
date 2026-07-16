@@ -1,0 +1,61 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Icon } from "./icon";
+import styles from "./admin.module.css";
+
+export function NewEventForm() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function submit(formData: FormData) {
+    setPending(true);
+    setError(null);
+    const startsAt = new Date(`${formData.get("startDate")}T${formData.get("startTime")}`).toISOString();
+    const endsAt = new Date(`${formData.get("endDate")}T${formData.get("endTime")}`).toISOString();
+    const response = await fetch("/api/v1/admin/events", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        location: formData.get("location"),
+        startsAt,
+        endsAt,
+        timezone: "Europe/Ljubljana",
+      }),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { detail?: string } | null;
+      setError(body?.detail ?? "Dogodka ni bilo mogoče ustvariti.");
+      setPending(false);
+      return;
+    }
+    router.push("/admin/events");
+    router.refresh();
+  }
+
+  return (
+    <form className={styles.formStack} action={submit}>
+      <section className={styles.formSection}>
+        <div className={styles.formSectionIntro}><span>1</span><div><h2>Osnovni podatki</h2><p>Dogodek dobi varno, nepredvidljivo povezavo.</p></div></div>
+        <div className={styles.formGrid}>
+          <label className={styles.fieldWide}><span>Naziv dogodka</span><input name="name" required minLength={2} placeholder="npr. Poroka Ane & Marka" /></label>
+          <label><span>Datum začetka</span><input name="startDate" type="date" required /></label>
+          <label><span>Čas začetka</span><input name="startTime" type="time" required defaultValue="16:00" /></label>
+          <label><span>Datum konca</span><input name="endDate" type="date" required /></label>
+          <label><span>Čas konca</span><input name="endTime" type="time" required defaultValue="23:59" /></label>
+          <label className={styles.fieldWide}><span>Lokacija</span><input name="location" placeholder="npr. Vila Bled" /></label>
+          <label><span>Časovni pas</span><input value="Europe/Ljubljana" readOnly /></label>
+          <label><span>Hramba</span><input value="90 dni po koncu" readOnly /></label>
+        </div>
+      </section>
+      <section className={styles.formSection}>
+        <div className={styles.infoNote}><Icon name="shield" size={18} /><p>Galerija bo <strong>neindeksirana</strong> in dostopna vsakomur z nepredvidljivo povezavo.</p></div>
+      </section>
+      {error ? <p role="alert">{error}</p> : null}
+      <div className={styles.formActions}><button type="submit" className={styles.primaryAction} disabled={pending}>{pending ? "Shranjujem …" : "Ustvari dogodek"} <Icon name="arrow" size={18} /></button></div>
+    </form>
+  );
+}
