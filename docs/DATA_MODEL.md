@@ -1,6 +1,6 @@
 # Podatkovni model
 
-Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Prvi slikovni MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja D1 migraciji `migrations/0001_initial.sql` in `migrations/0002_access_points.sql` s tabelami `events`, `access_points`, `visits`, `upload_sessions`, `media_files` in `audit_logs`. Migracija 0002 je povratno združljiva: obstoječe upload seje imajo `access_point_id = NULL`. Ker je administrator samo eden, njegova identiteta in hash gesla živita v Cloudflare secret konfiguraciji, ne v tabeli uporabnikov.
+Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Prvi slikovni MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja D1 migracije `migrations/0001_initial.sql`, `migrations/0002_access_points.sql` in `migrations/0003_event_organization.sql` s tabelami `events`, `access_points`, `visits`, `upload_sessions`, `media_files` in `audit_logs`. Migracija 0002 je povratno združljiva: obstoječe upload seje imajo `access_point_id = NULL`. Migracija 0003 doda tenant ključ dogodkom in obstoječe vrstice povratno združljivo pripiše prvotnemu delovnemu prostoru `eventaj`; vsi novi administratorski read/write dostopi ga morajo filtrirati. Ker je administrator samo eden, njegova identiteta in hash gesla živita v Cloudflare secret konfiguraciji, ne v tabeli uporabnikov.
 
 ## Splošna pravila
 

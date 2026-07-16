@@ -33,6 +33,7 @@
   },
   "vars": {
     "ADMIN_EMAIL": "info@eventaj.si",
+    "ORGANIZATION_ID": "eventaj",
     "R2_ACCOUNT_ID": "a8061b4ae8e71cdcd6f6b69b8023f2e1",
     "R2_BUCKET_NAME": "eventaj-galerija-media",
     "PUBLIC_APP_URL": "https://eventaj-galerija.eventaj.workers.dev",

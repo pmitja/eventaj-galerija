@@ -5,6 +5,7 @@ import type { CreateEventInput } from "@/lib/validation/events";
 
 export type EventRow = {
   id: string;
+  organization_id: string;
   public_slug: string;
   name: string;
   location: string | null;
@@ -22,14 +23,15 @@ export type EventRow = {
 export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
   const event = createEventRecord(input);
   const accessPoint = createAccessPointRecord({ eventId: event.id, label: "Glavna QR koda" });
-  const { DB } = getCloudflareEnv();
+  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
   await DB.batch([
     DB.prepare(
       `INSERT INTO events
-        (id, public_slug, name, location, starts_at, ends_at, timezone, status, retention_until, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id, organization_id, public_slug, name, location, starts_at, ends_at, timezone, status, retention_until, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       event.id,
+      ORGANIZATION_ID,
       event.publicSlug,
       event.name,
       event.location || null,
@@ -58,7 +60,9 @@ export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
 }
 
 export async function findEventById(id: string): Promise<EventRow | null> {
-  return getCloudflareEnv().DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first<EventRow>();
+  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  return DB.prepare("SELECT * FROM events WHERE id = ? AND organization_id = ?")
+    .bind(id, ORGANIZATION_ID).first<EventRow>();
 }
 
 export async function findPublicEvent(slug: string): Promise<EventRow | null> {
@@ -68,8 +72,9 @@ export async function findPublicEvent(slug: string): Promise<EventRow | null> {
 }
 
 export async function listEvents(): Promise<EventRow[]> {
-  const result = await getCloudflareEnv().DB.prepare(
-    "SELECT * FROM events ORDER BY starts_at DESC LIMIT 100",
-  ).all<EventRow>();
+  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const result = await DB.prepare(
+    "SELECT * FROM events WHERE organization_id = ? ORDER BY starts_at DESC LIMIT 100",
+  ).bind(ORGANIZATION_ID).all<EventRow>();
   return result.results;
 }

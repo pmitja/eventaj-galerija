@@ -43,19 +43,23 @@ export async function createAccessPoint(input: {
 }
 
 export async function listAccessPoints(): Promise<AccessPointWithEventRow[]> {
-  const result = await getCloudflareEnv().DB.prepare(
+  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const result = await DB.prepare(
     `SELECT ap.*, e.name AS event_name, e.public_slug AS event_slug, e.status AS event_status
      FROM access_points ap
      JOIN events e ON e.id = ap.event_id
+     WHERE e.organization_id = ?
      ORDER BY ap.created_at DESC`,
-  ).all<AccessPointWithEventRow>();
+  ).bind(ORGANIZATION_ID).all<AccessPointWithEventRow>();
   return result.results;
 }
 
 export async function listEventAccessPoints(eventId: string): Promise<AccessPointRow[]> {
-  const result = await getCloudflareEnv().DB.prepare(
-    "SELECT * FROM access_points WHERE event_id = ? ORDER BY created_at DESC",
-  ).bind(eventId).all<AccessPointRow>();
+  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const result = await DB.prepare(
+    `SELECT ap.* FROM access_points ap JOIN events e ON e.id = ap.event_id
+     WHERE ap.event_id = ? AND e.organization_id = ? ORDER BY ap.created_at DESC`,
+  ).bind(eventId, ORGANIZATION_ID).all<AccessPointRow>();
   return result.results;
 }
 

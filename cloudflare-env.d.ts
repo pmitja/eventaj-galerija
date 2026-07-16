@@ -3,6 +3,7 @@ interface CloudflareEnv {
   MEDIA: R2Bucket;
   IMAGES: ImagesBinding;
   ADMIN_EMAIL: string;
+  ORGANIZATION_ID: string;
   ADMIN_PASSWORD_HASH: string;
   AUTH_SECRET: string;
   R2_ACCOUNT_ID: string;

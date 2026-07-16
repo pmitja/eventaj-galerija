@@ -1,12 +1,16 @@
 import Link from "next/link";
+import Image from "next/image";
 import { chartData } from "./data";
 import { Icon } from "./icon";
 import styles from "./admin.module.css";
 import { NewEventForm } from "./new-event-form";
 import { listEvents } from "@/lib/repositories/events";
+import { listAdminEventSummaries, listAdminMedia } from "@/lib/repositories/admin-dashboard";
 import { listAccessPoints } from "@/lib/repositories/access-points";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { AccessPointsPanel } from "./access-points-panel";
+import { presentEventStatus, formatRelativeTime } from "@/lib/domain/admin-dashboard";
+import { adminGalleryQuerySchema } from "@/lib/validation/admin";
 
 const mediaItems = [
   ["IMG_4821.jpg", "rose", "pred 4 min"], ["IMG_4818.jpg", "violet", "pred 7 min"],
@@ -38,22 +42,25 @@ function FilterBar({ gallery = false }: { gallery?: boolean }) {
 }
 
 export async function EventsPage() {
-  const storedEvents = await listEvents();
-  const displayedEvents = storedEvents.map((event) => ({
+  const storedEvents = await listAdminEventSummaries();
+  const displayedEvents = storedEvents.map((event, index) => ({
+    id: event.id,
     name: event.name,
     location: event.location ?? "Brez lokacije",
     date: new Intl.DateTimeFormat("sl-SI", { dateStyle: "medium", timeZone: event.timezone }).format(new Date(event.starts_at)),
-    status: event.status === "active" ? "Aktiven" : event.status === "ended" ? "Zaključen" : "Osnutek",
-    statusTone: event.status === "active" ? "active" : event.status === "ended" ? "ended" : "draft",
-    accent: "violet",
-    photos: 0,
-    guests: 0,
-    href: `/e/${event.public_slug}`,
+    status: presentEventStatus(event.status).label,
+    statusTone: presentEventStatus(event.status).tone,
+    accent: index % 3 === 0 ? "rose" : index % 3 === 1 ? "amber" : "violet",
+    photos: event.photo_count,
+    guests: event.visit_count,
+    href: `/admin/gallery?eventId=${encodeURIComponent(event.id)}`,
   }));
+  const activeCount = storedEvents.filter((event) => event.status === "active").length;
+  const upcomingCount = storedEvents.filter((event) => Boolean(event.is_upcoming)).length;
   return <main className={styles.main}>
     <PageHeader eyebrow="UPRAVLJANJE" title="Dogodki" description="Ustvari, pripravi in spremljaj vse dogodke na enem mestu." action={<Link className={styles.primaryAction} href="/admin/events/new"><Icon name="plus" size={19} /> Nov dogodek</Link>} />
-    <section className={styles.miniMetricGrid} aria-label="Povzetek dogodkov"><article><span className={styles.green}><Icon name="calendar" size={19} /></span><div><strong>1</strong><small>aktiven dogodek</small></div></article><article><span className={styles.rose}><Icon name="clock" size={19} /></span><div><strong>2</strong><small>prihajajoča dogodka</small></div></article><article><span className={styles.violet}><Icon name="image" size={19} /></span><div><strong>7</strong><small>vseh dogodkov</small></div></article></section>
-    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Vsi dogodki</h2><p>7 dogodkov v delovnem prostoru</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Prikaz seznama" className={styles.viewActive}><Icon name="chart" size={17} /></button><button type="button" aria-label="Prikaz kartic"><Icon name="image" size={17} /></button></div></div><FilterBar />
+    <section className={styles.miniMetricGrid} aria-label="Povzetek dogodkov"><article><span className={styles.green}><Icon name="calendar" size={19} /></span><div><strong>{activeCount}</strong><small>aktivnih dogodkov</small></div></article><article><span className={styles.rose}><Icon name="clock" size={19} /></span><div><strong>{upcomingCount}</strong><small>prihajajočih dogodkov</small></div></article><article><span className={styles.violet}><Icon name="image" size={19} /></span><div><strong>{storedEvents.length}</strong><small>vseh dogodkov</small></div></article></section>
+    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Vsi dogodki</h2><p>{storedEvents.length} dogodkov v delovnem prostoru</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Prikaz seznama" className={styles.viewActive}><Icon name="chart" size={17} /></button><button type="button" aria-label="Prikaz kartic"><Icon name="image" size={17} /></button></div></div><FilterBar />
       <div className={styles.tableWrap}><table className={`${styles.dataTable} ${styles.eventsTable}`}><thead><tr><th>Dogodek</th><th>Datum</th><th>Status</th><th>Galerija</th><th>Obiski</th><th><span className={styles.srOnly}>Dejanja</span></th></tr></thead><tbody>{displayedEvents.map((event) => <tr key={event.name}><td data-label="Dogodek"><div className={styles.tableIdentity}><span className={`${styles.miniVisual} ${styles[event.accent]}`} /><div><strong>{event.name}</strong><small>{event.location}</small></div></div></td><td data-label="Datum">{event.date}</td><td data-label="Status"><span className={`${styles.statusBadge} ${styles[event.statusTone]}`}><i />{event.status}</span></td><td data-label="Galerija">{event.photos} fotografij</td><td data-label="Obiski">{event.guests}</td><td><Link className={styles.tableAction} href={event.href} aria-label={`Odpri ${event.name}`}><Icon name="chevron" size={18} /></Link></td></tr>)}</tbody></table></div>
       {displayedEvents.length === 0 ? <p>Dogodkov še ni. Ustvari prvega z gumbom zgoraj.</p> : null}
       <div className={styles.pagination}><span>{displayedEvents.length} dogodkov</span></div>
@@ -68,14 +75,30 @@ export function NewEventPage() {
   </main>;
 }
 
-export function GalleryPage() {
+export async function GalleryPage({ selectedEventId }: { selectedEventId?: string }) {
+  const parsedQuery = adminGalleryQuerySchema.safeParse({ eventId: selectedEventId });
+  const events = await listEvents();
+  const selectedEvent = parsedQuery.success
+    ? events.find((event) => event.id === parsedQuery.data.eventId)
+    : undefined;
+  const media = selectedEvent ? await listAdminMedia(selectedEvent.id) : [];
+  const readyMedia = media.filter((item) => item.status === "ready");
+  const visibleCount = readyMedia.filter((item) => item.gallery_state === "visible").length;
+  const totalBytes = media.reduce((total, item) => total + item.size_bytes, 0);
+  const storage = totalBytes < 1024 * 1024
+    ? `${Math.round(totalBytes / 1024)} KB`
+    : totalBytes < 1024 * 1024 * 1024
+      ? `${(totalBytes / 1024 / 1024).toLocaleString("sl-SI", { maximumFractionDigits: 1 })} MB`
+      : `${(totalBytes / 1024 / 1024 / 1024).toLocaleString("sl-SI", { maximumFractionDigits: 1 })} GB`;
   return <main className={styles.main}>
-    <PageHeader eyebrow="MEDIJI" title="Galerija" description="Pregleduj, filtriraj in upravljaj vse naložene fotografije." action={<button type="button" className={styles.secondaryAction}><Icon name="upload" size={18} /> Izvozi izbor</button>} />
-    <section className={styles.contextBar}><div className={styles.contextEvent}><span className={`${styles.miniVisual} ${styles.violet}`} /><div><small>IZBRANI DOGODEK</small><strong>50 let podjetja Lumen</strong></div></div><button type="button">Zamenjaj dogodek <Icon name="chevron" size={16} /></button><div className={styles.contextStats}><span><strong>847</strong><small>fotografij</small></span><span><strong>2,8 GB</strong><small>porabe</small></span></div></section>
-    <section className={styles.panel}><div className={styles.panelTop}><div className={styles.tabList} role="tablist" aria-label="Vrsta medija"><button role="tab" aria-selected="true">Vse <b>847</b></button><button role="tab" aria-selected="false">Fotografije <b>821</b></button><button role="tab" aria-selected="false">Videi <b>26</b></button></div><div className={styles.viewSwitch}><button type="button" aria-label="Mreža" className={styles.viewActive}><Icon name="image" size={17} /></button><button type="button" aria-label="Seznam"><Icon name="chart" size={17} /></button></div></div><FilterBar gallery />
-      <div className={styles.mediaGrid}>{mediaItems.map(([name, tone, time], index) => <article className={styles.mediaCard} key={name}><div className={`${styles.mediaVisual} ${styles[tone]}`}><span /><span /><span />{index === 1 || index === 6 ? <b>VIDEO</b> : null}</div><div className={styles.mediaMeta}><div><strong>{name}</strong><small>{time}</small></div><button type="button" aria-label={`Več možnosti za ${name}`}><Icon name="more" size={18} /></button></div></article>)}</div>
-      <div className={styles.loadMore}><button type="button">Naloži več fotografij</button><span>Prikazanih 8 od 847</span></div>
-    </section>
+    <PageHeader eyebrow="MEDIJI" title="Galerija" description="Izberi dogodek ter preglej njegove naložene fotografije." action={selectedEvent && readyMedia.length ? <button type="button" className={styles.secondaryAction}><Icon name="upload" size={18} /> Izvozi izbor</button> : undefined} />
+    {!selectedEvent ? <section className={styles.eventPicker} aria-labelledby="event-picker-title"><span className={`${styles.metricIcon} ${styles.violet}`}><Icon name="image" size={22} /></span><div><h2 id="event-picker-title">Izberi dogodek</h2><p>Fotografije se prikažejo šele, ko izbereš dogodek.</p></div>{events.length ? <form action="/admin/gallery" method="get"><label className={styles.selectControl}><span className={styles.srOnly}>Dogodek</span><select name="eventId" required defaultValue=""><option value="" disabled>Izberi dogodek …</option>{events.map((event) => <option key={event.id} value={event.id}>{event.name}</option>)}</select></label><button className={styles.primaryAction} type="submit">Prikaži galerijo</button></form> : <Link className={styles.primaryAction} href="/admin/events/new"><Icon name="plus" size={18} /> Ustvari dogodek</Link>}</section> : <>
+      <section className={styles.contextBar}><div className={styles.contextEvent}><span className={`${styles.miniVisual} ${styles.violet}`} /><div><small>IZBRANI DOGODEK</small><strong>{selectedEvent.name}</strong></div></div><Link className={styles.changeEventLink} href="/admin/gallery">Zamenjaj dogodek <Icon name="chevron" size={16} /></Link><div className={styles.contextStats}><span><strong>{readyMedia.length}</strong><small>fotografij</small></span><span><strong>{storage}</strong><small>porabe</small></span></div></section>
+      <section className={styles.panel}><div className={styles.panelTop}><div className={styles.tabList} role="tablist" aria-label="Vrsta medija"><button role="tab" aria-selected="true">Vse <b>{media.length}</b></button><button role="tab" aria-selected="false">Objavljeno <b>{visibleCount}</b></button><button role="tab" aria-selected="false">V obdelavi <b>{media.length - readyMedia.length}</b></button></div><div className={styles.viewSwitch}><button type="button" aria-label="Mreža" className={styles.viewActive}><Icon name="image" size={17} /></button><button type="button" aria-label="Seznam"><Icon name="chart" size={17} /></button></div></div><FilterBar gallery />
+        {media.length ? <div className={styles.mediaGrid}>{media.map((item) => <article className={styles.mediaCard} key={item.id}><div className={`${styles.mediaVisual} ${styles.violet}`}>{item.status === "ready" ? <Image src={`/api/v1/admin/media/${item.id}`} alt={item.original_filename} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized /> : <div className={styles.mediaPending}><Icon name="clock" size={22} /><span>{item.status === "rejected" ? "Zavrnjeno" : "V obdelavi"}</span></div>}</div><div className={styles.mediaMeta}><div><strong>{item.original_filename}</strong><small>{formatRelativeTime(item.uploaded_at ?? item.created_at)}</small></div><button type="button" aria-label={`Več možnosti za ${item.original_filename}`}><Icon name="more" size={18} /></button></div></article>)}</div> : <p className={styles.emptyState}>Za ta dogodek še ni naloženih fotografij.</p>}
+        <div className={styles.loadMore}><span>Prikazanih {media.length} od {media.length}</span></div>
+      </section>
+    </>}
   </main>;
 }
 

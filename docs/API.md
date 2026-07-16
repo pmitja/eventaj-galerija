@@ -48,6 +48,7 @@ PDF se generira kot asinhron tiskarski dokument, ne v istem requestu.
 | DELETE | `/admin/events/{eventId}` | zahteva za izbris po politiki |
 | GET/PATCH | `/admin/events/{eventId}/settings` | privacy, moderation, tema, limiti |
 | GET | `/admin/events/{eventId}/media` | upravljavski seznam medijev |
+| GET | `/admin/media/{mediaId}` | avtenticiran prikaz zasebnega thumbnaila v upravljavski galeriji |
 | POST | `/admin/events/{eventId}/media/actions` | bulk approve/reject/hide/delete |
 | GET/POST | `/admin/events/{eventId}/access-points` | fizične točke in QR kode |
 | GET | `/admin/events/{eventId}/analytics` | agregati funnelov |
@@ -90,4 +91,3 @@ Worker praviloma bere queue in ne potrebuje javnega HTTP callbacka.
   "fieldErrors": { "files.0.size": ["Največ 26214400 bajtov."] }
 }
 ```
-

@@ -76,6 +76,7 @@
 .statusBadge { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 700; }
 .statusBadge i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .prepared { background: #e9f7f1; color: #167454; }
+.active { background: #e9f7f1; color: #167454; }
 .draft { background: #fff3dd; color: #9a610c; }
 .ended { background: #f0edf1; color: #71656b; }
 .eventMain > p { display: flex; align-items: center; gap: 5px; overflow: hidden; margin: 7px 0 10px; color: #8f8389; font-size: 10.5px; text-overflow: ellipsis; white-space: nowrap; }
@@ -112,6 +113,7 @@
 .chartLabels { display: flex; justify-content: space-between; padding: 0 35px; color: #a3989d; font-size: 9px; }
 .mobileNav { display: none; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.emptyState { margin: 0; padding: 32px 20px; color: var(--admin-muted); font-size: 13px; line-height: 1.55; text-align: center; }
 
 @media (max-width: 1100px) {
   .sidebar { width: 218px; }
@@ -266,6 +268,12 @@
 
 /* Gallery and moderation */
 .contextBar { min-height: 82px; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 18px; margin-bottom: 18px; padding: 13px 17px; border: 1px solid var(--admin-border); border-radius: 15px; background: #fff; }
+.eventPicker { min-height: 180px; display: grid; grid-template-columns: 48px minmax(180px,1fr) auto; align-items: center; gap: 16px; padding: 28px; border: 1px solid var(--admin-border); border-radius: 17px; background: #fff; }
+.eventPicker h2 { margin: 0 0 6px; font-size: 17px; }
+.eventPicker p { margin: 0; color: var(--admin-muted); font-size: 12px; }
+.eventPicker form { display: flex; align-items: center; gap: 10px; }
+.eventPicker select { min-width: 220px; }
+.changeEventLink { min-height: 44px; display: flex; align-items: center; gap: 5px; padding: 8px 11px; color: var(--admin-accent-dark) !important; font-size: 10.5px; font-weight: 750; }
 .contextEvent { display: flex; align-items: center; gap: 11px; min-width: 0; }
 .contextEvent div { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .contextEvent small { color: #9a8e94; font-size: 8.5px; font-weight: 800; letter-spacing: .08em; }
@@ -284,6 +292,8 @@
 .mediaCard { min-width: 0; overflow: hidden; border: 1px solid #ece7e9; border-radius: 13px; background: #fff; transition: border-color .18s ease, box-shadow .18s ease; }
 .mediaCard:hover { border-color: #ddcfd5; box-shadow: 0 8px 24px rgba(48,25,34,.07); }
 .mediaVisual, .moderationVisual { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: linear-gradient(145deg,#fbdae5,#f6a8bd); }
+.mediaVisual > img { object-fit: cover; }
+.mediaPending { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: #6f5c66; font-size: 10px; font-weight: 700; }
 .mediaVisual.violet, .moderationVisual.violet { background: linear-gradient(135deg,#d7cbea,#8e77b9); }
 .mediaVisual.amber, .moderationVisual.amber { background: linear-gradient(135deg,#f3dbaf,#d4a04c); }
 .mediaVisual.blue, .moderationVisual.blue { background: linear-gradient(135deg,#c8deef,#6a9cc5); }
@@ -400,6 +410,9 @@
   .formGrid input, .formGrid select { min-height: 48px; font-size: 16px; }
   .formActions { display: grid; grid-template-columns: 1fr 1fr; }
   .contextBar { grid-template-columns: 1fr auto; gap: 10px; }
+  .eventPicker { grid-template-columns: 44px 1fr; min-height: 0; padding: 20px 16px; }
+  .eventPicker form { grid-column: 1 / -1; align-items: stretch; flex-direction: column; }
+  .eventPicker .selectControl, .eventPicker select, .eventPicker .primaryAction { width: 100%; min-width: 0; min-height: 48px; }
   .contextBar > button { width: 44px; min-width: 44px; overflow: hidden; padding: 0; font-size: 0; }
   .contextStats { grid-column: 1 / -1; padding-top: 10px; border-top: 1px solid #efebed; }
   .contextStats span:first-child { padding-left: 0; border-left: 0; }
