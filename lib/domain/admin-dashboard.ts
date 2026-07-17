@@ -1,4 +1,5 @@
 export type AdminEventStatus = "draft" | "active" | "ended";
+export const MAX_RECENT_ACTIVITY = 5;
 
 const statusDetails: Record<AdminEventStatus, { label: string; tone: "draft" | "active" | "ended" }> = {
   draft: { label: "Osnutek", tone: "draft" },
@@ -8,6 +9,16 @@ const statusDetails: Record<AdminEventStatus, { label: string; tone: "draft" | "
 
 export function presentEventStatus(status: AdminEventStatus) {
   return statusDetails[status];
+}
+
+export function presentCustomerStatus(status: AdminEventStatus | null) {
+  if (!status) return { label: "Brez dogodka", tone: "ended" as const };
+  const labels: Record<AdminEventStatus, string> = {
+    draft: "Osnutek",
+    active: "Aktivna",
+    ended: "Zaključena",
+  };
+  return { label: labels[status], tone: statusDetails[status].tone };
 }
 
 export function scaleChart(values: number[]): number[] {
@@ -25,4 +36,13 @@ export function formatRelativeTime(iso: string, now = new Date()): string {
   if (hours < 24) return `pred ${hours} h`;
   const days = Math.floor(hours / 24);
   return `pred ${days} d`;
+}
+
+export function limitRecentActivity<T>(items: T[]): T[] {
+  return items.slice(0, MAX_RECENT_ACTIVITY);
+}
+
+export function percentage(part: number, total: number): number {
+  if (total <= 0) return 0;
+  return Math.round((part / total) * 1000) / 10;
 }

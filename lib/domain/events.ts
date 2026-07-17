@@ -12,7 +12,11 @@ export function createEventRecord(input: CreateEventInput, now = new Date()) {
   return {
     id: crypto.randomUUID(),
     publicSlug: crypto.randomUUID().replaceAll("-", ""),
-    ...input,
+    name: input.name,
+    location: input.location,
+    startsAt: input.startsAt,
+    endsAt: input.endsAt,
+    timezone: input.timezone,
     status: "active" as const,
     retentionUntil: retentionDate(input.endsAt),
     createdAt: now.toISOString(),

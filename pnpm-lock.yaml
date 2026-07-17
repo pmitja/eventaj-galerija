@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@zip.js/zip.js':
+    specifier: 2.8.31
+    version: 2.8.31
   aws4fetch:
     specifier: ^1.0.20
     version: 1.0.20
@@ -28,9 +31,6 @@ dependencies:
     version: 4.4.3
 
 devDependencies:
-  '@cloudflare/workers-types':
-    specifier: ^5.20260715.1
-    version: 5.20260715.1
   '@opennextjs/cloudflare':
     specifier: ^1.20.1
     version: 1.20.1(next@16.2.10)(wrangler@4.111.0)
@@ -60,7 +60,7 @@ devDependencies:
     version: 4.1.10(@types/node@26.1.1)(vite@8.1.4)
   wrangler:
     specifier: ^4.111.0
-    version: 4.111.0(@cloudflare/workers-types@5.20260715.1)
+    version: 4.111.0
 
 packages:
 
@@ -1043,10 +1043,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /@cloudflare/workers-types@5.20260715.1:
-    resolution: {integrity: sha512-saxo/nMqQJ1dKDUXp1a2y/+IjKENFVD9+QRefHg5EjJZY20OG3xcEge4PGljbqZiF3AiU4o5ZLS3Vm7cayQIxg==}
-    dev: true
 
   /@cspotcode/source-map-support@0.8.1:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -2168,7 +2164,7 @@ packages:
       glob: 12.0.0
       next: 16.2.10(@babel/core@7.29.7)(react-dom@19.2.7)(react@19.2.7)
       ts-tqdm: 0.8.6
-      wrangler: 4.111.0(@cloudflare/workers-types@5.20260715.1)
+      wrangler: 4.111.0
       yargs: 18.0.0
     transitivePeerDependencies:
       - encoding
@@ -3127,6 +3123,11 @@ packages:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
     dev: true
+
+  /@zip.js/zip.js@2.8.31:
+    resolution: {integrity: sha512-2NLmow9ax/5IdBbJKxNQp3Ur9mNxmgLfN2Yp/FKNh1ZIGs3OYkiC3AIUfIZouTPSgeW5+F1bzTAZAyD2Y4ZfFA==}
+    engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=18.0.0'}
+    dev: false
 
   /abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -6881,7 +6882,7 @@ packages:
       '@cloudflare/workerd-windows-64': 1.20260710.1
     dev: true
 
-  /wrangler@4.111.0(@cloudflare/workers-types@5.20260715.1):
+  /wrangler@4.111.0:
     resolution: {integrity: sha512-bffpI9EyrnpKkF/1S+RaIv8oRD93GtbsA7TlfWwOsGJGB7VO3jVbdGzpC9TU7Bqom3z7jUxcte4Z9MPhaQ4HoQ==}
     engines: {node: '>=22.0.0'}
     hasBin: true
@@ -6893,7 +6894,6 @@ packages:
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260710.1)
-      '@cloudflare/workers-types': 5.20260715.1
       blake3-wasm: 2.1.5
       esbuild: 0.28.1
       miniflare: 4.20260710.0

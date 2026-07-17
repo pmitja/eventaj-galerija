@@ -28,14 +28,24 @@
 
 Upload manifest vsebuje samo metapodatke, nikoli binarne datoteke. `token` se v bazi hrani hashiran.
 
+## Slideshow API
+
+| Metoda | Pot | Namen | Auth |
+| --- | --- | --- | --- |
+| GET/POST | `/admin/events/{eventId}/slideshow` | stanje oziroma rotacija zaščitene povezave | admin + organization scope |
+| PATCH | `/admin/events/{eventId}/slideshow/media/{mediaId}` | ločena slideshow odobritev | admin + organization scope |
+| GET | `/display/{token}` | celozaslonska projekcija | hashiran slideshow token |
+| GET | `/api/v1/display/{token}/media` | near-real-time posnetek playliste | hashiran slideshow token |
+| GET | `/api/v1/display/{token}/media/{publicId}` | zasebna dostava projekcijske slike | hashiran slideshow token |
+
+Rotacija takoj zamenja veljavni hash. Odgovori playliste in slik niso shranjeni v javnem CDN cacheu.
+
 ## Stabilne QR/NFC poti
 
 | Metoda | Pot | Namen |
 | --- | --- | --- |
 | GET | `/t/{publicCode}` | zabeleži obisk in `302/307` preusmeri na trenutni cilj |
 | GET | `/qr/{publicCode}.{format}` | generira/pridobi QR v PNG ali SVG |
-
-PDF se generira kot asinhron tiskarski dokument, ne v istem requestu.
 
 ## Dashboard API
 
@@ -48,6 +58,9 @@ PDF se generira kot asinhron tiskarski dokument, ne v istem requestu.
 | DELETE | `/admin/events/{eventId}` | zahteva za izbris po politiki |
 | GET/PATCH | `/admin/events/{eventId}/settings` | privacy, moderation, tema, limiti |
 | GET | `/admin/events/{eventId}/media` | upravljavski seznam medijev |
+| POST | `/admin/events/{eventId}/media/{mediaId}/quality` | idempotenten ponovni zagon tehnične analize |
+| PATCH | `/admin/events/{eventId}/media/{mediaId}/quality` | nastavi ali počisti ročno kategorijo kakovosti; zapiše audit |
+| GET/POST | `/admin/events/{eventId}/quality-backfill` | stanje oziroma zagon idempotentne masovne tehnične analize |
 | GET | `/admin/media/{mediaId}` | avtenticiran prikaz zasebnega thumbnaila v upravljavski galeriji |
 | POST | `/admin/events/{eventId}/media/actions` | bulk approve/reject/hide/delete |
 | GET/POST | `/admin/events/{eventId}/access-points` | fizične točke in QR kode |
@@ -64,11 +77,8 @@ Vsak endpoint preveri organizacijski scope. Platform admin override se auditira.
 | --- | --- | --- |
 | POST | `/admin/events/{eventId}/exports` | asinhron ZIP izvoz |
 | GET | `/admin/exports/{exportId}` | status in signed download |
-| POST | `/admin/events/{eventId}/print-jobs` | PDF/tiskarski material |
-| GET/PATCH | `/admin/events/{eventId}/slideshow` | nastavitve slideshowa |
 | POST | `/admin/events/{eventId}/ai/best-photos` | zagon AI izbora |
 | POST | `/events/{slug}/face-search-sessions` | soglasje + signed selfie upload |
-| POST | `/integrations/events/{eventPublicId}/media` | fotobooth upload z API ključem |
 
 ## Webhooki in interni endpointi
 

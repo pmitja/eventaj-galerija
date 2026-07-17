@@ -32,7 +32,7 @@ vi.mock("@/lib/cloudflare", () => ({
 }));
 
 vi.mock("@/lib/repositories/uploads", () => ({
-  findValidUploadSession: vi.fn(async () => ({ id: "session-1" })),
+  findValidUploadSession: vi.fn(async () => ({ id: "session-1", organization_id: "eventaj" })),
   findMediaById: vi.fn(async () => state.media),
   markMediaProcessing: state.markMediaProcessing,
   rejectMedia: state.rejectMedia,
@@ -70,7 +70,7 @@ describe("upload completion route", () => {
     expect(await response.json()).toEqual({ fileId: state.media.id, status: "processing" });
     expect(state.head).toHaveBeenCalledWith(state.media.object_key);
     expect(state.markMediaProcessing).toHaveBeenCalledWith(state.media.id);
-    expect(state.processImage).toHaveBeenCalledWith(state.media.id);
+    expect(state.processImage).toHaveBeenCalledWith(state.media.id, "eventaj");
     expect(state.waitUntil).toHaveBeenCalledOnce();
     expect(state.rejectMedia).not.toHaveBeenCalled();
   });

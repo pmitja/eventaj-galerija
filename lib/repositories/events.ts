@@ -18,20 +18,40 @@ export type EventRow = {
   retention_until: string;
   created_at: string;
   updated_at: string;
+  customer_id: string | null;
+  package_id: string | null;
 };
 
 export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
   const event = createEventRecord(input);
   const accessPoint = createAccessPointRecord({ eventId: event.id, label: "Glavna QR koda" });
   const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const now = event.createdAt;
+  const proposedCustomerId = crypto.randomUUID();
+  await DB.prepare(
+    `INSERT INTO customers (id, organization_id, name, email, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(organization_id, email) DO UPDATE SET
+       name = excluded.name,
+       updated_at = excluded.updated_at`,
+  ).bind(proposedCustomerId, ORGANIZATION_ID, input.customerName, input.customerEmail, now, now).run();
+  const [customer, selectedPackage] = await Promise.all([
+    DB.prepare("SELECT id FROM customers WHERE organization_id = ? AND email = ?")
+      .bind(ORGANIZATION_ID, input.customerEmail).first<{ id: string }>(),
+    DB.prepare("SELECT id FROM packages WHERE code = ? AND active = 1")
+      .bind(input.packageCode).first<{ id: string }>(),
+  ]);
+  if (!customer || !selectedPackage) throw new Error("Customer or package could not be resolved");
   await DB.batch([
     DB.prepare(
       `INSERT INTO events
-        (id, organization_id, public_slug, name, location, starts_at, ends_at, timezone, status, retention_until, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id, organization_id, customer_id, package_id, public_slug, name, location, starts_at, ends_at, timezone, status, retention_until, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       event.id,
       ORGANIZATION_ID,
+      customer.id,
+      selectedPackage.id,
       event.publicSlug,
       event.name,
       event.location || null,

@@ -63,11 +63,33 @@ lib/storage/           # R2 podpisovanje in Cloudflare Images obdelava
 lib/validation/        # deljene Zod sheme
 migrations/            # D1 migracije
 workers/retention.ts   # dnevni fizični izbris po 90 dneh
+workers/exports.ts     # asinhrona izdelava ZIP izvozov prek Cloudflare Queue
+workers/quality.ts     # idempotenten masovni backfill tehnične kakovosti
 ```
 
 ## Cloudflare namestitev
 
-Konfiguraciji sta `wrangler.jsonc` za aplikacijo in `wrangler.retention.jsonc` za dnevni retention worker. Produkcijske skrivnosti (`AUTH_SECRET`, `ADMIN_PASSWORD_HASH`, R2 S3 ključa) se nastavijo z `wrangler secret put` in se ne zapisujejo v repozitorij.
+Konfiguracije so `wrangler.jsonc` za aplikacijo, `wrangler.retention.jsonc` za dnevni retention worker, `wrangler.exports.jsonc` za ZIP queue consumer in `wrangler.quality.jsonc` za masovno tehnično analizo. Produkcijske skrivnosti (`AUTH_SECRET`, `ADMIN_PASSWORD_HASH`, R2 S3 ključa) se nastavijo z `wrangler secret put` in se ne zapisujejo v repozitorij.
+
+Pred prvim deploymentom ZIP izvoza ustvari glavno in dead-letter vrsto ter namesti consumer:
+
+```bash
+pnpm wrangler queues create eventaj-gallery-exports
+pnpm wrangler queues create eventaj-gallery-exports-dlq
+pnpm deploy:exports
+```
+
+Pred prvim masovnim backfillom ustvari quality vrsti in namesti consumer:
+
+```bash
+pnpm wrangler queues create eventaj-gallery-quality
+pnpm wrangler queues create eventaj-gallery-quality-dlq
+pnpm deploy:quality
+```
+
+Administratorski zagon ustvari en backfill job. Worker ga razdeli v sporočila po največ 100 fotografij; posamezni zapisi preprečijo dvojno štetje ob at-least-once dostavi.
+
+ZIP vsebuje galerijske WebP različice, se pretočno shrani v zasebni R2 in poteče po 24 urah. Posamezna podpisana povezava za prenos velja 10 minut.
 
 R2 CORS je omejen na produkcijska in lokalna izvora iz `config/r2-cors.json`. Po spremembi se ponovljivo uveljavi in preveri z:
 

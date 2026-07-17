@@ -73,3 +73,18 @@ Orodje: Playwright, primarno mobilni viewport.
 
 Coverage odstotek ni samostojen cilj. Kritična pravila upload, auth, tenancy, moderacije in retentiona morajo imeti eksplicitne teste ne glede na skupno metriko.
 
+## Testna matrika tehnične kakovosti
+
+- enakomerno območje brez robov dobi nizko ostrino in kategorijo `blurry`;
+- močni izmenični robovi dajo visoko Laplaceovo varianco;
+- difference hash je stabilen, Hammingova razdalja pa določa prag podobnosti;
+- checksum ima prednost pred perceptualnim ujemanjem;
+- kandidat za duplikat se išče samo med starejšimi mediji iste organizacije in dogodka;
+- neuspeh dodatne analize ne zavrne sicer veljavne fotografije;
+- različica algoritma se zapiše ob vsakem rezultatu.
+- posamezni retry je idempotenten in ostane omejen na organizacijo ter dogodek;
+- ročni override je tenant-scoped, validiran in ga je mogoče počistiti;
+- galerijski quality/status/search filtri zavrnejo neznane vrednosti na Zod meji.
+- masovni backfill ne obdela že zaključene postavke znova ob podvojeni Queue dostavi;
+- prehodna napaka ostane v vrsti z zamikom, zadnji poskus pa se zaključi kot viden neuspeh;
+- nedosegljiva Queue ob zagonu označi job kot neuspešen in ne ustvari lažnega napredka.

@@ -1,6 +1,6 @@
 # Podatkovni model
 
-Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Prvi slikovni MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja D1 migracije `migrations/0001_initial.sql`, `migrations/0002_access_points.sql` in `migrations/0003_event_organization.sql` s tabelami `events`, `access_points`, `visits`, `upload_sessions`, `media_files` in `audit_logs`. Migracija 0002 je povratno združljiva: obstoječe upload seje imajo `access_point_id = NULL`. Migracija 0003 doda tenant ključ dogodkom in obstoječe vrstice povratno združljivo pripiše prvotnemu delovnemu prostoru `eventaj`; vsi novi administratorski read/write dostopi ga morajo filtrirati. Ker je administrator samo eden, njegova identiteta in hash gesla živita v Cloudflare secret konfiguraciji, ne v tabeli uporabnikov.
+Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja D1 migracije `migrations/0001_initial.sql`–`migrations/0009_quality_backfills.sql`. Migracija 0002 je povratno združljiva: obstoječe upload seje imajo `access_point_id = NULL`. Migracija 0003 doda tenant ključ dogodkom in obstoječe vrstice povratno združljivo pripiše prvotnemu delovnemu prostoru `eventaj`; vsi novi administratorski read/write dostopi ga morajo filtrirati. Migracija 0004 doda stranke, katalog paketov ter neobvezna tuja ključa na obstoječe dogodke. Migracija 0005 doda ločeno `slideshow_state` z odobrenim privzetim stanjem za obstoječe fotografije ter tabelo `slideshows`; javni token se hrani izključno kot SHA-256 hash. Migracija 0006 doda kratkotrajne ZIP izvoze; vsebujejo le izpeljane galerijske WebP datoteke, ZIP objekt pa retention worker fizično izbriše po poteku. Migracija 0007 povratno združljivo doda nullable tehnične metrike, prstne odtise in `ai_analyses`; obstoječi mediji ostanejo nespremenjeni do eksplicitnega backfilla. Migracija 0008 doda nullable ročni override, identiteto urednika in čas spremembe; `NULL` še naprej pomeni uporabo samodejne kategorije. Migracija 0009 doda jobe in idempotentne postavke masovnega backfilla brez spremembe obstoječih analiz. Ker je administrator samo eden, njegova identiteta in hash gesla živita v Cloudflare secret konfiguraciji, ne v tabeli uporabnikov.
 
 ## Splošna pravila
 
@@ -77,7 +77,7 @@ Pomembni indeksi: unique `(organization_id, slug)`, unique `public_id`, `(organi
 
 - `upload_sessions`: id, public_token_hash, event_id, access_point_id, anonymous_visitor_id, guest_name, message, status, expires_at, completed_at, created_at.
 - `uploads`: id, session_id, event_id, storage_upload_id, object_key, original_filename, declared_mime, detected_mime, size_bytes, status, progress_bytes, attempt_count, error_code, completed_at.
-- `media_files`: id, event_id, upload_id, kind, status, original_object_key, checksum_sha256, perceptual_hash, width, height, duration_ms, captured_at, uploaded_at, gallery_state, slideshow_state, uploader_name, guest_message, publication_consent_id, deleted_at.
+- `media_files`: id, event_id, upload_id, kind, status, original_object_key, checksum_sha256, perceptual_hash, width, height, duration_ms, captured_at, uploaded_at, gallery_state, slideshow_state, quality_category, technical_score, duplicate_of_media_id, uploader_name, guest_message, publication_consent_id, deleted_at.
 - `media_variants`: id, media_file_id, type (`thumbnail`, `web`, `poster`, `original`), object_key, mime, width, height, size_bytes, checksum.
 - `moderation_actions`: id, media_file_id, actor_user_id, action, target, reason, created_at.
 
@@ -92,11 +92,13 @@ Pomembni indeksi: `(event_id, status, uploaded_at)`, `(event_id, gallery_state, 
 
 Embedding mora biti aplikacijsko šifriran z ločenim ključem in fizično izbrisljiv.
 
+Prvi rez faze 3 uporablja `ai_analyses` tudi za deterministično analizo `technical_quality` s ponudnikom `eventaj` in verzioniranim algoritmom. `scores_json` hrani surove meritve, medtem ko so samodejna kategorija, ročni override in `technical_score` denormalizirani na `media_files` za učinkovito filtriranje. Enaki in podobni uploadi se ohranijo; `duplicate_of_media_id` samo kaže na starejši medij istega dogodka.
+
 ### Slideshow, izvozi in obvestila
 
 - `slideshows`: id, event_id, status, token_hash, settings_json, last_heartbeat_at.
 - `slideshow_items`: slideshow_id, media_file_id, status, position, approved_by, approved_at.
-- `download_exports`: id, event_id, requested_by, type, filters_json, status, object_key, expires_at, error_code.
+- `download_exports`: id, event_id, requested_by, status, object_key, file_name, media_count, size_bytes, expires_at, error_code, completed_at.
 - `notifications`: id, organization_id, user_id, event_id, type, channel, status, payload_json, sent_at.
 
 ### Compliance in audit

@@ -3,6 +3,7 @@ import { getCloudflareEnv } from "@/lib/cloudflare";
 export type UploadSessionRow = {
   id: string;
   event_id: string;
+  organization_id: string;
   token_hash: string;
   access_point_id: string | null;
   expires_at: string;
@@ -29,6 +30,7 @@ export type MediaRow = {
 
 export async function createUploadSession(
   eventId: string,
+  organizationId: string,
   tokenHash: string,
   accessPointId: string | null = null,
 ): Promise<UploadSessionRow> {
@@ -42,6 +44,7 @@ export async function createUploadSession(
   return {
     id,
     event_id: eventId,
+    organization_id: organizationId,
     token_hash: tokenHash,
     access_point_id: accessPointId,
     expires_at: expiresAt.toISOString(),
@@ -51,7 +54,9 @@ export async function createUploadSession(
 
 export async function findValidUploadSession(tokenHash: string): Promise<UploadSessionRow | null> {
   return getCloudflareEnv().DB.prepare(
-    "SELECT * FROM upload_sessions WHERE token_hash = ? AND expires_at > ?",
+    `SELECT s.*, e.organization_id FROM upload_sessions s
+     JOIN events e ON e.id = s.event_id
+     WHERE s.token_hash = ? AND s.expires_at > ?`,
   ).bind(tokenHash, new Date().toISOString()).first<UploadSessionRow>();
 }
 

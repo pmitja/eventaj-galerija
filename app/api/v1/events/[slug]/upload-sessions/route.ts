@@ -25,6 +25,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   const accessPoint = accessPointCode ? await findActiveAccessPoint(accessPointCode) : null;
   const accessPointId = accessPoint?.event_id === event.id ? accessPoint.id : null;
   const token = createPublicToken();
-  const session = await createUploadSession(event.id, await hashToken(token), accessPointId);
+  const session = await createUploadSession(
+    event.id,
+    event.organization_id,
+    await hashToken(token),
+    accessPointId,
+  );
   return Response.json({ token, expiresAt: session.expires_at }, { status: 201 });
 }

@@ -9,7 +9,7 @@ const primaryNav = [
   { label: "Pregled", icon: "home", href: "/admin", badge: undefined },
   { label: "Dogodki", icon: "calendar", href: "/admin/events", badge: undefined },
   { label: "Galerija", icon: "image", href: "/admin/gallery", badge: undefined },
-  { label: "Moderacija", icon: "shield", href: "/admin/moderation", badge: "8" },
+  { label: "Moderacija", icon: "shield", href: "/admin/moderation", badge: undefined },
   { label: "QR & NFC", icon: "qr", href: "/admin/access", badge: undefined },
 ] as const;
 

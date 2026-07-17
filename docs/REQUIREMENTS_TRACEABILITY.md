@@ -16,8 +16,8 @@ Ta matrika ohranja povezavo med izvornim briefom, načrtom in predvideno izvedbo
 | 10 | QR kode | 1A/2 | [API](API.md), [ROADMAP](ROADMAP.md) | implemented (stable redirect + SVG/PNG) |
 | 11 | NFC stojala | 1B | [DATA_MODEL](DATA_MODEL.md), [USER_FLOWS](USER_FLOWS.md) | planned |
 | 12 | Sledenje virom | 1A/1B | [DATA_MODEL](DATA_MODEL.md), [PLANNING](PLANNING.md) | planned |
-| 13 | Fotobooth integracija | 2 | [API](API.md), [SECURITY_PRIVACY](SECURITY_PRIVACY.md) | planned |
-| 14 | PDF in tiskovine | 2 | [ROADMAP](ROADMAP.md), [OPEN_QUESTIONS](OPEN_QUESTIONS.md) | planned, assets needed |
+| 13 | Fotobooth dostop | 2 | [ROADMAP](ROADMAP.md), [USER_FLOWS](USER_FLOWS.md) | uporablja običajni access point in gostujoči upload |
+| 14 | PDF in tiskovine | — | [ROADMAP](ROADMAP.md) | izven dogovorjenega obsega |
 | 15 | Prenosi in ZIP | 2 | [ARCHITECTURE](ARCHITECTURE.md), [API](API.md) | planned |
 | 16 | Hramba in brisanje | 1B | [SECURITY_PRIVACY](SECURITY_PRIVACY.md), [USER_FLOWS](USER_FLOWS.md) | planned, legal gate |
 | 17 | Admin dashboard | 1A/1B | [UX](UX_DESIGN_SYSTEM.md), [API](API.md) | planned |

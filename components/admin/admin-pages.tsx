@@ -1,16 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
-import { chartData } from "./data";
 import { Icon } from "./icon";
 import styles from "./admin.module.css";
 import { NewEventForm } from "./new-event-form";
 import { listEvents } from "@/lib/repositories/events";
-import { listAdminEventSummaries, listAdminMedia } from "@/lib/repositories/admin-dashboard";
+import { getAdminAnalyticsData, getAdminCustomersData, getAdminMediaQualitySummary, listAdminEventSummaries, listAdminMedia } from "@/lib/repositories/admin-dashboard";
 import { listAccessPoints } from "@/lib/repositories/access-points";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { AccessPointsPanel } from "./access-points-panel";
-import { presentEventStatus, formatRelativeTime } from "@/lib/domain/admin-dashboard";
+import { presentCustomerStatus, presentEventStatus, formatRelativeTime, percentage, scaleChart } from "@/lib/domain/admin-dashboard";
 import { adminGalleryQuerySchema } from "@/lib/validation/admin";
+import { findOwnedSlideshow } from "@/lib/repositories/slideshows";
+import { SlideshowManager, SlideshowMediaToggle } from "./slideshow-manager";
+import { ExportManager } from "./export-manager";
+import { findLatestOwnedDownloadExport } from "@/lib/repositories/exports";
+import { MediaQualityControl } from "./media-quality-control";
+import { QualityBackfillManager } from "./quality-backfill-manager";
+import { findLatestOwnedQualityBackfill } from "@/lib/repositories/quality-backfills";
 
 const mediaItems = [
   ["IMG_4821.jpg", "rose", "pred 4 min"], ["IMG_4818.jpg", "violet", "pred 7 min"],
@@ -19,12 +25,7 @@ const mediaItems = [
   ["IMG_4771.jpg", "violet", "pred 21 min"], ["IMG_4765.jpg", "amber", "pred 24 min"],
 ] as const;
 
-const customers = [
-  ["Ana Kovač", "ana.kovac@email.si", "Poroka Ane & Marka", "18. jul. 2026", "Aktivna"],
-  ["Lumen d.o.o.", "marketing@lumen.si", "50 let podjetja Lumen", "3. jul. 2026", "Zaključena"],
-  ["Tina Zupan", "tina@studiot.si", "Poletni piknik ekipe", "24. jul. 2026", "Osnutek"],
-  ["Gregor Vidmar", "gregor@vidmar.si", "Vidmar 40", "12. jun. 2026", "Zaključena"],
-] as const;
+const number = new Intl.NumberFormat("sl-SI");
 
 export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: React.ReactNode }) {
   return <section className={styles.subpageHeading}><div><p className={styles.eyebrow}>{eyebrow}</p><h1>{title}</h1><p>{description}</p></div>{action}</section>;
@@ -75,28 +76,77 @@ export function NewEventPage() {
   </main>;
 }
 
-export async function GalleryPage({ selectedEventId }: { selectedEventId?: string }) {
-  const parsedQuery = adminGalleryQuerySchema.safeParse({ eventId: selectedEventId });
+export async function GalleryPage({ query }: { query: { eventId?: string; quality?: string; status?: string; q?: string } }) {
+  const parsedQuery = adminGalleryQuerySchema.safeParse(query);
   const events = await listEvents();
   const selectedEvent = parsedQuery.success
     ? events.find((event) => event.id === parsedQuery.data.eventId)
     : undefined;
-  const media = selectedEvent ? await listAdminMedia(selectedEvent.id) : [];
-  const readyMedia = media.filter((item) => item.status === "ready");
-  const visibleCount = readyMedia.filter((item) => item.gallery_state === "visible").length;
-  const totalBytes = media.reduce((total, item) => total + item.size_bytes, 0);
+  const filters = parsedQuery.success
+    ? parsedQuery.data
+    : { eventId: undefined, quality: undefined, status: undefined, q: undefined };
+  const [media, summary, slideshow, latestExport, latestBackfill] = selectedEvent
+    ? await Promise.all([
+      listAdminMedia(selectedEvent.id, { quality: filters.quality, status: filters.status, query: filters.q }),
+      getAdminMediaQualitySummary(selectedEvent.id),
+      findOwnedSlideshow(selectedEvent.id),
+      findLatestOwnedDownloadExport(selectedEvent.id),
+      findLatestOwnedQualityBackfill(selectedEvent.id),
+    ])
+    : [[], null, null, null, null];
+  const totalBytes = summary?.total_bytes ?? 0;
   const storage = totalBytes < 1024 * 1024
     ? `${Math.round(totalBytes / 1024)} KB`
     : totalBytes < 1024 * 1024 * 1024
       ? `${(totalBytes / 1024 / 1024).toLocaleString("sl-SI", { maximumFractionDigits: 1 })} MB`
       : `${(totalBytes / 1024 / 1024 / 1024).toLocaleString("sl-SI", { maximumFractionDigits: 1 })} GB`;
   return <main className={styles.main}>
-    <PageHeader eyebrow="MEDIJI" title="Galerija" description="Izberi dogodek ter preglej njegove naložene fotografije." action={selectedEvent && readyMedia.length ? <button type="button" className={styles.secondaryAction}><Icon name="upload" size={18} /> Izvozi izbor</button> : undefined} />
+    <PageHeader eyebrow="MEDIJI" title="Galerija" description="Izberi dogodek ter preglej njegove naložene fotografije." action={selectedEvent ? <ExportManager
+      eventId={selectedEvent.id}
+      photoCount={summary?.ready ?? 0}
+      initialExport={latestExport ? {
+        id: latestExport.id,
+        status: latestExport.status,
+        fileName: latestExport.file_name,
+        mediaCount: latestExport.media_count,
+      } : null}
+    /> : undefined} />
     {!selectedEvent ? <section className={styles.eventPicker} aria-labelledby="event-picker-title"><span className={`${styles.metricIcon} ${styles.violet}`}><Icon name="image" size={22} /></span><div><h2 id="event-picker-title">Izberi dogodek</h2><p>Fotografije se prikažejo šele, ko izbereš dogodek.</p></div>{events.length ? <form action="/admin/gallery" method="get"><label className={styles.selectControl}><span className={styles.srOnly}>Dogodek</span><select name="eventId" required defaultValue=""><option value="" disabled>Izberi dogodek …</option>{events.map((event) => <option key={event.id} value={event.id}>{event.name}</option>)}</select></label><button className={styles.primaryAction} type="submit">Prikaži galerijo</button></form> : <Link className={styles.primaryAction} href="/admin/events/new"><Icon name="plus" size={18} /> Ustvari dogodek</Link>}</section> : <>
-      <section className={styles.contextBar}><div className={styles.contextEvent}><span className={`${styles.miniVisual} ${styles.violet}`} /><div><small>IZBRANI DOGODEK</small><strong>{selectedEvent.name}</strong></div></div><Link className={styles.changeEventLink} href="/admin/gallery">Zamenjaj dogodek <Icon name="chevron" size={16} /></Link><div className={styles.contextStats}><span><strong>{readyMedia.length}</strong><small>fotografij</small></span><span><strong>{storage}</strong><small>porabe</small></span></div></section>
-      <section className={styles.panel}><div className={styles.panelTop}><div className={styles.tabList} role="tablist" aria-label="Vrsta medija"><button role="tab" aria-selected="true">Vse <b>{media.length}</b></button><button role="tab" aria-selected="false">Objavljeno <b>{visibleCount}</b></button><button role="tab" aria-selected="false">V obdelavi <b>{media.length - readyMedia.length}</b></button></div><div className={styles.viewSwitch}><button type="button" aria-label="Mreža" className={styles.viewActive}><Icon name="image" size={17} /></button><button type="button" aria-label="Seznam"><Icon name="chart" size={17} /></button></div></div><FilterBar gallery />
-        {media.length ? <div className={styles.mediaGrid}>{media.map((item) => <article className={styles.mediaCard} key={item.id}><div className={`${styles.mediaVisual} ${styles.violet}`}>{item.status === "ready" ? <Image src={`/api/v1/admin/media/${item.id}`} alt={item.original_filename} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized /> : <div className={styles.mediaPending}><Icon name="clock" size={22} /><span>{item.status === "rejected" ? "Zavrnjeno" : "V obdelavi"}</span></div>}</div><div className={styles.mediaMeta}><div><strong>{item.original_filename}</strong><small>{formatRelativeTime(item.uploaded_at ?? item.created_at)}</small></div><button type="button" aria-label={`Več možnosti za ${item.original_filename}`}><Icon name="more" size={18} /></button></div></article>)}</div> : <p className={styles.emptyState}>Za ta dogodek še ni naloženih fotografij.</p>}
-        <div className={styles.loadMore}><span>Prikazanih {media.length} od {media.length}</span></div>
+      <section className={styles.contextBar}><div className={styles.contextEvent}><span className={`${styles.miniVisual} ${styles.violet}`} /><div><small>IZBRANI DOGODEK</small><strong>{selectedEvent.name}</strong></div></div><Link className={styles.changeEventLink} href="/admin/gallery">Zamenjaj dogodek <Icon name="chevron" size={16} /></Link><div className={styles.contextStats}><span><strong>{summary?.ready ?? 0}</strong><small>fotografij</small></span><span><strong>{storage}</strong><small>porabe</small></span></div></section>
+      <SlideshowManager eventId={selectedEvent.id} active={slideshow?.status === "active"} photoCount={summary?.slideshow_approved ?? 0} />
+      <QualityBackfillManager eventId={selectedEvent.id} initialBackfill={latestBackfill ? {
+        id: latestBackfill.id,
+        mode: latestBackfill.mode,
+        status: latestBackfill.status,
+        errorCode: latestBackfill.error_code,
+        totalCount: latestBackfill.total_count,
+        completedCount: latestBackfill.completed_count,
+        failedCount: latestBackfill.failed_count,
+        queuedCount: latestBackfill.queued_count,
+      } : null} />
+      <section className={styles.qualitySummary} aria-label="Povzetek samodejne kakovosti">
+        <article><span className={styles.quality_best}>Najboljše</span><strong>{summary?.best ?? 0}</strong></article>
+        <article><span className={styles.quality_good}>Dobre</span><strong>{summary?.good ?? 0}</strong></article>
+        <article><span className={styles.quality_duplicate}>Podvojene</span><strong>{summary?.duplicate ?? 0}</strong></article>
+        <article><span className={styles.quality_blurry}>Neostre/slabše</span><strong>{(summary?.blurry ?? 0) + (summary?.low_quality ?? 0)}</strong></article>
+        <article><span className={styles.quality_pending}>Čaka/napaka</span><strong>{(summary?.unanalyzed ?? 0) + (summary?.failed_analyses ?? 0)}</strong></article>
+      </section>
+      <section className={styles.panel}>
+        <div className={styles.panelTop}><div><h2>Fotografije</h2><p>{summary?.total ?? 0} datotek v dogodku</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Mreža" className={styles.viewActive}><Icon name="image" size={17} /></button></div></div>
+        <form className={styles.filterBar} action="/admin/gallery" method="get" aria-label="Filtri galerije">
+          <input type="hidden" name="eventId" value={selectedEvent.id} />
+          <label className={styles.filterSearch}><Icon name="search" size={17} /><span className={styles.srOnly}>Išči po imenu datoteke</span><input name="q" type="search" defaultValue={filters.q} placeholder="Išči po imenu datoteke ..." /></label>
+          <label className={styles.selectControl}><span className={styles.srOnly}>Kakovost</span><select name="quality" defaultValue={filters.quality ?? ""}><option value="">Vse kakovosti</option><option value="best">Najboljše</option><option value="good">Dobre</option><option value="duplicate">Podvojene</option><option value="blurry">Neostre</option><option value="low_quality">Slabše</option></select></label>
+          <label className={styles.selectControl}><span className={styles.srOnly}>Status</span><select name="status" defaultValue={filters.status ?? ""}><option value="">Vsi statusi</option><option value="ready">Pripravljene</option><option value="processing">V obdelavi</option><option value="rejected">Zavrnjene</option><option value="analysis_failed">Napaka analize</option><option value="unanalyzed">Brez analize</option></select></label>
+          <button className={styles.filterSubmit} type="submit">Filtriraj</button>
+          <Link className={styles.filterReset} href={`/admin/gallery?eventId=${encodeURIComponent(selectedEvent.id)}`}>Počisti</Link>
+        </form>
+        {media.length ? <div className={styles.mediaGrid}>{media.map((item) => <article className={styles.mediaCard} key={item.id}>
+          <div className={`${styles.mediaVisual} ${styles.violet}`}>{item.status === "ready" ? <><Image src={`/api/v1/admin/media/${item.id}`} alt={item.original_filename} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized /><SlideshowMediaToggle eventId={selectedEvent.id} mediaId={item.id} initialState={item.slideshow_state} /></> : <div className={styles.mediaPending}><Icon name="clock" size={22} /><span>{item.status === "rejected" ? "Zavrnjeno" : "V obdelavi"}</span></div>}</div>
+          <div className={styles.mediaMeta}><div><strong>{item.original_filename}</strong><small>{formatRelativeTime(item.uploaded_at ?? item.created_at)}</small></div></div>
+          {item.status === "ready" ? <MediaQualityControl eventId={selectedEvent.id} mediaId={item.id} automaticCategory={item.quality_category} overrideCategory={item.quality_override} effectiveCategory={item.effective_quality} score={item.technical_score} analysisStatus={item.analysis_status} /> : null}
+        </article>)}</div> : <div className={styles.emptyState}><p>{(summary?.total ?? 0) > 0 ? "Nobena fotografija ne ustreza izbranim filtrom." : "Za ta dogodek še ni naloženih fotografij."}</p>{(summary?.total ?? 0) > 0 ? <Link className={styles.secondaryAction} href={`/admin/gallery?eventId=${encodeURIComponent(selectedEvent.id)}`}>Počisti filtre</Link> : null}</div>}
+        <div className={styles.loadMore}><span>Prikazanih {media.length} od največ 100 zadetkov</span></div>
       </section>
     </>}
   </main>;
@@ -134,21 +184,32 @@ export async function AccessPage() {
   </main>;
 }
 
-export function CustomersPage() {
+export async function CustomersPage() {
+  const data = await getAdminCustomersData();
   return <main className={styles.main}>
-    <PageHeader eyebrow="ORGANIZACIJA" title="Stranke" description="Pregled naročnikov, kontaktov in njihovih dogodkov." action={<button type="button" className={styles.primaryAction}><Icon name="plus" size={18} /> Nova stranka</button>} />
-    <section className={styles.metricGrid}><article className={styles.metricCard}><div><p>Vse stranke</p><strong>24</strong></div><span className={`${styles.metricIcon} ${styles.blue}`}><Icon name="users" size={21} /></span><small><b>+3</b> ta mesec</small></article><article className={styles.metricCard}><div><p>Aktivne galerije</p><strong>6</strong></div><span className={`${styles.metricIcon} ${styles.rose}`}><Icon name="image" size={21} /></span><small>v obdobju hrambe</small></article><article className={styles.metricCard}><div><p>Prihajajoči dogodki</p><strong>2</strong></div><span className={`${styles.metricIcon} ${styles.amber}`}><Icon name="calendar" size={21} /></span><small>v naslednjih 30 dneh</small></article></section>
-    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Imenik strank</h2><p>24 kontaktov</p></div></div><FilterBar /><div className={styles.tableWrap}><table className={styles.dataTable}><thead><tr><th>Stranka</th><th>Zadnji dogodek</th><th>Datum</th><th>Status</th><th><span className={styles.srOnly}>Dejanja</span></th></tr></thead><tbody>{customers.map(([name,email,event,date,status]) => <tr key={email}><td data-label="Stranka"><div className={styles.customerIdentity}><span>{name.split(" ").slice(0,2).map(word => word[0]).join("")}</span><div><strong>{name}</strong><small>{email}</small></div></div></td><td data-label="Dogodek">{event}</td><td data-label="Datum">{date}</td><td data-label="Status"><span className={`${styles.statusBadge} ${status === "Aktivna" ? styles.prepared : status === "Osnutek" ? styles.draft : styles.ended}`}><i />{status}</span></td><td><button className={styles.tableAction} type="button" aria-label={`Odpri ${name}`}><Icon name="chevron" size={18} /></button></td></tr>)}</tbody></table></div></section>
+    <PageHeader eyebrow="ORGANIZACIJA" title="Stranke" description="Pregled naročnikov, njihovih dogodkov in izbranih paketov." action={<Link href="/admin/events/new" className={styles.primaryAction}><Icon name="plus" size={18} /> Nov dogodek</Link>} />
+    <section className={styles.metricGrid}><article className={styles.metricCard}><div><p>Vse stranke</p><strong>{number.format(data.totals.customers)}</strong></div><span className={`${styles.metricIcon} ${styles.blue}`}><Icon name="users" size={21} /></span><small><b>+{number.format(data.totals.new_customers)}</b> ta mesec</small></article><article className={styles.metricCard}><div><p>Aktivne galerije</p><strong>{number.format(data.totals.active_galleries)}</strong></div><span className={`${styles.metricIcon} ${styles.rose}`}><Icon name="image" size={21} /></span><small>vezane na aktivne dogodke</small></article><article className={styles.metricCard}><div><p>Prihajajoči dogodki</p><strong>{number.format(data.totals.upcoming_events)}</strong></div><span className={`${styles.metricIcon} ${styles.amber}`}><Icon name="calendar" size={21} /></span><small>v naslednjih 30 dneh</small></article></section>
+    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Imenik strank</h2><p>{number.format(data.totals.customers)} kontaktov</p></div></div><FilterBar /><div className={styles.tableWrap}><table className={styles.dataTable}><thead><tr><th>Stranka</th><th>Dogodek</th><th>Datum</th><th>Paket</th><th>Status stranke</th><th><span className={styles.srOnly}>Dejanja</span></th></tr></thead><tbody>{data.customers.map((customer) => {
+      const status = presentCustomerStatus(customer.event_status);
+      const date = customer.starts_at && customer.timezone ? new Intl.DateTimeFormat("sl-SI", { dateStyle: "medium", timeZone: customer.timezone }).format(new Date(customer.starts_at)) : "—";
+      return <tr key={`${customer.customer_id}-${customer.event_id ?? "none"}`}><td data-label="Stranka"><div className={styles.customerIdentity}><span>{customer.customer_name.split(" ").slice(0,2).map(word => word[0]).join("")}</span><div><strong>{customer.customer_name}</strong><small>{customer.customer_email}</small></div></div></td><td data-label="Dogodek">{customer.event_name ?? "Brez dogodka"}</td><td data-label="Datum">{date}</td><td data-label="Paket"><span className={styles.packageBadge}>{customer.package_name ?? "Ni izbran"}</span></td><td data-label="Status stranke"><span className={`${styles.statusBadge} ${styles[status.tone]}`}><i />{status.label}</span></td><td>{customer.event_id ? <Link className={styles.tableAction} href={`/admin/gallery?eventId=${encodeURIComponent(customer.event_id)}`} aria-label={`Odpri dogodek ${customer.event_name}`}><Icon name="chevron" size={18} /></Link> : null}</td></tr>;
+    })}</tbody></table></div>{data.customers.length === 0 ? <p className={styles.emptyState}>Strank še ni. Dodane bodo ob ustvarjanju prvega dogodka.</p> : null}</section>
   </main>;
 }
 
-export function AnalyticsPage() {
-  const sources = [["QR – glavni vhod",76],["Neposredna povezava",14],["NFC stojala",10]] as const;
+export async function AnalyticsPage() {
+  const data = await getAdminAnalyticsData();
+  const visitRate = percentage(data.totals.started_uploads, data.totals.visits);
+  const completionRate = percentage(data.totals.completed_uploads, data.totals.started_uploads);
+  const mediaPerSession = data.totals.completed_uploads ? data.totals.media / data.totals.completed_uploads : 0;
+  const chartValues = scaleChart(data.days.map((item) => item.visits));
+  const sourceTotal = data.sources.reduce((total, source) => total + source.visits, 0);
+  const sourceLabels: Record<string, string> = { qr: "QR koda", nfc: "NFC stojala", direct: "Neposredna povezava", fotobooth: "Fotokotiček" };
   return <main className={styles.main}>
     <PageHeader eyebrow="MERITVE" title="Analitika" description="Spremljaj obiske, uploade in uspešnost dostopnih točk." action={<label className={styles.selectControl}><span className={styles.srOnly}>Obdobje</span><select defaultValue="30"><option value="30">Zadnjih 30 dni</option><option>Zadnjih 7 dni</option><option>Ta mesec</option></select></label>} />
-    <section className={styles.metricGrid}><article className={styles.metricCard}><div><p>Obiski dogodkov</p><strong>3.842</strong></div><span className={`${styles.metricIcon} ${styles.blue}`}><Icon name="users" size={21} /></span><small><b>+18,2 %</b> glede na prej</small></article><article className={styles.metricCard}><div><p>Začeti uploadi</p><strong>1.506</strong></div><span className={`${styles.metricIcon} ${styles.rose}`}><Icon name="upload" size={21} /></span><small><b>39,2 %</b> obiskovalcev</small></article><article className={styles.metricCard}><div><p>Uspešno zaključeni</p><strong>1.438</strong></div><span className={`${styles.metricIcon} ${styles.green}`}><Icon name="check" size={21} /></span><small><b>95,5 %</b> začetih uploadov</small></article><article className={styles.metricCard}><div><p>Naloženi mediji</p><strong>2.917</strong></div><span className={`${styles.metricIcon} ${styles.violet}`}><Icon name="image" size={21} /></span><small>2,03 na upload sejo</small></article></section>
-    <div className={styles.analyticsGrid}><section className={styles.analyticsCard}><div className={styles.cardHeader}><div><h2>Obiski in uploadi</h2><p>Dnevni trend zadnjih 14 dni</p></div><div className={styles.chartLegend}><span><i /> Obiski</span><span><i /> Uploadi</span></div></div><div className={styles.chart} role="img" aria-label="Naraščajoč dnevni trend obiskov">{chartData.map((value,index)=><span key={index} style={{height:`${value}%`}}><i>{value}</i></span>)}</div><div className={styles.chartLabels}><span>2. jul.</span><span>5. jul.</span><span>8. jul.</span><span>11. jul.</span><span>15. jul.</span></div></section><section className={styles.funnelCard}><div className={styles.cardHeader}><div><h2>Upload funnel</h2><p>Od obiska do zaključka</p></div></div><div className={styles.funnel}><div style={{width:"100%"}}><span>Obisk</span><strong>3.842</strong></div><div style={{width:"72%"}}><span>Upload začet</span><strong>1.506</strong></div><div style={{width:"68%"}}><span>Upload zaključen</span><strong>1.438</strong></div></div></section></div>
-    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Viri obiskov</h2><p>Kako gostje pridejo do galerije</p></div></div><div className={styles.sourceList}>{sources.map(([label,value])=><div key={label}><div><strong>{label}</strong><span>{value} %</span></div><div><span style={{width:`${value}%`}} /></div></div>)}</div></section>
+    <section className={styles.metricGrid}><article className={styles.metricCard}><div><p>Obiski dogodkov</p><strong>{number.format(data.totals.visits)}</strong></div><span className={`${styles.metricIcon} ${styles.blue}`}><Icon name="users" size={21} /></span><small>v zadnjih 30 dneh</small></article><article className={styles.metricCard}><div><p>Začeti uploadi</p><strong>{number.format(data.totals.started_uploads)}</strong></div><span className={`${styles.metricIcon} ${styles.rose}`}><Icon name="upload" size={21} /></span><small><b>{visitRate.toLocaleString("sl-SI")} %</b> obiskovalcev</small></article><article className={styles.metricCard}><div><p>Uspešno zaključeni</p><strong>{number.format(data.totals.completed_uploads)}</strong></div><span className={`${styles.metricIcon} ${styles.green}`}><Icon name="check" size={21} /></span><small><b>{completionRate.toLocaleString("sl-SI")} %</b> začetih uploadov</small></article><article className={styles.metricCard}><div><p>Naloženi mediji</p><strong>{number.format(data.totals.media)}</strong></div><span className={`${styles.metricIcon} ${styles.violet}`}><Icon name="image" size={21} /></span><small>{mediaPerSession.toLocaleString("sl-SI", { maximumFractionDigits: 2 })} na zaključeno sejo</small></article></section>
+    <div className={styles.analyticsGrid}><section className={styles.analyticsCard}><div className={styles.cardHeader}><div><h2>Obiski galerij</h2><p>Dnevni trend zadnjih 14 dni</p></div><div className={styles.chartLegend}><span><i /> Obiski</span></div></div><div className={styles.chart} role="img" aria-label={`V zadnjih 14 dneh je bilo ${number.format(data.days.reduce((total, item) => total + item.visits, 0))} obiskov`}>{chartValues.map((value,index)=><span key={data.days[index]?.day ?? index} style={{height:`${value}%`}}><i>{data.days[index]?.visits ?? 0}</i></span>)}</div><div className={styles.chartLabels}>{data.days.filter((_, index) => index % 3 === 0 || index === data.days.length - 1).map((item)=><span key={item.day}>{new Intl.DateTimeFormat("sl-SI", { day: "numeric", month: "short" }).format(new Date(`${item.day}T12:00:00Z`))}</span>)}</div></section><section className={styles.funnelCard}><div className={styles.cardHeader}><div><h2>Upload funnel</h2><p>Od obiska do zaključka</p></div></div><div className={styles.funnel}><div style={{width:"100%"}}><span>Obisk</span><strong>{number.format(data.totals.visits)}</strong></div><div style={{width:`${percentage(data.totals.started_uploads, data.totals.visits)}%`}}><span>Upload začet</span><strong>{number.format(data.totals.started_uploads)}</strong></div><div style={{width:`${percentage(data.totals.completed_uploads, data.totals.visits)}%`}}><span>Upload zaključen</span><strong>{number.format(data.totals.completed_uploads)}</strong></div></div></section></div>
+    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Viri obiskov</h2><p>Kako gostje pridejo do galerije</p></div></div>{data.sources.length ? <div className={styles.sourceList}>{data.sources.map((source) => { const value = percentage(source.visits, sourceTotal); return <div key={source.source}><div><strong>{sourceLabels[source.source] ?? source.source}</strong><span>{value.toLocaleString("sl-SI")} %</span></div><div><span style={{width:`${value}%`}} /></div></div>; })}</div> : <p className={styles.emptyState}>V izbranem obdobju še ni obiskov.</p>}</section>
   </main>;
 }
 

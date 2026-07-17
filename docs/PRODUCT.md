@@ -94,8 +94,5 @@ Galerijska in slideshow odobritev sta ločeni polji/stroja stanj. Zavrnitev ne i
 - plačilni checkout in avtomatizirano obračunavanje;
 - AI ocenjevanje in face embeddings;
 - slideshow in real-time ekran;
-- PDF generator in predloge za tisk;
 - ZIP izvoz;
-- zunanji fotobooth upload API;
 - white-label in samopostrežni onboarding organizacij.
-

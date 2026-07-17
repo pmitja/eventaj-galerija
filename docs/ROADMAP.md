@@ -43,20 +43,24 @@ Roadmap uporablja vertikalne reze: vsak mejnik dostavi uporabno pot skozi UI, AP
 
 ## Faza 2 — prikaz in distribucija
 
-- live slideshow z zaščitenim URL-jem in real-time adapterjem;
-- ločena slideshow moderacija;
-- ZIP izvozi in kratkotrajni signed downloadi;
-- QR predloge in asinhroni PDF materiali;
-- napredna analitika access pointov;
-- fotobooth access point ter omejen external-upload API.
+- live slideshow z zaščitenim URL-jem in zamenljivim near-real-time polling adapterjem; **implementirano v prvem rezu**;
+- ločena slideshow moderacija; **implementirano v prvem rezu**;
+- ZIP izvozi in kratkotrajni signed downloadi; **implementirano**;
+- QR dostava v SVG/PNG; **implementirano**;
+- analitika obiskov, upload funnela in tipov access pointov; **implementirano**.
+
+PDF predloge in ločen zunanji fotobooth API niso del dogovorjenega obsega. Fotobooth lahko uporablja običajno dostopno točko in obstoječi gostujoči upload tok.
 
 ## Faza 3 — AI kakovost
 
 - ponudniško neodvisen AI pipeline;
-- ostrina, osvetlitev, blur in tehnična kakovost;
-- checksum + perceptual duplicate detection;
-- Best/Good/Duplicate/Blurry/Low Quality kategorije;
-- ročni override in AI-only izvoz;
+- ostrina, osvetlitev, blur in tehnična kakovost; **implementiran deterministični prvi rez**;
+- checksum + perceptual duplicate detection; **implementiran prvi rez**;
+- Best/Good/Duplicate/Blurry/Low Quality kategorije; **implementirano z administratorskimi filtri**;
+- ročni override; **implementiran z audit dogodkom in povrnitvijo na samodejno izbiro**;
+- varen retry posamezne neuspele ali manjkajoče analize; **implementirano**;
+- masovni backfill prek Cloudflare Queue z napredkom in DLQ; **implementirano**;
+- AI-only izvoz;
 - spremljanje model version ter stroška na dogodek.
 
 AI nikoli samodejno trajno ne izbriše datoteke.

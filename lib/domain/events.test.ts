@@ -13,6 +13,9 @@ describe("event retention", () => {
       startsAt: "2026-07-18T14:00:00.000Z",
       endsAt: "2026-07-18T22:00:00.000Z",
       timezone: "Europe/Ljubljana",
+      customerName: "Ana Kovač",
+      customerEmail: "ana@example.com",
+      packageCode: "advanced",
     });
     expect(event.status).toBe("active");
     expect(event.publicSlug).toMatch(/^[a-f0-9]{32}$/);

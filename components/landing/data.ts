@@ -44,7 +44,7 @@ export const features = [
   { glyph: "▣", title: "Digitalni album", description: "Vse fotografije in videi gostov v elegantni skupni galeriji.", mobile: "Vse fotografije in videi gostov v skupni galeriji." },
   { glyph: "⤓", title: "Prenos v ZIP", description: "Z enim klikom prenesite vse posnetke v polni ločljivosti.", mobile: "Vsi posnetki v polni ločljivosti z enim klikom." },
   { glyph: "◎", title: "Brez aplikacije", description: "Gostje sodelujejo v brskalniku — brez namestitev in prijav.", mobile: "Vse poteka v brskalniku, brez prijav." },
-  { glyph: "▦", title: "QR predloge za tisk", mobileTitle: "QR predloge", description: "Pripravljene elegantne kartice in table za vsako mizo.", mobile: "Elegantne kartice in table za vsako mizo." },
+  { glyph: "▦", title: "QR kode za tisk", mobileTitle: "QR kode", description: "Prenesi QR kodo dogodka v SVG ali PNG obliki.", mobile: "QR kode dogodka v SVG ali PNG obliki." },
   { glyph: "◉", title: "NFC stojala", description: "Gostje samo prislonijo telefon — še hitreje kot QR.", mobile: "Gostje samo prislonijo telefon." },
   { glyph: "▶", title: "Live foto zid", description: "Fotografije v živo na projektorju ali TV zaslonu.", mobile: "Fotografije v živo na projektorju ali TV." },
   { glyph: "✎", title: "Besedila in čestitke", description: "Gostje lahko fotografijam dodajo sporočila in voščila.", mobile: "Sporočila in voščila ob fotografijah." },

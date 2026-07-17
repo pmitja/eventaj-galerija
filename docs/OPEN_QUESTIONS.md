@@ -23,10 +23,9 @@
 ## P2 — pred poznejšimi fazami
 
 1. Izbor real-time ponudnika in pričakovano največje število hkratnih slideshow zaslonov.
-2. PDF formati, bleed, DPI, Eventaj brand assets in tiskarske predloge.
-3. AI build-vs-buy, ciljni strošek na fotografijo in sprejemljiva natančnost.
-4. Face processing ponudnik/regija, DPIA in natančna biometrična retention politika.
-5. Plačilni ponudnik, davki, računi in samopostrežni checkout.
+2. AI build-vs-buy, ciljni strošek na fotografijo in sprejemljiva natančnost.
+3. Face processing ponudnik/regija, DPIA in natančna biometrična retention politika.
+4. Plačilni ponudnik, davki, računi in samopostrežni checkout.
 
 ## Začasne predpostavke
 
@@ -41,4 +40,3 @@ Dokler ni drugače potrjeno:
 - opozorila o poteku so 14, 7 in 1 dan prej; fizični izbris 7 dni po poteku;
 - prvi tenant je Eventaj, vendar je schema multi-tenant od začetka;
 - real-time ponudnik in auth knjižnica ostaneta za adapterjem do P0 odločitve.
-

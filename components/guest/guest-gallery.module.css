@@ -98,7 +98,7 @@
 
 @media (min-width: 1100px) {
   .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .photoCard:nth-child(5n + 1) { grid-row: span 2; aspect-ratio: auto; }
+  .grid[data-featured-layout="true"] .photoCard:nth-child(5n + 1) { grid-row: span 2; aspect-ratio: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {

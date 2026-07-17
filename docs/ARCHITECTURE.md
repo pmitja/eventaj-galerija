@@ -2,10 +2,12 @@
 
 ## Izbrani pristop
 
-Za prvi slikovni MVP velja [ADR-004](decisions/ADR-004-cloudflare-platform.md). Sistem je modularni monolit na Cloudflare platformi z dvema Worker skriptama:
+Za prvi slikovni MVP velja [ADR-004](decisions/ADR-004-cloudflare-platform.md). Sistem je modularni monolit na Cloudflare platformi s štirimi Worker površinami:
 
 1. `web`: Next.js App Router prek OpenNext za javne strani, dashboard in Route Handlerje;
-2. `retention`: majhen scheduled Worker za dnevni fizični izbris.
+2. `retention`: majhen scheduled Worker za dnevni fizični izbris;
+3. `exports`: Queue consumer za pretočne ZIP izvoze;
+4. `quality`: Queue producer/consumer za masovni tehnični backfill.
 
 Metapodatki so v D1, zasebni originali ter spletne variante v R2. Cloudflare Images binding iz originala izdela očiščen WebP in thumbnail. Redis/BullMQ ter dolgoročen Node.js worker niso del prvega slikovnega MVP-ja.
 
@@ -68,7 +70,8 @@ sequenceDiagram
   M->>S: Prebere zasebni original
   M->>M: dekodiranje in WebP transformacija
   M->>S: Shrani web + thumbnail
-  M->>D: media_file + variants + status=ready
+  M->>M: 256 px RGBA tehnična analiza + prstni odtis
+  M->>D: media_file + variants + analysis + status=ready
 ```
 
 ### Pravila uploada
@@ -81,6 +84,12 @@ sequenceDiagram
 - zaključek in processing job sta idempotentna;
 - zapuščeni pending zapisi in objekti se periodično očistijo;
 - status se spreminja s compare-and-set, da retry ne vrne stanja nazaj.
+
+### Tehnična analiza kakovosti
+
+Prvi rez faze 3 ostane brez zunanjega AI ponudnika. Processing pretočno izračuna SHA-256 originala, Cloudflare Images pa poleg galerijskih različic izdela 256 × 256 RGBA analizni vzorec. Čiste domenske funkcije iz njega izračunajo osvetlitev, ostrino in 64-bitni difference hash. Primerjava duplikatov je omejena na `organization_id` in dogodek; datoteka se samo označi in se nikoli samodejno ne izbriše. Različica algoritma je shranjena ob vsakem rezultatu, da je poznejši backfill ponovljiv.
+
+Napaka dodatne kakovostne analize ne spremeni uspešno obdelane fotografije v `rejected`; zapiše se ločen neuspešen analysis rezultat, ki ga je mogoče varno ponoviti iz administratorske galerije. Ročni override ne prepiše rezultata algoritma: hrani se ločeno, z identiteto urednika in audit dogodkom, ter ga je mogoče odstraniti. Masovni backfill poteka prek namenske Cloudflare Queue; spletni `waitUntil` je namenjen samo posameznemu retryju. En začetni job se razveji v pakete po največ 100 sporočil. `quality_backfill_items` zagotavlja idempotentno štetje ob at-least-once dostavi, tri poskuse z zamikom in vidno delno napako.
 
 ## Shranjevanje
 
@@ -108,7 +117,6 @@ Originali so vedno zasebni. Javne variante se dostavljajo prek podpisanih CDN UR
 - Seja identificira uporabnika, avtorizacijska storitev pa preveri članstvo, vlogo, organizacijo in po potrebi dogodek.
 - Platform admin je ločena globalna sposobnost, ne članstvo v vsaki organizaciji.
 - Javni slideshow uporablja preklicljiv, rotirajoč, hashiran token.
-- Partnerski fotobooth API uporablja hashiran ključ z obsegom, dogodkom, rokom in rate limitom.
 
 ## Deployment topologija
 

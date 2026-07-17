@@ -28,6 +28,18 @@
   "images": {
     "binding": "IMAGES"
   },
+  "queues": {
+    "producers": [
+      {
+        "binding": "EXPORT_QUEUE",
+        "queue": "eventaj-gallery-exports"
+      },
+      {
+        "binding": "QUALITY_QUEUE",
+        "queue": "eventaj-gallery-quality"
+      }
+    ]
+  },
   "cache": {
     "enabled": true
   },

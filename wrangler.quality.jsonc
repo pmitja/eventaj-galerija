@@ -1,0 +1,41 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eventaj-galerija-quality",
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "workers/quality.ts",
+  "compatibility_date": "2026-07-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "eventaj-galerija",
+      "database_id": "f8477fd1-4d6d-4ed0-aca6-000fdae35658"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "eventaj-galerija-media",
+      "jurisdiction": "eu"
+    }
+  ],
+  "images": { "binding": "IMAGES" },
+  "queues": {
+    "producers": [
+      { "binding": "QUALITY_QUEUE", "queue": "eventaj-gallery-quality" }
+    ],
+    "consumers": [
+      {
+        "queue": "eventaj-gallery-quality",
+        "max_batch_size": 5,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "retry_delay": 30,
+        "max_concurrency": 2,
+        "dead_letter_queue": "eventaj-gallery-quality-dlq"
+      }
+    ]
+  }
+}

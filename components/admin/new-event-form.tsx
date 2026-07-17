@@ -24,6 +24,9 @@ export function NewEventForm() {
         startsAt,
         endsAt,
         timezone: "Europe/Ljubljana",
+        customerName: formData.get("customerName"),
+        customerEmail: formData.get("customerEmail"),
+        packageCode: formData.get("packageCode"),
       }),
     });
     if (!response.ok) {
@@ -49,6 +52,14 @@ export function NewEventForm() {
           <label className={styles.fieldWide}><span>Lokacija</span><input name="location" placeholder="npr. Vila Bled" /></label>
           <label><span>Časovni pas</span><input value="Europe/Ljubljana" readOnly /></label>
           <label><span>Hramba</span><input value="90 dni po koncu" readOnly /></label>
+        </div>
+      </section>
+      <section className={styles.formSection}>
+        <div className={styles.formSectionIntro}><span>2</span><div><h2>Stranka in paket</h2><p>Stranka bo vezana na dogodek, njen status pa bo sledil statusu dogodka.</p></div></div>
+        <div className={styles.formGrid}>
+          <label><span>Ime ali naziv stranke</span><input name="customerName" required minLength={2} placeholder="npr. Ana Kovač" /></label>
+          <label><span>E-poštni naslov</span><input name="customerEmail" type="email" required autoComplete="email" placeholder="ana@example.com" /></label>
+          <label className={styles.fieldWide}><span>Izbrani paket</span><select name="packageCode" required defaultValue="advanced"><option value="basic">Basic · 19 €</option><option value="advanced">Advanced · 39 €</option><option value="premium">Premium · 99 €</option></select></label>
         </div>
       </section>
       <section className={styles.formSection}>

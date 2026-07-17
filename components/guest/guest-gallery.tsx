@@ -189,7 +189,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
           <span className={styles.count}>{photos.length} fotografij</span>
         </div>
 
-        <div className={styles.grid}>
+        <div className={styles.grid} data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => (
             <article className={styles.photoCard} key={photo.src}>
               <button className={styles.photoButton} type="button" onClick={() => setSelectedPhoto(index)} aria-label={`Odpri fotografijo: ${photo.alt}`}>

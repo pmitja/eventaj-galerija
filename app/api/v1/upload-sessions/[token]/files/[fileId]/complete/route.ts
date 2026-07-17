@@ -29,6 +29,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ to
   if (!(await markMediaProcessing(media.id))) {
     return Response.json({ fileId, status: "processing" }, { status: 202 });
   }
-  getCloudflareContext().ctx.waitUntil(processImage(media.id));
+  getCloudflareContext().ctx.waitUntil(processImage(media.id, session.organization_id));
   return Response.json({ fileId, status: "processing" }, { status: 202 });
 }

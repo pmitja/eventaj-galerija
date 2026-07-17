@@ -1,0 +1,53 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const state = vi.hoisted(() => ({
+  findPublicSlideshow: vi.fn(),
+  listSlideshowMedia: vi.fn(),
+  hashToken: vi.fn(),
+}));
+
+vi.mock("@/lib/repositories/slideshows", () => ({
+  findPublicSlideshow: state.findPublicSlideshow,
+  listSlideshowMedia: state.listSlideshowMedia,
+}));
+vi.mock("@/lib/security/tokens", () => ({ hashToken: state.hashToken }));
+
+import { GET } from "./route";
+
+function requestMedia(token = "secret") {
+  return GET(new Request(`https://example.test/api/v1/display/${token}/media`), {
+    params: Promise.resolve({ token }),
+  });
+}
+
+describe("display playlist route", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    state.hashToken.mockResolvedValue("hash");
+    state.findPublicSlideshow.mockResolvedValue({ event_id: "event-1", event_name: "Poroka" });
+    state.listSlideshowMedia.mockResolvedValue([{ public_id: "photo-1", original_filename: "photo.jpg", uploaded_at: "2026-07-16T12:00:00Z" }]);
+  });
+
+  it("rejects an unknown or rotated token", async () => {
+    state.findPublicSlideshow.mockResolvedValue(null);
+    const response = await requestMedia("old-token");
+    expect(response.status).toBe(404);
+    expect(state.listSlideshowMedia).not.toHaveBeenCalled();
+  });
+
+  it("returns only the token-scoped live playlist without caching", async () => {
+    const response = await requestMedia();
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
+    expect(state.hashToken).toHaveBeenCalledWith("secret");
+    expect(await response.json()).toEqual({
+      event: { name: "Poroka" },
+      media: [{
+        publicId: "photo-1",
+        filename: "photo.jpg",
+        uploadedAt: "2026-07-16T12:00:00Z",
+        imageUrl: "/api/v1/display/secret/media/photo-1",
+      }],
+    });
+  });
+});

@@ -20,6 +20,7 @@ async function deleteExpiredEvents(env: Env): Promise<void> {
   for (const event of expired.results) {
     await deletePrefix(env.MEDIA, `originals/${event.id}/`);
     await deletePrefix(env.MEDIA, `derived/${event.id}/`);
+    await deletePrefix(env.MEDIA, `exports/${event.id}/`);
     const now = new Date().toISOString();
     await env.DB.batch([
       env.DB.prepare(
@@ -32,8 +33,26 @@ async function deleteExpiredEvents(env: Env): Promise<void> {
   }
 }
 
+async function deleteExpiredExports(env: Env): Promise<void> {
+  const now = new Date().toISOString();
+  const expired = await env.DB.prepare(
+    `SELECT id, object_key FROM download_exports
+     WHERE status = 'ready' AND expires_at <= ? AND object_key IS NOT NULL
+     ORDER BY expires_at LIMIT 100`,
+  ).bind(now).all<{ id: string; object_key: string }>();
+
+  for (const exportJob of expired.results) {
+    await env.MEDIA.delete(exportJob.object_key);
+    await env.DB.prepare(
+      `UPDATE download_exports
+       SET status = 'expired', object_key = NULL, size_bytes = NULL, updated_at = ?
+       WHERE id = ? AND status = 'ready'`,
+    ).bind(now, exportJob.id).run();
+  }
+}
+
 export default {
   async scheduled(_controller: ScheduledController, env: Env, context: ExecutionContext) {
-    context.waitUntil(deleteExpiredEvents(env));
+    context.waitUntil(Promise.all([deleteExpiredEvents(env), deleteExpiredExports(env)]).then(() => undefined));
   },
 } satisfies ExportedHandler<Env>;
