@@ -8,7 +8,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     `SELECT m.gallery_key, m.thumbnail_key
      FROM media_files m JOIN events e ON e.id = m.event_id
      WHERE e.public_slug = ? AND e.status = 'active' AND e.gallery_enabled = 1
-       AND m.public_id = ? AND m.status = 'ready' AND m.gallery_state = 'visible' AND m.publication_consent = 1`,
+       AND m.public_id = ? AND m.status = 'ready' AND m.gallery_state = 'visible' AND m.publication_consent = 1
+       AND COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')`,
   ).bind(slug, publicId).first<{ gallery_key: string; thumbnail_key: string }>();
   if (!row) return problem(404, "MEDIA_NOT_FOUND", "Fotografija ne obstaja");
   const key = row[variant];

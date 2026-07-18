@@ -88,3 +88,5 @@ Coverage odstotek ni samostojen cilj. Kritična pravila upload, auth, tenancy, m
 - masovni backfill ne obdela že zaključene postavke znova ob podvojeni Queue dostavi;
 - prehodna napaka ostane v vrsti z zamikom, zadnji poskus pa se zaključi kot viden neuspeh;
 - nedosegljiva Queue ob zagonu označi job kot neuspešen in ne ustvari lažnega napredka.
+- javni seznam, neposredna dostava slike in slideshow dovolijo samo efektivni kategoriji `best` in `good`;
+- `duplicate`, `blurry`, `low_quality` in `NULL` ostanejo administratorsko vidni, javno pa niso dostavljeni.

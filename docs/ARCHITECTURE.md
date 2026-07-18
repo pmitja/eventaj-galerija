@@ -91,6 +91,8 @@ Prvi rez faze 3 ostane brez zunanjega AI ponudnika. Processing pretočno izraču
 
 Napaka dodatne kakovostne analize ne spremeni uspešno obdelane fotografije v `rejected`; zapiše se ločen neuspešen analysis rezultat, ki ga je mogoče varno ponoviti iz administratorske galerije. Ročni override ne prepiše rezultata algoritma: hrani se ločeno, z identiteto urednika in audit dogodkom, ter ga je mogoče odstraniti. Masovni backfill poteka prek namenske Cloudflare Queue; spletni `waitUntil` je namenjen samo posameznemu retryju. En začetni job se razveji v pakete po največ 100 sporočil. `quality_backfill_items` zagotavlja idempotentno štetje ob at-least-once dostavi, tri poskuse z zamikom in vidno delno napako.
 
+Po [ADR-006](decisions/ADR-006-quality-publication-gate.md) sta javna galerija in slideshow fail-closed: prikažeta samo efektivni kategoriji `best` in `good`. Slabše, podvojene in še neanalizirane fotografije ostanejo v administratorski galeriji in se nikoli samodejno ne izbrišejo.
+
 ## Shranjevanje
 
 Predlagana logična struktura bucketov/prefixov:

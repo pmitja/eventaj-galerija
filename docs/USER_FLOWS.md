@@ -76,5 +76,6 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
 2. Sistem prikaže skrivni URL samo ob ustvarjanju ali rotaciji; v bazi ostane hash.
 3. Administrator odpre povezavo na projektorju in po želji vključi celozaslonski način.
 4. Projekcija vsakih pet sekund pridobi avtoriziran posnetek odobrenih fotografij in jih samodejno menja.
-5. Administrator lahko posamezno fotografijo neodvisno skrije s projekcije.
-6. Ob sumu razkritja ustvari novo povezavo; stara pri naslednji zahtevi preneha delovati.
+5. Playlist vsebuje samo efektivni kategoriji kakovosti `best` in `good`; neanalizirane in slabše fotografije ostanejo v adminu.
+6. Administrator lahko posamezno fotografijo neodvisno skrije s projekcije.
+7. Ob sumu razkritja ustvari novo povezavo; stara pri naslednji zahtevi preneha delovati.

@@ -66,6 +66,8 @@ flowchart LR
 - [ADR-002: neposreden upload v object storage](decisions/ADR-002-direct-object-storage-upload.md)
 - [ADR-003: ločen BullMQ worker](decisions/ADR-003-background-worker.md)
 - [ADR-004: Cloudflare platforma za prvi MVP](decisions/ADR-004-cloudflare-platform.md)
+- [ADR-005: Slideshow polling adapter](decisions/ADR-005-slideshow-polling-adapter.md)
+- [ADR-006: Tehnična kakovost kot javni publication gate](decisions/ADR-006-quality-publication-gate.md)
 
 ## Pred začetkom kode
 

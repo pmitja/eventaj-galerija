@@ -63,6 +63,8 @@ Vse galerije so privzeto `unlisted` in `noindex`.
 | `slideshow_only` | samodejno odobreno | čaka odobritev |
 | `full` | čaka odobritev | čaka odobritev |
 
+Ne glede na moderation način velja [ADR-006](decisions/ADR-006-quality-publication-gate.md): javna galerija in slideshow dostava pokažeta samo analizirane fotografije z efektivno kategorijo `best` ali `good`. Druge kategorije ostanejo v adminu in jih lahko administrator objavi z ročnim quality overrideom.
+
 Galerijska in slideshow odobritev sta ločeni polji/stroja stanj. Zavrnitev ne izbriše originala; trajni izbris je ločena operacija.
 
 ## Funkcionalni kriteriji MVP
