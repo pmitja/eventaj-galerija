@@ -15,7 +15,7 @@ const job = {
   id: backfillId,
   event_id: eventId,
   mode: "missing" as const,
-  model_version: "technical-v1",
+  model_version: "technical-v2",
   status: "queued" as const,
   error_code: null,
   total_count: 0,

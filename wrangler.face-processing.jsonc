@@ -1,0 +1,51 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eventaj-galerija-face-processing",
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "workers/face-processing.ts",
+  "compatibility_date": "2026-07-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "logs": { "head_sampling_rate": 1 }
+  },
+  "limits": { "cpu_ms": 30000 },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "eventaj-galerija",
+      "database_id": "f8477fd1-4d6d-4ed0-aca6-000fdae35658"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "eventaj-galerija-media",
+      "jurisdiction": "eu"
+    }
+  ],
+  "images": { "binding": "IMAGES" },
+  "queues": {
+    "producers": [
+      { "binding": "FACE_PROCESSING_QUEUE", "queue": "eventaj-gallery-face-processing" }
+    ],
+    "consumers": [
+      {
+        "queue": "eventaj-gallery-face-processing",
+        "max_batch_size": 1,
+        "max_batch_timeout": 2,
+        "max_retries": 20,
+        "retry_delay": 10,
+        "max_concurrency": 2,
+        "dead_letter_queue": "eventaj-gallery-face-processing-dlq"
+      }
+    ]
+  },
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "vars": {
+    "AWS_REKOGNITION_REGION": "eu-central-1",
+    "FACE_MATCH_THRESHOLD": "90",
+    "FACE_SEARCH_ENABLED": "false"
+  }
+}

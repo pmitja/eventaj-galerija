@@ -1,6 +1,7 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { createAccessPointRecord } from "@/lib/domain/access-points";
 import { createEventRecord } from "@/lib/domain/events";
+import { packageIncludesFaceCollections } from "@/lib/domain/face-search";
 import type { CreateEventInput } from "@/lib/validation/events";
 
 export type EventRow = {
@@ -15,6 +16,7 @@ export type EventRow = {
   status: "draft" | "active" | "ended";
   uploads_enabled: number;
   gallery_enabled: number;
+  comments_enabled: number;
   retention_until: string;
   created_at: string;
   updated_at: string;
@@ -38,15 +40,15 @@ export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
   const [customer, selectedPackage] = await Promise.all([
     DB.prepare("SELECT id FROM customers WHERE organization_id = ? AND email = ?")
       .bind(ORGANIZATION_ID, input.customerEmail).first<{ id: string }>(),
-    DB.prepare("SELECT id FROM packages WHERE code = ? AND active = 1")
-      .bind(input.packageCode).first<{ id: string }>(),
+    DB.prepare("SELECT id, code FROM packages WHERE code = ? AND active = 1")
+      .bind(input.packageCode).first<{ id: string; code: string }>(),
   ]);
   if (!customer || !selectedPackage) throw new Error("Customer or package could not be resolved");
   await DB.batch([
     DB.prepare(
       `INSERT INTO events
-        (id, organization_id, customer_id, package_id, public_slug, name, location, starts_at, ends_at, timezone, status, retention_until, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id, organization_id, customer_id, package_id, public_slug, name, location, starts_at, ends_at, timezone, status, comments_enabled, retention_until, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       event.id,
       ORGANIZATION_ID,
@@ -59,6 +61,7 @@ export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
       event.endsAt,
       event.timezone,
       event.status,
+      input.commentsEnabled ? 1 : 0,
       event.retentionUntil,
       event.createdAt,
       event.updatedAt,
@@ -74,6 +77,18 @@ export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
       accessPoint.label,
       accessPoint.createdAt,
       accessPoint.updatedAt,
+    ),
+    DB.prepare(
+      `INSERT INTO event_entitlements
+        (id, event_id, feature_code, value_json, source, source_id, created_at, updated_at)
+       VALUES (?, ?, 'face_collections', ?, 'package', ?, ?, ?)`,
+    ).bind(
+      crypto.randomUUID(),
+      event.id,
+      packageIncludesFaceCollections(selectedPackage.code) ? "true" : "false",
+      selectedPackage.id,
+      now,
+      now,
     ),
   ]);
   return findEventById(event.id) as Promise<EventRow>;
@@ -97,4 +112,12 @@ export async function listEvents(): Promise<EventRow[]> {
     "SELECT * FROM events WHERE organization_id = ? ORDER BY starts_at DESC LIMIT 100",
   ).bind(ORGANIZATION_ID).all<EventRow>();
   return result.results;
+}
+
+export async function updateEventCommentsEnabled(id: string, enabled: boolean): Promise<boolean> {
+  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const result = await DB.prepare(
+    "UPDATE events SET comments_enabled = ?, updated_at = ? WHERE id = ? AND organization_id = ?",
+  ).bind(enabled ? 1 : 0, new Date().toISOString(), id, ORGANIZATION_ID).run();
+  return (result.meta.changes ?? 0) > 0;
 }

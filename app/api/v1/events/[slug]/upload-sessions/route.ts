@@ -3,6 +3,8 @@ import { findPublicEvent } from "@/lib/repositories/events";
 import { createUploadSession } from "@/lib/repositories/uploads";
 import { findActiveAccessPoint } from "@/lib/repositories/access-points";
 import { createPublicToken, hashToken } from "@/lib/security/tokens";
+import { guestBelongsToEvent } from "@/lib/repositories/guest-identities";
+import { createUploadSessionSchema } from "@/lib/validation/guest-identity";
 
 function cookieValue(request: Request, name: string): string | null {
   const cookie = request.headers.get("cookie");
@@ -24,12 +26,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   const accessPointCode = cookieValue(request, "eventaj_access_point");
   const accessPoint = accessPointCode ? await findActiveAccessPoint(accessPointCode) : null;
   const accessPointId = accessPoint?.event_id === event.id ? accessPoint.id : null;
+  const parsed = createUploadSessionSchema.safeParse(await request.json().catch(() => ({})));
+  if (!parsed.success) return problem(422, "INVALID_GUEST_ID", "Identiteta gosta ni veljavna");
+  const guestId = parsed.data.guestId ?? null;
+  if (guestId && !(await guestBelongsToEvent(event.id, guestId))) {
+    return problem(409, "GUEST_NOT_FOUND", "Lokalna identiteta za ta dogodek ni registrirana");
+  }
   const token = createPublicToken();
   const session = await createUploadSession(
     event.id,
     event.organization_id,
     await hashToken(token),
     accessPointId,
+    guestId,
   );
   return Response.json({ token, expiresAt: session.expires_at }, { status: 201 });
 }

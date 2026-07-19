@@ -40,6 +40,32 @@ describe("technical media quality", () => {
     expect(categorizeTechnicalQuality(metrics, true)).toBe("duplicate");
   });
 
+  it("keeps an intentionally dark but sharp image out of low quality", () => {
+    expect(categorizeTechnicalQuality({
+      sharpness: 0.66,
+      exposure: 0.2,
+      overall: 0.5,
+      meanLuminance: 17,
+      clippedShadows: 0.87,
+      clippedHighlights: 0.01,
+      dynamicRange: 0.43,
+      laplacianVariance: 1575,
+    }, false)).toBe("good");
+  });
+
+  it("still rejects a dark image with little usable tonal detail", () => {
+    expect(categorizeTechnicalQuality({
+      sharpness: 0.18,
+      exposure: 0.2,
+      overall: 0.19,
+      meanLuminance: 15,
+      clippedShadows: 0.9,
+      clippedHighlights: 0,
+      dynamicRange: 0.12,
+      laplacianVariance: 100,
+    }, false)).toBe("low_quality");
+  });
+
   it("creates stable 64-bit difference hashes and measures their distance", () => {
     const first = createDifferenceHash(rgbaImage(18, 16, (x) => x * 12), 18, 16);
     const same = createDifferenceHash(rgbaImage(18, 16, (x) => x * 12), 18, 16);

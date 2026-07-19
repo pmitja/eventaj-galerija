@@ -1,4 +1,4 @@
-export const TECHNICAL_QUALITY_MODEL_VERSION = "technical-v1";
+export const TECHNICAL_QUALITY_MODEL_VERSION = "technical-v2";
 export const PERCEPTUAL_DUPLICATE_MAX_DISTANCE = 6;
 
 export type QualityCategory = "best" | "good" | "duplicate" | "blurry" | "low_quality";
@@ -141,7 +141,12 @@ export function categorizeTechnicalQuality(
 ): QualityCategory {
   if (duplicate) return "duplicate";
   if (metrics.sharpness < 0.12) return "blurry";
-  if (metrics.exposure < 0.28) return "low_quality";
+  // A dark image is not necessarily a bad image (night scenes, logos and
+  // intentionally black backgrounds). Only use exposure as a hard gate when
+  // the image also lacks useful edge detail or tonal range.
+  if (metrics.exposure < 0.28 && (metrics.sharpness < 0.2 || metrics.dynamicRange < 0.2)) {
+    return "low_quality";
+  }
   if (metrics.overall >= 0.72) return "best";
   return "good";
 }

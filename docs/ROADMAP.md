@@ -67,9 +67,9 @@ AI nikoli samodejno trajno ne izbriše datoteke.
 
 ## Faza 4 — obrazi in SaaS širitev
 
-- eksplicitno vključene face collections;
-- šifrirani embeddingi, cluster management in brisanje;
-- ephemeral selfie search;
+- eksplicitno vključene face collections; **implementiran entitlement in consent gate**;
+- šifrirani embeddingi, cluster management in brisanje; **prvi rez uporablja regionalno ponudniško collection brez lokalnih surovih embeddingov, cleanup implementiran**;
+- ephemeral selfie search; **implementiran direct upload, Queue search, polling in umik**;
 - napredne privacy kontrole;
 - self-service organizacije, dodatni administratorji in white-label;
 - po potrditvi poslovnega modela billing/checkout.

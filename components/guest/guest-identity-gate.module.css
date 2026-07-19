@@ -1,0 +1,37 @@
+.identityButton { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 5px 10px 5px 5px; border: 1px solid rgba(131,24,67,.12); border-radius: 999px; background: rgba(255,255,255,.8); color: #3f0d25; cursor: pointer; font: inherit; text-align: left; backdrop-filter: blur(16px); }
+.identityButton > span:first-child { width: 34px; height: 34px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: #fce7f3; }
+.identityButton > span:first-child img { width: 36px; height: 36px; object-fit: contain; }
+.identityButton > span:last-child { display: flex; flex-direction: column; font-size: 12px; font-weight: 800; line-height: 1.15; }
+.identityButton small { color: #7a4059; font-size: 9px; font-weight: 650; }
+.identityButton:focus-visible { outline: 3px solid #db2777; outline-offset: 3px; }
+.backdrop { position: fixed; z-index: 40; inset: 0; display: grid; align-items: end; padding: 16px; background: rgba(31,7,18,.58); backdrop-filter: blur(8px); }
+.dialog { width: min(100%,520px); max-height: calc(100dvh - 32px); overflow-y: auto; margin: 0 auto; padding: 12px 24px 24px; border: 1px solid rgba(255,255,255,.7); border-radius: 28px; background: #fff; color: #3f0d25; box-shadow: 0 24px 80px rgba(63,13,37,.3); animation: sheetIn .24s cubic-bezier(.22,1,.36,1); }
+.handle { width: 42px; height: 4px; margin: 0 auto 14px; border-radius: 9px; background: #e7cfda; }
+.mark { width: 62px; height: 62px; display: grid; place-items: center; margin-bottom: 18px; border-radius: 18px; background: #fce7f3; }
+.mark img { width: 62px; height: 62px; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(131,24,67,.12)); }
+.eyebrow { margin: 0 0 8px; color: #9d174d; font-size: 11px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+.dialog h2 { margin: 0; font-size: clamp(28px,7vw,38px); line-height: 1.06; letter-spacing: -.045em; }
+.dialog > p:not(.eyebrow) { margin: 12px 0 24px; color: #6f4055; font-size: 15px; line-height: 1.55; }
+.dialog form > label:first-child { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 800; }
+.dialog input[type="text"], .dialog input:not([type]) { width: 100%; min-height: 54px; padding: 0 15px; border: 1px solid #d9bdca; border-radius: 13px; background: #fffafd; color: #3f0d25; font: inherit; font-size: 16px; }
+.dialog input:focus-visible { border-color: #db2777; outline: 3px solid rgba(219,39,119,.16); }
+.error { margin: 8px 0 0; color: #a41445; font-size: 13px; font-weight: 700; }
+.suggestions { margin-top: 12px; }
+.suggestions > span { color: #6f4055; font-size: 12px; }
+.suggestions > div { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.suggestions button { min-height: 38px; padding: 0 12px; border: 1px solid #e6c8d5; border-radius: 999px; background: #fff5f9; color: #831843; cursor: pointer; font: inherit; font-size: 13px; font-weight: 750; }
+.liveChoice { min-height: 54px; display: flex; align-items: center; gap: 12px; margin: 18px 0; cursor: pointer; }
+.liveChoice input { width: 20px; height: 20px; accent-color: #db2777; }
+.liveChoice span { display: flex; flex-direction: column; }
+.liveChoice strong { font-size: 13px; }
+.liveChoice small { margin-top: 2px; color: #7a4059; font-size: 11px; }
+.continueButton, .anonymousButton { width: 100%; min-height: 52px; border-radius: 999px; cursor: pointer; font: inherit; font-weight: 800; }
+.continueButton { border: 0; background: #db2777; color: #fff; box-shadow: 0 10px 24px rgba(219,39,119,.2); }
+.continueButton:disabled, .anonymousButton:disabled { cursor: not-allowed; opacity: .55; }
+.anonymousButton { display: inline-flex; align-items: center; justify-content: center; gap: 7px; margin-top: 8px; border: 0; background: transparent; color: #831843; }
+.anonymousButton img { width: 24px; height: 24px; object-fit: contain; }
+.continueButton:focus-visible, .anonymousButton:focus-visible, .suggestions button:focus-visible { outline: 3px solid #db2777; outline-offset: 3px; }
+.privacy { display: block; margin-top: 14px; color: #856174; font-size: 10px; line-height: 1.5; text-align: center; }
+@keyframes sheetIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 640px) { .backdrop { align-items: center; }.dialog { padding: 18px 32px 30px; }.handle { display: none; } }
+@media (prefers-reduced-motion: reduce) { .dialog { animation: none; } }

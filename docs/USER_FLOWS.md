@@ -4,15 +4,16 @@
 
 **Happy path**
 
-1. Gost skenira QR ali uporabi NFC.
-2. Stabilna točka zabeleži anonimen obisk in ga preusmeri na dogodek.
-3. Na hero območju izbere »Dodaj fotografije«.
-4. Sistemski izbirnik odpre galerijo naprave z večkratnim izborom.
-5. Gost odstrani neželene predoglede, po želji doda ime/sporočilo in potrdi objavo.
-6. Aplikacija ustvari sejo, pridobi podpisane URL-je in nalaga datoteke vzporedno z omejeno konkurenco.
-7. Vsaka datoteka prikazuje napredek; neuspešna ima jasen »Poskusi znova«.
-8. Po zaključenem prenosu se prikaže: »Hvala! Tvoje fotografije so bile uspešno dodane.«
-9. Procesiranje teče v ozadju; prikaz v galeriji upošteva moderacijo.
+1. Gost skenira QR, uporabi NFC ali odpre neposredno povezavo.
+2. Stabilna točka po potrebi zabeleži anonimen obisk in ga preusmeri na dogodek.
+3. Če za dogodek še nima lokalne identitete, izbere ime/vzdevek ali nadaljuje anonimno; ne ustvari računa.
+4. Na hero območju izbere »Dodaj fotografije«.
+5. Sistemski izbirnik odpre galerijo naprave z večkratnim izborom.
+6. Gost odstrani neželene predoglede in potrdi objavo.
+7. Aplikacija ustvari na lokalni `guest_id` vezano sejo, pridobi podpisane URL-je in nalaga datoteke vzporedno z omejeno konkurenco.
+8. Vsaka datoteka prikazuje napredek; neuspešna ima jasen »Poskusi znova«.
+9. Po zaključenem prenosu se prikaže: »Hvala! Tvoje fotografije so bile uspešno dodane.«
+10. Procesiranje teče v ozadju; galerija, leaderboard in live obvestila štejejo samo efektivni kategoriji kakovosti `best` in `good`.
 
 **Robni primeri**
 
@@ -62,13 +63,15 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
 4. Minimalen audit zapis o izvedenem izbrisu ostane brez izbrisanih osebnih podatkov.
 5. Neuspeh sproži alarm in varen retry.
 
-## 6. Face search (faza 4)
+## 6. Face search (prvi rez faze 4 implementiran)
 
 1. Gost vidi razlago namena, časa hrambe in ločeno soglasje.
 2. Selfie naloži v začasni zasebni prostor.
-3. Sistem izračuna embedding, poišče ujemanja samo znotraj dogodka in vrne rezultate.
-4. Selfie in začasni embedding se izbrišeta po iskanju, razen ob izrecnem dodatnem soglasju.
-5. Gost lahko umakne soglasje in zahteva izbris rezultatov.
+3. Sistem asinhrono počaka, da so upravičene fotografije dogodka indeksirane,
+   nato pri regionalnem ponudniku poišče ujemanja samo znotraj collection tega dogodka.
+4. Vrne samo fotografije, ki so že varne za javno galerijo; similarity ni dokaz identitete.
+5. Selfie se fizično izbriše po uspehu, terminalni napaki ali najpozneje po 15 minutah.
+6. Gost lahko umakne soglasje; sistem izbriše selfie in rezultate ter zapiše audit brez biometričnih podatkov.
 
 ## 7. Projekcija dogodka
 
@@ -79,3 +82,17 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
 5. Playlist vsebuje samo efektivni kategoriji kakovosti `best` in `good`; neanalizirane in slabše fotografije ostanejo v adminu.
 6. Administrator lahko posamezno fotografijo neodvisno skrije s projekcije.
 7. Ob sumu razkritja ustvari novo povezavo; stara pri naslednji zahtevi preneha delovati.
+8. Projekcija po sprejetem uploadu prikaže kratko združeno obvestilo, dosežke in nato AI-filtriran top leaderboard; overlay ne ustavi predvajanja.
+
+## 8. Gost všečka ali komentira fotografijo
+
+1. Gost odpre fotografijo v celozaslonskem pregledu.
+2. Všeček lahko vključi neposredno v mreži ali pregledu; izbira se lokalno shrani samo za ta dogodek in nima javnega števca.
+3. Kartica fotografije prikaže komentarno ikono s številom vidnih komentarjev; klik odpre fotografijo neposredno s komentarji.
+4. Gumb »Komentarji« na telefonu odpre spodnji panel, na večjem zaslonu pa desni panel ob fotografiji.
+5. Panel prikaže loading, prazno, error/retry ali seznam komentarjev ter vedno dostopen vnos.
+6. Ob objavi strežnik preveri `guest_id`, dogodek, javno stanje fotografije, AI-kakovost in omejitev hitrosti.
+7. Komentar je prikazan z aktualnim prikaznim imenom gosta; sprememba imena velja tudi za prejšnje komentarje.
+8. Zaprtje komentarjev ohrani odprto fotografijo, `Escape` pa najprej zapre komentarje in šele nato lightbox.
+9. Če administrator za dogodek izključi komentarje, gost gumba ne vidi, API pa zavrne branje in objavo; obstoječi komentarji ostanejo shranjeni za morebitno ponovno vključitev.
+9. Liveshow sveže komentarje privoljenih gostov prikaže v največ treh oblačkih, ki se na desni strani umirjeno dvignejo in nato izginejo; pri `prefers-reduced-motion` se samo prikažejo ter zbledijo.

@@ -13,7 +13,6 @@ const cloudflareEnv = vi.hoisted(() => ({
   },
   IMAGES: { input: vi.fn(), info: vi.fn() },
 }));
-const cache = vi.hoisted(() => ({ invalidatePublicGallery: vi.fn() }));
 const qualityRepository = vi.hoisted(() => ({
   findEarlierDuplicate: vi.fn(),
   reconcileLaterDuplicates: vi.fn(),
@@ -23,9 +22,6 @@ const qualityRepository = vi.hoisted(() => ({
 
 vi.mock("@/lib/cloudflare", () => ({
   getCloudflareEnv: () => cloudflareEnv,
-}));
-vi.mock("@/lib/cache/public-gallery", () => ({
-  invalidatePublicGallery: cache.invalidatePublicGallery,
 }));
 vi.mock("@/lib/repositories/media-quality", () => qualityRepository);
 
@@ -61,7 +57,7 @@ describe("createPresignedUploadUrl", () => {
     expect(signedUrl.searchParams.get("X-Amz-Signature")).toMatch(/^[a-f0-9]{64}$/);
   });
 
-  it("invalidates the event gallery cache after the image becomes ready", async () => {
+  it("creates variants and quality analysis after the image becomes ready", async () => {
     const first = vi.fn().mockResolvedValue({
       id: "media-1",
       event_id: "event-1",
@@ -69,6 +65,7 @@ describe("createPresignedUploadUrl", () => {
       size_bytes: 8,
       declared_mime: "image/jpeg",
       created_at: "2026-07-16T10:00:00.000Z",
+      status: "processing",
     });
     const run = vi.fn().mockResolvedValue({ meta: { changes: 1 } });
     cloudflareEnv.DB.prepare.mockImplementation(() => ({
@@ -96,10 +93,9 @@ describe("createPresignedUploadUrl", () => {
     qualityRepository.saveTechnicalAnalysis.mockResolvedValue(undefined);
     qualityRepository.reconcileLaterDuplicates.mockResolvedValue(undefined);
 
-    await processImage("media-1", "eventaj");
+    await expect(processImage("media-1", "eventaj")).resolves.toBe("ready");
 
     expect(cloudflareEnv.MEDIA.put).toHaveBeenCalledTimes(2);
-    expect(cache.invalidatePublicGallery).toHaveBeenCalledWith("event-1");
     expect(qualityRepository.saveTechnicalAnalysis).toHaveBeenCalledWith(
       expect.objectContaining({
         organizationId: "eventaj",

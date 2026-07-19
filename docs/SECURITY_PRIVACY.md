@@ -59,6 +59,11 @@ Soglasje ni edina možna pravna podlaga za celoten produkt; končno pravno podla
 - Signed izvozi imajo bistveno krajšo življenjsko dobo kot galerija.
 - Selfie za iskanje se izbriše takoj po zaključku ali timeoutu.
 - Face embeddings imajo lasten krajši retention in jih je mogoče izbrisati ločeno.
+- Prvi face-search rez lokalno hrani samo opaque provider face ID-je; ponudniški
+  face vector je v collection posameznega dogodka v konfigurirani EU regiji in
+  poteče najpozneje v 30 dneh oziroma ob retentionu dogodka.
+- Face search je dovoljen samo registrirani anonimni dogodkovni identiteti,
+  največ petkrat na uro, ob Premium/add-on entitlementu in trenutni verziji soglasja.
 - Backup retention mora biti opisan v pravilniku; izbris iz aktivnih sistemov ne sme obljubljati nemogočega trenutnega prepisa vseh backupov.
 
 ## Audit dogodki
@@ -72,4 +77,3 @@ Obvezno se beležijo prijave, spremembe vlog, statusi dogodka, privacy/moderatio
 - karantena posameznega medija;
 - iskanje po request/job/event ID brez razkrivanja PII;
 - dokumentiran owner incidenta, obveščanje in post-incident pregled pred produkcijo.
-

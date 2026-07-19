@@ -25,6 +25,13 @@ export type TechnicalAnalysisMedia = {
 
 export type ImageInspection = { checksumSha256: string; width: number; height: number };
 
+export class InvalidMediaError extends Error {
+  constructor(public readonly code: "UNSUPPORTED_IMAGE" | "MIME_MISMATCH") {
+    super(code);
+    this.name = "InvalidMediaError";
+  }
+}
+
 export type TechnicalAnalysisRuntime = {
   DB: D1Database;
   MEDIA: R2Bucket;
@@ -44,10 +51,12 @@ export async function inspectAndChecksum(
     },
   }));
   const info = await images.info(hashingStream);
-  if (!("width" in info) || info.width < 1 || info.height < 1) throw new Error("Unsupported image dimensions");
+  if (!("width" in info) || info.width < 1 || info.height < 1) {
+    throw new InvalidMediaError("UNSUPPORTED_IMAGE");
+  }
   const normalizedMime = (mime: string) => mime === "image/heif" ? "image/heic" : mime;
   if (normalizedMime(info.format) !== normalizedMime(declaredMime)) {
-    throw new Error("Detected image format does not match the upload declaration");
+    throw new InvalidMediaError("MIME_MISMATCH");
   }
   return { checksumSha256: hash.digest("hex"), width: info.width, height: info.height };
 }

@@ -6,6 +6,7 @@ export type UploadSessionRow = {
   organization_id: string;
   token_hash: string;
   access_point_id: string | null;
+  guest_id: string | null;
   expires_at: string;
   created_at: string;
 };
@@ -33,20 +34,22 @@ export async function createUploadSession(
   organizationId: string,
   tokenHash: string,
   accessPointId: string | null = null,
+  guestId: string | null = null,
 ): Promise<UploadSessionRow> {
   const id = crypto.randomUUID();
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + 15 * 60 * 1000);
   await getCloudflareEnv().DB.prepare(
-    `INSERT INTO upload_sessions (id, event_id, token_hash, access_point_id, expires_at, created_at)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-  ).bind(id, eventId, tokenHash, accessPointId, expiresAt.toISOString(), createdAt.toISOString()).run();
+    `INSERT INTO upload_sessions (id, event_id, token_hash, access_point_id, guest_id, expires_at, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).bind(id, eventId, tokenHash, accessPointId, guestId, expiresAt.toISOString(), createdAt.toISOString()).run();
   return {
     id,
     event_id: eventId,
     organization_id: organizationId,
     token_hash: tokenHash,
     access_point_id: accessPointId,
+    guest_id: guestId,
     expires_at: expiresAt.toISOString(),
     created_at: createdAt.toISOString(),
   };

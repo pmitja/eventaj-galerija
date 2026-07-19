@@ -5,6 +5,7 @@ import styles from "./admin.module.css";
 import { NewEventForm } from "./new-event-form";
 import { listEvents } from "@/lib/repositories/events";
 import { getAdminAnalyticsData, getAdminCustomersData, getAdminMediaQualitySummary, listAdminEventSummaries, listAdminMedia } from "@/lib/repositories/admin-dashboard";
+import { MediaProcessingRetry } from "./media-processing-retry";
 import { listAccessPoints } from "@/lib/repositories/access-points";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { AccessPointsPanel } from "./access-points-panel";
@@ -17,6 +18,7 @@ import { findLatestOwnedDownloadExport } from "@/lib/repositories/exports";
 import { MediaQualityControl } from "./media-quality-control";
 import { QualityBackfillManager } from "./quality-backfill-manager";
 import { findLatestOwnedQualityBackfill } from "@/lib/repositories/quality-backfills";
+import { EventCommentsToggle } from "./event-comments-toggle";
 
 const mediaItems = [
   ["IMG_4821.jpg", "rose", "pred 4 min"], ["IMG_4818.jpg", "violet", "pred 7 min"],
@@ -54,6 +56,7 @@ export async function EventsPage() {
     accent: index % 3 === 0 ? "rose" : index % 3 === 1 ? "amber" : "violet",
     photos: event.photo_count,
     guests: event.visit_count,
+    commentsEnabled: Boolean(event.comments_enabled),
     href: `/admin/gallery?eventId=${encodeURIComponent(event.id)}`,
   }));
   const activeCount = storedEvents.filter((event) => event.status === "active").length;
@@ -62,7 +65,7 @@ export async function EventsPage() {
     <PageHeader eyebrow="UPRAVLJANJE" title="Dogodki" description="Ustvari, pripravi in spremljaj vse dogodke na enem mestu." action={<Link className={styles.primaryAction} href="/admin/events/new"><Icon name="plus" size={19} /> Nov dogodek</Link>} />
     <section className={styles.miniMetricGrid} aria-label="Povzetek dogodkov"><article><span className={styles.green}><Icon name="calendar" size={19} /></span><div><strong>{activeCount}</strong><small>aktivnih dogodkov</small></div></article><article><span className={styles.rose}><Icon name="clock" size={19} /></span><div><strong>{upcomingCount}</strong><small>prihajajočih dogodkov</small></div></article><article><span className={styles.violet}><Icon name="image" size={19} /></span><div><strong>{storedEvents.length}</strong><small>vseh dogodkov</small></div></article></section>
     <section className={styles.panel}><div className={styles.panelTop}><div><h2>Vsi dogodki</h2><p>{storedEvents.length} dogodkov v delovnem prostoru</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Prikaz seznama" className={styles.viewActive}><Icon name="chart" size={17} /></button><button type="button" aria-label="Prikaz kartic"><Icon name="image" size={17} /></button></div></div><FilterBar />
-      <div className={styles.tableWrap}><table className={`${styles.dataTable} ${styles.eventsTable}`}><thead><tr><th>Dogodek</th><th>Datum</th><th>Status</th><th>Galerija</th><th>Obiski</th><th><span className={styles.srOnly}>Dejanja</span></th></tr></thead><tbody>{displayedEvents.map((event) => <tr key={event.name}><td data-label="Dogodek"><div className={styles.tableIdentity}><span className={`${styles.miniVisual} ${styles[event.accent]}`} /><div><strong>{event.name}</strong><small>{event.location}</small></div></div></td><td data-label="Datum">{event.date}</td><td data-label="Status"><span className={`${styles.statusBadge} ${styles[event.statusTone]}`}><i />{event.status}</span></td><td data-label="Galerija">{event.photos} fotografij</td><td data-label="Obiski">{event.guests}</td><td><Link className={styles.tableAction} href={event.href} aria-label={`Odpri ${event.name}`}><Icon name="chevron" size={18} /></Link></td></tr>)}</tbody></table></div>
+      <div className={styles.tableWrap}><table className={`${styles.dataTable} ${styles.eventsTable}`}><thead><tr><th>Dogodek</th><th>Datum</th><th>Status</th><th>Galerija</th><th>Obiski</th><th>Komentarji</th><th><span className={styles.srOnly}>Dejanja</span></th></tr></thead><tbody>{displayedEvents.map((event) => <tr key={event.id}><td data-label="Dogodek"><div className={styles.tableIdentity}><span className={`${styles.miniVisual} ${styles[event.accent]}`} /><div><strong>{event.name}</strong><small>{event.location}</small></div></div></td><td data-label="Datum">{event.date}</td><td data-label="Status"><span className={`${styles.statusBadge} ${styles[event.statusTone]}`}><i />{event.status}</span></td><td data-label="Galerija">{event.photos} fotografij</td><td data-label="Obiski">{event.guests}</td><td data-label="Komentarji"><EventCommentsToggle eventId={event.id} eventName={event.name} initialEnabled={event.commentsEnabled} /></td><td><Link className={styles.tableAction} href={event.href} aria-label={`Odpri ${event.name}`}><Icon name="chevron" size={18} /></Link></td></tr>)}</tbody></table></div>
       {displayedEvents.length === 0 ? <p>Dogodkov še ni. Ustvari prvega z gumbom zgoraj.</p> : null}
       <div className={styles.pagination}><span>{displayedEvents.length} dogodkov</span></div>
     </section>
@@ -129,7 +132,7 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
         <article><span className={styles.quality_good}>Dobre</span><strong>{summary?.good ?? 0}</strong></article>
         <article><span className={styles.quality_duplicate}>Podvojene</span><strong>{summary?.duplicate ?? 0}</strong></article>
         <article><span className={styles.quality_blurry}>Neostre/slabše</span><strong>{(summary?.blurry ?? 0) + (summary?.low_quality ?? 0)}</strong></article>
-        <article><span className={styles.quality_pending}>Čaka/napaka</span><strong>{(summary?.unanalyzed ?? 0) + (summary?.failed_analyses ?? 0)}</strong></article>
+        <article><span className={styles.quality_pending}>Čaka/napaka</span><strong>{(summary?.processing ?? 0) + (summary?.failed_processing ?? 0) + (summary?.unanalyzed ?? 0) + (summary?.failed_analyses ?? 0)}</strong></article>
       </section>
       <section className={styles.panel}>
         <div className={styles.panelTop}><div><h2>Fotografije</h2><p>{summary?.total ?? 0} datotek v dogodku</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Mreža" className={styles.viewActive}><Icon name="image" size={17} /></button></div></div>
@@ -137,14 +140,15 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
           <input type="hidden" name="eventId" value={selectedEvent.id} />
           <label className={styles.filterSearch}><Icon name="search" size={17} /><span className={styles.srOnly}>Išči po imenu datoteke</span><input name="q" type="search" defaultValue={filters.q} placeholder="Išči po imenu datoteke ..." /></label>
           <label className={styles.selectControl}><span className={styles.srOnly}>Kakovost</span><select name="quality" defaultValue={filters.quality ?? ""}><option value="">Vse kakovosti</option><option value="best">Najboljše</option><option value="good">Dobre</option><option value="duplicate">Podvojene</option><option value="blurry">Neostre</option><option value="low_quality">Slabše</option></select></label>
-          <label className={styles.selectControl}><span className={styles.srOnly}>Status</span><select name="status" defaultValue={filters.status ?? ""}><option value="">Vsi statusi</option><option value="ready">Pripravljene</option><option value="processing">V obdelavi</option><option value="rejected">Zavrnjene</option><option value="analysis_failed">Napaka analize</option><option value="unanalyzed">Brez analize</option></select></label>
+          <label className={styles.selectControl}><span className={styles.srOnly}>Status</span><select name="status" defaultValue={filters.status ?? ""}><option value="">Vsi statusi</option><option value="ready">Pripravljene</option><option value="processing">V obdelavi</option><option value="processing_failed">Napaka obdelave</option><option value="rejected">Zavrnjene</option><option value="analysis_failed">Napaka analize</option><option value="unanalyzed">Brez analize</option></select></label>
           <button className={styles.filterSubmit} type="submit">Filtriraj</button>
           <Link className={styles.filterReset} href={`/admin/gallery?eventId=${encodeURIComponent(selectedEvent.id)}`}>Počisti</Link>
         </form>
         {media.length ? <div className={styles.mediaGrid}>{media.map((item) => <article className={styles.mediaCard} key={item.id}>
-          <div className={`${styles.mediaVisual} ${styles.violet}`}>{item.status === "ready" ? <><Image src={`/api/v1/admin/media/${item.id}`} alt={item.original_filename} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized /><SlideshowMediaToggle eventId={selectedEvent.id} mediaId={item.id} initialState={item.slideshow_state} /></> : <div className={styles.mediaPending}><Icon name="clock" size={22} /><span>{item.status === "rejected" ? "Zavrnjeno" : "V obdelavi"}</span></div>}</div>
+          <div className={`${styles.mediaVisual} ${styles.violet}`}>{item.status === "ready" ? <><Image src={`/api/v1/admin/media/${item.id}`} alt={item.original_filename} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized /><SlideshowMediaToggle eventId={selectedEvent.id} mediaId={item.id} initialState={item.slideshow_state} /></> : <div className={styles.mediaPending}><Icon name="clock" size={22} /><span>{item.status === "rejected" ? "Zavrnjeno" : item.processing_status === "failed" ? "Napaka obdelave" : "V obdelavi"}</span></div>}</div>
           <div className={styles.mediaMeta}><div><strong>{item.original_filename}</strong><small>{formatRelativeTime(item.uploaded_at ?? item.created_at)}</small></div></div>
           {item.status === "ready" ? <MediaQualityControl eventId={selectedEvent.id} mediaId={item.id} automaticCategory={item.quality_category} overrideCategory={item.quality_override} effectiveCategory={item.effective_quality} score={item.technical_score} analysisStatus={item.analysis_status} /> : null}
+          {item.processing_status === "failed" ? <MediaProcessingRetry eventId={selectedEvent.id} mediaId={item.id} /> : null}
         </article>)}</div> : <div className={styles.emptyState}><p>{(summary?.total ?? 0) > 0 ? "Nobena fotografija ne ustreza izbranim filtrom." : "Za ta dogodek še ni naloženih fotografij."}</p>{(summary?.total ?? 0) > 0 ? <Link className={styles.secondaryAction} href={`/admin/gallery?eventId=${encodeURIComponent(selectedEvent.id)}`}>Počisti filtre</Link> : null}</div>}
         <div className={styles.loadMore}><span>Prikazanih {media.length} od največ 100 zadetkov</span></div>
       </section>

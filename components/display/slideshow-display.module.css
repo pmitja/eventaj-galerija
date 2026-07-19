@@ -6,7 +6,34 @@
 .brand { font-size: clamp(19px,1.7vw,28px); font-style: normal; font-weight: 850; letter-spacing: -.06em; }
 .brand i { color: #ea4f87; font-style: normal; }
 .topBar > div { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.8); font-size: 12px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
-.liveDot { width: 8px; height: 8px; border-radius: 50%; background: #ef3c6f; box-shadow: 0 0 0 5px rgba(239,60,111,.17); }
+.liveIndicator { width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(239,60,111,.45)); }
+.liveOverlay { --overlay-duration: 5000ms; position: absolute; z-index: 4; border: 1px solid rgba(255,255,255,.17); background: linear-gradient(145deg,rgba(26,14,21,.82),rgba(12,8,11,.67)); box-shadow: 0 22px 64px rgba(0,0,0,.32); backdrop-filter: blur(22px) saturate(1.15); animation: overlayLifecycle var(--overlay-duration) ease both; }
+.toastOverlay { top: clamp(76px,9vw,124px); left: clamp(18px,3vw,48px); width: min(520px,calc(100% - 36px)); display: flex; align-items: center; gap: 15px; padding: 15px 18px; border-radius: 18px; }
+.overlayIcon { width: 54px; height: 54px; flex: none; display: grid; place-items: center; border-radius: 16px; background: rgba(239,60,111,.12); }
+.overlayIcon img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 7px 9px rgba(0,0,0,.2)); }
+.toastOverlay > span:last-child { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.toastOverlay strong { overflow: hidden; font-size: clamp(15px,1.5vw,21px); line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.toastOverlay small { color: rgba(255,255,255,.67); font-size: clamp(11px,1vw,14px); }
+.milestone .overlayIcon { background: rgba(234,179,8,.1); }
+.global .overlayIcon { background: rgba(101,183,255,.1); }
+.aiAccepted { width: max-content; display: inline-flex; align-items: center; gap: 4px; margin-top: 3px; color: #f8b5ce; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.aiAccepted img { width: 16px; height: 16px; object-fit: contain; }
+.leaderboardOverlay { top: 50%; left: 50%; width: min(620px,calc(100% - 36px)); padding: clamp(22px,3vw,36px); border-radius: 24px; transform: translate(-50%,-50%); }
+.overlayLabel { display: flex; align-items: center; gap: 7px; color: #f8b5ce; font-size: 10px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+.overlayLabel img { width: 25px; height: 25px; object-fit: contain; filter: drop-shadow(0 5px 7px rgba(0,0,0,.24)); }
+.leaderboardOverlay h2 { margin: 9px 0 22px; font-family: Georgia,"Times New Roman",serif; font-size: clamp(30px,4vw,52px); font-weight: 400; letter-spacing: -.04em; text-transform: none; }
+.leaderboardOverlay ol { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.leaderboardOverlay li { min-height: 58px; display: grid; grid-template-columns: 38px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 8px 14px 8px 10px; border-radius: 14px; background: rgba(255,255,255,.075); }
+.leaderboardOverlay li > span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: rgba(255,255,255,.09); color: #f7b2cb; font-size: 13px; font-weight: 850; }
+.leaderboardOverlay li:first-child > span { background: rgba(234,179,8,.18); color: #f8d86a; }
+.leaderboardOverlay strong { overflow: hidden; font-size: clamp(15px,1.5vw,20px); text-overflow: ellipsis; white-space: nowrap; }
+.leaderboardOverlay b { color: #fff; font-size: clamp(16px,1.7vw,22px); font-variant-numeric: tabular-nums; }
+.leaderboardOverlay b small { color: rgba(255,255,255,.55); font-size: 10px; font-weight: 650; text-transform: uppercase; }
+.commentStream { position: absolute; z-index: 5; right: clamp(18px,3vw,48px); bottom: clamp(104px,11vh,150px); width: min(390px,calc(100% - 36px)); max-height: calc(100% - 210px); display: flex; align-items: flex-end; flex-direction: column-reverse; gap: 12px; pointer-events: none; }
+.commentBubble { --comment-duration: 7000ms; position: relative; width: max-content; max-width: 100%; padding: 13px 17px 14px; border: 1px solid rgba(255,255,255,.72); border-radius: 20px 20px 6px 20px; background: rgba(255,255,255,.93); color: #32101e; box-shadow: 0 18px 48px rgba(0,0,0,.28); backdrop-filter: blur(18px) saturate(1.15); animation: commentFloat var(--comment-duration) cubic-bezier(.22,.75,.25,1) both; }
+.commentBubble::after { position: absolute; right: -1px; bottom: -8px; width: 14px; height: 14px; background: rgba(255,255,255,.93); clip-path: polygon(0 0,100% 0,100% 100%); content: ""; }
+.commentBubble strong { display: block; overflow: hidden; color: #b91c5c; font-size: clamp(12px,1vw,14px); font-weight: 800; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.commentBubble p { display: -webkit-box; overflow: hidden; margin: 3px 0 0; font-size: clamp(15px,1.35vw,19px); font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .controls { position: absolute; z-index: 3; right: clamp(18px,2.6vw,38px); bottom: clamp(18px,2.6vw,38px); left: clamp(18px,2.6vw,38px); display: flex; align-items: end; justify-content: space-between; gap: 24px; opacity: .35; transition: opacity .2s ease; }
 .display:hover .controls, .controls:focus-within { opacity: 1; }
 .controls > div { display: flex; flex-direction: column; gap: 5px; text-shadow: 0 2px 12px #000; }
@@ -25,5 +52,9 @@
 .pulse { width: 10px; height: 10px; margin-top: 28px; border-radius: 50%; background: #ef3c6f; animation: pulse 1.8s ease-in-out infinite; }
 @keyframes reveal { from { opacity: 0; transform: scale(1.015); } to { opacity: 1; transform: scale(1); } }
 @keyframes pulse { 50% { opacity: .35; transform: scale(.75); } }
+@keyframes overlayLifecycle { 0% { opacity: 0; translate: 0 14px; } 7%,88% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 0 -8px; } }
+@keyframes commentFloat { 0% { opacity: 0; transform: translate3d(22px,28px,0) scale(.96); } 10%,72% { opacity: 1; } 100% { opacity: 0; transform: translate3d(0,clamp(-150px,-11vh,-80px),0) scale(1); } }
 @media (max-width: 600px) { .controls { align-items: stretch; flex-direction: column; }.controls nav { justify-content: flex-end; }.controls strong { font-size: 23px; } }
-@media (prefers-reduced-motion: reduce) { .frame { animation: none; }.pulse { animation: none; }.controls { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .frame { animation: none; }.pulse { animation: none; }.controls { transition: none; }.liveOverlay { animation-name: overlayFade; }.commentBubble { animation-name: commentFade; } }
+@keyframes overlayFade { 0%,100% { opacity: 0; } 5%,90% { opacity: 1; } }
+@keyframes commentFade { 0%,100% { opacity: 0; } 5%,88% { opacity: 1; } }

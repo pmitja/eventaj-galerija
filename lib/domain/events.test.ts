@@ -16,6 +16,7 @@ describe("event retention", () => {
       customerName: "Ana Kovač",
       customerEmail: "ana@example.com",
       packageCode: "advanced",
+      commentsEnabled: true,
     });
     expect(event.status).toBe("active");
     expect(event.publicSlug).toMatch(/^[a-f0-9]{32}$/);

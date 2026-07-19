@@ -1,9 +1,9 @@
 import { AwsClient } from "aws4fetch";
-import { invalidatePublicGallery } from "@/lib/cache/public-gallery";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { EXPORT_DOWNLOAD_TTL_SECONDS } from "@/lib/domain/exports";
 import {
   ANALYSIS_SIZE,
+  InvalidMediaError,
   inspectAndChecksum,
   persistTechnicalAnalysis,
   processTechnicalAnalysis as processTechnicalAnalysisWithRuntime,
@@ -13,6 +13,9 @@ import {
 } from "@/lib/storage/technical-analysis";
 
 export const PRESIGNED_UPLOAD_TTL_SECONDS = 10 * 60;
+
+export type MediaProcessingRuntime = TechnicalAnalysisRuntime;
+export type MediaProcessingResult = "ready" | "rejected" | "not_found";
 
 function signingClient() {
   const env = getCloudflareEnv();
@@ -60,15 +63,21 @@ function requireTechnicalAnalysisRuntime(env: CloudflareEnv | TechnicalAnalysisR
   return { DB: env.DB, MEDIA: env.MEDIA, IMAGES: env.IMAGES };
 }
 
-export async function processImage(mediaId: string, organizationId: string): Promise<void> {
-  const env = getCloudflareEnv();
+export async function processImage(
+  mediaId: string,
+  organizationId: string,
+  runtime?: MediaProcessingRuntime,
+): Promise<MediaProcessingResult> {
+  const env = runtime ?? getCloudflareEnv();
   const analysisEnv = requireTechnicalAnalysisRuntime(env);
   const media = await env.DB.prepare(
-    `SELECT m.id, m.event_id, m.object_key, m.size_bytes, m.declared_mime, m.created_at
+    `SELECT m.id, m.event_id, m.object_key, m.size_bytes, m.declared_mime, m.created_at, m.status
      FROM media_files m JOIN events e ON e.id = m.event_id
      WHERE m.id = ? AND e.organization_id = ?`,
-  ).bind(mediaId, organizationId).first<TechnicalAnalysisMedia>();
-  if (!media) return;
+  ).bind(mediaId, organizationId).first<TechnicalAnalysisMedia & { status: "pending" | "processing" | "ready" | "rejected" }>();
+  if (!media) return "not_found";
+  if (media.status === "ready") return "ready";
+  if (media.status === "rejected") return "rejected";
 
   const [originalForInspection, originalForGallery, originalForThumbnail, originalForAnalysis] = await Promise.all([
     env.MEDIA.get(media.object_key),
@@ -84,7 +93,7 @@ export async function processImage(mediaId: string, organizationId: string): Pro
         SELECT 1 FROM events e WHERE e.id = media_files.event_id AND e.organization_id = ?
       )`,
     ).bind(media.id, media.event_id, organizationId).run();
-    return;
+    return "rejected";
   }
 
   let becameReady = false;
@@ -136,20 +145,22 @@ export async function processImage(mediaId: string, organizationId: string): Pro
       organizationId,
     ).run();
     becameReady = result.meta.changes === 1;
-  } catch {
-    await env.DB.prepare(
-      `UPDATE media_files SET status = 'rejected' WHERE id = ? AND event_id = ? AND EXISTS (
-        SELECT 1 FROM events e WHERE e.id = media_files.event_id AND e.organization_id = ?
-      )`,
-    ).bind(media.id, media.event_id, organizationId).run();
-    return;
+  } catch (error) {
+    if (error instanceof InvalidMediaError) {
+      await env.DB.prepare(
+        `UPDATE media_files SET status = 'rejected' WHERE id = ? AND event_id = ? AND EXISTS (
+          SELECT 1 FROM events e WHERE e.id = media_files.event_id AND e.organization_id = ?
+        )`,
+      ).bind(media.id, media.event_id, organizationId).run();
+      return "rejected";
+    }
+    throw error;
   }
-  if (!becameReady || !inspection) return;
-  invalidatePublicGallery(media.event_id);
+  if (!becameReady || !inspection) return "not_found";
 
   if (!analysisBytes) {
     await recordTechnicalAnalysisFailure(analysisEnv, media, organizationId, "ANALYSIS_TRANSFORM_FAILED");
-    return;
+    return "ready";
   }
 
   try {
@@ -157,6 +168,7 @@ export async function processImage(mediaId: string, organizationId: string): Pro
   } catch {
     await recordTechnicalAnalysisFailure(analysisEnv, media, organizationId, "TECHNICAL_ANALYSIS_FAILED");
   }
+  return "ready";
 }
 
 export async function processTechnicalAnalysis(

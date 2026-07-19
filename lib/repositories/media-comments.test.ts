@@ -1,0 +1,55 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const state = vi.hoisted(() => ({ sql: "", bindings: [] as unknown[], all: vi.fn() }));
+vi.mock("@/lib/cloudflare", () => ({
+  getCloudflareEnv: () => ({
+    DB: {
+      prepare: (sql: string) => {
+        state.sql = sql;
+        return {
+          bind: (...bindings: unknown[]) => {
+            state.bindings = bindings;
+            return { all: state.all };
+          },
+        };
+      },
+    },
+  }),
+}));
+
+import { LIVE_COMMENT_LIMIT } from "@/lib/domain/media-comments";
+import { listLiveMediaComments } from "./media-comments";
+
+describe("live slideshow comments", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    state.sql = "";
+    state.bindings = [];
+  });
+
+  it("requires comments, guest consent and an approved publication-safe slideshow photo", async () => {
+    state.all.mockResolvedValue({ results: [] });
+    await listLiveMediaComments("event-1");
+
+    expect(state.sql).toContain("e.comments_enabled = 1");
+    expect(state.sql).toContain("c.status = 'visible'");
+    expect(state.sql).toContain("g.show_on_live_screen = 1");
+    expect(state.sql).toContain("m.slideshow_state = 'approved'");
+    expect(state.sql).toContain("m.publication_consent = 1");
+    expect(state.sql).toContain("COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')");
+    expect(state.bindings[0]).toBe("event-1");
+    expect(state.bindings[2]).toBe(LIVE_COMMENT_LIMIT);
+  });
+
+  it("returns the newest limited result set in chronological display order", async () => {
+    state.all.mockResolvedValue({ results: [
+      { id: "new", guest_id: "guest-1", display_name: "Nina", body: "Drugi", created_at: "2026-07-18T20:00:02Z" },
+      { id: "old", guest_id: "guest-2", display_name: "Miha", body: "Prvi", created_at: "2026-07-18T20:00:01Z" },
+    ] });
+
+    await expect(listLiveMediaComments("event-1")).resolves.toEqual([
+      { id: "old", displayName: "Miha", body: "Prvi", createdAt: "2026-07-18T20:00:01Z" },
+      { id: "new", displayName: "Nina", body: "Drugi", createdAt: "2026-07-18T20:00:02Z" },
+    ]);
+  });
+});

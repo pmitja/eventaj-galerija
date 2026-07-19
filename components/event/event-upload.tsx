@@ -1,7 +1,9 @@
 "use client";
 
+import NextImage from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
+import { runWithConcurrency } from "@/lib/client/concurrency";
 import {
   CameraIcon,
   CheckIcon,
@@ -23,6 +25,7 @@ const ACCEPTED_TYPES = new Set([
   "image/heif",
 ]);
 const IMAGE_LIMIT = 20 * 1024 * 1024;
+const MAX_CONCURRENT_UPLOADS = 3;
 
 type UploadItem = {
   id: string;
@@ -72,7 +75,7 @@ async function responseError(response: Response, fallback: string): Promise<Erro
   return new Error(body?.detail || body?.title || fallback);
 }
 
-export function EventUpload({ eventSlug }: { eventSlug: string }) {
+export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId: string }) {
   const [items, setItems] = useState<UploadItem[]>([]);
   const [allowPublishing, setAllowPublishing] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -112,7 +115,11 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
     if (sessionPromiseRef.current) return sessionPromiseRef.current;
 
     sessionPromiseRef.current = (async () => {
-      const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/upload-sessions`, { method: "POST" });
+      const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/upload-sessions`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ guestId }),
+      });
       if (!response.ok) throw await responseError(response, "Nalaganje trenutno ni na voljo.");
       const body = await response.json() as { token: string };
       sessionTokenRef.current = body.token;
@@ -124,7 +131,7 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
     } finally {
       sessionPromiseRef.current = null;
     }
-  }, [eventSlug]);
+  }, [eventSlug, guestId]);
 
   const uploadItem = useCallback(async (id: string) => {
     if (!navigator.onLine) {
@@ -197,9 +204,11 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
     const uploadableItems = items.filter((item) => (
       item.status === "ready" || (item.status === "error" && !validateFile(item.file))
     ));
-    uploadableItems.forEach((item, index) => {
-      window.setTimeout(() => void uploadItem(item.id), index * 140);
-    });
+    void runWithConcurrency(
+      uploadableItems,
+      MAX_CONCURRENT_UPLOADS,
+      async (item) => uploadItem(item.id),
+    );
   };
 
   const {
@@ -217,7 +226,7 @@ export function EventUpload({ eventSlug }: { eventSlug: string }) {
   if (isComplete) {
     return (
       <section className={styles.successCard} aria-live="polite">
-        <span className={styles.successIcon}><CheckIcon /></span>
+        <span className={styles.successIcon}><NextImage src="/icons/engagement/thanks.png" alt="" width={70} height={70} aria-hidden="true" /></span>
         <p className={styles.successEyebrow}>Uspelo je!</p>
         <h2>Hvala za {doneCount === 1 ? "fotografijo" : "spomine"}.</h2>
         <p>

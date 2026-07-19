@@ -25,7 +25,8 @@
 .brand { color: white; font-size: 21px; font-weight: 800; letter-spacing: -.05em; }
 .brand:hover { color: white; }
 .brand span { color: #f6a9c4; }
-.shareButton, .likeButton, .closeButton, .lightboxNav { cursor: pointer; }
+.headerActions { display: flex; align-items: center; gap: 8px; }
+.shareButton, .likeButton, .commentBadge, .closeButton, .lightboxNav { cursor: pointer; }
 .shareButton { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.32); border-radius: 50%; background: rgba(37,17,26,.24); color: white; backdrop-filter: blur(12px); transition: background .18s ease, opacity .18s ease; }
 .shareButton:hover:not(:disabled) { background: rgba(37,17,26,.44); }
 .shareButton:disabled { cursor: wait; opacity: .62; }
@@ -68,10 +69,15 @@
 .likeButton svg { width: 20px; fill: transparent; stroke: currentColor; stroke-width: 1.8; transition: fill .18s ease, transform .18s ease; }
 .likeButton .filledHeart { fill: #ef6d9b; stroke: #ef6d9b; }
 .likeButton:active svg { transform: scale(.88); }
+.commentBadge { position: absolute; z-index: 1; right: 7px; bottom: 7px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 0 11px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(35,17,24,.44); color: #fff; font: inherit; font-size: 12px; font-weight: 800; backdrop-filter: blur(9px); transition: background .18s ease, transform .18s ease; }
+.commentBadge:hover { background: rgba(35,17,24,.68); }.commentBadge:active { transform: scale(.94); }.commentBadge:focus-visible { outline: 3px solid #f8a7c5; outline-offset: 2px; }
+.commentBadge svg { width: 18px; fill: transparent; stroke: currentColor; stroke-width: 1.8; }
 .moreButton { min-height: 48px; display: block; margin: 24px auto 0; padding: 0 22px; border: 1px solid #ddcfd4; border-radius: 999px; background: white; color: var(--ink); cursor: pointer; font: inherit; font-size: 14px; font-weight: 750; }
 .privacy { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 420px; margin: 24px auto 0; color: #89777e; font-size: 12px; line-height: 1.45; text-align: center; }
 .privacy svg { width: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; }
-.lightbox { position: fixed; z-index: 40; inset: 0; display: grid; place-items: center; background: rgba(18,10,13,.96); }
+.lightbox { position: fixed; z-index: 40; inset: 0; background: rgba(18,10,13,.97); }
+.lightboxShell { width: 100%; height: 100%; display: grid; grid-template-columns: minmax(0,1fr); overflow: hidden; }
+.lightboxStage { position: relative; min-width: 0; min-height: 0; display: grid; place-items: center; }
 .lightboxImage { position: relative; width: 100%; height: min(76vh, 760px); }
 .lightboxImage img { object-fit: contain; }
 .closeButton { position: absolute; z-index: 2; top: max(14px, env(safe-area-inset-top)); right: 14px; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(255,255,255,.12); color: white; font-size: 30px; line-height: 1; }
@@ -79,6 +85,11 @@
 .previous { left: 10px; }
 .next { right: 10px; }
 .lightboxCount { position: absolute; bottom: max(22px, env(safe-area-inset-bottom)); color: rgba(255,255,255,.72); font-size: 13px; font-variant-numeric: tabular-nums; }
+.lightboxActions { position: absolute; z-index: 3; left: 50%; bottom: max(48px,calc(env(safe-area-inset-bottom) + 42px)); display: flex; gap: 8px; transform: translateX(-50%); }
+.lightboxActions button { min-width: 52px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(42,23,31,.7); color: white; cursor: pointer; font: inherit; font-size: 12px; font-weight: 750; backdrop-filter: blur(16px); transition: background .18s ease,border-color .18s ease; }
+.lightboxActions button:hover { border-color: rgba(255,255,255,.34); background: rgba(74,37,52,.86); }
+.lightboxActions svg { width: 20px; fill: transparent; stroke: currentColor; stroke-width: 1.8; }
+.lightboxActions .filledHeart { fill: #ef6d9b; stroke: #ef6d9b; }
 
 .page button:focus-visible, .page a:focus-visible { outline: 3px solid #ffd0e0; outline-offset: 3px; }
 
@@ -94,6 +105,8 @@
   .count { font-size: 14px; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .photoCard, .photoCard:nth-child(3n + 2), .photoCard:nth-child(3n + 3) { aspect-ratio: 1 / 1; border-radius: 4px; }
+  .lightboxShell.withComments { grid-template-columns: minmax(0,1fr) 380px; }
+  .lightboxShell.withComments .next { right: 10px; }
 }
 
 @media (min-width: 1100px) {
@@ -102,5 +115,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shareButton, .heroCta, .photoButton img, .likeButton svg { transition: none; }
+  .shareButton, .heroCta, .photoButton img, .likeButton svg, .commentBadge, .lightboxActions button { transition: none; }
+}
+
+@media (max-width: 767px) {
+  .lightboxImage { height: 70vh; }
+  .lightboxNav { top: 42%; }
+  .lightboxActions { bottom: max(44px,calc(env(safe-area-inset-bottom) + 38px)); }
+  .lightboxActions button span { display: none; }
+  .lightboxActions button { width: 50px; padding: 0; }
+  .withComments .lightboxActions { bottom: min(63dvh,628px); }
+  .withComments .lightboxCount { display: none; }
 }

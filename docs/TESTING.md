@@ -82,6 +82,18 @@ Coverage odstotek ni samostojen cilj. Kritična pravila upload, auth, tenancy, m
 - kandidat za duplikat se išče samo med starejšimi mediji iste organizacije in dogodka;
 - neuspeh dodatne analize ne zavrne sicer veljavne fotografije;
 - različica algoritma se zapiše ob vsakem rezultatu.
+
+## Testna matrika face search
+
+- Basic/Advanced dogodek zavrne selfie še pred podpisom; Premium entitlement ga dovoli;
+- manjka soglasje, stara policy version, napačen MIME ali več kot 5 MB so zavrnjeni na Zod meji;
+- registrirani `guestId`, event in vsaka repository poizvedba ostanejo tenant-scoped;
+- direct upload z napačno velikostjo ali MIME se fizično izbriše in ne gre v Queue;
+- podvojena index/search Queue dostava ne podvoji provider face ID-jev ali rezultatov;
+- search počaka na index jobe in fail-closed ob nepopolnem indeksu;
+- rezultat vsebuje samo `ready`, visible, consented in efektivno Best/Good fotografije;
+- uspeh, terminalna napaka, timeout in umik soglasja fizično izbrišejo selfie;
+- mobilni E2E pokrije camera/file picker, loading, empty, error, retry in prikaz ujemanj.
 - posamezni retry je idempotenten in ostane omejen na organizacijo ter dogodek;
 - ročni override je tenant-scoped, validiran in ga je mogoče počistiti;
 - galerijski quality/status/search filtri zavrnejo neznane vrednosti na Zod meji.

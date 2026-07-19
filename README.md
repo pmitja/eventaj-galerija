@@ -65,6 +65,8 @@ migrations/            # D1 migracije
 workers/retention.ts   # dnevni fizični izbris po 90 dneh
 workers/exports.ts     # asinhrona izdelava ZIP izvozov prek Cloudflare Queue
 workers/quality.ts     # idempotenten masovni backfill tehnične kakovosti
+workers/media-processing.ts # omejena, ponovljiva obdelava novih slik
+workers/face-processing.ts # dogodkovno omejen face index + ephemeral selfie search
 ```
 
 ## Cloudflare namestitev
@@ -86,6 +88,45 @@ pnpm wrangler queues create eventaj-gallery-quality
 pnpm wrangler queues create eventaj-gallery-quality-dlq
 pnpm deploy:quality
 ```
+
+Pred produkcijskim uploadom ustvari media-processing vrsti in namesti consumer:
+
+> Media-processing Worker uporablja 30 s CPU omejitev in zato zahteva Workers
+> Paid naročnino. Plačljiv R2 paket tega ne vključuje. Naročnino aktiviraj pred
+> deploymentom Workerja; sicer Cloudflare ne zagotovi potrebne CPU rezerve za
+> tehnično analizo več sočasnih fotografij.
+
+```bash
+pnpm wrangler queues create eventaj-gallery-media-processing
+pnpm wrangler queues create eventaj-gallery-media-processing-dlq
+pnpm deploy:media-processing
+```
+
+Face search je privzeto fail-closed in zahteva potrjen DPIA/pravni gate, Premium
+entitlement ter AWS Rekognition v odobreni EU regiji. Pred deploymentom ustvari
+vrsti, nastavi worker secrets in ga namesti:
+
+```bash
+pnpm wrangler queues create eventaj-gallery-face-processing
+pnpm wrangler queues create eventaj-gallery-face-processing-dlq
+pnpm wrangler secret put AWS_REKOGNITION_ACCESS_KEY_ID --config wrangler.face-processing.jsonc
+pnpm wrangler secret put AWS_REKOGNITION_SECRET_ACCESS_KEY --config wrangler.face-processing.jsonc
+pnpm deploy:face-processing
+```
+
+IAM principal potrebuje najmanj `rekognition:CreateCollection`,
+`rekognition:IndexFaces`, `rekognition:SearchFacesByImage` in
+`rekognition:DeleteFaces` za collection prefix `eventaj-*`. Skrivnosti niso na
+web Workerju. Privzeta regija je `eu-central-1`, similarity prag 90, selfie pa
+se izbriše po zaključku ali najpozneje v 15 minutah.
+Po pravni in operativni odobritvi nastavi `FACE_SEARCH_ENABLED` na `true` v
+`wrangler.jsonc` in `wrangler.face-processing.jsonc`; oba privzeto ostaneta
+`false`, zato Premium paket sam ne vključi biometrične obdelave.
+
+Produkcijski vrstni red je: najprej `pnpm db:migrate:remote`, nato potrebne vrste
+in workerji (vključno s face-processing), nazadnje nov deployment spletne
+aplikacije. Tako noben HTTP zaključek ne more uporabiti bindinga ali tabele, ki
+še nista pripravljena.
 
 Administratorski zagon ustvari en backfill job. Worker ga razdeli v sporočila po največ 100 fotografij; posamezni zapisi preprečijo dvojno štetje ob at-least-once dostavi.
 

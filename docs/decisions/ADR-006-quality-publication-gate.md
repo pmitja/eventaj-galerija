@@ -15,6 +15,9 @@ Prvi rez tehnične analize je fotografije samo označil. Javna galerija in privz
 - Nobena datoteka se zaradi kakovosti ne izbriše ali spremeni v tehnično zavrnjeno.
 - Ročni `quality_override` ima prednost pred samodejno kategorijo. Administrator lahko fotografijo objavi tako, da jo ročno označi kot `best` ali `good`.
 - Obstoječi dogodki morajo pred javnim prikazom izvesti quality backfill.
+- Algoritem `technical-v2` namerno temne, vendar ostre fotografije z uporabnim
+  tonskim razponom ne razvrsti kot `low_quality` samo zaradi nizke povprečne
+  svetlosti; različica ostane shranjena za ponovljiv backfill.
 
 ## Posledice
 

@@ -18,6 +18,17 @@ async function deleteExpiredEvents(env: Env): Promise<void> {
   ).bind(new Date().toISOString()).all<{ id: string }>();
 
   for (const event of expired.results) {
+    const biometricReferences = await env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM face_provider_faces WHERE event_id = ?",
+    ).bind(event.id).first<{ count: number }>();
+    if ((biometricReferences?.count ?? 0) > 0) {
+      console.warn(JSON.stringify({
+        event: "retention.awaiting_face_cleanup",
+        eventId: event.id,
+        referenceCount: biometricReferences!.count,
+      }));
+      continue;
+    }
     await deletePrefix(env.MEDIA, `originals/${event.id}/`);
     await deletePrefix(env.MEDIA, `derived/${event.id}/`);
     await deletePrefix(env.MEDIA, `exports/${event.id}/`);
@@ -56,3 +67,5 @@ export default {
     context.waitUntil(Promise.all([deleteExpiredEvents(env), deleteExpiredExports(env)]).then(() => undefined));
   },
 } satisfies ExportedHandler<Env>;
+
+export { deleteExpiredEvents };

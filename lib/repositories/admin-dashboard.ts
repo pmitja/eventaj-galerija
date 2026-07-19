@@ -10,6 +10,7 @@ export type AdminEventSummary = {
   starts_at: string;
   timezone: string;
   status: AdminEventStatus;
+  comments_enabled: number;
   photo_count: number;
   visit_count: number;
   is_upcoming: number;
@@ -31,11 +32,13 @@ export type AdminMediaSummary = {
   technical_score: number | null;
   analysis_status: "pending" | "completed" | "failed" | null;
   analysis_error_code: string | null;
+  processing_status: "queued" | "processing" | "completed" | "failed" | null;
+  processing_error_code: string | null;
 };
 
 export type AdminMediaFilters = {
   quality?: QualityCategory;
-  status?: "ready" | "processing" | "rejected" | "analysis_failed" | "unanalyzed";
+  status?: "ready" | "processing" | "processing_failed" | "rejected" | "analysis_failed" | "unanalyzed";
   query?: string;
 };
 
@@ -45,6 +48,7 @@ export type AdminMediaQualitySummary = {
   visible: number;
   slideshow_approved: number;
   processing: number;
+  failed_processing: number;
   failed_analyses: number;
   unanalyzed: number;
   best: number;
@@ -221,7 +225,7 @@ export async function getAdminAnalyticsData() {
 export async function listAdminEventSummaries(limit = 100): Promise<AdminEventSummary[]> {
   const { DB, ORGANIZATION_ID } = getCloudflareEnv();
   const result = await DB.prepare(
-    `SELECT e.id, e.public_slug, e.name, e.location, e.starts_at, e.timezone, e.status,
+    `SELECT e.id, e.public_slug, e.name, e.location, e.starts_at, e.timezone, e.status, e.comments_enabled,
       CASE WHEN e.status != 'ended' AND e.starts_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now') THEN 1 ELSE 0 END AS is_upcoming,
       (SELECT COUNT(*) FROM media_files m WHERE m.event_id = e.id AND m.status = 'ready') AS photo_count,
       (SELECT COUNT(*) FROM visits v WHERE v.event_id = e.id) AS visit_count
@@ -243,7 +247,10 @@ export async function listAdminMedia(
     bindings.push(filters.quality);
   }
   if (filters.status === "ready") conditions.push("m.status = 'ready'");
-  if (filters.status === "processing") conditions.push("m.status IN ('pending', 'processing')");
+  if (filters.status === "processing") {
+    conditions.push("m.status IN ('pending', 'processing') AND COALESCE(mp.status, 'queued') != 'failed'");
+  }
+  if (filters.status === "processing_failed") conditions.push("mp.status = 'failed'");
   if (filters.status === "rejected") conditions.push("m.status = 'rejected'");
   if (filters.status === "analysis_failed") conditions.push("m.status = 'ready' AND a.status = 'failed'");
   if (filters.status === "unanalyzed") {
@@ -258,8 +265,10 @@ export async function listAdminMedia(
             m.gallery_state, m.slideshow_state, m.uploaded_at, m.created_at,
             m.quality_category, m.quality_override,
             COALESCE(m.quality_override, m.quality_category) AS effective_quality,
-            m.technical_score, a.status AS analysis_status, a.error_code AS analysis_error_code
+            m.technical_score, a.status AS analysis_status, a.error_code AS analysis_error_code,
+            mp.status AS processing_status, mp.error_code AS processing_error_code
      FROM media_files m JOIN events e ON e.id = m.event_id
+     LEFT JOIN media_processing_jobs mp ON mp.media_file_id = m.id
      LEFT JOIN ai_analyses a ON a.media_file_id = m.id
        AND a.analysis_type = 'technical_quality' AND a.provider = 'eventaj' AND a.model_version = ?
      WHERE ${conditions.join(" AND ")}
@@ -276,7 +285,8 @@ export async function getAdminMediaQualitySummary(eventId: string): Promise<Admi
        SUM(CASE WHEN m.status = 'ready' THEN 1 ELSE 0 END) AS ready,
        SUM(CASE WHEN m.status = 'ready' AND m.gallery_state = 'visible' THEN 1 ELSE 0 END) AS visible,
        SUM(CASE WHEN m.status = 'ready' AND m.slideshow_state = 'approved' THEN 1 ELSE 0 END) AS slideshow_approved,
-       SUM(CASE WHEN m.status IN ('pending', 'processing') THEN 1 ELSE 0 END) AS processing,
+       SUM(CASE WHEN m.status IN ('pending', 'processing') AND COALESCE(mp.status, 'queued') != 'failed' THEN 1 ELSE 0 END) AS processing,
+       SUM(CASE WHEN mp.status = 'failed' THEN 1 ELSE 0 END) AS failed_processing,
        SUM(CASE WHEN m.status = 'ready' AND a.status = 'failed' THEN 1 ELSE 0 END) AS failed_analyses,
        SUM(CASE WHEN m.status = 'ready' AND (a.status IS NULL OR a.status = 'pending') THEN 1 ELSE 0 END) AS unanalyzed,
        SUM(CASE WHEN COALESCE(m.quality_override, m.quality_category) = 'best' THEN 1 ELSE 0 END) AS best,
@@ -286,6 +296,7 @@ export async function getAdminMediaQualitySummary(eventId: string): Promise<Admi
        SUM(CASE WHEN COALESCE(m.quality_override, m.quality_category) = 'low_quality' THEN 1 ELSE 0 END) AS low_quality,
        COALESCE(SUM(m.size_bytes), 0) AS total_bytes
      FROM media_files m JOIN events e ON e.id = m.event_id
+     LEFT JOIN media_processing_jobs mp ON mp.media_file_id = m.id
      LEFT JOIN ai_analyses a ON a.media_file_id = m.id
        AND a.analysis_type = 'technical_quality' AND a.provider = 'eventaj' AND a.model_version = ?
      WHERE m.event_id = ? AND e.organization_id = ?`,
@@ -296,6 +307,7 @@ export async function getAdminMediaQualitySummary(eventId: string): Promise<Admi
     visible: 0,
     slideshow_approved: 0,
     processing: 0,
+    failed_processing: 0,
     failed_analyses: 0,
     unanalyzed: 0,
     best: 0,

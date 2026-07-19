@@ -15,10 +15,12 @@
 | Metoda | Pot | Namen | Auth |
 | --- | --- | --- | --- |
 | GET | `/events/{slug}` | javni podatki in omogočene akcije | javno/privacy gate |
+| POST | `/events/{slug}/guest-identity` | ustvari ali posodobi dogodkovno lokalno identiteto; konflikt imena vrne predloge | javno/rate limit |
 | POST | `/events/{slug}/gallery-access` | preveri geslo in izda kratko sejo | rate limit |
-| GET | `/events/{slug}/media` | paginirana javna galerija | javna seja |
+| GET | `/events/{slug}/media` | javna galerija z `commentCount` za vsak medij; šteje samo vidne komentarje | javna seja |
 | GET | `/events/{slug}/media/{publicId}` | lightbox podatki | javna seja |
-| POST | `/events/{slug}/upload-sessions` | ustvari sejo in attribution | rate limit |
+| GET/POST | `/events/{slug}/media/{publicId}/comments` | seznam oziroma dodajanje dogodkovno omejenih komentarjev; `403 COMMENTS_DISABLED`, ko so za dogodek izključeni | javno + veljaven `guestId` za POST |
+| POST | `/events/{slug}/upload-sessions` | ustvari sejo ter jo veže na opcijski registrirani `guestId` in attribution | rate limit |
 | POST | `/upload-sessions/{token}/files` | registrira manifest in signed parts | session token |
 | POST | `/upload-sessions/{token}/files/{fileId}/parts` | osveži podpis za manjkajoče dele | session token |
 | POST | `/upload-sessions/{token}/files/{fileId}/complete` | zaključi multipart upload | session token |
@@ -35,7 +37,7 @@ Upload manifest vsebuje samo metapodatke, nikoli binarne datoteke. `token` se v 
 | GET/POST | `/admin/events/{eventId}/slideshow` | stanje oziroma rotacija zaščitene povezave | admin + organization scope |
 | PATCH | `/admin/events/{eventId}/slideshow/media/{mediaId}` | ločena slideshow odobritev | admin + organization scope |
 | GET | `/display/{token}` | celozaslonska projekcija | hashiran slideshow token |
-| GET | `/api/v1/display/{token}/media` | near-real-time posnetek playliste | hashiran slideshow token |
+| GET | `/api/v1/display/{token}/media` | near-real-time posnetek playliste, AI-filtriranega leaderboarda, engagement dogodkov in dovoljenih svežih komentarjev | hashiran slideshow token |
 | GET | `/api/v1/display/{token}/media/{publicId}` | zasebna dostava projekcijske slike | hashiran slideshow token |
 
 Rotacija takoj zamenja veljavni hash. Odgovori playliste in slik niso shranjeni v javnem CDN cacheu.
@@ -56,10 +58,11 @@ Rotacija takoj zamenja veljavni hash. Odgovori playliste in slik niso shranjeni 
 | POST | `/admin/events/{eventId}/transitions` | ekspliciten prehod statusa |
 | POST | `/admin/events/{eventId}/duplicate` | podvojitev konfiguracije |
 | DELETE | `/admin/events/{eventId}` | zahteva za izbris po politiki |
-| GET/PATCH | `/admin/events/{eventId}/settings` | privacy, moderation, tema, limiti |
+| PATCH | `/admin/events/{eventId}/settings` | spremeni dogodkovne nastavitve; trenutno `commentsEnabled` | admin + organization scope |
 | GET | `/admin/events/{eventId}/media` | upravljavski seznam medijev |
 | POST | `/admin/events/{eventId}/media/{mediaId}/quality` | idempotenten ponovni zagon tehnične analize |
 | PATCH | `/admin/events/{eventId}/media/{mediaId}/quality` | nastavi ali počisti ročno kategorijo kakovosti; zapiše audit |
+| POST | `/admin/events/{eventId}/media/{mediaId}/processing` | ponovi neuspešno obdelavo medija; tenant scope in audit |
 | GET/POST | `/admin/events/{eventId}/quality-backfill` | stanje oziroma zagon idempotentne masovne tehnične analize |
 | GET | `/admin/media/{mediaId}` | avtenticiran prikaz zasebnega thumbnaila v upravljavski galeriji |
 | POST | `/admin/events/{eventId}/media/actions` | bulk approve/reject/hide/delete |
@@ -79,6 +82,13 @@ Vsak endpoint preveri organizacijski scope. Platform admin override se auditira.
 | GET | `/admin/exports/{exportId}` | status in signed download |
 | POST | `/admin/events/{eventId}/ai/best-photos` | zagon AI izbora |
 | POST | `/events/{slug}/face-search-sessions` | soglasje + signed selfie upload |
+| POST | `/face-search-sessions/{token}/complete` | preveri direct upload in odda index/search job |
+| GET | `/face-search-sessions/{token}` | polling statusa in dovoljenih ujemanj |
+| DELETE | `/face-search-sessions/{token}` | umik soglasja ter izbris selfija in rezultatov |
+
+Face search token je kratkotrajen bearer token in je v bazi samo hashiran. Create
+sprejme le JPEG/PNG do 5 MB, registriran `guestId`, `consent: true` in trenutno
+`policyVersion`. Endpoint je fail-closed brez event entitlementa `face_collections`.
 
 ## Webhooki in interni endpointi
 

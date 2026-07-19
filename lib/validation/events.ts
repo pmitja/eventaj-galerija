@@ -11,6 +11,7 @@ export const createEventSchema = z.object({
   customerName: z.string().trim().min(2).max(120),
   customerEmail: z.email().trim().toLowerCase().max(254),
   packageCode: packageCodeSchema,
+  commentsEnabled: z.boolean().default(true),
 }).superRefine((value, context) => {
   if (new Date(value.endsAt) <= new Date(value.startsAt)) {
     context.addIssue({ code: "custom", path: ["endsAt"], message: "Konec dogodka mora biti po začetku." });
@@ -18,3 +19,7 @@ export const createEventSchema = z.object({
 });
 
 export type CreateEventInput = z.infer<typeof createEventSchema>;
+
+export const updateEventCommentsSchema = z.object({
+  commentsEnabled: z.boolean(),
+});

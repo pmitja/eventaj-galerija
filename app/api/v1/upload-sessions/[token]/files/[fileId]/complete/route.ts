@@ -1,9 +1,12 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { problem } from "@/lib/http/problem";
-import { findMediaById, findValidUploadSession, markMediaProcessing, rejectMedia } from "@/lib/repositories/uploads";
+import {
+  createMediaProcessingJob,
+  markMediaProcessingEnqueued,
+  markMediaProcessingEnqueueFailed,
+} from "@/lib/repositories/media-processing";
+import { findMediaById, findValidUploadSession, rejectMedia } from "@/lib/repositories/uploads";
 import { hashToken } from "@/lib/security/tokens";
 import { getCloudflareEnv } from "@/lib/cloudflare";
-import { processImage } from "@/lib/storage/r2";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ token: string; fileId: string }> }) {
   const { token, fileId } = await params;
@@ -26,9 +29,29 @@ export async function POST(_request: Request, { params }: { params: Promise<{ to
     await rejectMedia(media.id);
     return problem(422, "UPLOAD_METADATA_MISMATCH", "Naložena datoteka se ne ujema s pripravljenim uploadom");
   }
-  if (!(await markMediaProcessing(media.id))) {
+  const env = getCloudflareEnv();
+  const job = await createMediaProcessingJob(env.DB, {
+    mediaId: media.id,
+    organizationId: session.organization_id,
+  });
+  if (!job) {
     return Response.json({ fileId, status: "processing" }, { status: 202 });
   }
-  getCloudflareContext().ctx.waitUntil(processImage(media.id, session.organization_id));
+  try {
+    await env.MEDIA_PROCESSING_QUEUE.send({
+      jobId: job.id,
+      mediaId: media.id,
+      organizationId: session.organization_id,
+    });
+    await markMediaProcessingEnqueued(env.DB, job.id, session.organization_id);
+  } catch {
+    await markMediaProcessingEnqueueFailed(env.DB, job.id, session.organization_id);
+    console.error(JSON.stringify({
+      event: "media_processing.enqueue_failed",
+      jobId: job.id,
+      mediaId: media.id,
+      eventId: session.event_id,
+    }));
+  }
   return Response.json({ fileId, status: "processing" }, { status: 202 });
 }

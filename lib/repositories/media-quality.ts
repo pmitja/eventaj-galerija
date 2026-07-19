@@ -4,6 +4,7 @@ import {
   type QualityCategory,
   type TechnicalQualityMetrics,
 } from "@/lib/domain/media-quality";
+import { recordAcceptedEngagement } from "@/lib/repositories/engagement";
 
 type EarlierFingerprint = {
   id: string;
@@ -91,7 +92,11 @@ export async function saveTechnicalAnalysis(input: AnalysisInput, database: D1Da
   const updated = await DB.prepare(
     `UPDATE media_files
      SET checksum_sha256 = ?, perceptual_hash = ?, width = ?, height = ?,
-         quality_category = ?, technical_score = ?, duplicate_of_media_id = ?
+         quality_category = ?, technical_score = ?, duplicate_of_media_id = ?,
+         quality_accepted_at = CASE
+           WHEN ? IN ('best', 'good') THEN COALESCE(quality_accepted_at, ?)
+           ELSE NULL
+         END
      WHERE id = ? AND event_id = ? AND EXISTS (
        SELECT 1 FROM events e WHERE e.id = media_files.event_id AND e.organization_id = ?
      )`,
@@ -103,6 +108,8 @@ export async function saveTechnicalAnalysis(input: AnalysisInput, database: D1Da
     input.category,
     Math.round(input.metrics.overall * 100),
     input.duplicate?.mediaId ?? null,
+    input.category,
+    now,
     input.mediaId,
     input.eventId,
     input.organizationId,
@@ -130,6 +137,9 @@ export async function saveTechnicalAnalysis(input: AnalysisInput, database: D1Da
     now,
     now,
   ).run();
+  if (input.category === "best" || input.category === "good") {
+    await recordAcceptedEngagement(input.mediaId, DB);
+  }
 }
 
 export async function reconcileLaterDuplicates(input: {
@@ -150,7 +160,7 @@ export async function reconcileLaterDuplicates(input: {
 
   await DB.batch([
     DB.prepare(
-      `UPDATE media_files SET quality_category = 'duplicate', duplicate_of_media_id = ?
+      `UPDATE media_files SET quality_category = 'duplicate', duplicate_of_media_id = ?, quality_accepted_at = NULL
        WHERE id IN (${scopedLaterIds})`,
     ).bind(
       input.canonicalMediaId,
@@ -198,7 +208,7 @@ export async function reconcileLaterDuplicates(input: {
     if (distance > PERCEPTUAL_DUPLICATE_MAX_DISTANCE) continue;
     await DB.batch([
       DB.prepare(
-        `UPDATE media_files SET quality_category = 'duplicate', duplicate_of_media_id = ?
+        `UPDATE media_files SET quality_category = 'duplicate', duplicate_of_media_id = ?, quality_accepted_at = NULL
          WHERE id = ? AND event_id = ? AND EXISTS (
            SELECT 1 FROM events e WHERE e.id = media_files.event_id AND e.organization_id = ?
          )`,

@@ -14,6 +14,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       publicId: item.public_id,
       filename: item.original_filename,
       uploadedAt: item.uploaded_at,
+      commentCount: item.comment_count,
       thumbnailUrl: `/api/v1/events/${slug}/media/${item.public_id}?variant=thumbnail`,
       imageUrl: `/api/v1/events/${slug}/media/${item.public_id}?variant=gallery`,
     })) },

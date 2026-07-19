@@ -10,6 +10,8 @@
     "deploy:retention": "wrangler deploy --config wrangler.retention.jsonc",
     "deploy:exports": "wrangler deploy --config wrangler.exports.jsonc",
     "deploy:quality": "wrangler deploy --config wrangler.quality.jsonc",
+    "deploy:media-processing": "wrangler deploy --config wrangler.media-processing.jsonc",
+    "deploy:face-processing": "wrangler deploy --config wrangler.face-processing.jsonc",
     "r2:cors:apply": "wrangler r2 bucket cors set eventaj-galerija-media --file config/r2-cors.json --jurisdiction eu --force",
     "r2:cors:list": "wrangler r2 bucket cors list eventaj-galerija-media --jurisdiction eu",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

@@ -1,6 +1,8 @@
 # Podatkovni model
 
-Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja D1 migracije `migrations/0001_initial.sql`–`migrations/0009_quality_backfills.sql`. Migracija 0002 je povratno združljiva: obstoječe upload seje imajo `access_point_id = NULL`. Migracija 0003 doda tenant ključ dogodkom in obstoječe vrstice povratno združljivo pripiše prvotnemu delovnemu prostoru `eventaj`; vsi novi administratorski read/write dostopi ga morajo filtrirati. Migracija 0004 doda stranke, katalog paketov ter neobvezna tuja ključa na obstoječe dogodke. Migracija 0005 doda ločeno `slideshow_state` z odobrenim privzetim stanjem za obstoječe fotografije ter tabelo `slideshows`; javni token se hrani izključno kot SHA-256 hash. Migracija 0006 doda kratkotrajne ZIP izvoze; vsebujejo le izpeljane galerijske WebP datoteke, ZIP objekt pa retention worker fizično izbriše po poteku. Migracija 0007 povratno združljivo doda nullable tehnične metrike, prstne odtise in `ai_analyses`; obstoječi mediji ostanejo nespremenjeni do eksplicitnega backfilla. Migracija 0008 doda nullable ročni override, identiteto urednika in čas spremembe; `NULL` še naprej pomeni uporabo samodejne kategorije. Migracija 0009 doda jobe in idempotentne postavke masovnega backfilla brez spremembe obstoječih analiz. Ker je administrator samo eden, njegova identiteta in hash gesla živita v Cloudflare secret konfiguraciji, ne v tabeli uporabnikov.
+Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja D1 migracije `migrations/0001_initial.sql`–`migrations/0012_event_comments_toggle.sql`. Migracija 0002 je povratno združljiva: obstoječe upload seje imajo `access_point_id = NULL`. Migracija 0003 doda tenant ključ dogodkom in obstoječe vrstice povratno združljivo pripiše prvotnemu delovnemu prostoru `eventaj`; vsi novi administratorski read/write dostopi ga morajo filtrirati. Migracija 0004 doda stranke, katalog paketov ter neobvezna tuja ključa na obstoječe dogodke. Migracija 0005 doda ločeno `slideshow_state` z odobrenim privzetim stanjem za obstoječe fotografije ter tabelo `slideshows`; javni token se hrani izključno kot SHA-256 hash. Migracija 0006 doda kratkotrajne ZIP izvoze; vsebujejo le izpeljane galerijske WebP datoteke, ZIP objekt pa retention worker fizično izbriše po poteku. Migracija 0007 povratno združljivo doda nullable tehnične metrike, prstne odtise in `ai_analyses`; obstoječi mediji ostanejo nespremenjeni do eksplicitnega backfilla. Migracija 0008 doda nullable ročni override, identiteto urednika in čas spremembe; `NULL` še naprej pomeni uporabo samodejne kategorije. Migracija 0009 doda jobe in idempotentne postavke masovnega backfilla brez spremembe obstoječih analiz. Migracija 0010 doda dogodkovno psevdonimne goste, nullable vezavo obstoječih upload sej, čas sprejema kakovosti in idempotentne engagement dogodke. Migracija 0011 doda dogodkovno in medijsko omejene komentarje; lokalni všečki ne potrebujejo strežniške tabele. Migracija 0012 doda `events.comments_enabled` s privzeto vrednostjo `1`, zato so obstoječi dogodki povratno združljivi. Ker je administrator samo eden, njegova identiteta in hash gesla živita v Cloudflare secret konfiguraciji, ne v tabeli uporabnikov.
+
+Migracija 0013 povratno združljivo doda `media_processing_jobs`; obstoječim zapisom v `processing` ustvari recovery job brez spreminjanja njihovega medijskega statusa.
 
 ## Splošna pravila
 
@@ -59,7 +61,7 @@ erDiagram
 
 ### Dogodki
 
-- `events`: id, public_id, organization_id, customer_id, package_id, slug, name, status, starts_at, ends_at, timezone, location, gallery_expires_at, archived_at, deleted_at, created_by.
+- `events`: id, public_id, organization_id, customer_id, package_id, slug, name, status, starts_at, ends_at, timezone, location, comments_enabled, gallery_expires_at, archived_at, deleted_at, created_by.
 - `event_settings`: event_id, privacy_mode, moderation_mode, uploads_enabled, gallery_enabled, welcome_text, password_hash, cover_media_id, client_logo_media_id, theme_json, max_photo_bytes, max_video_bytes, max_video_seconds.
 
 Pomembni indeksi: unique `(organization_id, slug)`, unique `public_id`, `(organization_id, status, starts_at)`, `(gallery_expires_at, status)`.
@@ -79,6 +81,8 @@ Pomembni indeksi: unique `(organization_id, slug)`, unique `public_id`, `(organi
 - `uploads`: id, session_id, event_id, storage_upload_id, object_key, original_filename, declared_mime, detected_mime, size_bytes, status, progress_bytes, attempt_count, error_code, completed_at.
 - `media_files`: id, event_id, upload_id, kind, status, original_object_key, checksum_sha256, perceptual_hash, width, height, duration_ms, captured_at, uploaded_at, gallery_state, slideshow_state, quality_category, technical_score, duplicate_of_media_id, uploader_name, guest_message, publication_consent_id, deleted_at.
 - `media_variants`: id, media_file_id, type (`thumbnail`, `web`, `poster`, `original`), object_key, mime, width, height, size_bytes, checksum.
+- `media_processing_jobs`: id, media_file_id, organization_id, status, attempt_count, error_code, last_enqueued_at, processing_started_at, created_at, updated_at, completed_at.
+- `media_comments`: id, event_id, media_id, guest_id, body, status (`visible`, `hidden`), created_at, updated_at.
 - `moderation_actions`: id, media_file_id, actor_user_id, action, target, reason, created_at.
 
 Pomembni indeksi: `(event_id, status, uploaded_at)`, `(event_id, gallery_state, captured_at)`, `(event_id, checksum_sha256)`, unique `upload_id` na `media_files`.
@@ -91,6 +95,16 @@ Pomembni indeksi: `(event_id, status, uploaded_at)`, `(event_id, gallery_state, 
 - `face_collection_media`: collection_id, media_file_id, confidence, manually_confirmed.
 
 Embedding mora biti aplikacijsko šifriran z ločenim ključem in fizično izbrisljiv.
+
+Prvi implementirani face-search rez po ADR-010 uporablja ponudniško upravljano
+regionalno collection in lokalno ne shranjuje dostopnih embeddingov. Tabele
+`face_index_jobs` in `face_provider_faces` hranijo idempotentno stanje, opaque
+provider face ID, model version, bounding box in lasten `expires_at`.
+`face_search_sessions` hrani hash bearer tokena, začasni R2 key, status ter
+15-minutni timeout; `face_search_matches` hrani samo dogodkovno omejene rezultate
+in similarity. `consent_records` vsebuje ločen namen `selfie_match_processing`.
+Umik fizično izbriše selfie in rezultate, biometric reference pa poteče najpozneje
+v 30 dneh oziroma ob retentionu dogodka.
 
 Prvi rez faze 3 uporablja `ai_analyses` tudi za deterministično analizo `technical_quality` s ponudnikom `eventaj` in verzioniranim algoritmom. `scores_json` hrani surove meritve, medtem ko so samodejna kategorija, ročni override in `technical_score` denormalizirani na `media_files` za učinkovito filtriranje. Enaki in podobni uploadi se ohranijo; `duplicate_of_media_id` samo kaže na starejši medij istega dogodka.
 

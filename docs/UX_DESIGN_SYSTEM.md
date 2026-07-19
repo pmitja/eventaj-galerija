@@ -69,6 +69,7 @@ Prvi viewport vsebuje naziv dogodka, kratek pozdrav in en dominantni CTA »Dodaj
 - Micro-interactions 150–250 ms, transform/opacity.
 - Uspešen upload lahko uporabi kratko umirjeno animacijo, nikoli ne blokira nadaljevanja.
 - `prefers-reduced-motion` odstrani nebistvene prehode in swipe animacije.
+- Liveshow komentarji so omejeni na tri hkratne oblačke ob desnem robu, ne prekrivajo glavnih kontrol in uporabljajo samo `transform` ter `opacity`; reduced-motion različica ne spreminja položaja.
 
 ## Obvezna stanja komponent
 
@@ -77,4 +78,3 @@ Vsak podatkovni pogled definira: initial loading, background refresh, empty, par
 ## Breakpoint QA
 
 Obvezno ročno in avtomatizirano preverjanje pri 375, 768, 1024 in 1440 px. Dodatno preveri iOS Safari, Android Chrome, landscape, povečavo 200 %, tipkovnico in počasno/prekinitveno omrežje.
-

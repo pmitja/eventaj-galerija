@@ -37,7 +37,9 @@ describe("public gallery repository", () => {
 
     expect(result).toEqual([{ public_id: "photo-1" }]);
     expect(state.bind).toHaveBeenCalledWith("event-1");
-    expect(state.sql).toContain("COALESCE(quality_override, quality_category) IN ('best', 'good')");
-    expect(state.sql).toContain("event_id = ?");
+    expect(state.sql).toContain("COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')");
+    expect(state.sql).toContain("m.event_id = ?");
+    expect(state.sql).toContain("c.status = 'visible'");
+    expect(state.sql).toContain("c.media_id = m.id");
   });
 });

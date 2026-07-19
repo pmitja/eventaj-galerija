@@ -15,7 +15,12 @@ describe("createEventSchema", () => {
   it("requires a customer and supported package and normalizes the email", () => {
     const result = createEventSchema.parse(validEvent);
     expect(result.customerEmail).toBe("ana@example.com");
+    expect(result.commentsEnabled).toBe(true);
     expect(createEventSchema.safeParse({ ...validEvent, packageCode: "enterprise" }).success).toBe(false);
+  });
+
+  it("allows comments to be disabled for a new event", () => {
+    expect(createEventSchema.parse({ ...validEvent, commentsEnabled: false }).commentsEnabled).toBe(false);
   });
 
   it("rejects an end before the start", () => {

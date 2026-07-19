@@ -3,3 +3,5 @@ ADMIN_PASSWORD_HASH=generate-with-pnpm-auth-hash
 R2_ACCOUNT_ID=your-cloudflare-account-id
 R2_ACCESS_KEY_ID=your-r2-api-token-access-key-id
 R2_SECRET_ACCESS_KEY=your-r2-api-token-secret-access-key
+AWS_REKOGNITION_ACCESS_KEY_ID=your-least-privilege-rekognition-access-key-id
+AWS_REKOGNITION_SECRET_ACCESS_KEY=your-rekognition-secret-access-key

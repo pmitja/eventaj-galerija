@@ -27,6 +27,7 @@ export function NewEventForm() {
         customerName: formData.get("customerName"),
         customerEmail: formData.get("customerEmail"),
         packageCode: formData.get("packageCode"),
+        commentsEnabled: formData.get("commentsEnabled") === "on",
       }),
     });
     if (!response.ok) {
@@ -64,6 +65,10 @@ export function NewEventForm() {
       </section>
       <section className={styles.formSection}>
         <div className={styles.infoNote}><Icon name="shield" size={18} /><p>Galerija bo <strong>neindeksirana</strong> in dostopna vsakomur z nepredvidljivo povezavo.</p></div>
+        <label className={styles.eventOption}>
+          <span><strong>Komentarji gostov</strong><small>Gostje lahko komentirajo posamezne fotografije. Nastavitev lahko pozneje spremeniš.</small></span>
+          <input name="commentsEnabled" type="checkbox" defaultChecked />
+        </label>
       </section>
       {error ? <p role="alert">{error}</p> : null}
       <div className={styles.formActions}><button type="submit" className={styles.primaryAction} disabled={pending}>{pending ? "Shranjujem …" : "Ustvari dogodek"} <Icon name="arrow" size={18} /></button></div>

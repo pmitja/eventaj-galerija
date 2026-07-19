@@ -68,6 +68,10 @@ flowchart LR
 - [ADR-004: Cloudflare platforma za prvi MVP](decisions/ADR-004-cloudflare-platform.md)
 - [ADR-005: Slideshow polling adapter](decisions/ADR-005-slideshow-polling-adapter.md)
 - [ADR-006: Tehnična kakovost kot javni publication gate](decisions/ADR-006-quality-publication-gate.md)
+- [ADR-007: dogodkovno omejena anonimna identiteta in engagement projekcije](decisions/ADR-007-anonymous-guest-identity-engagement.md)
+- [ADR-008: lokalni všečki in dogodkovni komentarji fotografij](decisions/ADR-008-gallery-likes-and-comments.md)
+- [ADR-009: zanesljiva vrsta za obdelavo medijev](decisions/ADR-009-media-processing-queue.md)
+- [ADR-010: ephemeral selfie search in face provider adapter](decisions/ADR-010-ephemeral-face-search.md)
 
 ## Pred začetkom kode
 

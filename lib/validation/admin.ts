@@ -5,7 +5,7 @@ export const qualityCategorySchema = z.enum(["best", "good", "duplicate", "blurr
 export const adminGalleryQuerySchema = z.object({
   eventId: z.uuid().optional(),
   quality: qualityCategorySchema.optional(),
-  status: z.enum(["ready", "processing", "rejected", "analysis_failed", "unanalyzed"]).optional(),
+  status: z.enum(["ready", "processing", "processing_failed", "rejected", "analysis_failed", "unanalyzed"]).optional(),
   q: z.string().trim().max(100).optional().transform((value) => value || undefined),
 });
 

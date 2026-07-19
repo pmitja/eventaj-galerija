@@ -4,6 +4,8 @@ const state = vi.hoisted(() => ({
   findPublicSlideshow: vi.fn(),
   listSlideshowMedia: vi.fn(),
   hashToken: vi.fn(),
+  getEngagementSnapshot: vi.fn(),
+  listLiveMediaComments: vi.fn(),
 }));
 
 vi.mock("@/lib/repositories/slideshows", () => ({
@@ -11,6 +13,8 @@ vi.mock("@/lib/repositories/slideshows", () => ({
   listSlideshowMedia: state.listSlideshowMedia,
 }));
 vi.mock("@/lib/security/tokens", () => ({ hashToken: state.hashToken }));
+vi.mock("@/lib/repositories/engagement", () => ({ getEngagementSnapshot: state.getEngagementSnapshot }));
+vi.mock("@/lib/repositories/media-comments", () => ({ listLiveMediaComments: state.listLiveMediaComments }));
 
 import { GET } from "./route";
 
@@ -26,6 +30,10 @@ describe("display playlist route", () => {
     state.hashToken.mockResolvedValue("hash");
     state.findPublicSlideshow.mockResolvedValue({ event_id: "event-1", event_name: "Poroka" });
     state.listSlideshowMedia.mockResolvedValue([{ public_id: "photo-1", original_filename: "photo.jpg", uploaded_at: "2026-07-16T12:00:00Z" }]);
+    state.getEngagementSnapshot.mockResolvedValue({ leaderboard: [], stats: { acceptedPhotos: 1, contributors: 0 }, events: [] });
+    state.listLiveMediaComments.mockResolvedValue([{
+      id: "comment-1", displayName: "Barbara", body: "Čudovito!", createdAt: "2026-07-18T20:00:00Z",
+    }]);
   });
 
   it("rejects an unknown or rotated token", async () => {
@@ -48,6 +56,13 @@ describe("display playlist route", () => {
         uploadedAt: "2026-07-16T12:00:00Z",
         imageUrl: "/api/v1/display/secret/media/photo-1",
       }],
+      engagement: { leaderboard: [], stats: { acceptedPhotos: 1, contributors: 0 }, events: [] },
+      comments: [{ id: "comment-1", displayName: "Barbara", body: "Čudovito!", createdAt: "2026-07-18T20:00:00Z" }],
     });
+  });
+
+  it("loads live comments for the token-scoped event", async () => {
+    await requestMedia();
+    expect(state.listLiveMediaComments).toHaveBeenCalledWith("event-1");
   });
 });

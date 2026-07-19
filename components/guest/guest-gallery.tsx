@@ -3,19 +3,25 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { EventUpload } from "@/components/event/event-upload";
+import { GuestIdentityGate } from "@/components/guest/guest-identity-gate";
+import { PhotoComments } from "@/components/guest/photo-comments";
+import { FaceSearch, type FaceSearchPhoto } from "@/components/guest/face-search";
 import { shareGallery, type GalleryShareResult } from "@/lib/client/share-gallery";
+import { galleryLikesStorageKey, toggleMediaLike } from "@/lib/domain/media-comments";
+import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
+import { storedGalleryLikesSchema } from "@/lib/validation/media-comments";
 import styles from "./guest-gallery.module.css";
 
 const demoPhotos = [
-  { src: "/gallery/ana-marko/photo-1.jpg", alt: "Ana in Marko na sprehodu po obredu" },
-  { src: "/gallery/ana-marko/photo-2.jpg", alt: "Poročna prstana na rokah mladoporočencev" },
-  { src: "/gallery/ana-marko/photo-3.jpg", alt: "Gostje se smejijo med poročno večerjo" },
-  { src: "/gallery/ana-marko/photo-4.jpg", alt: "Nazdravljanje s penino" },
-  { src: "/gallery/ana-marko/photo-5.jpg", alt: "Ana in Marko plešeta" },
-  { src: "/gallery/ana-marko/photo-6.jpg", alt: "Cvetlični aranžma na poročni mizi" },
-  { src: "/gallery/ana-marko/photo-7.jpg", alt: "Prijatelji se fotografirajo na poroki" },
-  { src: "/gallery/ana-marko/photo-8.jpg", alt: "Poročna torta s cvetjem" },
-  { src: "/gallery/ana-marko/photo-9.jpg", alt: "Gostje plešejo pod lučkami" },
+  { key: "demo-1", publicId: null, src: "/gallery/ana-marko/photo-1.jpg", alt: "Ana in Marko na sprehodu po obredu", commentCount: 0 },
+  { key: "demo-2", publicId: null, src: "/gallery/ana-marko/photo-2.jpg", alt: "Poročna prstana na rokah mladoporočencev", commentCount: 0 },
+  { key: "demo-3", publicId: null, src: "/gallery/ana-marko/photo-3.jpg", alt: "Gostje se smejijo med poročno večerjo", commentCount: 0 },
+  { key: "demo-4", publicId: null, src: "/gallery/ana-marko/photo-4.jpg", alt: "Nazdravljanje s penino", commentCount: 0 },
+  { key: "demo-5", publicId: null, src: "/gallery/ana-marko/photo-5.jpg", alt: "Ana in Marko plešeta", commentCount: 0 },
+  { key: "demo-6", publicId: null, src: "/gallery/ana-marko/photo-6.jpg", alt: "Cvetlični aranžma na poročni mizi", commentCount: 0 },
+  { key: "demo-7", publicId: null, src: "/gallery/ana-marko/photo-7.jpg", alt: "Prijatelji se fotografirajo na poroki", commentCount: 0 },
+  { key: "demo-8", publicId: null, src: "/gallery/ana-marko/photo-8.jpg", alt: "Poročna torta s cvetjem", commentCount: 0 },
+  { key: "demo-9", publicId: null, src: "/gallery/ana-marko/photo-9.jpg", alt: "Gostje plešejo pod lučkami", commentCount: 0 },
 ] as const;
 
 function CameraIcon() {
@@ -33,6 +39,10 @@ function HeartIcon({ filled = false }: { filled?: boolean }) {
       <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
     </svg>
   );
+}
+
+function CommentIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.7-.8L4 20l1.4-3.8A7.4 7.4 0 0 1 4 11.5a7.5 7.5 0 0 1 8-7.5 7.5 7.5 0 0 1 8 7.5Z" /></svg>;
 }
 
 function copyWithLegacySelection(url: string) {
@@ -58,22 +68,27 @@ const shareMessages: Record<Exclude<GalleryShareResult, "cancelled">, { message:
 };
 
 export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: string }) {
+  const [guestIdentity, setGuestIdentity] = useState<StoredGuestIdentity | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
-  const [liked, setLiked] = useState<number[]>([4]);
+  const [liked, setLiked] = useState<string[]>([]);
+  const [commentsOpen, setCommentsOpen] = useState(false);
   const [visiblePhotoCount, setVisiblePhotoCount] = useState(6);
-  const [livePhotos, setLivePhotos] = useState<Array<{ src: string; alt: string }>>([]);
-  const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z" });
+  const [livePhotos, setLivePhotos] = useState<Array<{ key: string; publicId: string; src: string; alt: string; commentCount: number }>>([]);
+  const [faceSearchPhotos, setFaceSearchPhotos] = useState<FaceSearchPhoto[] | null>(null);
+  const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null });
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
-  const photos = livePhotos.length > 0 || eventSlug !== "ana-in-marko" ? livePhotos : [...demoPhotos];
+  const allPhotos = livePhotos.length > 0 || eventSlug !== "ana-in-marko" ? livePhotos : [...demoPhotos];
+  const photos = faceSearchPhotos ?? allPhotos;
+  const commentsVisible = eventInfo.commentsEnabled && commentsOpen;
 
   useEffect(() => {
     let active = true;
     const load = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/media`, { cache: "no-store" });
       if (!response.ok || !active) return;
-      const body = await response.json() as { media: Array<{ imageUrl: string; filename: string }> };
-      setLivePhotos(body.media.map((item) => ({ src: item.imageUrl, alt: item.filename })));
+      const body = await response.json() as { media: Array<{ publicId: string; imageUrl: string; filename: string; commentCount: number }> };
+      setLivePhotos(body.media.map((item) => ({ key: item.publicId, publicId: item.publicId, src: item.imageUrl, alt: item.filename, commentCount: item.commentCount })));
     };
     void load();
     const interval = window.setInterval(() => void load(), 5000);
@@ -81,11 +96,24 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   }, [eventSlug]);
 
   useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      try {
+        const raw = localStorage.getItem(galleryLikesStorageKey(eventSlug));
+        const parsed = storedGalleryLikesSchema.safeParse(raw ? JSON.parse(raw) : null);
+        setLiked(parsed.success ? parsed.data.mediaIds : []);
+      } catch {
+        setLiked([]);
+      }
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [eventSlug]);
+
+  useEffect(() => {
     const loadEvent = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}`, { cache: "no-store" });
       if (!response.ok) return;
-      const body = await response.json() as { event: { name: string; location: string | null; startsAt: string } };
-      setEventInfo({ name: body.event.name, location: body.event.location ?? "", startsAt: body.event.startsAt });
+      const body = await response.json() as { event: { name: string; location: string | null; startsAt: string; commentsEnabled: boolean; faceSearchEnabled: boolean; faceSearchPolicyVersion: string | null } };
+      setEventInfo({ name: body.event.name, location: body.event.location ?? "", startsAt: body.event.startsAt, commentsEnabled: body.event.commentsEnabled, faceSearchEnabled: body.event.faceSearchEnabled, faceSearchPolicyVersion: body.event.faceSearchPolicyVersion });
     };
     void loadEvent();
   }, [eventSlug]);
@@ -99,16 +127,49 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   useEffect(() => {
     if (selectedPhoto === null) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedPhoto(null);
-      if (event.key === "ArrowRight" && photos.length) setSelectedPhoto((current) => current === null ? null : (current + 1) % photos.length);
-      if (event.key === "ArrowLeft" && photos.length) setSelectedPhoto((current) => current === null ? null : (current - 1 + photos.length) % photos.length);
+      if (event.key === "Escape") {
+        if (commentsVisible) setCommentsOpen(false);
+        else setSelectedPhoto(null);
+      }
+      if (!commentsVisible && event.key === "ArrowRight" && photos.length) setSelectedPhoto((current) => current === null ? null : (current + 1) % photos.length);
+      if (!commentsVisible && event.key === "ArrowLeft" && photos.length) setSelectedPhoto((current) => current === null ? null : (current - 1 + photos.length) % photos.length);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [photos.length, selectedPhoto]);
+  }, [commentsVisible, photos.length, selectedPhoto]);
 
-  function toggleLike(index: number) {
-    setLiked((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index]);
+  useEffect(() => {
+    if (selectedPhoto === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [selectedPhoto]);
+
+  function toggleLike(mediaId: string) {
+    setLiked((current) => {
+      const next = toggleMediaLike(current, mediaId);
+      try {
+        localStorage.setItem(galleryLikesStorageKey(eventSlug), JSON.stringify({ version: 1, mediaIds: next }));
+      } catch {
+        // The visual state still works for this page visit when storage is unavailable.
+      }
+      return next;
+    });
+  }
+
+  function openPhoto(index: number) {
+    setCommentsOpen(false);
+    setSelectedPhoto(index);
+  }
+
+  function openPhotoComments(index: number) {
+    setSelectedPhoto(index);
+    setCommentsOpen(true);
+  }
+
+  function movePhoto(index: number) {
+    setCommentsOpen(false);
+    setSelectedPhoto(index);
   }
 
   async function handleShare() {
@@ -139,6 +200,8 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <a className={styles.brand} href="#top" aria-label="Na vrh galerije">
           eventaj<span>.</span>
         </a>
+        <div className={styles.headerActions}>
+        <GuestIdentityGate eventSlug={eventSlug} onIdentity={setGuestIdentity} />
         <button
           className={styles.shareButton}
           type="button"
@@ -150,6 +213,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="m8.2 10.8 7.6-4.5M8.2 13.2l7.6 4.5" /></svg>
         </button>
+        </div>
       </header>
       {shareFeedback ? (
         <p
@@ -177,31 +241,50 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
       </section>
 
       <div className={styles.uploadSection}>
-        <EventUpload eventSlug={eventSlug} />
+        {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} /> : null}
       </div>
+
+      {guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion ? (
+        <FaceSearch
+          eventSlug={eventSlug}
+          guestIdentity={guestIdentity}
+          policyVersion={eventInfo.faceSearchPolicyVersion}
+          onMatches={(matches) => { setFaceSearchPhotos(matches); setVisiblePhotoCount(matches?.length ?? 6); }}
+        />
+      ) : null}
 
       <section className={styles.gallerySection} aria-labelledby="gallery-title">
         <div className={styles.galleryIntro}>
           <div>
             <p className={styles.sectionEyebrow}>Skupni spomini</p>
-            <h2 id="gallery-title">Najlepši trenutki</h2>
+            <h2 id="gallery-title">{faceSearchPhotos ? "Tvoje fotografije" : "Najlepši trenutki"}</h2>
           </div>
           <span className={styles.count}>{photos.length} fotografij</span>
         </div>
 
         <div className={styles.grid} data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => (
-            <article className={styles.photoCard} key={photo.src}>
-              <button className={styles.photoButton} type="button" onClick={() => setSelectedPhoto(index)} aria-label={`Odpri fotografijo: ${photo.alt}`}>
+            <article className={styles.photoCard} key={photo.key}>
+              <button className={styles.photoButton} type="button" onClick={() => openPhoto(index)} aria-label={`Odpri fotografijo: ${photo.alt}`}>
                 <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized={photo.src.startsWith("/api/")} />
               </button>
-              <button className={styles.likeButton} type="button" onClick={() => toggleLike(index)} aria-label={liked.includes(index) ? "Odstrani iz priljubljenih" : "Dodaj med priljubljene"} aria-pressed={liked.includes(index)}>
-                <HeartIcon filled={liked.includes(index)} />
+              <button className={styles.likeButton} type="button" onClick={() => toggleLike(photo.key)} aria-label={liked.includes(photo.key) ? "Odstrani iz priljubljenih" : "Dodaj med priljubljene"} aria-pressed={liked.includes(photo.key)}>
+                <HeartIcon filled={liked.includes(photo.key)} />
               </button>
+              {eventInfo.commentsEnabled && photo.publicId ? (
+                <button
+                  className={styles.commentBadge}
+                  type="button"
+                  onClick={() => openPhotoComments(index)}
+                  aria-label={`${photo.commentCount} ${photo.commentCount === 1 ? "komentar" : "komentarjev"} na fotografiji`}
+                >
+                  <CommentIcon /><span>{photo.commentCount}</span>
+                </button>
+              ) : null}
             </article>
           ))}
         </div>
-        {photos.length === 0 ? <p>Fotografij še ni. Bodi prvi in dodaj svoj utrinek.</p> : null}
+        {photos.length === 0 ? <p>{faceSearchPhotos ? "Na tem dogodku nismo našli fotografij s tabo." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek."}</p> : null}
         {visiblePhotoCount < photos.length ? (
           <button className={styles.moreButton} type="button" onClick={() => setVisiblePhotoCount(photos.length)}>Prikaži več fotografij</button>
         ) : null}
@@ -210,13 +293,28 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
 
       {selectedPhoto !== null ? (
         <div className={styles.lightbox} role="dialog" aria-modal="true" aria-label="Celozaslonski pregled fotografije" onClick={() => setSelectedPhoto(null)}>
-          <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label="Zapri pregled">×</button>
-          <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={(event) => { event.stopPropagation(); setSelectedPhoto((selectedPhoto - 1 + photos.length) % photos.length); }} aria-label="Prejšnja fotografija">‹</button>
-          <div className={styles.lightboxImage} onClick={(event) => event.stopPropagation()}>
-            <Image src={photos[selectedPhoto].src} alt={photos[selectedPhoto].alt} fill priority sizes="100vw" unoptimized={photos[selectedPhoto].src.startsWith("/api/")} />
+          <div className={`${styles.lightboxShell} ${commentsVisible ? styles.withComments : ""}`} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.lightboxStage}>
+              <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label="Zapri pregled">×</button>
+              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((selectedPhoto - 1 + photos.length) % photos.length)} aria-label="Prejšnja fotografija">‹</button>
+              <div className={styles.lightboxImage}>
+                <Image src={photos[selectedPhoto].src} alt={photos[selectedPhoto].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[selectedPhoto].src.startsWith("/api/")} />
+              </div>
+              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((selectedPhoto + 1) % photos.length)} aria-label="Naslednja fotografija">›</button>
+              <span className={styles.lightboxCount}>{selectedPhoto + 1} / {photos.length}</span>
+              <div className={styles.lightboxActions}>
+                <button type="button" onClick={() => toggleLike(photos[selectedPhoto].key)} aria-label={liked.includes(photos[selectedPhoto].key) ? "Odstrani iz priljubljenih" : "Dodaj med priljubljene"} aria-pressed={liked.includes(photos[selectedPhoto].key)}>
+                  <HeartIcon filled={liked.includes(photos[selectedPhoto].key)} /><span>{liked.includes(photos[selectedPhoto].key) ? "Všeč ti je" : "Všeč mi je"}</span>
+                </button>
+                {eventInfo.commentsEnabled ? <button type="button" onClick={() => setCommentsOpen((current) => !current)} aria-label="Komentarji" aria-expanded={commentsVisible}>
+                  <CommentIcon /><span>Komentarji</span>
+                </button> : null}
+              </div>
+            </div>
+            {commentsVisible && guestIdentity ? (
+              <PhotoComments eventSlug={eventSlug} publicMediaId={photos[selectedPhoto].publicId} guestIdentity={guestIdentity} onClose={() => setCommentsOpen(false)} />
+            ) : null}
           </div>
-          <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={(event) => { event.stopPropagation(); setSelectedPhoto((selectedPhoto + 1) % photos.length); }} aria-label="Naslednja fotografija">›</button>
-          <span className={styles.lightboxCount}>{selectedPhoto + 1} / {photos.length}</span>
         </div>
       ) : null}
     </main>

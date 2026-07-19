@@ -2,14 +2,25 @@
 
 ## Izbrani pristop
 
-Za prvi slikovni MVP velja [ADR-004](decisions/ADR-004-cloudflare-platform.md). Sistem je modularni monolit na Cloudflare platformi s štirimi Worker površinami:
+Za prvi slikovni MVP velja [ADR-004](decisions/ADR-004-cloudflare-platform.md). Sistem je modularni monolit na Cloudflare platformi s petimi Worker površinami:
 
 1. `web`: Next.js App Router prek OpenNext za javne strani, dashboard in Route Handlerje;
 2. `retention`: majhen scheduled Worker za dnevni fizični izbris;
 3. `exports`: Queue consumer za pretočne ZIP izvoze;
-4. `quality`: Queue producer/consumer za masovni tehnični backfill.
+4. `quality`: Queue producer/consumer za masovni tehnični backfill;
+5. `media-processing`: Queue consumer za variante in tehnično analizo novih slik;
+6. `face-processing`: Queue consumer za dogodkovno omejeno indeksiranje obrazov,
+   ephemeral selfie search in fizični cleanup biometričnih referenc.
 
 Metapodatki so v D1, zasebni originali ter spletne variante v R2. Cloudflare Images binding iz originala izdela očiščen WebP in thumbnail. Redis/BullMQ ter dolgoročen Node.js worker niso del prvega slikovnega MVP-ja.
+
+Face processing sledi [ADR-010](decisions/ADR-010-ephemeral-face-search.md).
+Brskalnik naloži največ 5 MB JPEG/PNG selfie neposredno v začasni zasebni R2
+prefix. Web zapiše verzionirano soglasje in odda samo opaque ID-je v Queue.
+Worker pretvori dogodkovne fotografije v začasni JPEG za ponudnika, indeksira
+jih v collection posameznega dogodka in po iskanju vedno izbriše selfie. Domena
+pozna samo `FaceProvider`; prvi adapter je AWS Rekognition v konfigurirani EU
+regiji, poverilnice pa obstajajo samo v face workerju.
 
 ## Predlagani moduli
 
@@ -55,6 +66,7 @@ sequenceDiagram
   participant W as Next.js API
   participant D as Cloudflare D1
   participant S as Cloudflare R2
+  participant Q as Cloudflare Queue
   participant M as Cloudflare Images
 
   G->>W: Ustvari upload sejo + manifest datotek
@@ -66,7 +78,8 @@ sequenceDiagram
   W->>S: HEAD preverjanje velikosti
   W->>D: status=processing
   W-->>G: 202 Accepted
-  W->>M: asinhrona transformacija prek waitUntil
+  W->>Q: odda idempotentni processing job
+  Q->>M: dostavi z globalno omejeno sočasnostjo
   M->>S: Prebere zasebni original
   M->>M: dekodiranje in WebP transformacija
   M->>S: Shrani web + thumbnail
@@ -89,7 +102,7 @@ sequenceDiagram
 
 Prvi rez faze 3 ostane brez zunanjega AI ponudnika. Processing pretočno izračuna SHA-256 originala, Cloudflare Images pa poleg galerijskih različic izdela 256 × 256 RGBA analizni vzorec. Čiste domenske funkcije iz njega izračunajo osvetlitev, ostrino in 64-bitni difference hash. Primerjava duplikatov je omejena na `organization_id` in dogodek; datoteka se samo označi in se nikoli samodejno ne izbriše. Različica algoritma je shranjena ob vsakem rezultatu, da je poznejši backfill ponovljiv.
 
-Napaka dodatne kakovostne analize ne spremeni uspešno obdelane fotografije v `rejected`; zapiše se ločen neuspešen analysis rezultat, ki ga je mogoče varno ponoviti iz administratorske galerije. Ročni override ne prepiše rezultata algoritma: hrani se ločeno, z identiteto urednika in audit dogodkom, ter ga je mogoče odstraniti. Masovni backfill poteka prek namenske Cloudflare Queue; spletni `waitUntil` je namenjen samo posameznemu retryju. En začetni job se razveji v pakete po največ 100 sporočil. `quality_backfill_items` zagotavlja idempotentno štetje ob at-least-once dostavi, tri poskuse z zamikom in vidno delno napako.
+Napaka dodatne kakovostne analize ne spremeni uspešno obdelane fotografije v `rejected`; zapiše se ločen neuspešen analysis rezultat, ki ga je mogoče varno ponoviti iz administratorske galerije. Ročni override ne prepiše rezultata algoritma: hrani se ločeno, z identiteto urednika in audit dogodkom, ter ga je mogoče odstraniti. Masovni backfill poteka prek namenske Cloudflare Queue. Obdelava novih medijev prav tako uporablja ločeno Queue po [ADR-009](decisions/ADR-009-media-processing-queue.md); spletni `waitUntil` ni izvajalec transformacij novih uploadov. En začetni quality job se razveji v pakete po največ 100 sporočil. `quality_backfill_items` zagotavlja idempotentno štetje ob at-least-once dostavi, tri poskuse z zamikom in vidno delno napako.
 
 Po [ADR-006](decisions/ADR-006-quality-publication-gate.md) sta javna galerija in slideshow fail-closed: prikažeta samo efektivni kategoriji `best` in `good`. Slabše, podvojene in še neanalizirane fotografije ostanejo v administratorski galeriji in se nikoli samodejno ne izbrišejo.
 

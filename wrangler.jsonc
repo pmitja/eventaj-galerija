@@ -37,6 +37,14 @@
       {
         "binding": "QUALITY_QUEUE",
         "queue": "eventaj-gallery-quality"
+      },
+      {
+        "binding": "MEDIA_PROCESSING_QUEUE",
+        "queue": "eventaj-gallery-media-processing"
+      },
+      {
+        "binding": "FACE_PROCESSING_QUEUE",
+        "queue": "eventaj-gallery-face-processing"
       }
     ]
   },
@@ -49,6 +57,8 @@
     "R2_ACCOUNT_ID": "a8061b4ae8e71cdcd6f6b69b8023f2e1",
     "R2_BUCKET_NAME": "eventaj-galerija-media",
     "PUBLIC_APP_URL": "https://eventaj-galerija.eventaj.workers.dev",
+    "FACE_SEARCH_ENABLED": "false",
+    "FACE_SEARCH_POLICY_VERSION": "2026-07-19",
     "RETENTION_DAYS": "90"
   }
 }
