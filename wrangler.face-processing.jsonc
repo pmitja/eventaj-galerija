@@ -46,6 +46,6 @@
   "vars": {
     "AWS_REKOGNITION_REGION": "eu-central-1",
     "FACE_MATCH_THRESHOLD": "90",
-    "FACE_SEARCH_ENABLED": "false"
+    "FACE_SEARCH_ENABLED": "true"
   }
 }
