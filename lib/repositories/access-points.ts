@@ -71,7 +71,7 @@ export async function findActiveAccessPoint(publicCode: string): Promise<AccessP
     `SELECT ap.*, e.name AS event_name, e.public_slug AS event_slug, e.status AS event_status
      FROM access_points ap
      JOIN events e ON e.id = ap.event_id
-     WHERE ap.public_code = ? AND ap.active = 1 AND e.status = 'active'`,
+     WHERE ap.public_code = ? AND ap.active = 1 AND e.status IN ('active', 'ended')`,
   ).bind(publicCode).first<AccessPointWithEventRow>();
 }
 

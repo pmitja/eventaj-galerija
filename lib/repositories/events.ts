@@ -101,8 +101,10 @@ export async function findEventById(id: string, organizationId: string): Promise
 }
 
 export async function findPublicEvent(slug: string): Promise<EventRow | null> {
+  // Ended events stay publicly visible; the gallery is gated by gallery_enabled
+  // and retention, while uploads close on their own 24h window (see areUploadsOpen).
   return getCloudflareEnv().DB.prepare(
-    "SELECT * FROM events WHERE public_slug = ? AND status = 'active' AND gallery_enabled = 1",
+    "SELECT * FROM events WHERE public_slug = ? AND status IN ('active', 'ended') AND gallery_enabled = 1",
   ).bind(slug).first<EventRow>();
 }
 
