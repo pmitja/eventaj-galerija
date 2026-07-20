@@ -55,12 +55,14 @@ export async function createUploadSession(
   };
 }
 
-export async function findValidUploadSession(tokenHash: string): Promise<UploadSessionRow | null> {
+export async function findValidUploadSession(
+  tokenHash: string,
+): Promise<(UploadSessionRow & { ends_at: string }) | null> {
   return getCloudflareEnv().DB.prepare(
-    `SELECT s.*, e.organization_id FROM upload_sessions s
+    `SELECT s.*, e.organization_id, e.ends_at FROM upload_sessions s
      JOIN events e ON e.id = s.event_id
      WHERE s.token_hash = ? AND s.expires_at > ?`,
-  ).bind(tokenHash, new Date().toISOString()).first<UploadSessionRow>();
+  ).bind(tokenHash, new Date().toISOString()).first<UploadSessionRow & { ends_at: string }>();
 }
 
 export async function countSessionFiles(sessionId: string): Promise<number> {

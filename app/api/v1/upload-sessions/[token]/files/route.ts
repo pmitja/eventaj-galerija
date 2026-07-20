@@ -1,4 +1,5 @@
 import { problem } from "@/lib/http/problem";
+import { areUploadsOpen } from "@/lib/domain/events";
 import { countSessionFiles, findValidUploadSession, insertPendingMedia } from "@/lib/repositories/uploads";
 import { hashToken } from "@/lib/security/tokens";
 import { createPresignedUploadUrl, PRESIGNED_UPLOAD_TTL_SECONDS } from "@/lib/storage/r2";
@@ -10,6 +11,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
   const { token } = await params;
   const session = await findValidUploadSession(await hashToken(token));
   if (!session) return problem(401, "INVALID_UPLOAD_SESSION", "Upload seja ni veljavna");
+  if (!areUploadsOpen(session.ends_at)) {
+    return problem(410, "EVENT_ENDED", "Nalaganje za ta dogodek je zaključeno");
+  }
   if ((await countSessionFiles(session.id)) >= MAX_SESSION_FILES) {
     return problem(429, "UPLOAD_SESSION_LIMIT", "Doseženo je največje število datotek v seji");
   }
