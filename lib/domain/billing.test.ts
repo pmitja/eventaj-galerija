@@ -3,6 +3,7 @@ import {
   AI_BEST_PHOTOS_LIMIT,
   AI_BEST_PHOTOS_PRICE_CENTS,
   EVENT_PRICE_CENTS,
+  FACE_COLLECTIONS_PRICE_CENTS,
   checkoutTotalCents,
 } from "./billing";
 
@@ -16,5 +17,11 @@ describe("billing rules", () => {
     expect(AI_BEST_PHOTOS_PRICE_CENTS).toBe(1_500);
     expect(AI_BEST_PHOTOS_LIMIT).toBe(3_000);
     expect(checkoutTotalCents(true)).toBe(5_000);
+  });
+
+  it("adds 5 EUR for AI face search", () => {
+    expect(FACE_COLLECTIONS_PRICE_CENTS).toBe(500);
+    expect(checkoutTotalCents(false, true)).toBe(4_000);
+    expect(checkoutTotalCents(true, true)).toBe(5_500);
   });
 });

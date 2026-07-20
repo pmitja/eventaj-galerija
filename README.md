@@ -1,6 +1,6 @@
 # Eventaj Galerija
 
-Mobilno prilagojena SaaS platforma za zbiranje fotografij z dogodkov prek QR kode. Gostje ne potrebujejo računa ali aplikacije, organizator pa po Stripe plačilu dobi lasten organizacijski dostop.
+Mobilno prilagojena SaaS platforma za zbiranje fotografij z dogodkov prek QR kode. Gostje ne potrebujejo računa ali aplikacije; naročnik po Stripe plačilu prejme QR kodo po e-pošti, po dogodku pa varno povezavo do ZIP prenosa.
 
 Osnovna cena je 35 EUR na dogodek. Opcijski `AI Best Photos` stane 15 EUR do 3.000 fotografij; večje količine so ponudba po meri.
 
@@ -73,11 +73,14 @@ workers/face-processing.ts # dogodkovno omejen face index + ephemeral selfie sea
 
 Konfiguracije so `wrangler.jsonc` za aplikacijo, `wrangler.retention.jsonc` za dnevni retention worker, `wrangler.exports.jsonc` za ZIP queue consumer in `wrangler.quality.jsonc` za masovno tehnično analizo. Produkcijske skrivnosti (`AUTH_SECRET`, `ADMIN_PASSWORD_HASH`, R2 S3 ključa) se nastavijo z `wrangler secret put` in se ne zapisujejo v repozitorij.
 
-Pred prvim deploymentom ZIP izvoza ustvari glavno in dead-letter vrsto ter namesti consumer:
+Pred prvim deploymentom e-poštne dostave in ZIP izvoza ustvari glavno in
+dead-letter vrsto, nastavi Resend skrivnost ter namesti consumer. Domena pošiljatelja
+iz `EMAIL_FROM` mora biti pred tem preverjena v Resend:
 
 ```bash
 pnpm wrangler queues create eventaj-gallery-exports
 pnpm wrangler queues create eventaj-gallery-exports-dlq
+pnpm wrangler secret put RESEND_API_KEY --config wrangler.exports.jsonc
 pnpm deploy:exports
 ```
 
@@ -151,5 +154,7 @@ Produkcijski skrivnosti nastavi z `wrangler secret put STRIPE_SECRET_KEY` in
 `wrangler secret put STRIPE_WEBHOOK_SECRET`. Stripe webhook cilj je
 `/api/webhooks/stripe`; posluša `checkout.session.completed`,
 `checkout.session.async_payment_succeeded` in `checkout.session.expired`.
-Provisioning organizacije, lastnika, aktivnega dogodka in glavne QR kode je
-idempotenten. Kartični podatki vedno ostanejo na gostovanem Stripe Checkout.
+Provisioning stranke, aktivnega dogodka in glavne QR kode je idempotenten ter ne
+ustvari uporabniškega računa. Kartični podatki vedno ostanejo na gostovanem
+Stripe Checkout. E-poštni worker potrebuje `RESEND_API_KEY`; po plačilu pošlje
+QR, po koncu dogodka pa 24-urno povezavo do ZIP prenosa.

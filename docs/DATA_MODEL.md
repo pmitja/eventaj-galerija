@@ -2,7 +2,8 @@
 
 Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja zaporedne D1 migracije v `migrations/`. Migracije 0001–0014 uvedejo dogodke, QR dostop, medije, slideshow, izvoze, tehnično kakovost, komentarje in face-search rez. Migracija 0015 zamenja implicitnega enega administratorja z organizacijami, uporabniki, članstvi in Stripe checkout naročili; stare podatke ohrani v organizaciji `eventaj`.
 
-Stripe webhook po ADR-011 idempotentno materializira plačan dogodek, članski dostop in glavno QR kodo. Migracija je razširitvena; starejša aplikacija nove tabele prezre.
+Stripe webhook po ADR-012 idempotentno materializira plačan dogodek in glavno QR
+kodo brez članskega dostopa. Dostavi QR in ZIP sta ločeni idempotentni opravili.
 
 ## Splošna pravila
 
@@ -114,6 +115,9 @@ Prvi rez faze 3 uporablja `ai_analyses` tudi za deterministično analizo `techni
 - `slideshow_items`: slideshow_id, media_file_id, status, position, approved_by, approved_at.
 - `download_exports`: id, event_id, requested_by, status, object_key, file_name, media_count, size_bytes, expires_at, error_code, completed_at.
 - `notifications`: id, organization_id, user_id, event_id, type, channel, status, payload_json, sent_at.
+- `event_deliveries`: event_id, checkout_order_id, recipient_email, access_point_id,
+  qr_email_status/sent_at, export_id, download_token_hash/expires_at,
+  archive_email_status/sent_at, error_code, created_at, updated_at.
 
 ### Compliance in audit
 

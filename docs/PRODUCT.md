@@ -8,8 +8,8 @@ Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere f
 
 - Eventaj Galerija: 35 EUR na dogodek, brez naročnine in z neomejenim številom gostov.
 - AI Best Photos: 15 EUR na dogodek do 3.000 fotografij; več po ponudbi.
-- Po plačilu Stripe webhook samodejno ustvari organizacijo, račun lastnika,
-  aktiven dogodek in glavno QR kodo.
+- Po plačilu Stripe webhook samodejno ustvari aktiven dogodek in glavno QR kodo.
+  Naročnik ne dobi računa: QR prejme po e-pošti, po zaključku pa še varen ZIP.
 - Trenutni upload sprejema samo fotografije; video ni del oglaševane ponudbe.
 
 ## Uporabniki in vloge
@@ -18,9 +18,15 @@ Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere f
 
 Upravlja organizacije, stranke, dogodke, pakete, dodatke, fizično opremo, procesiranje, plačila, hrambo in incidente. Ima globalen pregled, vendar so privilegirana dejanja auditirana.
 
-### Organizator
+### Naročnik
 
-V okviru dodeljene organizacije in dogodkov pregleduje galerijo, moderira, prenaša datoteke, nastavlja slideshow in uporablja omogočene funkcije. V MVP sta vlogi `owner` in `event_manager`.
+Nima računa. Pred plačilom vnese kontaktne podatke in podatke dogodka, nato po
+e-pošti prejme QR kodo. Po zaključku dogodka prejme časovno omejen ZIP prenos.
+
+### Interni organizator
+
+Kot Eventaj osebje v okviru interne organizacije pregleduje galerijo, moderira,
+prenaša datoteke, nastavlja slideshow in uporablja omogočene funkcije.
 
 ### Gost
 

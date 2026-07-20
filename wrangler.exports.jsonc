@@ -21,7 +21,16 @@
       "jurisdiction": "eu"
     }
   ],
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  },
   "queues": {
+    "producers": [
+      {
+        "binding": "EXPORT_QUEUE",
+        "queue": "eventaj-gallery-exports"
+      }
+    ],
     "consumers": [
       {
         "queue": "eventaj-gallery-exports",
@@ -33,5 +42,9 @@
         "dead_letter_queue": "eventaj-gallery-exports-dlq"
       }
     ]
+  },
+  "vars": {
+    "PUBLIC_APP_URL": "https://eventaj-galerija.eventaj.workers.dev",
+    "EMAIL_FROM": "Eventaj Galerija <galerija@eventaj.si>"
   }
 }

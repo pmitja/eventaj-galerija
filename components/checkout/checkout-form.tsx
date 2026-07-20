@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarDays, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, ShieldCheck, Sparkles, TriangleAlert } from "lucide-react";
+import { CalendarDays, Check, Download, LoaderCircle, LockKeyhole, Mail, ScanFace, ShieldCheck, Sparkles, TriangleAlert } from "lucide-react";
 import { format } from "date-fns";
 import { sl } from "date-fns/locale";
 import { Alert, Separator } from "@/components/ui/alert";
@@ -11,13 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldDescription, FieldError, FieldLabel, RequiredMark } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel, RequiredMark } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { checkoutFormSchema, type CheckoutFormValues } from "@/lib/validation/checkout";
 import styles from "./checkout.module.css";
-
-type Buyer = { name: string; email: string; organizationName: string } | null;
 
 function dateFromValue(value: string) {
   const [year, month, day] = value.split("-").map(Number);
@@ -79,18 +77,15 @@ function SectionHeading({ step, title, description }: { step: string; title: str
   </CardHeader>;
 }
 
-export function CheckoutForm({ buyer }: { buyer: Buyer }) {
+export function CheckoutForm() {
   const [serverError, setServerError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     mode: "onBlur",
     defaultValues: {
-      requiresAccount: !buyer,
-      organizationName: buyer?.organizationName ?? "",
-      ownerName: buyer?.name ?? "",
-      ownerEmail: buyer?.email ?? "",
-      password: "",
+      organizationName: "",
+      ownerName: "",
+      ownerEmail: "",
       eventName: "",
       eventLocation: "",
       startDate: "",
@@ -99,10 +94,12 @@ export function CheckoutForm({ buyer }: { buyer: Buyer }) {
       endTime: "23:59",
       commentsEnabled: true,
       aiBestPhotos: false,
+      faceCollections: false,
     },
   });
   const { errors, isSubmitting } = form.formState;
-  const [aiBestPhotos, startDate] = useWatch({ control: form.control, name: ["aiBestPhotos", "startDate"] });
+  const [aiBestPhotos, faceCollections, startDate] = useWatch({ control: form.control, name: ["aiBestPhotos", "faceCollections", "startDate"] });
+  const totalEuros = 35 + (aiBestPhotos ? 15 : 0) + (faceCollections ? 5 : 0);
 
   async function submit(data: CheckoutFormValues) {
     setServerError(null);
@@ -114,7 +111,6 @@ export function CheckoutForm({ buyer }: { buyer: Buyer }) {
           organizationName: data.organizationName,
           ownerName: data.ownerName,
           ownerEmail: data.ownerEmail,
-          password: buyer ? undefined : data.password,
           eventName: data.eventName,
           eventLocation: data.eventLocation,
           startsAt: new Date(`${data.startDate}T${data.startTime}:00`).toISOString(),
@@ -122,6 +118,7 @@ export function CheckoutForm({ buyer }: { buyer: Buyer }) {
           timezone: "Europe/Ljubljana",
           commentsEnabled: data.commentsEnabled,
           aiBestPhotos: data.aiBestPhotos,
+          faceCollections: data.faceCollections,
         }),
       });
       const body = await response.json().catch(() => null) as { checkout?: { url: string }; detail?: string; title?: string } | null;
@@ -136,8 +133,8 @@ export function CheckoutForm({ buyer }: { buyer: Buyer }) {
     <p className={styles.requiredNote}><span aria-hidden="true">*</span> označuje obvezno polje</p>
     <div className={styles.formLayout}>
       <div className={styles.formColumn}>
-        {!buyer ? <Card>
-          <SectionHeading step="1" title="Tvoj dostop" description="Podatke potrebujemo za ustvarjanje organizatorskega računa." />
+        <Card>
+          <SectionHeading step="1" title="Kam pošljemo QR?" description="Na ta naslov pošljemo QR kodo, po dogodku pa še ZIP vseh fotografij. Prijave ne potrebuješ." />
           <CardContent className={styles.fieldsGrid}>
             <Field>
               <FieldLabel htmlFor="organizationName">Organizacija<RequiredMark /></FieldLabel>
@@ -154,25 +151,19 @@ export function CheckoutForm({ buyer }: { buyer: Buyer }) {
               <Input id="ownerEmail" type="email" required inputMode="email" autoComplete="email" placeholder="ime@podjetje.si" aria-invalid={Boolean(errors.ownerEmail)} aria-describedby={errors.ownerEmail ? "ownerEmail-error" : undefined} {...form.register("ownerEmail")} />
               {errors.ownerEmail ? <FieldError id="ownerEmail-error">{errors.ownerEmail.message}</FieldError> : null}
             </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Geslo<RequiredMark /></FieldLabel>
-              <div className={styles.passwordWrap}>
-                <Input id="password" type={showPassword ? "text" : "password"} required autoComplete="new-password" aria-invalid={Boolean(errors.password)} aria-describedby="password-help password-error" {...form.register("password")} />
-                <Button type="button" variant="ghost" size="icon" className={styles.passwordToggle} onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Skrij geslo" : "Prikaži geslo"}>
-                  {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
-                </Button>
-              </div>
-              <FieldDescription id="password-help">Najmanj 10 znakov, velika in mala črka ter številka.</FieldDescription>
-              {errors.password ? <FieldError id="password-error">{errors.password.message}</FieldError> : null}
-            </Field>
+            <div className={styles.deliveryPromise}>
+              <Mail aria-hidden="true" />
+              <span><strong>Takoj po plačilu</strong><small>QR koda in neposredna povezava do dogodka.</small></span>
+            </div>
+            <div className={styles.deliveryPromise}>
+              <Download aria-hidden="true" />
+              <span><strong>Po zaključku dogodka</strong><small>24-urna povezava do ZIP-a vseh fotografij.</small></span>
+            </div>
           </CardContent>
-        </Card> : <div className={styles.signedIn}>
-          <Check aria-hidden="true" />
-          <span>Dogodek bo dodan organizaciji <strong>{buyer.organizationName}</strong>.</span>
-        </div>}
+        </Card>
 
         <Card>
-          <SectionHeading step={buyer ? "1" : "2"} title="Podatki o dogodku" description="Vnesi osnovne podatke in določi, kdaj bo galerija aktivna." />
+          <SectionHeading step="2" title="Podatki o dogodku" description="Vnesi osnovne podatke in določi, kdaj bo galerija aktivna." />
           <CardContent className={styles.eventContent}>
             <div className={styles.fieldsGrid}>
               <Field className={styles.fullWidth}>
@@ -238,7 +229,8 @@ export function CheckoutForm({ buyer }: { buyer: Buyer }) {
             <ul className={styles.includedList}>
               <li><Check aria-hidden="true" /> Neomejeno gostov</li>
               <li><Check aria-hidden="true" /> QR koda in foto galerija</li>
-              <li><Check aria-hidden="true" /> Organizatorski dostop</li>
+              <li><Check aria-hidden="true" /> QR takoj po e-pošti</li>
+              <li><Check aria-hidden="true" /> ZIP po zaključku dogodka</li>
             </ul>
             <Separator />
             <Controller control={form.control} name="aiBestPhotos" render={({ field }) => <label className={styles.addon} htmlFor="aiBestPhotos">
@@ -246,8 +238,13 @@ export function CheckoutForm({ buyer }: { buyer: Buyer }) {
               <span><strong><Sparkles aria-hidden="true" /> AI Best Photos</strong><small>Samodejni izbor do 3.000 fotografij.</small></span>
               <b>+15 €</b>
             </label>} />
+            <Controller control={form.control} name="faceCollections" render={({ field }) => <label className={styles.addon} htmlFor="faceCollections">
+              <Checkbox id="faceCollections" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+              <span><strong><ScanFace aria-hidden="true" /> AI iskanje po obrazu</strong><small>Gostje s selfijem najdejo svoje fotografije.</small></span>
+              <b>+5 €</b>
+            </label>} />
             <Separator />
-            <div className={styles.total}><span>Skupaj</span><strong>{aiBestPhotos ? "50 €" : "35 €"}</strong></div>
+            <div className={styles.total}><span>Skupaj</span><strong>{totalEuros} €</strong></div>
             <span className={styles.taxNote}>Cena vključuje DDV.</span>
             {serverError ? <Alert role="alert"><TriangleAlert aria-hidden="true" /><span>{serverError}</span></Alert> : null}
             <Button className={styles.submit} type="submit" disabled={isSubmitting}>

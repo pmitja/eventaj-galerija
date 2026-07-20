@@ -6,7 +6,7 @@ Primarni stack: **Next.js na Cloudflare Workers**
 
 ## Cilj
 
-Vzpostaviti produkcijsko pripravljeno jedro, v katerem organizator prek Stripe Checkout kupi dogodek in dobi svoj račun, gost pa prek QR kode v enem kliku izbere datoteke, jih zanesljivo naloži in nato vidi v galeriji skladno s pravili objave.
+Vzpostaviti produkcijsko pripravljeno jedro, v katerem naročnik prek Stripe Checkout kupi dogodek, brez računa prejme QR kodo po e-pošti in po zaključku dogodka še varen ZIP prenos; gost pa prek QR kode v enem kliku izbere datoteke, jih zanesljivo naloži in nato vidi v galeriji skladno s pravili objave.
 
 ## Meja prvega MVP
 
@@ -20,7 +20,7 @@ V MVP sodijo:
 - asinhrona izdelava thumbnaila in spletne različice;
 - javna galerija in osnovna moderacija;
 - stabilne QR preusmeritve;
-- Stripe Checkout ter organizacijski računi;
+- Stripe Checkout ter e-poštna dostava QR in ZIP brez računa;
 - osnovni dashboard in audit trail.
 
 Videi so del poslovnega MVP, vendar naj se implementirajo takoj za stabilnim slikovnim tokom. AI, slideshow, ZIP in tiskovine niso del prvega vertikalnega reza.
@@ -73,6 +73,7 @@ flowchart LR
 - [ADR-008: lokalni všečki in dogodkovni komentarji fotografij](decisions/ADR-008-gallery-likes-and-comments.md)
 - [ADR-009: zanesljiva vrsta za obdelavo medijev](decisions/ADR-009-media-processing-queue.md)
 - [ADR-010: ephemeral selfie search in face provider adapter](decisions/ADR-010-ephemeral-face-search.md)
+- [ADR-012: dostava dogodka brez uporabniškega računa](decisions/ADR-012-email-only-event-delivery.md)
 
 ## Pred začetkom kode
 

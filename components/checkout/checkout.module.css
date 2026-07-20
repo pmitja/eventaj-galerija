@@ -25,12 +25,11 @@
 .fieldsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .fullWidth { grid-column: 1 / -1; }
 .optional { color: #8a707c; font-size: 12px; font-weight: 600; }
-.passwordWrap { position: relative; }
-.passwordWrap input { padding-right: 50px; }
-.passwordToggle { position: absolute; top: 3px; right: 3px; color: #795568; }
-.passwordToggle svg { width: 19px; height: 19px; }
-.signedIn { min-height: 62px; display: flex; align-items: center; gap: 12px; border: 1px solid #bbf7d0; border-radius: 16px; padding: 14px 18px; background: #f0fdf4; color: #166534; font-size: 14px; }
-.signedIn svg { width: 21px; height: 21px; flex: none; border-radius: 50%; padding: 3px; background: #16a34a; color: #fff; }
+.deliveryPromise { min-height: 70px; display: flex; align-items: flex-start; gap: 11px; border: 1px solid #eee0e6; border-radius: 14px; padding: 14px; background: #fffbfd; }
+.deliveryPromise > svg { width: 20px; height: 20px; flex: none; margin-top: 1px; color: #db2777; }
+.deliveryPromise > span { display: grid; gap: 3px; }
+.deliveryPromise strong { color: #4e1831; font-size: 13.5px; }
+.deliveryPromise small { color: #765d68; font-size: 12px; line-height: 1.45; }
 
 .eventContent { display: grid; gap: 22px; }
 .timeline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -75,6 +74,26 @@
 .secureNote { display: flex; align-items: flex-start; justify-content: center; gap: 7px; color: #806672; font-size: 11.5px; line-height: 1.45; text-align: left; }
 .secureNote svg { width: 16px; height: 16px; flex: none; color: #16a34a; }
 
+.successCard { max-width: 650px; margin: 32px auto 0; text-align: center; box-shadow: 0 18px 48px rgba(79, 18, 47, .09); }
+.successIcon { width: 58px; height: 58px; display: grid; place-items: center; margin: 0 auto 18px; border-radius: 50%; background: #dcfce7; color: #15803d; }
+.successIcon svg { width: 28px; height: 28px; }
+.nextSteps { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 22px 0; text-align: left; }
+.nextStep { display: flex; align-items: flex-start; gap: 10px; border: 1px solid #eee0e6; border-radius: 14px; padding: 14px; background: #fffbfd; }
+.nextStep svg { width: 19px; height: 19px; flex: none; color: #db2777; }
+.nextStep span { display: grid; gap: 3px; }
+.nextStep strong { font-size: 13.5px; }
+.nextStep small { color: #765d68; font-size: 12px; line-height: 1.45; }
+.successNote { margin: 0; color: #765d68; font-size: 13px; line-height: 1.55; }
+
+.successLinks { display: grid; gap: 10px; margin: 0 0 20px; }
+.successLink { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 12px 18px; border-radius: 14px; font-size: 15px; font-weight: 700; text-decoration: none; }
+.successLink svg { width: 18px; height: 18px; flex: none; }
+.successLinkPrimary { background: #db2777; color: #fff; box-shadow: 0 1px 2px rgba(225, 29, 72, .3); }
+.successLinkSecondary { border: 1px solid #eccdd9; background: #fffbfd; color: #9d174d; }
+.eventRef { margin: 0 0 18px; padding: 12px 16px; border: 1px dashed #eccdd9; border-radius: 14px; background: #fffbfd; color: #765d68; font-size: 13px; line-height: 1.5; }
+.eventRef strong { display: block; color: #4f122f; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.eventRef code { font-size: 14px; color: #9d174d; word-break: break-all; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 960px) {
@@ -99,6 +118,7 @@
   .dateTimeFields { grid-template-columns: minmax(0, 1fr) 102px; }
   .dateButton { padding-inline: 10px; }
   .dateTimeHeading small { display: none; }
+  .nextSteps { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 380px) {

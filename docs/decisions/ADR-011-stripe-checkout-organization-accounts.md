@@ -2,6 +2,8 @@
 
 - Status: accepted
 - Datum: 2026-07-20
+- Delno nadomeščeno z: [ADR-012](ADR-012-email-only-event-delivery.md), ki
+  odstrani uporabniški račun in prijavo iz javnega nakupnega toka
 
 ## Kontekst
 

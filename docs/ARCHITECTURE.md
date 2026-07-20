@@ -128,8 +128,8 @@ Originali so vedno zasebni. Javne variante se dostavljajo prek podpisanih CDN UR
 
 ## Avtentikacija in avtorizacija
 
-- Lastnik ob prvem Stripe nakupu določi e-pošto in geslo; hrani se samo PBKDF2 hash.
-- Plačan webhook ustvari organizacijo, uporabnika in članstvo `owner`.
+- Javni Stripe nakup ne ustvari identitete ali seje; kontaktna e-pošta je namenjena dostavi QR in ZIP.
+- Plačan webhook ustvari stranko in dogodek v interni organizaciji `eventaj`.
 - Seja identificira uporabnika, avtorizacijska storitev pa preveri članstvo, vlogo, organizacijo in po potrebi dogodek.
 - Platform admin je ločena globalna sposobnost, ne članstvo v vsaki organizaciji.
 - Javni slideshow uporablja preklicljiv, rotirajoč, hashiran token.
@@ -140,6 +140,8 @@ Gostovani Stripe Checkout prejme 35 EUR za dogodek in opcijskih 15 EUR za AI
 Best Photos. Aplikacija v Stripe metadata pošlje samo ID lokalnega naročila.
 Podpisan webhook in success stran kličeta isto idempotentno fulfillment funkcijo,
 ki ponovno pridobi Checkout Session ter preveri plačilo, znesek in valuto.
+Po uspehu Queue pošlje QR e-pošto. Scheduled export worker po `ends_at` izdela ZIP
+in pošlje drugo e-pošto z hashirano, časovno omejeno bearer povezavo.
 
 ## Deployment topologija
 

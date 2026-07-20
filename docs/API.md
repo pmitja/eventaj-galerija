@@ -14,11 +14,12 @@
 
 | Metoda | Pot | Namen | Auth |
 | --- | --- | --- | --- |
-| POST | `/api/v1/checkout` | ustvari lokalno naročilo in Stripe Checkout Session | javno ali organizacijska seja |
+| POST | `/api/v1/checkout` | ustvari lokalno naročilo brez računa in Stripe Checkout Session | javno |
 | POST | `/api/webhooks/stripe` | preveri Stripe podpis ter idempotentno provisionira plačan dogodek | Stripe podpis |
 
-Javni prvi nakup zahteva organizacijo, lastnika, e-pošto, varno geslo in podatke
-dogodka. Prijavljen član pri dodatnem nakupu uporabi obstoječo organizacijo.
+Javni nakup zahteva kontaktno ime, e-pošto in podatke dogodka. Geslo, uporabnik in
+organizacijska seja niso del toka. Javni `GET /prenosi/{token}` preveri hashiran,
+časovno omejen token ter preusmeri na kratkotrajen podpisan R2 prenos.
 
 ## Javni event API
 

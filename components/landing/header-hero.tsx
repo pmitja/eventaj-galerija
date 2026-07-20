@@ -27,7 +27,7 @@ export function Header() {
         </nav>
         <div className="header-actions">
           <LoginTrigger className="login-link">Prijava</LoginTrigger>
-          <Link className="button button--small" href="/naroci">Ustvari dogodek</Link>
+          <Link className="button button--small desktop-only" href="/naroci">Ustvari dogodek</Link>
           <button
             className={`menu-button ${menuOpen ? "menu-button--open" : ""}`}
             type="button"
