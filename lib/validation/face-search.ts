@@ -18,6 +18,13 @@ export const createFaceSearchSessionSchema = z.object({
   policyVersion: z.string().trim().min(1).max(50),
 });
 
+export const storedFaceSearchResultSchema = z.object({
+  version: z.literal(1),
+  policyVersion: z.string().trim().min(1).max(50),
+  createdAt: z.iso.datetime(),
+  mediaIds: z.array(z.string().trim().min(1).max(160)).max(500),
+});
+
 export const faceQueueMessageSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("index"),
@@ -33,3 +40,4 @@ export const faceQueueMessageSchema = z.discriminatedUnion("kind", [
 ]);
 
 export type FaceQueueMessage = z.infer<typeof faceQueueMessageSchema>;
+export type StoredFaceSearchResult = z.infer<typeof storedFaceSearchResultSchema>;

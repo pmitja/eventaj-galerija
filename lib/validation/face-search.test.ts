@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FACE_SEARCH_MAX_FILE_BYTES } from "@/lib/domain/face-search";
-import { createFaceSearchSessionSchema, faceQueueMessageSchema } from "./face-search";
+import { createFaceSearchSessionSchema, faceQueueMessageSchema, storedFaceSearchResultSchema } from "./face-search";
 
 const valid = {
   guestId: "guest_0123456789abcdef",
@@ -38,5 +38,20 @@ describe("face search validation", () => {
       jobId: "cf40dd8b96582ca5643b2ebc266dc01d",
     }).success).toBe(true);
     expect(faceQueueMessageSchema.safeParse({ ...message, jobId: "not-a-job-id" }).success).toBe(false);
+  });
+
+  it("accepts only a small versioned local cache of public media ids", () => {
+    expect(storedFaceSearchResultSchema.safeParse({
+      version: 1,
+      policyVersion: "2026-07-19",
+      createdAt: "2026-07-20T08:00:00.000Z",
+      mediaIds: ["public-photo-1", "public-photo-2"],
+    }).success).toBe(true);
+    expect(storedFaceSearchResultSchema.safeParse({
+      version: 2,
+      policyVersion: "2026-07-19",
+      createdAt: "not-a-date",
+      mediaIds: ["public-photo-1"],
+    }).success).toBe(false);
   });
 });

@@ -1,7 +1,7 @@
 # ADR-010: Ephemeral selfie search prek ponudniškega face collection adapterja
 
-Status: sprejeto za prvi rez faze 4  
-Datum: 2026-07-19
+Status: sprejeto za prvi rez faze 4, dopolnjeno z lokalnim UX predpomnilnikom
+Datum: 2026-07-19, dopolnitev 2026-07-20
 
 ## Kontekst
 
@@ -34,11 +34,18 @@ končna pravna podlaga in natančen retention) ostajajo produkcijski gate.
 - Rezultat vrne samo sicer javno dostavljive fotografije (`ready`, dovoljena
   objava, vidna galerija in efektivna kakovost `best`/`good`). Prag podobnosti je
   konfigurabilen in se zapiše ob rezultatu; AI rezultat ni jamstvo identitete.
+- Rezultati se prikažejo kot filter obstoječe javne galerije, ne kot druga mreža.
+  Brskalnik lahko največ 30 dni hrani verzioniran seznam javnih `media.public_id`
+  zadetkov, vezan na event slug, lokalni `guest_id` in trenutno verzijo pravilnika.
+  Ob poteku, spremembi pravilnika ali dejanju »Pozabi« se lokalni zapis odstrani.
+  Selfie, similarity, ponudniški face ID in embedding niso del tega predpomnilnika.
 
 ## Posledice
 
 Selfie ne potuje skozi Next.js proces, spletna zahteva ne čaka na AI in retry je
-varen. Za produkcijo so potrebni Queue/DLQ, odobrene AWS IAM pravice, EU regija,
+varen. Lokalni seznam javnih ID-jev omogoči nadaljevanje filtra brez nove
+biometrične obdelave, vendar pomeni osebno povezavo na uporabnikovi napravi, zato
+je omejen, verzioniran in eksplicitno izbrisljiv. Za produkcijo so potrebni Queue/DLQ, odobrene AWS IAM pravice, EU regija,
 DPIA in potrjeno besedilo pravilnika. Če ponudnik ali entitlement ni konfiguriran,
 API odpove zaprto in ne sprejme biometričnega uploada.
 

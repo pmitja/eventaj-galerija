@@ -54,6 +54,12 @@
 .sectionEyebrow { color: var(--berry); }
 .galleryIntro h2 { margin: 5px 0 0; font-family: Georgia, "Times New Roman", serif; font-size: 29px; line-height: 1.05; font-weight: 400; letter-spacing: -.03em; }
 .count { flex: none; padding-bottom: 3px; color: var(--muted); font-size: 12px; }
+.galleryFilters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -5px 6px 18px; }
+.galleryFilter { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; border: 1px solid #ddcfd4; border-radius: 999px; background: #fff; color: #4b343e; cursor: pointer; font: inherit; font-size: 13px; font-weight: 800; transition: border-color .18s ease, background .18s ease, color .18s ease; }
+.galleryFilter:hover { border-color: #bd7592; background: #fff7fa; }
+.galleryFilterActive { border-color: #8d1747; background: #8d1747; color: #fff; }
+.galleryFilterActive:hover { border-color: #6f1239; background: #6f1239; }
+.emptyGallery { margin: 24px auto; padding: 24px 18px; border: 1px dashed #ddcfd4; border-radius: 16px; color: var(--muted); text-align: center; }
 .selectionTray { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: -4px 4px 18px; padding: 14px 16px; border: 1px solid #f1c8d7; border-radius: 14px; background: #fff2f6; }
 .selectionTray div { display: flex; flex-direction: column; gap: 2px; }
 .selectionTray strong { font-size: 14px; }
@@ -101,6 +107,7 @@
   .gallerySection { padding: 54px 24px 64px; }
   .uploadSection { margin-top: -34px; }
   .galleryIntro { padding-inline: 0; }
+  .galleryFilters { margin-inline: 0; }
   .galleryIntro h2 { font-size: 38px; }
   .count { font-size: 14px; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -115,7 +122,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shareButton, .heroCta, .photoButton img, .likeButton svg, .commentBadge, .lightboxActions button { transition: none; }
+  .shareButton, .heroCta, .galleryFilter, .photoButton img, .likeButton svg, .commentBadge, .lightboxActions button { transition: none; }
 }
 
 @media (max-width: 767px) {

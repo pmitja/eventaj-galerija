@@ -5,9 +5,11 @@ import { useEffect, useState } from "react";
 import { EventUpload } from "@/components/event/event-upload";
 import { GuestIdentityGate } from "@/components/guest/guest-identity-gate";
 import { PhotoComments } from "@/components/guest/photo-comments";
-import { FaceSearch, type FaceSearchPhoto } from "@/components/guest/face-search";
+import { FaceSearch } from "@/components/guest/face-search";
 import { shareGallery, type GalleryShareResult } from "@/lib/client/share-gallery";
+import { faceSearchResultStorageKey, isFaceSearchLocalResultCurrent } from "@/lib/domain/face-search";
 import { galleryLikesStorageKey, toggleMediaLike } from "@/lib/domain/media-comments";
+import { storedFaceSearchResultSchema, type StoredFaceSearchResult } from "@/lib/validation/face-search";
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import { storedGalleryLikesSchema } from "@/lib/validation/media-comments";
 import styles from "./guest-gallery.module.css";
@@ -74,12 +76,15 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [visiblePhotoCount, setVisiblePhotoCount] = useState(6);
   const [livePhotos, setLivePhotos] = useState<Array<{ key: string; publicId: string; src: string; alt: string; commentCount: number }>>([]);
-  const [faceSearchPhotos, setFaceSearchPhotos] = useState<FaceSearchPhoto[] | null>(null);
+  const [faceSearchResult, setFaceSearchResult] = useState<StoredFaceSearchResult | null>(null);
+  const [faceFilterActive, setFaceFilterActive] = useState(false);
   const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null });
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const allPhotos = livePhotos.length > 0 || eventSlug !== "ana-in-marko" ? livePhotos : [...demoPhotos];
-  const photos = faceSearchPhotos ?? allPhotos;
+  const faceMatchIds = new Set(faceSearchResult?.mediaIds ?? []);
+  const faceSearchPhotos = faceSearchResult ? allPhotos.filter((photo) => photo.publicId && faceMatchIds.has(photo.publicId)) : [];
+  const photos = faceFilterActive && faceSearchResult ? faceSearchPhotos : allPhotos;
   const commentsVisible = eventInfo.commentsEnabled && commentsOpen;
 
   useEffect(() => {
@@ -94,6 +99,31 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     const interval = window.setInterval(() => void load(), 5000);
     return () => { active = false; window.clearInterval(interval); };
   }, [eventSlug]);
+
+  useEffect(() => {
+    const guestId = guestIdentity?.guestId;
+    const policyVersion = eventInfo.faceSearchPolicyVersion;
+    if (!guestId || !policyVersion) return;
+    const storageKey = faceSearchResultStorageKey(eventSlug, guestId);
+    const timeout = window.setTimeout(() => {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        const parsed = storedFaceSearchResultSchema.safeParse(raw ? JSON.parse(raw) : null);
+        if (parsed.success && isFaceSearchLocalResultCurrent(parsed.data.createdAt, parsed.data.policyVersion, policyVersion)) {
+          setFaceSearchResult(parsed.data);
+          setFaceFilterActive(true);
+          setVisiblePhotoCount(parsed.data.mediaIds.length);
+          return;
+        }
+        localStorage.removeItem(storageKey);
+      } catch {
+        // Face search remains available even when browser storage is blocked.
+      }
+      setFaceSearchResult(null);
+      setFaceFilterActive(false);
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [eventInfo.faceSearchPolicyVersion, eventSlug, guestIdentity?.guestId]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -139,6 +169,13 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   }, [commentsVisible, photos.length, selectedPhoto]);
 
   useEffect(() => {
+    if (selectedPhoto !== null && selectedPhoto >= photos.length) {
+      setCommentsOpen(false);
+      setSelectedPhoto(null);
+    }
+  }, [photos.length, selectedPhoto]);
+
+  useEffect(() => {
     if (selectedPhoto === null) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -170,6 +207,37 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   function movePhoto(index: number) {
     setCommentsOpen(false);
     setSelectedPhoto(index);
+  }
+
+  function saveFaceSearchResult(mediaIds: string[]) {
+    if (!guestIdentity || !eventInfo.faceSearchPolicyVersion) return;
+    const next: StoredFaceSearchResult = {
+      version: 1,
+      policyVersion: eventInfo.faceSearchPolicyVersion,
+      createdAt: new Date().toISOString(),
+      mediaIds: [...new Set(mediaIds)].slice(0, 500),
+    };
+    try {
+      localStorage.setItem(faceSearchResultStorageKey(eventSlug, guestIdentity.guestId), JSON.stringify(next));
+    } catch {
+      // Results still work for the current page visit when storage is unavailable.
+    }
+    setFaceSearchResult(next);
+    setFaceFilterActive(true);
+    setVisiblePhotoCount(next.mediaIds.length);
+  }
+
+  function forgetFaceSearchResult() {
+    if (guestIdentity) {
+      try {
+        localStorage.removeItem(faceSearchResultStorageKey(eventSlug, guestIdentity.guestId));
+      } catch {
+        // Clearing in-memory state still removes the result for this page visit.
+      }
+    }
+    setFaceSearchResult(null);
+    setFaceFilterActive(false);
+    setVisiblePhotoCount(6);
   }
 
   async function handleShare() {
@@ -227,7 +295,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
 
       <section className={styles.hero} id="top">
         <div className={styles.heroBackdrop} aria-hidden="true">
-          {photos[0] ? <Image src={photos[0].src} alt="" fill priority sizes="100vw" unoptimized={photos[0].src.startsWith("/api/")} /> : null}
+          {allPhotos[0] ? <Image src={allPhotos[0].src} alt="" fill priority sizes="100vw" unoptimized={allPhotos[0].src.startsWith("/api/")} /> : null}
         </div>
         <div className={styles.heroContent}>
           <p className={styles.kicker}>{new Intl.DateTimeFormat("sl-SI", { dateStyle: "long" }).format(new Date(eventInfo.startsAt))}{eventInfo.location ? ` · ${eventInfo.location}` : ""}</p>
@@ -244,23 +312,38 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} /> : null}
       </div>
 
-      {guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion ? (
-        <FaceSearch
-          eventSlug={eventSlug}
-          guestIdentity={guestIdentity}
-          policyVersion={eventInfo.faceSearchPolicyVersion}
-          onMatches={(matches) => { setFaceSearchPhotos(matches); setVisiblePhotoCount(matches?.length ?? 6); }}
-        />
-      ) : null}
-
       <section className={styles.gallerySection} aria-labelledby="gallery-title">
         <div className={styles.galleryIntro}>
           <div>
             <p className={styles.sectionEyebrow}>Skupni spomini</p>
-            <h2 id="gallery-title">{faceSearchPhotos ? "Tvoje fotografije" : "Najlepši trenutki"}</h2>
+            <h2 id="gallery-title">{faceFilterActive ? "Tvoje fotografije" : "Najlepši trenutki"}</h2>
           </div>
           <span className={styles.count}>{photos.length} fotografij</span>
         </div>
+
+        {guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion ? (
+          <div className={styles.galleryFilters} aria-label="Filtri galerije">
+            <button
+              className={`${styles.galleryFilter} ${!faceFilterActive ? styles.galleryFilterActive : ""}`}
+              type="button"
+              onClick={() => { setFaceFilterActive(false); setVisiblePhotoCount(6); }}
+              aria-pressed={!faceFilterActive}
+            >
+              Vse fotografije
+            </button>
+            <FaceSearch
+              eventSlug={eventSlug}
+              guestIdentity={guestIdentity}
+              policyVersion={eventInfo.faceSearchPolicyVersion}
+              result={faceSearchResult}
+              matchCount={faceSearchPhotos.length}
+              active={faceFilterActive}
+              onActivate={() => { setFaceFilterActive(true); setVisiblePhotoCount(faceSearchResult?.mediaIds.length ?? 6); }}
+              onMatches={saveFaceSearchResult}
+              onForget={forgetFaceSearchResult}
+            />
+          </div>
+        ) : null}
 
         <div className={styles.grid} data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => (
@@ -284,7 +367,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
             </article>
           ))}
         </div>
-        {photos.length === 0 ? <p>{faceSearchPhotos ? "Na tem dogodku nismo našli fotografij s tabo." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek."}</p> : null}
+        {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? "Teh fotografij ni več v javni galeriji. Osveži iskanje z novim selfijem." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek."}</p> : null}
         {visiblePhotoCount < photos.length ? (
           <button className={styles.moreButton} type="button" onClick={() => setVisiblePhotoCount(photos.length)}>Prikaži več fotografij</button>
         ) : null}

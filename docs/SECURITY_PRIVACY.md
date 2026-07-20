@@ -58,6 +58,10 @@ Soglasje ni edina možna pravna podlaga za celoten produkt; končno pravno podla
 - Ob poteku se najprej prekliče dostop, nato po grace obdobju izvede fizični izbris.
 - Signed izvozi imajo bistveno krajšo življenjsko dobo kot galerija.
 - Selfie za iskanje se izbriše takoj po zaključku ali timeoutu.
+- Brskalnik lahko zaradi nadaljevanja uporabniške izkušnje največ 30 dni hrani
+  samo javne ID-je fotografij, ki so bile vrnjene kot zadetki. Zapis je vezan na
+  dogodek, lokalnega gosta in verzijo pravilnika ter ga lahko gost kadarkoli izbriše.
+  Selfie, embedding, similarity in ponudniški face ID se ne zapisujejo v brskalnik.
 - Face embeddings imajo lasten krajši retention in jih je mogoče izbrisati ločeno.
 - Prvi face-search rez lokalno hrani samo opaque provider face ID-je; ponudniški
   face vector je v collection posameznega dogodka v konfigurirani EU regiji in

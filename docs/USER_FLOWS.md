@@ -65,13 +65,21 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
 
 ## 6. Face search (prvi rez faze 4 implementiran)
 
-1. Gost vidi razlago namena, časa hrambe in ločeno soglasje.
-2. Selfie naloži v začasni zasebni prostor.
-3. Sistem asinhrono počaka, da so upravičene fotografije dogodka indeksirane,
+1. Gost v orodni vrstici galerije izbere filter »Poišči me«; selfie tok se odpre
+   v mobilnem spodnjem panelu oziroma dialogu na večjem zaslonu.
+2. Gost vidi razlago namena, časa hrambe in ločeno soglasje.
+3. Selfie naloži v začasni zasebni prostor.
+4. Sistem asinhrono počaka, da so upravičene fotografije dogodka indeksirane,
    nato pri regionalnem ponudniku poišče ujemanja samo znotraj collection tega dogodka.
-4. Vrne samo fotografije, ki so že varne za javno galerijo; similarity ni dokaz identitete.
-5. Selfie se fizično izbriše po uspehu, terminalni napaki ali najpozneje po 15 minutah.
-6. Gost lahko umakne soglasje; sistem izbriše selfie in rezultate ter zapiše audit brez biometričnih podatkov.
+5. Rezultat vključi filter »Moje fotografije« v obstoječi galeriji; ločena ali
+   podvojena mreža fotografij se ne izriše.
+6. Brskalnik za naslednji obisk istega gosta in dogodka največ 30 dni hrani samo
+   verzioniran seznam javnih ID-jev zadetkov. Selfie, embedding in ponudniški face ID
+   se ne shranijo lokalno; ob novi verziji pravilnika se zapis zavrže.
+7. Gost lahko med iskanjem zapre panel in nadaljuje ogled. Filter lahko pozneje
+   osveži ali izbere »Pozabi«, kar izbriše lokalni seznam zadetkov.
+8. Selfie se fizično izbriše po uspehu, terminalni napaki ali najpozneje po 15 minutah.
+9. Gost lahko umakne soglasje; sistem izbriše selfie in strežniške rezultate ter zapiše audit brez biometričnih podatkov.
 
 ## 7. Projekcija dogodka
 
