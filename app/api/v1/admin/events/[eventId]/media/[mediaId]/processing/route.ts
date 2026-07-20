@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { problem } from "@/lib/http/problem";
 import {
@@ -17,8 +17,8 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ eventId: string; mediaId: string }> },
 ) {
-  const session = await auth();
-  if (!session) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
   if (!hasValidOrigin(request)) return problem(403, "INVALID_ORIGIN", "Izvor zahteve ni dovoljen");
   const parsed = mediaQualityParamsSchema.safeParse(await params);
   if (!parsed.success) return problem(404, "MEDIA_NOT_FOUND", "Fotografija ne obstaja");
@@ -26,7 +26,7 @@ export async function POST(
   const env = getCloudflareEnv();
   const job = await retryFailedMediaProcessingJob(env.DB, {
     ...parsed.data,
-    organizationId: env.ORGANIZATION_ID,
+    organizationId: context.organizationId,
   });
   if (!job) return problem(409, "PROCESSING_NOT_RETRYABLE", "Obdelave trenutno ni mogoče ponoviti");
 
@@ -48,7 +48,7 @@ export async function POST(
   ).bind(
     crypto.randomUUID(),
     parsed.data.eventId,
-    session.user?.email ?? "eventaj-admin",
+    context.email,
     parsed.data.mediaId,
     new Date().toISOString(),
   ).run();

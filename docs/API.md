@@ -10,6 +10,16 @@
 - Seznami uporabljajo cursor pagination, ne offseta.
 - Zunanji API je različiciran; interne Server Actions niso javna pogodba.
 
+## Checkout in provisioning
+
+| Metoda | Pot | Namen | Auth |
+| --- | --- | --- | --- |
+| POST | `/api/v1/checkout` | ustvari lokalno naročilo in Stripe Checkout Session | javno ali organizacijska seja |
+| POST | `/api/webhooks/stripe` | preveri Stripe podpis ter idempotentno provisionira plačan dogodek | Stripe podpis |
+
+Javni prvi nakup zahteva organizacijo, lastnika, e-pošto, varno geslo in podatke
+dogodka. Prijavljen član pri dodatnem nakupu uporabi obstoječo organizacijo.
+
 ## Javni event API
 
 | Metoda | Pot | Namen | Auth |

@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { problem } from "@/lib/http/problem";
 import { findEventById } from "@/lib/repositories/events";
@@ -8,13 +8,14 @@ import {
   markQualityBackfillEnqueueFailed,
 } from "@/lib/repositories/quality-backfills";
 import { qualityBackfillParamsSchema, qualityBackfillRequestSchema } from "@/lib/validation/quality-backfill";
+import { hasAiBestPhotosEntitlement } from "@/lib/repositories/entitlements";
 
 function validOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   return !origin || origin === new URL(request.url).origin;
 }
 
-function responseBody(job: Awaited<ReturnType<typeof findLatestOwnedQualityBackfill>>) {
+function responseBody(job: import("@/lib/repositories/quality-backfills").QualityBackfillSummary | null) {
   if (!job) return { backfill: null };
   return {
     backfill: {
@@ -34,39 +35,47 @@ function responseBody(job: Awaited<ReturnType<typeof findLatestOwnedQualityBackf
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ eventId: string }> }) {
-  if (!(await auth())) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
   const parsed = qualityBackfillParamsSchema.safeParse(await params);
-  if (!parsed.success || !(await findEventById(parsed.data.eventId))) {
+  if (!parsed.success || !(await findEventById(parsed.data.eventId, context.organizationId))) {
     return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
   }
-  return Response.json(responseBody(await findLatestOwnedQualityBackfill(parsed.data.eventId)), {
+  if (!(await hasAiBestPhotosEntitlement(parsed.data.eventId, context.organizationId))) {
+    return problem(403, "AI_BEST_PHOTOS_REQUIRED", "AI Best Photos ni omogočen za ta dogodek");
+  }
+  return Response.json(responseBody(await findLatestOwnedQualityBackfill(parsed.data.eventId, context.organizationId)), {
     headers: { "cache-control": "no-store" },
   });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ eventId: string }> }) {
-  const session = await auth();
-  if (!session) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
   if (!validOrigin(request)) return problem(403, "INVALID_ORIGIN", "Izvor zahteve ni dovoljen");
   const parsedParams = qualityBackfillParamsSchema.safeParse(await params);
   const parsedBody = qualityBackfillRequestSchema.safeParse(await request.json().catch(() => ({})));
-  if (!parsedParams.success || !(await findEventById(parsedParams.data.eventId))) {
+  if (!parsedParams.success || !(await findEventById(parsedParams.data.eventId, context.organizationId))) {
     return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
   }
   if (!parsedBody.success) return problem(422, "INVALID_BACKFILL_MODE", "Način analize ni veljaven");
+  if (!(await hasAiBestPhotosEntitlement(parsedParams.data.eventId, context.organizationId))) {
+    return problem(403, "AI_BEST_PHOTOS_REQUIRED", "AI Best Photos ni omogočen za ta dogodek");
+  }
 
-  const { ORGANIZATION_ID, QUALITY_QUEUE, DB } = getCloudflareEnv();
+  const { QUALITY_QUEUE, DB } = getCloudflareEnv();
   const created = await createQualityBackfill({
     eventId: parsedParams.data.eventId,
-    requestedBy: session.user?.email ?? "eventaj-admin",
+    requestedBy: context.email,
     mode: parsedBody.data.mode,
+    organizationId: context.organizationId,
   });
   if (created.created) {
     try {
       await QUALITY_QUEUE.send({
         type: "start",
         backfillId: created.job.id,
-        organizationId: ORGANIZATION_ID,
+        organizationId: context.organizationId,
       });
     } catch {
       await markQualityBackfillEnqueueFailed(created.job.id);
@@ -79,7 +88,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ eve
     ).bind(
       crypto.randomUUID(),
       parsedParams.data.eventId,
-      session.user?.email ?? "eventaj-admin",
+      context.email,
       created.job.id,
       JSON.stringify({ mode: parsedBody.data.mode, modelVersion: created.job.model_version }),
       new Date().toISOString(),

@@ -5,4 +5,6 @@ interface CloudflareEnv {
   ADMIN_PASSWORD_HASH: string;
   R2_ACCESS_KEY_ID: string;
   R2_SECRET_ACCESS_KEY: string;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
 }

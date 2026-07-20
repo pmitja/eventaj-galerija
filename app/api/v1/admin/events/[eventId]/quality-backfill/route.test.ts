@@ -31,6 +31,9 @@ vi.mock("@/auth", () => ({ auth: vi.fn(async () => state.session) }));
 vi.mock("@/lib/repositories/events", () => ({
   findEventById: vi.fn(async () => state.eventExists ? { id: eventId } : null),
 }));
+vi.mock("@/lib/repositories/entitlements", () => ({
+  hasAiBestPhotosEntitlement: vi.fn(async () => true),
+}));
 vi.mock("@/lib/repositories/quality-backfills", () => ({
   createQualityBackfill: vi.fn(async () => ({ job, created: state.created })),
   findLatestOwnedQualityBackfill: vi.fn(async () => job),

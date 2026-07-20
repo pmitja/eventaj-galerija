@@ -1,0 +1,116 @@
+.button {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 18px;
+  background: #db2777;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+}
+
+.button:hover:not(:disabled) { background: #be185d; }
+.button:focus-visible { outline: 3px solid rgba(219, 39, 119, .24); outline-offset: 3px; }
+.button:disabled { cursor: wait; opacity: .62; }
+.buttonOutline { border: 1px solid #d8c7cf; background: #fff; color: #3f0d25; box-shadow: 0 1px 2px rgba(63, 13, 37, .04); }
+.buttonOutline:hover:not(:disabled) { border-color: #ba97a7; background: #fff9fb; }
+.buttonGhost { background: transparent; color: #6f3951; }
+.buttonGhost:hover:not(:disabled) { background: #fdf2f8; }
+.buttonIcon { width: 44px; min-height: 44px; padding: 0; }
+
+.input {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid #d8c7cf;
+  border-radius: 12px;
+  padding: 11px 13px;
+  background: #fff;
+  color: #3f0d25;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.input::placeholder { color: #a78b98; }
+.input:hover { border-color: #c5a9b6; }
+.input:focus-visible { border-color: #db2777; outline: 0; box-shadow: 0 0 0 3px rgba(219, 39, 119, .16); }
+.input[aria-invalid="true"] { border-color: #be123c; }
+.input[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 3px rgba(190, 18, 60, .13); }
+
+.card { border: 1px solid #eadde3; border-radius: 20px; background: #fff; box-shadow: 0 10px 35px rgba(79, 18, 47, .055); }
+.cardHeader { display: grid; gap: 5px; padding: 24px 24px 0; }
+.cardTitle { margin: 0; color: #3f0d25; font-size: 19px; line-height: 1.35; font-weight: 800; letter-spacing: -.01em; }
+.cardDescription { margin: 0; color: #765d68; font-size: 14px; line-height: 1.5; }
+.cardContent { padding: 22px 24px 24px; }
+
+.field { display: grid; align-content: start; gap: 7px; }
+.fieldLabel { color: #4e1831; font-size: 14px; line-height: 1.35; font-weight: 750; }
+.fieldDescription { margin: 0; color: #765d68; font-size: 12.5px; line-height: 1.45; }
+.fieldError { margin: 0; color: #a10f35; font-size: 12.5px; line-height: 1.4; font-weight: 650; }
+.required { color: #be185d; }
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #bfa7b2;
+  border-radius: 6px;
+  background: #fff;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.checkbox:hover { border-color: #db2777; }
+.checkbox:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(219, 39, 119, .2); }
+.checkbox[data-state="checked"] { border-color: #db2777; background: #db2777; }
+.checkboxIndicator { width: 15px; height: 15px; }
+
+.popoverContent {
+  z-index: 30;
+  width: auto;
+  max-width: calc(100vw - 24px);
+  border: 1px solid #eadde3;
+  border-radius: 16px;
+  padding: 12px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(63, 13, 37, .18);
+  transform-origin: var(--radix-popover-content-transform-origin);
+  animation: popoverIn 160ms ease-out;
+}
+
+.calendar { --rdp-accent-color: #db2777; --rdp-accent-background-color: #fce7f3; color: #3f0d25; font-size: 14px; }
+.calendar :global(.rdp-month_caption) { min-height: 40px; align-items: center; }
+.calendar :global(.rdp-caption_label) { font-size: 15px; font-weight: 800; }
+.calendar :global(.rdp-button_previous), .calendar :global(.rdp-button_next) { width: 40px; height: 40px; border-radius: 10px; }
+.calendar :global(.rdp-weekday) { color: #866a76; font-size: 12px; font-weight: 700; }
+.calendar :global(.rdp-day_button) { width: 40px; height: 40px; border-radius: 10px; }
+.calendar :global(.rdp-day_button):focus-visible { outline: 3px solid rgba(219, 39, 119, .22); outline-offset: 1px; }
+.calendar :global(.rdp-selected .rdp-day_button) { font-weight: 800; }
+
+.alert { display: flex; align-items: flex-start; gap: 10px; border: 1px solid #fecdd3; border-radius: 12px; padding: 12px 14px; background: #fff1f2; color: #9f1239; font-size: 14px; line-height: 1.5; }
+.separator { height: 1px; border: 0; margin: 0; background: #f0e3e8; }
+
+@keyframes popoverIn { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+@media (max-width: 640px) {
+  .cardHeader { padding: 20px 18px 0; }
+  .cardContent { padding: 18px; }
+  .popoverContent { padding: 8px; }
+  .calendar :global(.rdp-day_button) { width: 38px; height: 38px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button, .input, .checkbox, .popoverContent { transition: none; animation: none; }
+}

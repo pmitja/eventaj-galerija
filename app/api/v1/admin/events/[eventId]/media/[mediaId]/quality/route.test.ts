@@ -26,6 +26,9 @@ vi.mock("@/lib/cloudflare", () => ({
 vi.mock("@/lib/repositories/events", () => ({
   findEventById: vi.fn(async () => state.eventExists ? { id: "event" } : null),
 }));
+vi.mock("@/lib/repositories/entitlements", () => ({
+  hasAiBestPhotosEntitlement: vi.fn(async () => true),
+}));
 vi.mock("@/lib/repositories/media-quality-admin", () => ({
   requestTechnicalAnalysis: state.requestTechnicalAnalysis,
   setMediaQualityOverride: state.setMediaQualityOverride,

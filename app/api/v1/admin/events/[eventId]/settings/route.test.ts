@@ -52,8 +52,8 @@ describe("admin event settings route", () => {
   it("updates only an organization-scoped event and writes an audit event", async () => {
     const response = await updateRequest(false);
     expect(response.status).toBe(200);
-    expect(state.findEventById).toHaveBeenCalledWith("event-1");
-    expect(state.updateEventCommentsEnabled).toHaveBeenCalledWith("event-1", false);
+    expect(state.findEventById).toHaveBeenCalledWith("event-1", "eventaj");
+    expect(state.updateEventCommentsEnabled).toHaveBeenCalledWith("event-1", false, "eventaj");
     expect(state.bind).toHaveBeenCalledWith(
       expect.any(String), "event-1", "admin@example.test", "event-1",
       JSON.stringify({ commentsEnabled: false }), expect.any(String),

@@ -1,8 +1,8 @@
 # Eventaj Galerija
 
-Mobilno prilagojena SaaS platforma za zbiranje fotografij in videov z dogodkov prek QR kode ali NFC stojala. Gostje ne potrebujejo računa ali aplikacije.
+Mobilno prilagojena SaaS platforma za zbiranje fotografij z dogodkov prek QR kode. Gostje ne potrebujejo računa ali aplikacije, organizator pa po Stripe plačilu dobi lasten organizacijski dostop.
 
-Projekt ima pripravljeno načrtovalsko dokumentacijo in prvo implementirano Next.js površino: odzivno produktno landing stran po priloženih desktop ter mobile dizajnih.
+Osnovna cena je 35 EUR na dogodek. Opcijski `AI Best Photos` stane 15 EUR do 3.000 fotografij; večje količine so ponudba po meri.
 
 ## Lokalni razvoj
 
@@ -19,7 +19,7 @@ pnpm lint
 pnpm build
 ```
 
-Za dejanski lokalni upload kopiraj `.dev.vars.example` v `.dev.vars` in dodaj R2 S3 poverilnici. Brez njiju UI deluje, priprava podpisanega neposrednega uploada pa namenoma vrne `503`; skrivnosti se ne zapisujejo v repozitorij.
+Za dejanski lokalni upload in plačila kopiraj `.dev.vars.example` v `.dev.vars` ter dodaj R2 in Stripe testne skrivnosti. Brez njih UI deluje, podpisani upload oziroma Checkout pa namenoma vrneta `503`; skrivnosti se ne zapisujejo v repozitorij.
 
 ## Dogovorjeni tehnološki temelj
 
@@ -144,3 +144,12 @@ Bucket ostaja zaseben; `r2.dev` ni omogočen. Brskalnik nalaga neposredno prek 1
 Vsak nov dogodek dobi glavno QR dostopno točko. QR sliki sta na `/qr/{publicCode}.svg` in `.png`, stabilna povezava `/t/{publicCode}` pa zabeleži obisk, ohrani attribution za upload sejo in preusmeri na trenutni dogodek. Kanonični izvor, ki se zapiše v QR, določa `PUBLIC_APP_URL` v `wrangler.jsonc`.
 
 Trenutna produkcijska aplikacija je na `https://eventaj-galerija.eventaj.workers.dev`. Glavni Worker uporablja EU D1/R2 bindinge, retention Worker pa ni javno dostopen in se zažene vsak dan ob 02:17 UTC. Za kasnejši priklop `galerija.eventaj.si` se doda Cloudflare Custom Domain; obstoječa stran na Vercelu lahko ostane nespremenjena.
+
+## Stripe Checkout
+
+Produkcijski skrivnosti nastavi z `wrangler secret put STRIPE_SECRET_KEY` in
+`wrangler secret put STRIPE_WEBHOOK_SECRET`. Stripe webhook cilj je
+`/api/webhooks/stripe`; posluša `checkout.session.completed`,
+`checkout.session.async_payment_succeeded` in `checkout.session.expired`.
+Provisioning organizacije, lastnika, aktivnega dogodka in glavne QR kode je
+idempotenten. Kartični podatki vedno ostanejo na gostovanem Stripe Checkout.

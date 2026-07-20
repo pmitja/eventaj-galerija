@@ -56,9 +56,9 @@ describe("admin slideshow route", () => {
   it("uses an organization-scoped event lookup and stores only the token hash", async () => {
     const response = await rotateRequest();
     expect(response.status).toBe(201);
-    expect(state.findEventById).toHaveBeenCalledWith("event-1");
+    expect(state.findEventById).toHaveBeenCalledWith("event-1", "eventaj");
     expect(state.hashToken).toHaveBeenCalledWith("raw-secret-token");
-    expect(state.rotateSlideshow).toHaveBeenCalledWith("event-1", "hashed-token");
+    expect(state.rotateSlideshow).toHaveBeenCalledWith("event-1", "hashed-token", "eventaj");
     expect(await response.json()).toEqual({ slideshow: {
       url: "https://gallery.example.test/display/raw-secret-token",
       rotatedAt: "2026-07-16T12:00:00Z",

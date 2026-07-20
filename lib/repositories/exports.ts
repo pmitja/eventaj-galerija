@@ -19,29 +19,30 @@ export type DownloadExportRow = {
   updated_at: string;
 };
 
-export async function findOwnedDownloadExport(exportId: string): Promise<DownloadExportRow | null> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function findOwnedDownloadExport(exportId: string, organizationId: string): Promise<DownloadExportRow | null> {
+  const { DB } = getCloudflareEnv();
   return DB.prepare(
     `SELECT de.* FROM download_exports de
      JOIN events e ON e.id = de.event_id
      WHERE de.id = ? AND e.organization_id = ?`,
-  ).bind(exportId, ORGANIZATION_ID).first<DownloadExportRow>();
+  ).bind(exportId, organizationId).first<DownloadExportRow>();
 }
 
-export async function findLatestOwnedDownloadExport(eventId: string): Promise<DownloadExportRow | null> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function findLatestOwnedDownloadExport(eventId: string, organizationId: string): Promise<DownloadExportRow | null> {
+  const { DB } = getCloudflareEnv();
   return DB.prepare(
     `SELECT de.* FROM download_exports de
      JOIN events e ON e.id = de.event_id
      WHERE de.event_id = ? AND e.organization_id = ?
      ORDER BY de.created_at DESC LIMIT 1`,
-  ).bind(eventId, ORGANIZATION_ID).first<DownloadExportRow>();
+  ).bind(eventId, organizationId).first<DownloadExportRow>();
 }
 
 export async function createDownloadExport(input: {
   eventId: string;
   eventName: string;
   requestedBy: string;
+  organizationId: string;
 }): Promise<DownloadExportRow | null> {
   const env = getCloudflareEnv();
   const existing = await env.DB.prepare(
@@ -49,7 +50,7 @@ export async function createDownloadExport(input: {
      JOIN events e ON e.id = de.event_id
      WHERE de.event_id = ? AND e.organization_id = ? AND de.status IN ('queued', 'processing')
      ORDER BY de.created_at DESC LIMIT 1`,
-  ).bind(input.eventId, env.ORGANIZATION_ID).first<DownloadExportRow>();
+  ).bind(input.eventId, input.organizationId).first<DownloadExportRow>();
   if (existing) return existing;
 
   const media = await env.DB.prepare(
@@ -57,7 +58,7 @@ export async function createDownloadExport(input: {
      JOIN events e ON e.id = m.event_id
      WHERE m.event_id = ? AND e.organization_id = ?
        AND m.status = 'ready' AND m.gallery_key IS NOT NULL`,
-  ).bind(input.eventId, env.ORGANIZATION_ID).first<{ count: number }>();
+  ).bind(input.eventId, input.organizationId).first<{ count: number }>();
   if (!media?.count) return null;
 
   const id = crypto.randomUUID();
@@ -67,7 +68,7 @@ export async function createDownloadExport(input: {
       (id, event_id, requested_by, status, file_name, media_count, created_at, updated_at)
      VALUES (?, ?, ?, 'queued', ?, ?, ?, ?)`,
   ).bind(id, input.eventId, input.requestedBy, exportFileName(input.eventName), media.count, now, now).run();
-  return findOwnedDownloadExport(id);
+  return findOwnedDownloadExport(id, input.organizationId);
 }
 
 export async function markDownloadExportFailed(exportId: string, errorCode: string): Promise<void> {

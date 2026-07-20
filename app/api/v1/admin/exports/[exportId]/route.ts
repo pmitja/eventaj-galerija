@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { problem } from "@/lib/http/problem";
 import { findOwnedDownloadExport } from "@/lib/repositories/exports";
 import { createPresignedDownloadUrl } from "@/lib/storage/r2";
@@ -7,11 +7,12 @@ import { exportStatusParamsSchema } from "@/lib/validation/exports";
 export const dynamic = "force-dynamic";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ exportId: string }> }) {
-  if (!(await auth())) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
   const parsedParams = exportStatusParamsSchema.safeParse(await params);
   if (!parsedParams.success) return problem(404, "EXPORT_NOT_FOUND", "Izvoz ne obstaja");
   const { exportId } = parsedParams.data;
-  const exportJob = await findOwnedDownloadExport(exportId);
+  const exportJob = await findOwnedDownloadExport(exportId, context.organizationId);
   if (!exportJob) return problem(404, "EXPORT_NOT_FOUND", "Izvoz ne obstaja");
 
   const expired = Boolean(exportJob.expires_at && exportJob.expires_at <= new Date().toISOString());

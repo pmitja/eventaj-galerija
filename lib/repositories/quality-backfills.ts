@@ -32,28 +32,29 @@ const summarySelect = `SELECT qb.id, qb.event_id, qb.mode, qb.model_version, qb.
  JOIN events e ON e.id = qb.event_id
  LEFT JOIN quality_backfill_items qbi ON qbi.backfill_id = qb.id`;
 
-export async function findLatestOwnedQualityBackfill(eventId: string): Promise<QualityBackfillSummary | null> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function findLatestOwnedQualityBackfill(eventId: string, organizationId: string): Promise<QualityBackfillSummary | null> {
+  const { DB } = getCloudflareEnv();
   return DB.prepare(
     `${summarySelect}
      WHERE qb.event_id = ? AND e.organization_id = ?
      GROUP BY qb.id ORDER BY qb.created_at DESC LIMIT 1`,
-  ).bind(eventId, ORGANIZATION_ID).first<QualityBackfillSummary>();
+  ).bind(eventId, organizationId).first<QualityBackfillSummary>();
 }
 
 export async function createQualityBackfill(input: {
   eventId: string;
   requestedBy: string;
   mode: QualityBackfillMode;
+  organizationId: string;
 }): Promise<{ job: QualityBackfillSummary; created: boolean }> {
-  const existing = await findLatestOwnedQualityBackfill(input.eventId);
+  const existing = await findLatestOwnedQualityBackfill(input.eventId, input.organizationId);
   if (existing && (existing.status === "queued" || existing.status === "processing")) {
     return { job: existing, created: false };
   }
 
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const { DB } = getCloudflareEnv();
   const owned = await DB.prepare("SELECT id FROM events WHERE id = ? AND organization_id = ?")
-    .bind(input.eventId, ORGANIZATION_ID).first<{ id: string }>();
+    .bind(input.eventId, input.organizationId).first<{ id: string }>();
   if (!owned) throw new Error("EVENT_NOT_FOUND");
 
   const id = crypto.randomUUID();
@@ -65,13 +66,13 @@ export async function createQualityBackfill(input: {
        VALUES (?, ?, ?, ?, ?, 'queued', ?, ?)`,
     ).bind(id, input.eventId, input.requestedBy, input.mode, TECHNICAL_QUALITY_MODEL_VERSION, now, now).run();
   } catch (error) {
-    const concurrent = await findLatestOwnedQualityBackfill(input.eventId);
+    const concurrent = await findLatestOwnedQualityBackfill(input.eventId, input.organizationId);
     if (concurrent && (concurrent.status === "queued" || concurrent.status === "processing")) {
       return { job: concurrent, created: false };
     }
     throw error;
   }
-  const job = await findLatestOwnedQualityBackfill(input.eventId);
+  const job = await findLatestOwnedQualityBackfill(input.eventId, input.organizationId);
   if (!job) throw new Error("QUALITY_BACKFILL_CREATE_FAILED");
   return { job, created: true };
 }

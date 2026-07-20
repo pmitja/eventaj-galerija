@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { Icon } from "./icon";
 import styles from "./admin.module.css";
 
@@ -10,7 +11,7 @@ const primaryNav = [
   { label: "Dogodki", icon: "calendar", href: "/admin/events", badge: undefined },
   { label: "Galerija", icon: "image", href: "/admin/gallery", badge: undefined },
   { label: "Moderacija", icon: "shield", href: "/admin/moderation", badge: undefined },
-  { label: "QR & NFC", icon: "qr", href: "/admin/access", badge: undefined },
+  { label: "QR kode", icon: "qr", href: "/admin/access", badge: undefined },
 ] as const;
 
 const secondaryNav = [
@@ -23,8 +24,12 @@ function isActive(pathname: string, href: string) {
   return href === "/admin" ? pathname === href : pathname.startsWith(href);
 }
 
-export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AdminShell({ children, user }: Readonly<{
+  children: React.ReactNode;
+  user: { name: string; email: string; role: "owner" | "event_manager" | "platform_admin" };
+}>) {
   const pathname = usePathname();
+  const initials = user.name.split(/\s+/).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
 
   return (
     <div className={styles.appShell}>
@@ -55,9 +60,9 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
         </nav>
         <div className={styles.sidebarFooter}>
           <Link href="/admin/settings#support" className={styles.helpLink}><Icon name="help" size={18} /> Pomoč in podpora</Link>
-          <button className={styles.profile} type="button" aria-label="Odpri uporabniški meni">
-            <span className={styles.avatar}>MK</span>
-            <span><strong>Mitja K.</strong><small>Administrator</small></span>
+          <button className={styles.profile} type="button" onClick={() => void signOut({ callbackUrl: "/" })} aria-label="Odjavi se">
+            <span className={styles.avatar}>{initials}</span>
+            <span><strong>{user.name}</strong><small>{user.role === "owner" ? "Lastnik" : "Administrator"} · Odjava</small></span>
             <Icon name="more" size={18} />
           </button>
         </div>
@@ -74,7 +79,7 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
           </label>
           <div className={styles.topActions}>
             <button className={styles.iconButton} type="button" aria-label="Obvestila"><Icon name="bell" size={20} /><span className={styles.notificationDot} /></button>
-            <Link className={styles.newEventButton} href="/admin/events/new"><Icon name="plus" size={19} /> <span>Nov dogodek</span></Link>
+            <Link className={styles.newEventButton} href="/naroci"><Icon name="plus" size={19} /> <span>Kupi dogodek</span></Link>
           </div>
         </header>
         {children}

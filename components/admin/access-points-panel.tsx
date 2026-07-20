@@ -128,9 +128,6 @@ export function AccessPointsPanel({
         <section className={styles.panel}><p>{events.length === 0 ? "Najprej ustvari dogodek; njegova glavna QR koda bo pripravljena samodejno." : "QR dostopnih točk še ni."}</p></section>
       ) : null}
 
-      <section className={styles.panel}>
-        <div className={styles.panelTop}><div><h2>NFC stojala</h2><p>NFC inventar in časovne dodelitve bodo dodani v naslednjem rezu.</p></div></div>
-      </section>
     </>
   );
 }

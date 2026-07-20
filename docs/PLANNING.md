@@ -6,7 +6,7 @@ Primarni stack: **Next.js na Cloudflare Workers**
 
 ## Cilj
 
-Vzpostaviti produkcijsko pripravljeno jedro, v katerem lahko administrator ustvari dogodek, gost prek QR/NFC v enem kliku izbere datoteke, jih zanesljivo naloži in nato vidi v galeriji skladno s pravili moderacije.
+Vzpostaviti produkcijsko pripravljeno jedro, v katerem organizator prek Stripe Checkout kupi dogodek in dobi svoj račun, gost pa prek QR kode v enem kliku izbere datoteke, jih zanesljivo naloži in nato vidi v galeriji skladno s pravili objave.
 
 ## Meja prvega MVP
 
@@ -19,7 +19,8 @@ V MVP sodijo:
 - upload več fotografij prek signed multipart uploadov;
 - asinhrona izdelava thumbnaila in spletne različice;
 - javna galerija in osnovna moderacija;
-- stabilne QR ter NFC preusmeritve;
+- stabilne QR preusmeritve;
+- Stripe Checkout ter organizacijski računi;
 - osnovni dashboard in audit trail.
 
 Videi so del poslovnega MVP, vendar naj se implementirajo takoj za stabilnim slikovnim tokom. AI, slideshow, ZIP in tiskovine niso del prvega vertikalnega reza.

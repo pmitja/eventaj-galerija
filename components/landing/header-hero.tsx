@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { LoginTrigger, useLoginModal } from "@/components/auth/login-modal";
 import { VisualPlaceholder } from "./visual-placeholder";
@@ -26,7 +27,7 @@ export function Header() {
         </nav>
         <div className="header-actions">
           <LoginTrigger className="login-link">Prijava</LoginTrigger>
-          <LoginTrigger className="button button--small" callbackUrl="/admin/events/new">Ustvari dogodek</LoginTrigger>
+          <Link className="button button--small" href="/naroci">Ustvari dogodek</Link>
           <button
             className={`menu-button ${menuOpen ? "menu-button--open" : ""}`}
             type="button"
@@ -57,10 +58,12 @@ function PhoneGallery() {
         <div className="phone-heading">
           <span>Poroka</span>
           <strong>Ana &amp; Marko</strong>
-          <small>248 fotografij · 32 videov · 87 gostov</small>
+          <small>Vsi spomini na enem mestu</small>
         </div>
         <div className="phone-grid">
-          {[1, 2, 3, 4].map((item) => <VisualPlaceholder key={item} label="foto" />)}
+          {[1, 2, 3, 4].map((item) => (
+            <VisualPlaceholder key={item} label={`Fotografija gosta ${item}`} imageSrc={`/gallery/ana-marko/photo-${item}.jpg`} />
+          ))}
         </div>
         <div className="phone-action">+ Dodaj fotografije</div>
       </div>
@@ -70,29 +73,31 @@ function PhoneGallery() {
 
 export function Hero() {
   const cards = [
-    ["hero-card--one", "foto gosta 1"],
-    ["hero-card--two", "foto gosta 2"],
-    ["hero-card--three", "foto gosta 3"],
-    ["hero-card--four", "foto gosta 4"],
-    ["hero-card--five", "foto gosta 5"],
-    ["hero-card--six", "foto gosta 6"],
+    ["hero-card--one", "Fotografija gosta 1", 5],
+    ["hero-card--two", "Fotografija gosta 2", 6],
+    ["hero-card--three", "Fotografija gosta 3", 7],
+    ["hero-card--four", "Fotografija gosta 4", 8],
+    ["hero-card--five", "Fotografija gosta 5", 9],
+    ["hero-card--six", "Fotografija gosta 6", 3],
   ] as const;
 
   return (
     <section className="hero" id="top">
       <div className="hero-copy shell">
-        <div className="eyebrow"><span />QR + NFC galerija za dogodke</div>
+        <div className="eyebrow"><span />QR galerija za dogodke</div>
         <h1>Vse fotografije vašega dogodka na enem mestu.</h1>
-        <p>Gostje preprosto skenirajo QR kodo ali prislonijo telefon na NFC stojalo in delijo svoje fotografije — brez aplikacije in brez registracije.</p>
+        <p>Gostje preprosto skenirajo QR kodo in delijo svoje fotografije — brez aplikacije in brez registracije.</p>
         <div className="hero-buttons">
-          <LoginTrigger className="button" callbackUrl="/admin/events/new">Ustvari dogodek</LoginTrigger>
+          <Link className="button" href="/naroci">Ustvari dogodek</Link>
           <a className="button button--secondary" href="#kako-deluje">Oglej si predstavitev</a>
         </div>
-        <div className="rating"><span>★★★★★</span><em className="desktop-only">Zaupa nam več kot 1.000 organizatorjev dogodkov</em><em className="mobile-only">Zaupa nam 1.000+ organizatorjev</em></div>
+        <div className="rating"><span>35 €</span><em>na dogodek · brez naročnine · neomejeno gostov</em></div>
       </div>
       <div className="hero-stage shell">
-        {cards.map(([className, label]) => (
-          <div className={`hero-card ${className}`} key={className}><VisualPlaceholder label={label} /></div>
+        {cards.map(([className, label, photo]) => (
+          <div className={`hero-card ${className}`} key={className}>
+            <VisualPlaceholder label={label} imageSrc={`/gallery/ana-marko/photo-${photo}.jpg`} imageAlt={label} priority />
+          </div>
         ))}
         <PhoneGallery />
       </div>
@@ -102,8 +107,8 @@ export function Hero() {
 
 export function QuickSteps() {
   const steps = [
-    ["Ustvarite dogodek", "v manj kot 2 minutah"],
-    ["Gostje skenirajo QR ali NFC", "in naložijo fotografije"],
+    ["Ustvarite dogodek", "in prejmete svojo galerijo"],
+    ["Gostje skenirajo QR", "in naložijo fotografije"],
     ["Uživajte v spominih", "vsi trenutki na enem mestu"],
   ];
 

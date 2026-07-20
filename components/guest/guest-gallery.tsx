@@ -170,8 +170,11 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
 
   useEffect(() => {
     if (selectedPhoto !== null && selectedPhoto >= photos.length) {
-      setCommentsOpen(false);
-      setSelectedPhoto(null);
+      const timeout = window.setTimeout(() => {
+        setCommentsOpen(false);
+        setSelectedPhoto(null);
+      }, 0);
+      return () => window.clearTimeout(timeout);
     }
   }, [photos.length, selectedPhoto]);
 

@@ -46,7 +46,7 @@ export function LoginForm({ callbackUrl = "/admin", compact = false, titleId }: 
       </div>
       <label>
         <span>E-pošta</span>
-        <input name="email" type="email" defaultValue="info@eventaj.si" required autoComplete="username" autoFocus={compact} />
+        <input name="email" type="email" placeholder="ime@organizacija.si" required autoComplete="username" autoFocus={compact} />
       </label>
       <label>
         <span>Geslo</span>
@@ -56,6 +56,7 @@ export function LoginForm({ callbackUrl = "/admin", compact = false, titleId }: 
       <button className="login-form__submit" type="submit" disabled={isPending}>
         {isPending ? "Prijavljam …" : "Prijavi se"}
       </button>
+      <a href="/naroci">Še nimaš računa? Ustvari galerijo.</a>
     </form>
   );
 }

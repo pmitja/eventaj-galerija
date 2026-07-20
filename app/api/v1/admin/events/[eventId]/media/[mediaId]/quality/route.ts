@@ -1,11 +1,12 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { auth } from "@/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { problem } from "@/lib/http/problem";
 import { findEventById } from "@/lib/repositories/events";
 import { requestTechnicalAnalysis, setMediaQualityOverride } from "@/lib/repositories/media-quality-admin";
 import { processTechnicalAnalysis } from "@/lib/storage/r2";
 import { mediaQualityOverrideSchema, mediaQualityParamsSchema } from "@/lib/validation/admin";
+import { hasAiBestPhotosEntitlement } from "@/lib/repositories/entitlements";
 
 function hasValidOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
@@ -35,23 +36,25 @@ async function auditQualityAction(input: {
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ eventId: string; mediaId: string }> }) {
-  const session = await auth();
-  if (!session) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
   if (!hasValidOrigin(request)) return problem(403, "INVALID_ORIGIN", "Izvor zahteve ni dovoljen");
   const parsed = mediaQualityParamsSchema.safeParse(await params);
   if (!parsed.success) return problem(404, "MEDIA_NOT_FOUND", "Fotografija ne obstaja");
   const { eventId, mediaId } = parsed.data;
-  if (!(await findEventById(eventId))) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
+  if (!(await findEventById(eventId, context.organizationId))) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
+  if (!(await hasAiBestPhotosEntitlement(eventId, context.organizationId))) {
+    return problem(403, "AI_BEST_PHOTOS_REQUIRED", "AI Best Photos ni omogočen za ta dogodek");
+  }
 
-  const { ORGANIZATION_ID } = getCloudflareEnv();
-  const requested = await requestTechnicalAnalysis({ organizationId: ORGANIZATION_ID, eventId, mediaId });
+  const requested = await requestTechnicalAnalysis({ organizationId: context.organizationId, eventId, mediaId });
   if (requested === "not_found") return problem(404, "MEDIA_NOT_FOUND", "Fotografija ne obstaja");
   if (requested === "queued") {
-    getCloudflareContext().ctx.waitUntil(processTechnicalAnalysis(mediaId, ORGANIZATION_ID));
+    getCloudflareContext().ctx.waitUntil(processTechnicalAnalysis(mediaId, context.organizationId));
     await auditQualityAction({
       eventId,
       mediaId,
-      actorId: session.user?.email ?? "eventaj-admin",
+      actorId: context.email,
       action: "media.quality_analysis_requested",
     });
   }
@@ -62,19 +65,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ eve
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ eventId: string; mediaId: string }> }) {
-  const session = await auth();
-  if (!session) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
   if (!hasValidOrigin(request)) return problem(403, "INVALID_ORIGIN", "Izvor zahteve ni dovoljen");
   const parsedParams = mediaQualityParamsSchema.safeParse(await params);
   if (!parsedParams.success) return problem(404, "MEDIA_NOT_FOUND", "Fotografija ne obstaja");
   const parsedBody = mediaQualityOverrideSchema.safeParse(await request.json().catch(() => null));
   if (!parsedBody.success) return problem(422, "INVALID_QUALITY_CATEGORY", "Kategorija kakovosti ni veljavna");
   const { eventId, mediaId } = parsedParams.data;
-  if (!(await findEventById(eventId))) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
+  if (!(await findEventById(eventId, context.organizationId))) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
+  if (!(await hasAiBestPhotosEntitlement(eventId, context.organizationId))) {
+    return problem(403, "AI_BEST_PHOTOS_REQUIRED", "AI Best Photos ni omogočen za ta dogodek");
+  }
 
-  const actorId = session.user?.email ?? "eventaj-admin";
+  const actorId = context.email;
   const result = await setMediaQualityOverride({
-    organizationId: getCloudflareEnv().ORGANIZATION_ID,
+    organizationId: context.organizationId,
     eventId,
     mediaId,
     category: parsedBody.data.category,

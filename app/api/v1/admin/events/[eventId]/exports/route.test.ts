@@ -59,11 +59,12 @@ describe("admin export creation", () => {
   it("uses the organization-scoped event and queues only the export id", async () => {
     const response = await request();
     expect(response.status).toBe(202);
-    expect(state.findEventById).toHaveBeenCalledWith(eventId);
+    expect(state.findEventById).toHaveBeenCalledWith(eventId, "eventaj");
     expect(state.createDownloadExport).toHaveBeenCalledWith({
       eventId,
       eventName: "Poroka",
       requestedBy: "admin@example.test",
+      organizationId: "eventaj",
     });
     expect(state.send).toHaveBeenCalledWith({ exportId });
   });

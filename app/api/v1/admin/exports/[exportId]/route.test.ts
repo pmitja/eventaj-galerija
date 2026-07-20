@@ -45,7 +45,7 @@ describe("admin export status", () => {
   it("signs a private object only for a ready owned export", async () => {
     const response = await request();
     expect(response.status).toBe(200);
-    expect(state.findOwnedDownloadExport).toHaveBeenCalledWith(exportId);
+    expect(state.findOwnedDownloadExport).toHaveBeenCalledWith(exportId, "eventaj");
     expect(state.createPresignedDownloadUrl).toHaveBeenCalledWith(`exports/event-1/${exportId}.zip`);
     const body = await response.json() as { export: { downloadUrl: string | null } };
     expect(body.export.downloadUrl).toBe("https://signed.example.test/export.zip");

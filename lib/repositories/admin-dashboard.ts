@@ -105,8 +105,8 @@ type AnalyticsTotals = {
 export type AnalyticsDay = { day: string; visits: number; uploads: number };
 export type AnalyticsSource = { source: string; visits: number };
 
-export async function getAdminDashboardData() {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function getAdminDashboardData(organizationId: string) {
+  const { DB } = getCloudflareEnv();
   const [totals, events, activity, visitsByDay] = await Promise.all([
     DB.prepare(
       `SELECT
@@ -115,8 +115,8 @@ export async function getAdminDashboardData() {
         (SELECT COUNT(*) FROM visits v JOIN events e ON e.id = v.event_id WHERE e.organization_id = ?) AS visits,
         (SELECT COUNT(*) FROM media_files m JOIN events e ON e.id = m.event_id WHERE e.organization_id = ? AND m.status = 'ready' AND m.gallery_state = 'hidden') AS pending_moderation,
         strftime('%Y-%m-%dT%H:%M:%fZ', 'now') AS generated_at`,
-    ).bind(ORGANIZATION_ID, ORGANIZATION_ID, ORGANIZATION_ID, ORGANIZATION_ID).first<DashboardTotals>(),
-    listAdminEventSummaries(3),
+    ).bind(organizationId, organizationId, organizationId, organizationId).first<DashboardTotals>(),
+    listAdminEventSummaries(organizationId, 3),
     DB.prepare(
       `SELECT kind, event_name, occurred_at, filename FROM (
         SELECT 'media' AS kind, e.name AS event_name, COALESCE(m.uploaded_at, m.created_at) AS occurred_at,
@@ -127,7 +127,7 @@ export async function getAdminDashboardData() {
         SELECT 'event' AS kind, e.name AS event_name, e.created_at AS occurred_at, NULL AS filename
         FROM events e WHERE e.organization_id = ?
       ) ORDER BY occurred_at DESC LIMIT ?`,
-    ).bind(ORGANIZATION_ID, ORGANIZATION_ID, MAX_RECENT_ACTIVITY).all<ActivityRow>(),
+    ).bind(organizationId, organizationId, MAX_RECENT_ACTIVITY).all<ActivityRow>(),
     DB.prepare(
       `WITH RECURSIVE days(day) AS (
         SELECT date('now', '-13 days')
@@ -138,7 +138,7 @@ export async function getAdminDashboardData() {
       LEFT JOIN events e ON e.organization_id = ?
       LEFT JOIN visits v ON v.event_id = e.id AND date(v.occurred_at) = days.day
       GROUP BY days.day ORDER BY days.day`,
-    ).bind(ORGANIZATION_ID).all<VisitDay>(),
+    ).bind(organizationId).all<VisitDay>(),
   ]);
 
   return {
@@ -149,8 +149,8 @@ export async function getAdminDashboardData() {
   };
 }
 
-export async function getAdminCustomersData() {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function getAdminCustomersData(organizationId: string) {
+  const { DB } = getCloudflareEnv();
   const [totals, customers] = await Promise.all([
     DB.prepare(
       `SELECT
@@ -160,7 +160,7 @@ export async function getAdminCustomersData() {
         (SELECT COUNT(*) FROM events WHERE organization_id = ? AND customer_id IS NOT NULL AND status != 'ended'
           AND starts_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
           AND starts_at < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '+30 days')) AS upcoming_events`,
-    ).bind(ORGANIZATION_ID, ORGANIZATION_ID, ORGANIZATION_ID, ORGANIZATION_ID).first<CustomerTotals>(),
+    ).bind(organizationId, organizationId, organizationId, organizationId).first<CustomerTotals>(),
     DB.prepare(
       `SELECT c.id AS customer_id, c.name AS customer_name, c.email AS customer_email,
               e.id AS event_id, e.name AS event_name, e.starts_at, e.timezone,
@@ -171,7 +171,7 @@ export async function getAdminCustomersData() {
        WHERE c.organization_id = ?
        ORDER BY COALESCE(e.starts_at, c.created_at) DESC, c.name ASC
        LIMIT 100`,
-    ).bind(ORGANIZATION_ID).all<AdminCustomerEvent>(),
+    ).bind(organizationId).all<AdminCustomerEvent>(),
   ]);
   return {
     totals: totals ?? { customers: 0, new_customers: 0, active_galleries: 0, upcoming_events: 0 },
@@ -179,8 +179,8 @@ export async function getAdminCustomersData() {
   };
 }
 
-export async function getAdminAnalyticsData() {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function getAdminAnalyticsData(organizationId: string) {
+  const { DB } = getCloudflareEnv();
   const [totals, days, sources] = await Promise.all([
     DB.prepare(
       `SELECT
@@ -192,7 +192,7 @@ export async function getAdminAnalyticsData() {
           WHERE e.organization_id = ? AND m.status = 'ready' AND m.created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days')) AS completed_uploads,
         (SELECT COUNT(*) FROM media_files m JOIN events e ON e.id = m.event_id
           WHERE e.organization_id = ? AND m.status = 'ready' AND m.created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days')) AS media`,
-    ).bind(ORGANIZATION_ID, ORGANIZATION_ID, ORGANIZATION_ID, ORGANIZATION_ID).first<AnalyticsTotals>(),
+    ).bind(organizationId, organizationId, organizationId, organizationId).first<AnalyticsTotals>(),
     DB.prepare(
       `WITH RECURSIVE days(day) AS (
         SELECT date('now', '-13 days')
@@ -204,7 +204,7 @@ export async function getAdminAnalyticsData() {
         (SELECT COUNT(*) FROM upload_sessions s JOIN events e ON e.id = s.event_id
           WHERE e.organization_id = ? AND date(s.created_at) = day) AS uploads
       FROM days ORDER BY day`,
-    ).bind(ORGANIZATION_ID, ORGANIZATION_ID).all<AnalyticsDay>(),
+    ).bind(organizationId, organizationId).all<AnalyticsDay>(),
     DB.prepare(
       `SELECT COALESCE(ap.type, 'direct') AS source, COUNT(*) AS visits
        FROM visits v
@@ -213,7 +213,7 @@ export async function getAdminAnalyticsData() {
        WHERE e.organization_id = ? AND v.occurred_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days')
        GROUP BY COALESCE(ap.type, 'direct')
        ORDER BY visits DESC`,
-    ).bind(ORGANIZATION_ID).all<AnalyticsSource>(),
+    ).bind(organizationId).all<AnalyticsSource>(),
   ]);
   return {
     totals: totals ?? { visits: 0, started_uploads: 0, completed_uploads: 0, media: 0 },
@@ -222,8 +222,8 @@ export async function getAdminAnalyticsData() {
   };
 }
 
-export async function listAdminEventSummaries(limit = 100): Promise<AdminEventSummary[]> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function listAdminEventSummaries(organizationId: string, limit = 100): Promise<AdminEventSummary[]> {
+  const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     `SELECT e.id, e.public_slug, e.name, e.location, e.starts_at, e.timezone, e.status, e.comments_enabled,
       CASE WHEN e.status != 'ended' AND e.starts_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now') THEN 1 ELSE 0 END AS is_upcoming,
@@ -231,17 +231,18 @@ export async function listAdminEventSummaries(limit = 100): Promise<AdminEventSu
       (SELECT COUNT(*) FROM visits v WHERE v.event_id = e.id) AS visit_count
      FROM events e WHERE e.organization_id = ?
      ORDER BY e.starts_at DESC LIMIT ?`,
-  ).bind(ORGANIZATION_ID, limit).all<AdminEventSummary>();
+  ).bind(organizationId, limit).all<AdminEventSummary>();
   return result.results;
 }
 
 export async function listAdminMedia(
   eventId: string,
+  organizationId: string,
   filters: AdminMediaFilters = {},
 ): Promise<AdminMediaSummary[]> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const { DB } = getCloudflareEnv();
   const conditions = ["m.event_id = ?", "e.organization_id = ?"];
-  const bindings: Array<string | number> = [eventId, ORGANIZATION_ID];
+  const bindings: Array<string | number> = [eventId, organizationId];
   if (filters.quality) {
     conditions.push("COALESCE(m.quality_override, m.quality_category) = ?");
     bindings.push(filters.quality);
@@ -277,8 +278,8 @@ export async function listAdminMedia(
   return result.results;
 }
 
-export async function getAdminMediaQualitySummary(eventId: string): Promise<AdminMediaQualitySummary> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function getAdminMediaQualitySummary(eventId: string, organizationId: string): Promise<AdminMediaQualitySummary> {
+  const { DB } = getCloudflareEnv();
   const summary = await DB.prepare(
     `SELECT
        COUNT(*) AS total,
@@ -300,7 +301,7 @@ export async function getAdminMediaQualitySummary(eventId: string): Promise<Admi
      LEFT JOIN ai_analyses a ON a.media_file_id = m.id
        AND a.analysis_type = 'technical_quality' AND a.provider = 'eventaj' AND a.model_version = ?
      WHERE m.event_id = ? AND e.organization_id = ?`,
-  ).bind(TECHNICAL_QUALITY_MODEL_VERSION, eventId, ORGANIZATION_ID).first<AdminMediaQualitySummary>();
+  ).bind(TECHNICAL_QUALITY_MODEL_VERSION, eventId, organizationId).first<AdminMediaQualitySummary>();
   return summary ?? {
     total: 0,
     ready: 0,

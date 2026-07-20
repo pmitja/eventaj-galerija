@@ -1,4 +1,4 @@
 import type { Metadata } from "next";
-import { NewEventPage } from "@/components/admin/admin-pages";
+import { redirect } from "next/navigation";
 export const metadata: Metadata = { title: "Nov dogodek | Eventaj Galerija" };
-export default function Page() { return <NewEventPage />; }
+export default function Page() { redirect("/naroci"); }

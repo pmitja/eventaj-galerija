@@ -2,7 +2,15 @@
 
 ## Vrednost produkta
 
-Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere fotografije in kratke videe vseh gostov na enem mestu. QR kode in ponovno uporabna NFC stojala zmanjšajo trenje, moderacija in poznejše AI funkcije pa povečajo uporabnost zbranega gradiva.
+Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere fotografije vseh gostov na enem mestu. QR koda zmanjša trenje, tehnična analiza in opcijski AI izbor pa povečata uporabnost zbranega gradiva.
+
+## Trenutna javna ponudba
+
+- Eventaj Galerija: 35 EUR na dogodek, brez naročnine in z neomejenim številom gostov.
+- AI Best Photos: 15 EUR na dogodek do 3.000 fotografij; več po ponudbi.
+- Po plačilu Stripe webhook samodejno ustvari organizacijo, račun lastnika,
+  aktiven dogodek in glavno QR kodo.
+- Trenutni upload sprejema samo fotografije; video ni del oglaševane ponudbe.
 
 ## Uporabniki in vloge
 
@@ -18,7 +26,10 @@ V okviru dodeljene organizacije in dogodkov pregleduje galerijo, moderira, prena
 
 Nima računa. Prek javne ali unikatne povezave odpre dogodek, izbere datoteke, spremlja prenos in po pravilih zasebnosti pregleda galerijo.
 
-## Paketi in upravičenja
+## Starejši katalog paketov in upravičenja
+
+Spodnja tabela ostaja zgodovinski načrt in ni trenutna javna ponudba oziroma
+checkout cenik. Izvršilni vir resnice za nov nakup je snapshot upravičenj dogodka.
 
 Paketi so cenik; dejanska upravičenja dogodka so posnetek (`event_entitlements`) ob nakupu oziroma ročni konfiguraciji. Tako poznejša sprememba paketa ne spremeni že prodanega dogodka.
 

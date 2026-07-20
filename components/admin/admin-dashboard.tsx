@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { formatRelativeTime, presentEventStatus, scaleChart } from "@/lib/domain/admin-dashboard";
 import { getAdminDashboardData } from "@/lib/repositories/admin-dashboard";
 import { Icon } from "./icon";
@@ -14,7 +14,9 @@ function displayName(name: string | null | undefined, email: string | null | und
 }
 
 export async function AdminDashboard() {
-  const [session, data] = await Promise.all([auth(), getAdminDashboardData()]);
+  const context = await getAuthContext();
+  if (!context) return null;
+  const data = await getAdminDashboardData(context.organizationId);
   const draftEvent = data.events.find((event) => event.status === "draft");
   const chartData = scaleChart(data.visitsByDay.map((item) => item.visits));
   const chartTotal = data.visitsByDay.reduce((total, item) => total + item.visits, 0);
@@ -25,7 +27,7 @@ export async function AdminDashboard() {
   return (
     <main className={styles.main}>
       <section className={styles.pageHeading}>
-        <div><p className={styles.eyebrow}>{today}</p><h1>Dobrodošel nazaj, {displayName(session?.user?.name, session?.user?.email)}</h1><p>Tukaj je pregled tvojih dogodkov in galerij.</p></div>
+        <div><p className={styles.eyebrow}>{today}</p><h1>Dobrodošel nazaj, {displayName(context.name, context.email)}</h1><p>Tukaj je pregled tvojih dogodkov in galerij.</p></div>
       </section>
       {draftEvent ? <section className={styles.statusStrip} aria-label="Dogodek v pripravi">
         <span className={styles.statusIcon}><Icon name="sparkles" size={20} /></span>

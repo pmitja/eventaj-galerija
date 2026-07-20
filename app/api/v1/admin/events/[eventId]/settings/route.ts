@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { problem } from "@/lib/http/problem";
 import { findEventById, updateEventCommentsEnabled } from "@/lib/repositories/events";
@@ -7,8 +7,8 @@ import { updateEventCommentsSchema } from "@/lib/validation/events";
 type RouteContext = { params: Promise<{ eventId: string }> };
 
 export async function PATCH(request: Request, { params }: RouteContext) {
-  const session = await auth();
-  if (!session) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
 
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin) {
@@ -21,10 +21,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   }
 
   const { eventId } = await params;
-  const event = await findEventById(eventId);
+  const event = await findEventById(eventId, context.organizationId);
   if (!event) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
 
-  const updated = await updateEventCommentsEnabled(eventId, parsed.data.commentsEnabled);
+  const updated = await updateEventCommentsEnabled(eventId, parsed.data.commentsEnabled, context.organizationId);
   if (!updated) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
 
   await getCloudflareEnv().DB.prepare(
@@ -34,7 +34,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   ).bind(
     crypto.randomUUID(),
     eventId,
-    session.user?.email ?? "eventaj-admin",
+    context.email,
     eventId,
     JSON.stringify({ commentsEnabled: parsed.data.commentsEnabled }),
     new Date().toISOString(),

@@ -24,10 +24,10 @@ export type EventRow = {
   package_id: string | null;
 };
 
-export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
+export async function insertEvent(input: CreateEventInput, organizationId: string): Promise<EventRow> {
   const event = createEventRecord(input);
   const accessPoint = createAccessPointRecord({ eventId: event.id, label: "Glavna QR koda" });
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const { DB } = getCloudflareEnv();
   const now = event.createdAt;
   const proposedCustomerId = crypto.randomUUID();
   await DB.prepare(
@@ -36,10 +36,10 @@ export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
      ON CONFLICT(organization_id, email) DO UPDATE SET
        name = excluded.name,
        updated_at = excluded.updated_at`,
-  ).bind(proposedCustomerId, ORGANIZATION_ID, input.customerName, input.customerEmail, now, now).run();
+  ).bind(proposedCustomerId, organizationId, input.customerName, input.customerEmail, now, now).run();
   const [customer, selectedPackage] = await Promise.all([
     DB.prepare("SELECT id FROM customers WHERE organization_id = ? AND email = ?")
-      .bind(ORGANIZATION_ID, input.customerEmail).first<{ id: string }>(),
+      .bind(organizationId, input.customerEmail).first<{ id: string }>(),
     DB.prepare("SELECT id, code FROM packages WHERE code = ? AND active = 1")
       .bind(input.packageCode).first<{ id: string; code: string }>(),
   ]);
@@ -51,7 +51,7 @@ export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       event.id,
-      ORGANIZATION_ID,
+      organizationId,
       customer.id,
       selectedPackage.id,
       event.publicSlug,
@@ -91,13 +91,13 @@ export async function insertEvent(input: CreateEventInput): Promise<EventRow> {
       now,
     ),
   ]);
-  return findEventById(event.id) as Promise<EventRow>;
+  return findEventById(event.id, organizationId) as Promise<EventRow>;
 }
 
-export async function findEventById(id: string): Promise<EventRow | null> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function findEventById(id: string, organizationId: string): Promise<EventRow | null> {
+  const { DB } = getCloudflareEnv();
   return DB.prepare("SELECT * FROM events WHERE id = ? AND organization_id = ?")
-    .bind(id, ORGANIZATION_ID).first<EventRow>();
+    .bind(id, organizationId).first<EventRow>();
 }
 
 export async function findPublicEvent(slug: string): Promise<EventRow | null> {
@@ -106,18 +106,18 @@ export async function findPublicEvent(slug: string): Promise<EventRow | null> {
   ).bind(slug).first<EventRow>();
 }
 
-export async function listEvents(): Promise<EventRow[]> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function listEvents(organizationId: string): Promise<EventRow[]> {
+  const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     "SELECT * FROM events WHERE organization_id = ? ORDER BY starts_at DESC LIMIT 100",
-  ).bind(ORGANIZATION_ID).all<EventRow>();
+  ).bind(organizationId).all<EventRow>();
   return result.results;
 }
 
-export async function updateEventCommentsEnabled(id: string, enabled: boolean): Promise<boolean> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function updateEventCommentsEnabled(id: string, enabled: boolean, organizationId: string): Promise<boolean> {
+  const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     "UPDATE events SET comments_enabled = ?, updated_at = ? WHERE id = ? AND organization_id = ?",
-  ).bind(enabled ? 1 : 0, new Date().toISOString(), id, ORGANIZATION_ID).run();
+  ).bind(enabled ? 1 : 0, new Date().toISOString(), id, organizationId).run();
   return (result.meta.changes ?? 0) > 0;
 }

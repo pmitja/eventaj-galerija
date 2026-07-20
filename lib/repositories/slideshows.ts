@@ -21,18 +21,18 @@ export type SlideshowMediaRow = {
   uploaded_at: string;
 };
 
-export async function findOwnedSlideshow(eventId: string): Promise<SlideshowRow | null> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function findOwnedSlideshow(eventId: string, organizationId: string): Promise<SlideshowRow | null> {
+  const { DB } = getCloudflareEnv();
   return DB.prepare(
     `SELECT s.* FROM slideshows s JOIN events e ON e.id = s.event_id
      WHERE s.event_id = ? AND e.organization_id = ?`,
-  ).bind(eventId, ORGANIZATION_ID).first<SlideshowRow>();
+  ).bind(eventId, organizationId).first<SlideshowRow>();
 }
 
-export async function rotateSlideshow(eventId: string, tokenHash: string): Promise<SlideshowRow> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function rotateSlideshow(eventId: string, tokenHash: string, organizationId: string): Promise<SlideshowRow> {
+  const { DB } = getCloudflareEnv();
   const event = await DB.prepare("SELECT id FROM events WHERE id = ? AND organization_id = ?")
-    .bind(eventId, ORGANIZATION_ID).first<{ id: string }>();
+    .bind(eventId, organizationId).first<{ id: string }>();
   if (!event) throw new Error("EVENT_NOT_FOUND");
   const now = new Date().toISOString();
   await DB.prepare(
@@ -40,7 +40,7 @@ export async function rotateSlideshow(eventId: string, tokenHash: string): Promi
      VALUES (?, ?, ?, 'active', ?, ?)
      ON CONFLICT(event_id) DO UPDATE SET token_hash = excluded.token_hash, status = 'active', rotated_at = excluded.rotated_at`,
   ).bind(crypto.randomUUID(), eventId, tokenHash, now, now).run();
-  return findOwnedSlideshow(eventId) as Promise<SlideshowRow>;
+  return findOwnedSlideshow(eventId, organizationId) as Promise<SlideshowRow>;
 }
 
 export async function findPublicSlideshow(tokenHash: string): Promise<PublicSlideshow | null> {
@@ -78,13 +78,14 @@ export async function setMediaSlideshowState(
   eventId: string,
   mediaId: string,
   state: SlideshowMediaState,
+  organizationId: string,
 ): Promise<boolean> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+  const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     `UPDATE media_files SET slideshow_state = ?
      WHERE id = ? AND event_id = ? AND EXISTS (
        SELECT 1 FROM events e WHERE e.id = media_files.event_id AND e.organization_id = ?
      )`,
-  ).bind(state, mediaId, eventId, ORGANIZATION_ID).run();
+  ).bind(state, mediaId, eventId, organizationId).run();
   return result.meta.changes === 1;
 }

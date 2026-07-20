@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { problem } from "@/lib/http/problem";
 import { createDownloadExport, markDownloadExportFailed } from "@/lib/repositories/exports";
@@ -6,8 +6,8 @@ import { findEventById } from "@/lib/repositories/events";
 import { eventExportParamsSchema } from "@/lib/validation/exports";
 
 export async function POST(request: Request, { params }: { params: Promise<{ eventId: string }> }) {
-  const session = await auth();
-  if (!session) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
+  const context = await getAuthContext();
+  if (!context) return problem(401, "UNAUTHORIZED", "Prijava je obvezna");
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin) {
     return problem(403, "INVALID_ORIGIN", "Izvor zahteve ni dovoljen");
@@ -16,13 +16,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ eve
   const parsedParams = eventExportParamsSchema.safeParse(await params);
   if (!parsedParams.success) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
   const { eventId } = parsedParams.data;
-  const event = await findEventById(eventId);
+  const event = await findEventById(eventId, context.organizationId);
   if (!event) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
 
   const exportJob = await createDownloadExport({
     eventId,
     eventName: event.name,
-    requestedBy: session.user?.email ?? "eventaj-admin",
+    requestedBy: context.email,
+    organizationId: context.organizationId,
   });
   if (!exportJob) {
     return problem(422, "EXPORT_EMPTY", "Galerija nima fotografij za izvoz");
@@ -42,7 +43,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ eve
       (id, event_id, actor_type, actor_id, action, target_type, target_id, created_at)
      VALUES (?, ?, 'user', ?, 'export.requested', 'download_export', ?, ?)`,
   ).bind(
-    crypto.randomUUID(), eventId, session.user?.email ?? "eventaj-admin", exportJob.id, new Date().toISOString(),
+    crypto.randomUUID(), eventId, context.email, exportJob.id, new Date().toISOString(),
   ).run();
 
   return Response.json({

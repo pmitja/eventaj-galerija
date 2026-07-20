@@ -12,6 +12,8 @@ import { AccessPointsPanel } from "./access-points-panel";
 import { presentCustomerStatus, presentEventStatus, formatRelativeTime, percentage, scaleChart } from "@/lib/domain/admin-dashboard";
 import { adminGalleryQuerySchema } from "@/lib/validation/admin";
 import { findOwnedSlideshow } from "@/lib/repositories/slideshows";
+import { getAuthContext } from "@/lib/auth/context";
+import { hasAiBestPhotosEntitlement } from "@/lib/repositories/entitlements";
 import { SlideshowManager, SlideshowMediaToggle } from "./slideshow-manager";
 import { ExportManager } from "./export-manager";
 import { findLatestOwnedDownloadExport } from "@/lib/repositories/exports";
@@ -45,7 +47,9 @@ function FilterBar({ gallery = false }: { gallery?: boolean }) {
 }
 
 export async function EventsPage() {
-  const storedEvents = await listAdminEventSummaries();
+  const context = await getAuthContext();
+  if (!context) return null;
+  const storedEvents = await listAdminEventSummaries(context.organizationId);
   const displayedEvents = storedEvents.map((event, index) => ({
     id: event.id,
     name: event.name,
@@ -80,8 +84,10 @@ export function NewEventPage() {
 }
 
 export async function GalleryPage({ query }: { query: { eventId?: string; quality?: string; status?: string; q?: string } }) {
+  const context = await getAuthContext();
+  if (!context) return null;
   const parsedQuery = adminGalleryQuerySchema.safeParse(query);
-  const events = await listEvents();
+  const events = await listEvents(context.organizationId);
   const selectedEvent = parsedQuery.success
     ? events.find((event) => event.id === parsedQuery.data.eventId)
     : undefined;
@@ -90,13 +96,16 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
     : { eventId: undefined, quality: undefined, status: undefined, q: undefined };
   const [media, summary, slideshow, latestExport, latestBackfill] = selectedEvent
     ? await Promise.all([
-      listAdminMedia(selectedEvent.id, { quality: filters.quality, status: filters.status, query: filters.q }),
-      getAdminMediaQualitySummary(selectedEvent.id),
-      findOwnedSlideshow(selectedEvent.id),
-      findLatestOwnedDownloadExport(selectedEvent.id),
-      findLatestOwnedQualityBackfill(selectedEvent.id),
+      listAdminMedia(selectedEvent.id, context.organizationId, { quality: filters.quality, status: filters.status, query: filters.q }),
+      getAdminMediaQualitySummary(selectedEvent.id, context.organizationId),
+      findOwnedSlideshow(selectedEvent.id, context.organizationId),
+      findLatestOwnedDownloadExport(selectedEvent.id, context.organizationId),
+      findLatestOwnedQualityBackfill(selectedEvent.id, context.organizationId),
     ])
     : [[], null, null, null, null];
+  const aiBestPhotosEnabled = selectedEvent
+    ? await hasAiBestPhotosEntitlement(selectedEvent.id, context.organizationId)
+    : false;
   const totalBytes = summary?.total_bytes ?? 0;
   const storage = totalBytes < 1024 * 1024
     ? `${Math.round(totalBytes / 1024)} KB`
@@ -117,7 +126,7 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
     {!selectedEvent ? <section className={styles.eventPicker} aria-labelledby="event-picker-title"><span className={`${styles.metricIcon} ${styles.violet}`}><Icon name="image" size={22} /></span><div><h2 id="event-picker-title">Izberi dogodek</h2><p>Fotografije se prikažejo šele, ko izbereš dogodek.</p></div>{events.length ? <form action="/admin/gallery" method="get"><label className={styles.selectControl}><span className={styles.srOnly}>Dogodek</span><select name="eventId" required defaultValue=""><option value="" disabled>Izberi dogodek …</option>{events.map((event) => <option key={event.id} value={event.id}>{event.name}</option>)}</select></label><button className={styles.primaryAction} type="submit">Prikaži galerijo</button></form> : <Link className={styles.primaryAction} href="/admin/events/new"><Icon name="plus" size={18} /> Ustvari dogodek</Link>}</section> : <>
       <section className={styles.contextBar}><div className={styles.contextEvent}><span className={`${styles.miniVisual} ${styles.violet}`} /><div><small>IZBRANI DOGODEK</small><strong>{selectedEvent.name}</strong></div></div><Link className={styles.changeEventLink} href="/admin/gallery">Zamenjaj dogodek <Icon name="chevron" size={16} /></Link><div className={styles.contextStats}><span><strong>{summary?.ready ?? 0}</strong><small>fotografij</small></span><span><strong>{storage}</strong><small>porabe</small></span></div></section>
       <SlideshowManager eventId={selectedEvent.id} active={slideshow?.status === "active"} photoCount={summary?.slideshow_approved ?? 0} />
-      <QualityBackfillManager eventId={selectedEvent.id} initialBackfill={latestBackfill ? {
+      {aiBestPhotosEnabled ? <QualityBackfillManager eventId={selectedEvent.id} initialBackfill={latestBackfill ? {
         id: latestBackfill.id,
         mode: latestBackfill.mode,
         status: latestBackfill.status,
@@ -126,14 +135,14 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
         completedCount: latestBackfill.completed_count,
         failedCount: latestBackfill.failed_count,
         queuedCount: latestBackfill.queued_count,
-      } : null} />
-      <section className={styles.qualitySummary} aria-label="Povzetek samodejne kakovosti">
+      } : null} /> : null}
+      {aiBestPhotosEnabled ? <section className={styles.qualitySummary} aria-label="Povzetek samodejne kakovosti">
         <article><span className={styles.quality_best}>Najboljše</span><strong>{summary?.best ?? 0}</strong></article>
         <article><span className={styles.quality_good}>Dobre</span><strong>{summary?.good ?? 0}</strong></article>
         <article><span className={styles.quality_duplicate}>Podvojene</span><strong>{summary?.duplicate ?? 0}</strong></article>
         <article><span className={styles.quality_blurry}>Neostre/slabše</span><strong>{(summary?.blurry ?? 0) + (summary?.low_quality ?? 0)}</strong></article>
         <article><span className={styles.quality_pending}>Čaka/napaka</span><strong>{(summary?.processing ?? 0) + (summary?.failed_processing ?? 0) + (summary?.unanalyzed ?? 0) + (summary?.failed_analyses ?? 0)}</strong></article>
-      </section>
+      </section> : null}
       <section className={styles.panel}>
         <div className={styles.panelTop}><div><h2>Fotografije</h2><p>{summary?.total ?? 0} datotek v dogodku</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Mreža" className={styles.viewActive}><Icon name="image" size={17} /></button></div></div>
         <form className={styles.filterBar} action="/admin/gallery" method="get" aria-label="Filtri galerije">
@@ -147,7 +156,7 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
         {media.length ? <div className={styles.mediaGrid}>{media.map((item) => <article className={styles.mediaCard} key={item.id}>
           <div className={`${styles.mediaVisual} ${styles.violet}`}>{item.status === "ready" ? <><Image src={`/api/v1/admin/media/${item.id}`} alt={item.original_filename} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized /><SlideshowMediaToggle eventId={selectedEvent.id} mediaId={item.id} initialState={item.slideshow_state} /></> : <div className={styles.mediaPending}><Icon name="clock" size={22} /><span>{item.status === "rejected" ? "Zavrnjeno" : item.processing_status === "failed" ? "Napaka obdelave" : "V obdelavi"}</span></div>}</div>
           <div className={styles.mediaMeta}><div><strong>{item.original_filename}</strong><small>{formatRelativeTime(item.uploaded_at ?? item.created_at)}</small></div></div>
-          {item.status === "ready" ? <MediaQualityControl eventId={selectedEvent.id} mediaId={item.id} automaticCategory={item.quality_category} overrideCategory={item.quality_override} effectiveCategory={item.effective_quality} score={item.technical_score} analysisStatus={item.analysis_status} /> : null}
+          {item.status === "ready" && aiBestPhotosEnabled ? <MediaQualityControl eventId={selectedEvent.id} mediaId={item.id} automaticCategory={item.quality_category} overrideCategory={item.quality_override} effectiveCategory={item.effective_quality} score={item.technical_score} analysisStatus={item.analysis_status} /> : null}
           {item.processing_status === "failed" ? <MediaProcessingRetry eventId={selectedEvent.id} mediaId={item.id} /> : null}
         </article>)}</div> : <div className={styles.emptyState}><p>{(summary?.total ?? 0) > 0 ? "Nobena fotografija ne ustreza izbranim filtrom." : "Za ta dogodek še ni naloženih fotografij."}</p>{(summary?.total ?? 0) > 0 ? <Link className={styles.secondaryAction} href={`/admin/gallery?eventId=${encodeURIComponent(selectedEvent.id)}`}>Počisti filtre</Link> : null}</div>}
         <div className={styles.loadMore}><span>Prikazanih {media.length} od največ 100 zadetkov</span></div>
@@ -168,9 +177,11 @@ export function ModerationPage() {
 }
 
 export async function AccessPage() {
-  const [events, accessPoints] = await Promise.all([listEvents(), listAccessPoints()]);
+  const context = await getAuthContext();
+  if (!context) return null;
+  const [events, accessPoints] = await Promise.all([listEvents(context.organizationId), listAccessPoints(context.organizationId)]);
   return <main className={styles.main}>
-    <PageHeader eyebrow="DOSTOPNE TOČKE" title="QR & NFC" description="Upravljaj stabilne gostujoče QR kode in spremljaj obiske posameznih točk." />
+    <PageHeader eyebrow="DOSTOPNE TOČKE" title="QR kode" description="Upravljaj stabilne gostujoče QR kode in spremljaj obiske posameznih točk." />
     <AccessPointsPanel
       events={events.map((event) => ({ id: event.id, name: event.name }))}
       accessPoints={accessPoints.map((point) => ({
@@ -189,7 +200,9 @@ export async function AccessPage() {
 }
 
 export async function CustomersPage() {
-  const data = await getAdminCustomersData();
+  const context = await getAuthContext();
+  if (!context) return null;
+  const data = await getAdminCustomersData(context.organizationId);
   return <main className={styles.main}>
     <PageHeader eyebrow="ORGANIZACIJA" title="Stranke" description="Pregled naročnikov, njihovih dogodkov in izbranih paketov." action={<Link href="/admin/events/new" className={styles.primaryAction}><Icon name="plus" size={18} /> Nov dogodek</Link>} />
     <section className={styles.metricGrid}><article className={styles.metricCard}><div><p>Vse stranke</p><strong>{number.format(data.totals.customers)}</strong></div><span className={`${styles.metricIcon} ${styles.blue}`}><Icon name="users" size={21} /></span><small><b>+{number.format(data.totals.new_customers)}</b> ta mesec</small></article><article className={styles.metricCard}><div><p>Aktivne galerije</p><strong>{number.format(data.totals.active_galleries)}</strong></div><span className={`${styles.metricIcon} ${styles.rose}`}><Icon name="image" size={21} /></span><small>vezane na aktivne dogodke</small></article><article className={styles.metricCard}><div><p>Prihajajoči dogodki</p><strong>{number.format(data.totals.upcoming_events)}</strong></div><span className={`${styles.metricIcon} ${styles.amber}`}><Icon name="calendar" size={21} /></span><small>v naslednjih 30 dneh</small></article></section>
@@ -202,7 +215,9 @@ export async function CustomersPage() {
 }
 
 export async function AnalyticsPage() {
-  const data = await getAdminAnalyticsData();
+  const context = await getAuthContext();
+  if (!context) return null;
+  const data = await getAdminAnalyticsData(context.organizationId);
   const visitRate = percentage(data.totals.started_uploads, data.totals.visits);
   const completionRate = percentage(data.totals.completed_uploads, data.totals.started_uploads);
   const mediaPerSession = data.totals.completed_uploads ? data.totals.media / data.totals.completed_uploads : 0;

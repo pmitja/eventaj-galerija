@@ -23,12 +23,13 @@ export async function createAccessPoint(input: {
   eventId: string;
   label: string;
   type?: AccessPointType;
-}): Promise<AccessPointRow> {
+}, organizationId: string): Promise<AccessPointRow> {
   const point = createAccessPointRecord(input);
   await getCloudflareEnv().DB.prepare(
     `INSERT INTO access_points
       (id, event_id, public_code, type, label, active, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
+     SELECT ?, ?, ?, ?, ?, 1, ?, ?
+     WHERE EXISTS (SELECT 1 FROM events WHERE id = ? AND organization_id = ?)`,
   ).bind(
     point.id,
     point.eventId,
@@ -37,29 +38,31 @@ export async function createAccessPoint(input: {
     point.label,
     point.createdAt,
     point.updatedAt,
+    point.eventId,
+    organizationId,
   ).run();
   return getCloudflareEnv().DB.prepare("SELECT * FROM access_points WHERE id = ?")
     .bind(point.id).first<AccessPointRow>() as Promise<AccessPointRow>;
 }
 
-export async function listAccessPoints(): Promise<AccessPointWithEventRow[]> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function listAccessPoints(organizationId: string): Promise<AccessPointWithEventRow[]> {
+  const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     `SELECT ap.*, e.name AS event_name, e.public_slug AS event_slug, e.status AS event_status
      FROM access_points ap
      JOIN events e ON e.id = ap.event_id
      WHERE e.organization_id = ?
      ORDER BY ap.created_at DESC`,
-  ).bind(ORGANIZATION_ID).all<AccessPointWithEventRow>();
+  ).bind(organizationId).all<AccessPointWithEventRow>();
   return result.results;
 }
 
-export async function listEventAccessPoints(eventId: string): Promise<AccessPointRow[]> {
-  const { DB, ORGANIZATION_ID } = getCloudflareEnv();
+export async function listEventAccessPoints(eventId: string, organizationId: string): Promise<AccessPointRow[]> {
+  const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     `SELECT ap.* FROM access_points ap JOIN events e ON e.id = ap.event_id
      WHERE ap.event_id = ? AND e.organization_id = ? ORDER BY ap.created_at DESC`,
-  ).bind(eventId, ORGANIZATION_ID).all<AccessPointRow>();
+  ).bind(eventId, organizationId).all<AccessPointRow>();
   return result.results;
 }
 

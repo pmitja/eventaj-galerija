@@ -1,111 +1,81 @@
 export const howSteps = [
   {
     n: "1",
-    title: "Nastavitev v 2 minutah",
+    title: "Ustvarite in plačajte dogodek",
     description:
-      "Vnesite ime dogodka, datum in barve. Vaša zasebna spletna galerija je takoj pripravljena — brez tehničnega znanja.",
-    mobileDescription:
-      "Vnesite ime dogodka, datum in barve. Vaša zasebna galerija je takoj pripravljena.",
-    placeholder: "posnetek: obrazec za ustvarjanje dogodka",
+      "Vnesite podatke organizacije in dogodka ter varno zaključite nakup. Nato se prijavite v administracijo svoje galerije.",
+    mobileDescription: "Vnesite podatke dogodka, zaključite nakup in se prijavite v administracijo.",
+    imageSrc: "/gallery/ana-marko/photo-1.jpg",
+    imageAlt: "Fotografija poročnega dogodka",
   },
   {
     n: "2",
-    title: "Natisnite QR kartice ali postavite NFC stojala",
-    mobileTitle: "QR kartice ali NFC stojala",
+    title: "Prenesite QR kodo za goste",
+    mobileTitle: "Pripravite QR kodo",
     description:
-      "Izberite eno od elegantnih predlog za tisk ali najemite naša NFC stojala — gostje samo prislonijo telefon.",
-    mobileDescription:
-      "Izberite elegantno predlogo za tisk ali najemite NFC stojala — gostje samo prislonijo telefon.",
-    placeholder: "posnetek: QR kartica / NFC stojalo",
+      "QR kodo dogodka prenesete kot SVG ali PNG. Po dogovoru vam lahko ročno pripravimo tudi predlogo za tisk.",
+    mobileDescription: "Prenesite QR kodo kot SVG ali PNG; predlogo za tisk lahko po dogovoru pripravimo ročno.",
+    imageSrc: "/gallery/ana-marko/photo-3.jpg",
+    imageAlt: "Gostje na dogodku",
   },
   {
     n: "3",
     title: "Gostje skenirajo in naložijo — brez prijave",
     mobileTitle: "Gostje naložijo — brez prijave",
     description:
-      "Deluje na vsakem telefonu, brez aplikacije in brez registracije. Tudi babica bo zmogla.",
-    mobileDescription:
-      "Deluje na vsakem telefonu, brez aplikacije in registracije. Tudi babica bo zmogla.",
-    placeholder: "posnetek: gost skenira QR na mizi",
+      "Galerija deluje v brskalniku na telefonu. Gostje odprejo povezavo in dodajo fotografije brez aplikacije ali uporabniškega računa.",
+    mobileDescription: "Gostje skenirajo QR in dodajo fotografije brez aplikacije ali prijave.",
+    imageSrc: "/gallery/ana-marko/photo-6.jpg",
+    imageAlt: "Gost uporablja telefon na dogodku",
   },
   {
     n: "4",
-    title: "Podoživite dogodek že naslednji dan",
-    mobileTitle: "Podoživite dogodek naslednji dan",
+    title: "Preglejte in prenesite skupne spomine",
+    mobileTitle: "Podoživite skupne spomine",
     description:
-      "Vsi trenutki na enem mestu. Prenesite vse fotografije v ZIP ali pustite AI, da izbere najboljše.",
-    mobileDescription:
-      "Vsi trenutki na enem mestu. Prenesite ZIP ali pustite AI, da izbere najboljše.",
-    placeholder: "posnetek: galerija po dogodku",
+      "Fotografije so zbrane v eni galeriji. Organizator jih lahko upravlja, prikaže kot slideshow in prenese v ZIP.",
+    mobileDescription: "Upravljajte galerijo, zaženite slideshow ali prenesite fotografije v ZIP.",
+    imageSrc: "/gallery/ana-marko/photo-9.jpg",
+    imageAlt: "Skupni spomini z dogodka",
   },
 ] as const;
 
 export const features = [
-  { glyph: "▣", title: "Digitalni album", description: "Vse fotografije in videi gostov v elegantni skupni galeriji.", mobile: "Vse fotografije in videi gostov v skupni galeriji." },
-  { glyph: "⤓", title: "Prenos v ZIP", description: "Z enim klikom prenesite vse posnetke v polni ločljivosti.", mobile: "Vsi posnetki v polni ločljivosti z enim klikom." },
-  { glyph: "◎", title: "Brez aplikacije", description: "Gostje sodelujejo v brskalniku — brez namestitev in prijav.", mobile: "Vse poteka v brskalniku, brez prijav." },
-  { glyph: "▦", title: "QR kode za tisk", mobileTitle: "QR kode", description: "Prenesi QR kodo dogodka v SVG ali PNG obliki.", mobile: "QR kode dogodka v SVG ali PNG obliki." },
-  { glyph: "◉", title: "NFC stojala", description: "Gostje samo prislonijo telefon — še hitreje kot QR.", mobile: "Gostje samo prislonijo telefon." },
-  { glyph: "▶", title: "Live foto zid", description: "Fotografije v živo na projektorju ali TV zaslonu.", mobile: "Fotografije v živo na projektorju ali TV." },
-  { glyph: "✎", title: "Besedila in čestitke", description: "Gostje lahko fotografijam dodajo sporočila in voščila.", mobile: "Sporočila in voščila ob fotografijah." },
-  { glyph: "◆", title: "Zasebno in varno", description: "Galerija je dostopna samo vašim gostom, vi odločate o vidnosti.", mobile: "Dostop samo za vaše goste." },
-] as const;
-
-export const testimonials = [
-  { quote: "»Fotograf ne more biti povsod — gostje pa so. Dobili sva na stotine iskrenih trenutkov, ki bi jih sicer nikoli ne videla.«", initials: "AK", name: "Ana K.", event: "Poroka, Bled" },
-  { quote: "»Postavitev je vzela dve minuti, NFC stojala pa so bila hit večera. Tudi starejši gostje so brez težav naložili fotografije.«", initials: "MZ", name: "Marko Z.", event: "Abraham, Maribor" },
-  { quote: "»Live slideshow na platnu je popolnoma spremenil vzdušje konference. Udeleženci so sami polnili galerijo ves dan.«", initials: "NP", name: "Nina P.", event: "Poslovni dogodek, Ljubljana" },
-] as const;
-
-export const comparison = [
-  ["Brez aplikacije in registracije", "✓", "✓"],
-  ["Podpora v slovenščini", "✓", "✕"],
-  ["NFC stojala z najemom", "✓", "✕"],
-  ["AI izbor najboljših fotografij", "✓", "✕"],
-  ["Integracija s photo boothom", "✓", "✕"],
-  ["Live slideshow v realnem času", "✓", "doplačilo"],
+  { glyph: "▣", title: "Digitalni album", description: "Fotografije gostov v elegantni skupni galeriji.", mobile: "Fotografije gostov v skupni galeriji." },
+  { glyph: "⤓", title: "Prenos v ZIP", description: "Organizator lahko fotografije iz galerije prenese v ZIP datoteki.", mobile: "Prenos fotografij iz galerije v ZIP." },
+  { glyph: "◎", title: "Brez aplikacije", description: "Gostje sodelujejo v brskalniku — brez namestitve in prijave.", mobile: "Vse poteka v brskalniku, brez prijave." },
+  { glyph: "▦", title: "QR koda za tisk", mobileTitle: "QR koda", description: "Prenesite QR kodo dogodka v SVG ali PNG obliki; predlogo lahko pripravimo ročno.", mobile: "QR koda v SVG ali PNG obliki." },
+  { glyph: "▶", title: "Live slideshow", description: "Fotografije se sproti prikazujejo na projektorju ali TV zaslonu.", mobile: "Fotografije na projektorju ali TV." },
+  { glyph: "✎", title: "Komentarji", description: "Gostje lahko fotografijam dodajo sporočila in voščila.", mobile: "Sporočila in voščila ob fotografijah." },
+  { glyph: "◆", title: "Nadzor vidnosti", description: "Organizator upravlja vidnost galerije in posameznih fotografij.", mobile: "Organizator upravlja vidnost galerije." },
+  { glyph: "◫", title: "Administracija", description: "Pregled dogodka, QR kode, fotografij, analitike in izvozov na enem mestu.", mobile: "Dogodek, fotografije in izvozi na enem mestu." },
 ] as const;
 
 export const plans = [
   {
-    id: "basic",
-    name: "Basic",
-    price: "19 €",
-    description: "Za manjša praznovanja",
-    features: ["QR galerija", "NFC podpora", "Upload fotografij in videov", "Javna galerija", "Administracijski portal"],
-  },
-  {
-    id: "advanced",
-    name: "Advanced",
-    price: "39 €",
-    description: "Za poroke in večje dogodke",
-    lead: "Vse iz paketa Basic +",
-    features: ["AI Best Photos", "Samodejno označevanje zamegljenih", "Prenos samo najboljših fotografij"],
+    id: "event",
+    name: "Galerija dogodka",
+    price: "35 €",
+    description: "Vse bistvene funkcije za en dogodek",
+    features: [
+      "QR galerija brez aplikacije",
+      "Neomejeno število gostov",
+      "Nalaganje fotografij in komentarji",
+      "Administracijski portal in QR prenosi",
+      "Live slideshow in ZIP izvoz",
+      "90-dnevna hramba galerije",
+    ],
     featured: true,
   },
-  {
-    id: "premium",
-    name: "Premium",
-    price: "99 €",
-    description: "Popolna izkušnja brez kompromisov",
-    lead: "Vse iz paketa Advanced +",
-    features: ["AI Face Collections", "Live Slideshow"],
-  },
 ] as const;
 
-export const addOns = [
-  ["AI Face Collections", "+15 €"],
-  ["Live Slideshow", "+40 €"],
-  ["Podaljšana hramba galerije", "+10 €"],
-  ["Prenos vseh fotografij v ZIP", "+5 €"],
-  ["Dodatni administratorji", "+10 €"],
-] as const;
+export const addOns = [["AI Best Photos · do 3.000 fotografij", "+15 €"]] as const;
 
 export const faqs = [
-  ["Ali morajo gostje namestiti aplikacijo?", "Ne. Gostje skenirajo QR kodo ali prislonijo telefon na NFC stojalo in galerija se odpre v brskalniku. Brez namestitev, brez registracije."],
-  ["Ali lahko prenesem vse fotografije gostov?", "Da. V administracijskem portalu z enim klikom prenesete vse fotografije in videe v ZIP datoteki, v polni ločljivosti."],
-  ["Kako dolgo je galerija na voljo?", "Galerija je aktivna 3 mesece po dogodku. S paketom »Podaljšana hramba« jo lahko podaljšate za 12 mesecev."],
-  ["So fotografije zasebne?", "Da. Galerija je dostopna samo prek vaše QR kode oziroma povezave. Kot organizator lahko kadar koli skrijete ali izbrišete posamezne posnetke."],
-  ["Kaj če dogodek traja več dni?", "Ni težav — ena galerija lahko pokriva celoten dogodek, ne glede na trajanje. Fotografije se samodejno razvrstijo po dnevih."],
-  ["Že imamo fotografa — ali to sploh potrebujemo?", "Fotograf ujame uradne trenutke, gostje pa vse ostalo: priprave, mize, zabavo do jutranjih ur. Njegove fotografije lahko kasneje dodate v isto galerijo."],
+  ["Ali morajo gostje namestiti aplikacijo?", "Ne. Gostje skenirajo QR kodo in galerija se odpre v brskalniku. Fotografije lahko dodajo brez aplikacije in brez registracije."],
+  ["Kako dobim QR kodo?", "QR kodo dogodka lahko v administraciji prenesete kot SVG ali PNG. Po dogovoru vam lahko ročno pripravimo tudi predlogo za tisk."],
+  ["Ali lahko prenesem fotografije gostov?", "Da. V administracijskem portalu lahko pripravite ZIP izvoz fotografij iz galerije."],
+  ["Kako dolgo je galerija na voljo?", "Galerija je po dogodku shranjena 90 dni."],
+  ["So fotografije zasebne?", "Galerija ni javno indeksirana in je dostopna prek nepredvidljive povezave oziroma QR kode. Organizator lahko upravlja vidnost galerije in posameznih fotografij."],
+  ["Kaj vključuje AI Best Photos?", "Za 15 € na dogodek dodatek tehnično razvrsti kakovost in zazna dvojnike pri največ 3.000 fotografijah. Večje količine pripravimo po meri."],
 ] as const;
