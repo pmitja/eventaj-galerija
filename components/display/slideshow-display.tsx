@@ -224,8 +224,19 @@ export function SlideshowDisplay({ token, initialEventName }: { token: string; i
             key={comment.id}
             style={{ "--comment-duration": `${LIVE_COMMENT_DURATION_MS}ms` } as CSSProperties}
           >
-            <strong>{comment.displayName}</strong>
-            <p>{comment.body}</p>
+            <span className={styles.commentThumb} aria-hidden="true">
+              <Image
+                src={`/api/v1/display/${encodeURIComponent(token)}/media/${comment.mediaPublicId}`}
+                alt=""
+                fill
+                unoptimized
+                sizes="44px"
+              />
+            </span>
+            <span className={styles.commentBody}>
+              <strong>{comment.displayName}</strong>
+              <p>{comment.body}</p>
+            </span>
           </article>
         ))}
       </section>

@@ -33,6 +33,7 @@ describe("display playlist route", () => {
     state.getEngagementSnapshot.mockResolvedValue({ leaderboard: [], stats: { acceptedPhotos: 1, contributors: 0 }, events: [] });
     state.listLiveMediaComments.mockResolvedValue([{
       id: "comment-1", displayName: "Barbara", body: "Čudovito!", createdAt: "2026-07-18T20:00:00Z",
+      mediaPublicId: "photo-1", mediaFilename: "photo.jpg",
     }]);
   });
 
@@ -57,7 +58,7 @@ describe("display playlist route", () => {
         imageUrl: "/api/v1/display/secret/media/photo-1",
       }],
       engagement: { leaderboard: [], stats: { acceptedPhotos: 1, contributors: 0 }, events: [] },
-      comments: [{ id: "comment-1", displayName: "Barbara", body: "Čudovito!", createdAt: "2026-07-18T20:00:00Z" }],
+      comments: [{ id: "comment-1", displayName: "Barbara", body: "Čudovito!", createdAt: "2026-07-18T20:00:00Z", mediaPublicId: "photo-1", mediaFilename: "photo.jpg" }],
     });
   });
 

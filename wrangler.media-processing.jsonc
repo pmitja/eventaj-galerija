@@ -37,7 +37,7 @@
         "max_batch_timeout": 2,
         "max_retries": 5,
         "retry_delay": 15,
-        "max_concurrency": 2,
+        "max_concurrency": 25,
         "dead_letter_queue": "eventaj-gallery-media-processing-dlq"
       }
     ]

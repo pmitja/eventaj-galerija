@@ -27,6 +27,14 @@ export function faceEmbeddingExpiresAt(eventRetentionUntil: string, now = new Da
   return new Date(Math.min(new Date(eventRetentionUntil).getTime(), biometricLimit)).toISOString();
 }
 
+// The guest's own selfie face is retained for the whole event so "Osveži" can
+// re-run the search without a new selfie. It is bound to the event retention
+// horizon (and never longer), and is deleted earlier on withdrawal.
+export function faceProbeExpiresAt(eventRetentionUntil: string, now = new Date()): string {
+  const retentionMs = new Date(eventRetentionUntil).getTime();
+  return new Date(Number.isFinite(retentionMs) ? retentionMs : now.getTime()).toISOString();
+}
+
 export function isTerminalFaceSearchStatus(status: FaceSearchStatus): boolean {
   return status === "completed" || status === "failed" || status === "withdrawn" || status === "expired";
 }

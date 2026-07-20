@@ -12,7 +12,9 @@ export type FaceMatch = { providerFaceId: string; similarity: number };
 export interface FaceProvider {
   readonly name: string;
   indexFaces(collectionId: string, externalImageId: string, image: Uint8Array): Promise<IndexedFace[]>;
+  indexProbeFace(collectionId: string, externalImageId: string, image: Uint8Array): Promise<IndexedFace | null>;
   searchFaces(collectionId: string, image: Uint8Array, threshold: number): Promise<FaceMatch[]>;
+  searchFacesById(collectionId: string, faceId: string, threshold: number): Promise<FaceMatch[]>;
   deleteFaces(collectionId: string, faceIds: string[]): Promise<void>;
 }
 
@@ -103,6 +105,31 @@ export class RekognitionFaceProvider implements FaceProvider {
     }] : []);
   }
 
+  async indexProbeFace(collectionId: string, externalImageId: string, image: Uint8Array): Promise<IndexedFace | null> {
+    await this.ensureCollection(collectionId);
+    const result = await this.call<{
+      FaceModelVersion?: string;
+      FaceRecords?: Array<{
+        Face?: { FaceId?: string; Confidence?: number; BoundingBox?: IndexedFace["boundingBox"] };
+      }>;
+    }>("IndexFaces", {
+      CollectionId: collectionId,
+      ExternalImageId: externalImageId,
+      Image: { Bytes: toBase64(image) },
+      MaxFaces: 1,
+      QualityFilter: "AUTO",
+      DetectionAttributes: ["DEFAULT"],
+    });
+    const record = (result.FaceRecords ?? []).find(({ Face }) => Face?.FaceId && Face.BoundingBox);
+    if (!record?.Face?.FaceId || !record.Face.BoundingBox) return null;
+    return {
+      providerFaceId: record.Face.FaceId,
+      confidence: record.Face.Confidence ?? 0,
+      boundingBox: record.Face.BoundingBox,
+      modelVersion: result.FaceModelVersion ?? null,
+    };
+  }
+
   async searchFaces(collectionId: string, image: Uint8Array, threshold: number): Promise<FaceMatch[]> {
     try {
       const result = await this.call<{
@@ -113,6 +140,26 @@ export class RekognitionFaceProvider implements FaceProvider {
         FaceMatchThreshold: threshold,
         MaxFaces: 4096,
         QualityFilter: "AUTO",
+      });
+      return (result.FaceMatches ?? []).flatMap(({ Face, Similarity }) => Face?.FaceId ? [{
+        providerFaceId: Face.FaceId,
+        similarity: Similarity ?? 0,
+      }] : []);
+    } catch (error) {
+      if (error instanceof FaceProviderError && error.code === "ResourceNotFoundException") return [];
+      throw error;
+    }
+  }
+
+  async searchFacesById(collectionId: string, faceId: string, threshold: number): Promise<FaceMatch[]> {
+    try {
+      const result = await this.call<{
+        FaceMatches?: Array<{ Similarity?: number; Face?: { FaceId?: string } }>;
+      }>("SearchFaces", {
+        CollectionId: collectionId,
+        FaceId: faceId,
+        FaceMatchThreshold: threshold,
+        MaxFaces: 4096,
       });
       return (result.FaceMatches ?? []).flatMap(({ Face, Similarity }) => Face?.FaceId ? [{
         providerFaceId: Face.FaceId,

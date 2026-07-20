@@ -109,6 +109,68 @@ export async function createFaceSearchSession(input: {
   return session;
 }
 
+export async function hasCurrentGuestProbe(eventId: string, guestId: string): Promise<boolean> {
+  const row = await getCloudflareEnv().DB.prepare(
+    `SELECT 1 AS present FROM face_guest_probes
+     WHERE event_id = ? AND guest_id = ? AND expires_at > ?`,
+  ).bind(eventId, guestId, new Date().toISOString()).first<{ present: number }>();
+  return Boolean(row?.present);
+}
+
+// Creates a search session that reuses the guest's stored selfie face (probe)
+// instead of a fresh upload. Returns null when no current probe exists so the
+// caller can fall back to the selfie flow.
+export async function createFaceReSearchSession(input: {
+  eventId: string;
+  organizationId: string;
+  guestId: string;
+  tokenHash: string;
+}): Promise<FaceSearchSessionRow | null> {
+  const { DB } = getCloudflareEnv();
+  const now = new Date().toISOString();
+  const probe = await DB.prepare(
+    `SELECT consent_record_id FROM face_guest_probes
+     WHERE event_id = ? AND guest_id = ? AND expires_at > ?
+     ORDER BY updated_at DESC LIMIT 1`,
+  ).bind(input.eventId, input.guestId, now).first<{ consent_record_id: string }>();
+  if (!probe) return null;
+  const sessionId = crypto.randomUUID();
+  const expiresAt = faceSearchExpiresAt(new Date(now));
+  await DB.batch([
+    DB.prepare(
+      `INSERT INTO face_search_sessions
+        (id, event_id, organization_id, guest_id, consent_record_id, token_hash,
+         selfie_object_key, declared_mime, size_bytes, status, expires_at, created_at, updated_at)
+       SELECT ?, e.id, e.organization_id, ?, ?, ?, NULL, '', 0, 'queued', ?, ?, ?
+       FROM events e
+       JOIN event_guests g ON g.event_id = e.id AND g.id = ?
+       JOIN event_entitlements ee ON ee.event_id = e.id
+       WHERE e.id = ? AND e.organization_id = ? AND e.status = 'active'
+         AND ee.feature_code = 'face_collections' AND ee.value_json = 'true'`,
+    ).bind(
+      sessionId, input.guestId, probe.consent_record_id, input.tokenHash,
+      expiresAt, now, now, input.guestId, input.eventId, input.organizationId,
+    ),
+    DB.prepare(
+      `INSERT INTO audit_logs
+        (id, event_id, actor_type, actor_id, action, target_type, target_id, changes_json, created_at)
+       SELECT ?, ?, 'guest', ?, 'face_search.re_search', 'face_search_session', ?, ?, ?
+       WHERE EXISTS (SELECT 1 FROM face_search_sessions WHERE id = ? AND organization_id = ?)`,
+    ).bind(
+      crypto.randomUUID(), input.eventId, input.guestId, sessionId,
+      JSON.stringify({ purpose: "selfie_match_processing", reused: true }), now,
+      sessionId, input.organizationId,
+    ),
+  ]);
+  return DB.prepare(
+    `SELECT s.id, s.event_id, e.public_slug, s.organization_id, s.guest_id, s.consent_record_id,
+            s.selfie_object_key, s.declared_mime, s.size_bytes, s.status, s.attempt_count,
+            s.error_code, s.expires_at, s.completed_at
+     FROM face_search_sessions s JOIN events e ON e.id = s.event_id
+     WHERE s.id = ? AND s.organization_id = ?`,
+  ).bind(sessionId, input.organizationId).first<FaceSearchSessionRow>();
+}
+
 export async function findFaceSearchSessionByTokenHash(tokenHash: string): Promise<FaceSearchSessionRow | null> {
   return getCloudflareEnv().DB.prepare(
     `SELECT s.id, s.event_id, e.public_slug, s.organization_id, s.guest_id, s.consent_record_id,
@@ -193,6 +255,12 @@ export async function withdrawFaceSearchSession(session: FaceSearchSessionRow): 
        WHERE id = ? AND organization_id = ? AND status != 'withdrawn'`,
     ).bind(now, now, session.id, session.organization_id),
     DB.prepare("DELETE FROM face_search_matches WHERE session_id = ?").bind(session.id),
+    // Mark the guest's stored selfie face as expired so the worker deletes it
+    // from the provider collection on the next cleanup pass.
+    DB.prepare(
+      `UPDATE face_guest_probes SET expires_at = ?, updated_at = ?
+       WHERE event_id = ? AND guest_id = ?`,
+    ).bind(now, now, session.event_id, session.guest_id),
     DB.prepare(
       `UPDATE consent_records SET granted = 0, withdrawn_at = ?
        WHERE id = ? AND event_id = ? AND purpose = 'selfie_match_processing'`,

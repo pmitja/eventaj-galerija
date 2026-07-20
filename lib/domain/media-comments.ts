@@ -10,6 +10,8 @@ export type LiveMediaComment = {
   displayName: string;
   body: string;
   createdAt: string;
+  mediaPublicId: string;
+  mediaFilename: string;
 };
 
 export function cleanCommentBody(value: string): string {

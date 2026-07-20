@@ -16,7 +16,7 @@ interface __BaseEnv_CloudflareEnv {
 	R2_BUCKET_NAME: "eventaj-galerija-media";
 	PUBLIC_APP_URL: "https://eventaj-galerija.eventaj.workers.dev";
 	FACE_SEARCH_ENABLED: "false";
-	FACE_SEARCH_POLICY_VERSION: "2026-07-19";
+	FACE_SEARCH_POLICY_VERSION: "2026-07-20";
 	RETENTION_DAYS: "90";
 	VERCEL_OIDC_TOKEN: string;
 	AUTH_SECRET: string;

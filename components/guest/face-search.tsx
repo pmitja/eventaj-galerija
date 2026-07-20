@@ -159,6 +159,32 @@ export function FaceSearch({
     throw new Error("SESSION_EXPIRED");
   }
 
+  async function reSearch() {
+    if (busy) return;
+    setPhase("searching");
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/face-search-sessions/re-search`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ guestId: guestIdentity.guestId, policyVersion }),
+      });
+      const body = await response.json().catch(() => null) as { token?: string; code?: string; title?: string } | null;
+      if (response.status === 409 && body?.code === "FACE_PROBE_MISSING") {
+        setPhase("idle");
+        openSearch();
+        return;
+      }
+      if (!response.ok || !body?.token) throw new Error(body?.title ?? "RE_SEARCH_FAILED");
+      setSessionToken(body.token);
+      await poll(body.token);
+    } catch (error) {
+      setPhase("error");
+      setFeedback(messageForError(error instanceof Error ? error.message : null));
+      setOpen(true);
+    }
+  }
+
   async function search() {
     if (!file || !consent || busy) return;
     setPhase("uploading");
@@ -216,8 +242,8 @@ export function FaceSearch({
         <div className={styles.savedResult} role="status">
           <span><strong>{matchCount} {matchCount === 1 ? "najdena fotografija" : "najdenih fotografij"}</strong><small>Shranjeno samo na tej napravi · {savedAt}</small></span>
           <span className={styles.savedActions}>
-            <button type="button" onClick={openSearch}>Osveži</button>
-            <button type="button" onClick={() => void forget()}>Pozabi</button>
+            <button type="button" onClick={() => void reSearch()} disabled={busy}>Osveži</button>
+            <button type="button" onClick={() => void forget()} disabled={busy}>Pozabi</button>
           </span>
         </div>
       ) : null}
@@ -231,7 +257,7 @@ export function FaceSearch({
               <span className={styles.icon}><FaceScanIcon /></span>
               <div><p>AI iskanje</p><h2 id="face-search-title">Poišči me na fotografijah</h2></div>
             </div>
-            <p id="face-search-description" className={styles.description}>Dodaj jasen selfie. Primerjamo ga samo s fotografijami tega dogodka in ga nato trajno izbrišemo.</p>
+            <p id="face-search-description" className={styles.description}>Dodaj jasen selfie. Primerjamo ga samo s fotografijami tega dogodka. Sliko selfija izbrišemo, tvoj obraz pa varno shranimo do konca dogodka, da lahko iskanje kadarkoli osvežiš brez novega selfija.</p>
 
             <div className={styles.controls}>
               <input
@@ -249,7 +275,7 @@ export function FaceSearch({
               </label>
               <label className={styles.consent}>
                 <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} disabled={busy} />
-                <span><strong>Soglašam z enkratnim biometričnim iskanjem</strong><small>Selfie se izbriše po iskanju ali najpozneje v 15 minutah. Lokalno shranimo le ID-je zadetkov; kadarkoli jih lahko pozabiš.</small></span>
+                <span><strong>Soglašam z biometričnim iskanjem in hrambo obraza do konca dogodka</strong><small>Sliko selfija izbrišemo po iskanju (najpozneje v 15 minutah). Tvoj obraz (brez slike) hranimo do konca dogodka, da lahko osvežiš zadetke; kadarkoli ga izbrišeš z gumbom »Pozabi«.</small></span>
               </label>
               <button className={styles.searchButton} type="button" onClick={() => void search()} disabled={!file || !consent || busy} aria-busy={busy}>
                 <FaceScanIcon /> {phase === "uploading" ? "Nalaganje …" : phase === "searching" ? "Iščem tvoje fotografije …" : "Poišči moje fotografije"}

@@ -1,7 +1,8 @@
 # ADR-010: Ephemeral selfie search prek ponudniškega face collection adapterja
 
 Status: sprejeto za prvi rez faze 4, dopolnjeno z lokalnim UX predpomnilnikom
-Datum: 2026-07-19, dopolnitev 2026-07-20
+in obstojnim gostovim probe obrazom za osvežitev
+Datum: 2026-07-19, dopolnitvi 2026-07-20
 
 ## Kontekst
 
@@ -39,6 +40,29 @@ končna pravna podlaga in natančen retention) ostajajo produkcijski gate.
   zadetkov, vezan na event slug, lokalni `guest_id` in trenutno verzijo pravilnika.
   Ob poteku, spremembi pravilnika ali dejanju »Pozabi« se lokalni zapis odstrani.
   Selfie, similarity, ponudniški face ID in embedding niso del tega predpomnilnika.
+
+## Dopolnitev 2 (2026-07-20): obstojni gostov probe obraz
+
+Da gost lahko »Osveži« zadetke ob novih fotografijah brez ponovnega selfija,
+poleg zgornjega velja:
+
+- Ob prvem iskanju se gostov selfie enkrat indeksira v isto dogodkovno collection
+  (`ExternalImageId = guest:{guest_id}`). Shrani se **samo ponudniški opaque face
+  ID** v tabeli `face_guest_probes` (`0020_face_guest_probes.sql`) — nikoli slika,
+  embedding ali similarity. Sama slika selfija se še vedno izbriše po iskanju
+  oziroma najpozneje v 15 minutah.
+- Probe obraz se hrani do konca dogodka (`events.retention_until`) in nič dlje.
+  Gostov lastni probe se v zadetkih naravno izloči, ker ni v `face_provider_faces`.
+- »Osveži« ustvari sejo brez uploada (`POST .../face-search-sessions/re-search`),
+  ki reindeksira nove fotografije in išče prek `SearchFaces(FaceId)` shranjenega
+  probe-a. Če probe ne obstaja več, API vrne `FACE_PROBE_MISSING` in odjemalec
+  ponudi navaden selfie tok.
+- »Pozabi«, umik soglasja, potek ali izbris dogodka označijo probe za izbris;
+  Queue worker ga odstrani iz ponudniške collection (kot pri dogodkovnih obrazih).
+- Soglasje ni več »enkratno«: besedilo pravilnika izrecno navaja hrambo obraza do
+  konca dogodka, zato je `FACE_SEARCH_POLICY_VERSION` dvignjen na `2026-07-20`, kar
+  invalidira prej predpomnjene lokalne rezultate. DPIA in retention politiko je
+  treba uskladiti s to daljšo (a na dogodek vezano) biometrično hrambo.
 
 ## Posledice
 

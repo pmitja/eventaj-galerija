@@ -18,6 +18,11 @@ export const createFaceSearchSessionSchema = z.object({
   policyVersion: z.string().trim().min(1).max(50),
 });
 
+export const createFaceReSearchSessionSchema = z.object({
+  guestId: guestIdSchema,
+  policyVersion: z.string().trim().min(1).max(50),
+});
+
 export const storedFaceSearchResultSchema = z.object({
   version: z.literal(1),
   policyVersion: z.string().trim().min(1).max(50),

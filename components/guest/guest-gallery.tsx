@@ -370,7 +370,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
             </article>
           ))}
         </div>
-        {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? "Teh fotografij ni več v javni galeriji. Osveži iskanje z novim selfijem." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek."}</p> : null}
+        {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? "Teh fotografij ni več v javni galeriji. Osveži iskanje." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek."}</p> : null}
         {visiblePhotoCount < photos.length ? (
           <button className={styles.moreButton} type="button" onClick={() => setVisiblePhotoCount(photos.length)}>Prikaži več fotografij</button>
         ) : null}

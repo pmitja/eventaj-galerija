@@ -25,7 +25,10 @@ type CommentRow = {
   created_at: string;
 };
 
-type LiveCommentRow = Omit<CommentRow, "guest_id">;
+type LiveCommentRow = Omit<CommentRow, "guest_id"> & {
+  media_public_id: string;
+  media_filename: string | null;
+};
 
 function toPublicComment(row: CommentRow): PublicMediaComment {
   return {
@@ -61,7 +64,8 @@ export async function listMediaComments(eventId: string, publicMediaId: string):
 export async function listLiveMediaComments(eventId: string): Promise<LiveMediaComment[]> {
   const cutoff = new Date(Date.now() - LIVE_COMMENT_WINDOW_MS).toISOString();
   const result = await getCloudflareEnv().DB.prepare(
-    `SELECT c.id, g.display_name, c.body, c.created_at
+    `SELECT c.id, g.display_name, c.body, c.created_at,
+            m.public_id AS media_public_id, m.original_filename AS media_filename
      FROM media_comments c
      JOIN events e ON e.id = c.event_id
      JOIN event_guests g ON g.id = c.guest_id AND g.event_id = c.event_id
@@ -78,6 +82,8 @@ export async function listLiveMediaComments(eventId: string): Promise<LiveMediaC
     displayName: row.display_name ?? "Gost",
     body: row.body,
     createdAt: row.created_at,
+    mediaPublicId: row.media_public_id,
+    mediaFilename: row.media_filename ?? "",
   }));
 }
 

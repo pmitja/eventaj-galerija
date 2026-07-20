@@ -43,13 +43,13 @@ describe("live slideshow comments", () => {
 
   it("returns the newest limited result set in chronological display order", async () => {
     state.all.mockResolvedValue({ results: [
-      { id: "new", guest_id: "guest-1", display_name: "Nina", body: "Drugi", created_at: "2026-07-18T20:00:02Z" },
-      { id: "old", guest_id: "guest-2", display_name: "Miha", body: "Prvi", created_at: "2026-07-18T20:00:01Z" },
+      { id: "new", guest_id: "guest-1", display_name: "Nina", body: "Drugi", created_at: "2026-07-18T20:00:02Z", media_public_id: "photo-2", media_filename: "b.jpg" },
+      { id: "old", guest_id: "guest-2", display_name: "Miha", body: "Prvi", created_at: "2026-07-18T20:00:01Z", media_public_id: "photo-1", media_filename: "a.jpg" },
     ] });
 
     await expect(listLiveMediaComments("event-1")).resolves.toEqual([
-      { id: "old", displayName: "Miha", body: "Prvi", createdAt: "2026-07-18T20:00:01Z" },
-      { id: "new", displayName: "Nina", body: "Drugi", createdAt: "2026-07-18T20:00:02Z" },
+      { id: "old", displayName: "Miha", body: "Prvi", createdAt: "2026-07-18T20:00:01Z", mediaPublicId: "photo-1", mediaFilename: "a.jpg" },
+      { id: "new", displayName: "Nina", body: "Drugi", createdAt: "2026-07-18T20:00:02Z", mediaPublicId: "photo-2", mediaFilename: "b.jpg" },
     ]);
   });
 });

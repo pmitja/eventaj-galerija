@@ -1,6 +1,7 @@
 import {
   faceCollectionId,
   faceEmbeddingExpiresAt,
+  faceProbeExpiresAt,
   FACE_SEARCH_DEFAULT_THRESHOLD,
 } from "../lib/domain/face-search";
 import {
@@ -38,7 +39,9 @@ type SearchSession = {
   event_id: string;
   organization_id: string;
   guest_id: string;
+  consent_record_id: string;
   selfie_object_key: string | null;
+  retention_until: string;
   status: "queued" | "searching";
   attempt_count: number;
   expires_at: string;
@@ -145,15 +148,15 @@ async function processIndex(env: Env, message: Message<FaceQueueMessage>, input:
 
 async function claimSearch(env: Env, input: Extract<FaceQueueMessage, { kind: "search" }>): Promise<SearchSession | null> {
   const session = await env.DB.prepare(
-    `SELECT s.id, s.event_id, s.organization_id, s.guest_id, s.selfie_object_key, s.status,
-            s.attempt_count, s.expires_at
+    `SELECT s.id, s.event_id, s.organization_id, s.guest_id, s.consent_record_id,
+            s.selfie_object_key, e.retention_until, s.status, s.attempt_count, s.expires_at
      FROM face_search_sessions s
      JOIN events e ON e.id = s.event_id AND e.organization_id = s.organization_id
      JOIN event_entitlements ee ON ee.event_id = e.id
      WHERE s.id = ? AND s.organization_id = ? AND s.status IN ('queued', 'searching')
        AND s.expires_at > ? AND ee.feature_code = 'face_collections' AND ee.value_json = 'true'`,
   ).bind(input.sessionId, input.organizationId, new Date().toISOString()).first<SearchSession>();
-  if (!session || !session.selfie_object_key) return null;
+  if (!session) return null;
   const result = await env.DB.prepare(
     `UPDATE face_search_sessions SET status = 'searching', attempt_count = attempt_count + 1, updated_at = ?
      WHERE id = ? AND organization_id = ? AND status = ?`,
@@ -187,6 +190,54 @@ async function finishSearch(env: Env, session: SearchSession, status: "completed
   ]);
 }
 
+async function guestProbeFaceId(env: Env, session: SearchSession, providerName: string): Promise<string | null> {
+  const probe = await env.DB.prepare(
+    `SELECT provider_face_id FROM face_guest_probes
+     WHERE event_id = ? AND guest_id = ? AND provider = ? AND expires_at > ?`,
+  ).bind(session.event_id, session.guest_id, providerName, new Date().toISOString())
+    .first<{ provider_face_id: string }>();
+  return probe?.provider_face_id ?? null;
+}
+
+// Persist the guest's own selfie face so a later "Osveži" can search without a
+// new selfie. Best effort: a failure here never fails the search itself.
+async function rememberGuestProbe(env: Env, session: SearchSession, faceProvider: FaceProvider, bytes: Uint8Array): Promise<void> {
+  try {
+    const indexed = await faceProvider.indexProbeFace(
+      faceCollectionId(session.event_id), `guest:${session.guest_id}`, bytes,
+    );
+    if (!indexed) return;
+    const prior = await env.DB.prepare(
+      `SELECT provider_face_id FROM face_guest_probes
+       WHERE event_id = ? AND guest_id = ? AND provider = ?`,
+    ).bind(session.event_id, session.guest_id, faceProvider.name).first<{ provider_face_id: string }>();
+    if (prior && prior.provider_face_id !== indexed.providerFaceId) {
+      await faceProvider.deleteFaces(faceCollectionId(session.event_id), [prior.provider_face_id]);
+    }
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      `INSERT INTO face_guest_probes
+        (id, event_id, guest_id, consent_record_id, provider, provider_face_id,
+         model_version, expires_at, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(event_id, guest_id, provider) DO UPDATE SET
+         consent_record_id = excluded.consent_record_id,
+         provider_face_id = excluded.provider_face_id,
+         model_version = excluded.model_version,
+         expires_at = excluded.expires_at,
+         updated_at = excluded.updated_at`,
+    ).bind(
+      crypto.randomUUID(), session.event_id, session.guest_id, session.consent_record_id,
+      faceProvider.name, indexed.providerFaceId, indexed.modelVersion,
+      faceProbeExpiresAt(session.retention_until, new Date(now)), now, now,
+    ).run();
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: "face_search.probe_index_failed", sessionId: session.id, errorCode: errorCode(error),
+    }));
+  }
+}
+
 async function processSearch(env: Env, message: Message<FaceQueueMessage>, input: Extract<FaceQueueMessage, { kind: "search" }>) {
   const session = await claimSearch(env, input);
   if (!session) {
@@ -214,13 +265,25 @@ async function processSearch(env: Env, message: Message<FaceQueueMessage>, input
     return;
   }
   try {
-    const selfie = await env.MEDIA.get(session.selfie_object_key!);
-    if (!selfie?.body) throw new Error("SELFIE_NOT_FOUND");
-    const bytes = new Uint8Array(await selfie.arrayBuffer());
     const faceProvider = provider(env);
     const configuredThreshold = Number(env.FACE_MATCH_THRESHOLD);
     const threshold = Number.isFinite(configuredThreshold) ? configuredThreshold : FACE_SEARCH_DEFAULT_THRESHOLD;
-    const matches = await faceProvider.searchFaces(faceCollectionId(session.event_id), bytes, threshold);
+    let matches;
+    if (session.selfie_object_key) {
+      const selfie = await env.MEDIA.get(session.selfie_object_key);
+      if (!selfie?.body) throw new Error("SELFIE_NOT_FOUND");
+      const bytes = new Uint8Array(await selfie.arrayBuffer());
+      matches = await faceProvider.searchFaces(faceCollectionId(session.event_id), bytes, threshold);
+      await rememberGuestProbe(env, session, faceProvider, bytes);
+    } else {
+      const probeFaceId = await guestProbeFaceId(env, session, faceProvider.name);
+      if (!probeFaceId) {
+        await finishSearch(env, session, "failed", "PROBE_MISSING");
+        message.ack();
+        return;
+      }
+      matches = await faceProvider.searchFacesById(faceCollectionId(session.event_id), probeFaceId, threshold);
+    }
     const now = new Date().toISOString();
     await env.DB.prepare("DELETE FROM face_search_matches WHERE session_id = ?").bind(session.id).run();
     for (let offset = 0; offset < matches.length; offset += 100) {
@@ -304,7 +367,20 @@ async function recoverAndCleanup(env: Env): Promise<void> {
      FROM face_provider_faces WHERE expires_at <= ?
      GROUP BY event_id, provider LIMIT 25`,
   ).bind(now).all<{ event_id: string; provider: string; face_ids: string }>();
-  const faceProvider = expiredFaces.results.length > 0 ? provider(env) : null;
+  const expiredProbes = await env.DB.prepare(
+    `SELECT event_id, provider, group_concat(provider_face_id) AS face_ids
+     FROM face_guest_probes WHERE expires_at <= ?
+     GROUP BY event_id, provider LIMIT 25`,
+  ).bind(now).all<{ event_id: string; provider: string; face_ids: string }>();
+  const faceProvider = expiredFaces.results.length > 0 || expiredProbes.results.length > 0 ? provider(env) : null;
+  for (const group of expiredProbes.results) {
+    if (!faceProvider) break;
+    if (group.provider !== faceProvider.name) continue;
+    await faceProvider.deleteFaces(faceCollectionId(group.event_id), group.face_ids.split(","));
+    await env.DB.prepare(
+      `DELETE FROM face_guest_probes WHERE event_id = ? AND provider = ? AND expires_at <= ?`,
+    ).bind(group.event_id, group.provider, now).run();
+  }
   for (const group of expiredFaces.results) {
     if (!faceProvider) break;
     if (group.provider !== faceProvider.name) continue;
