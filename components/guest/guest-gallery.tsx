@@ -78,7 +78,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [livePhotos, setLivePhotos] = useState<Array<{ key: string; publicId: string; src: string; alt: string; commentCount: number }>>([]);
   const [faceSearchResult, setFaceSearchResult] = useState<StoredFaceSearchResult | null>(null);
   const [faceFilterActive, setFaceFilterActive] = useState(false);
-  const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null });
+  const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null });
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const allPhotos = livePhotos.length > 0 || eventSlug !== "ana-in-marko" ? livePhotos : [...demoPhotos];
@@ -142,8 +142,8 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     const loadEvent = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}`, { cache: "no-store" });
       if (!response.ok) return;
-      const body = await response.json() as { event: { name: string; location: string | null; startsAt: string; commentsEnabled: boolean; faceSearchEnabled: boolean; faceSearchPolicyVersion: string | null } };
-      setEventInfo({ name: body.event.name, location: body.event.location ?? "", startsAt: body.event.startsAt, commentsEnabled: body.event.commentsEnabled, faceSearchEnabled: body.event.faceSearchEnabled, faceSearchPolicyVersion: body.event.faceSearchPolicyVersion });
+      const body = await response.json() as { event: { name: string; location: string | null; startsAt: string; commentsEnabled: boolean; uploadsOpen: boolean; faceSearchEnabled: boolean; faceSearchPolicyVersion: string | null } };
+      setEventInfo({ name: body.event.name, location: body.event.location ?? "", startsAt: body.event.startsAt, commentsEnabled: body.event.commentsEnabled, uploadsOpen: body.event.uploadsOpen, faceSearchEnabled: body.event.faceSearchEnabled, faceSearchPolicyVersion: body.event.faceSearchPolicyVersion });
     };
     void loadEvent();
   }, [eventSlug]);
@@ -304,16 +304,24 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
           <p className={styles.kicker}>{new Intl.DateTimeFormat("sl-SI", { dateStyle: "long" }).format(new Date(eventInfo.startsAt))}{eventInfo.location ? ` · ${eventInfo.location}` : ""}</p>
           <h1>{eventInfo.name}</h1>
           <p className={styles.welcome}>Dobrodošli v skupni galeriji. Dodajte utrinke, ki ste jih ujeli, in podoživite dogodek skupaj.</p>
-          <a className={styles.heroCta} href="#dodaj">
-            <CameraIcon /> Dodaj fotografije
-          </a>
-          <p className={styles.uploadHint}>Brez aplikacije in brez prijave</p>
+          {eventInfo.uploadsOpen ? (
+            <>
+              <a className={styles.heroCta} href="#dodaj">
+                <CameraIcon /> Dodaj fotografije
+              </a>
+              <p className={styles.uploadHint}>Brez aplikacije in brez prijave</p>
+            </>
+          ) : (
+            <p className={styles.uploadHint}>Nalaganje je zaključeno. Uživaj v skupnih spominih.</p>
+          )}
         </div>
       </section>
 
-      <div className={styles.uploadSection}>
-        {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} /> : null}
-      </div>
+      {eventInfo.uploadsOpen ? (
+        <div className={styles.uploadSection}>
+          {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} /> : null}
+        </div>
+      ) : null}
 
       <section className={styles.gallerySection} aria-labelledby="gallery-title">
         <div className={styles.galleryIntro}>

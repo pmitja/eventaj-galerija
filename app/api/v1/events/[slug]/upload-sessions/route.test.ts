@@ -57,4 +57,24 @@ describe("guest-scoped upload session", () => {
     expect(response.status).toBe(201);
     expect(state.createUploadSession).toHaveBeenCalledWith("event-1", "org-1", "hash", null, null);
   });
+
+  it("still accepts uploads within 24 hours after the event ends", async () => {
+    state.findPublicEvent.mockResolvedValue({
+      id: "event-1", organization_id: "org-1", uploads_enabled: 1,
+      ends_at: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString(),
+    });
+    const response = await createSession("guest_0123456789abcdef");
+    expect(response.status).toBe(201);
+    expect(state.createUploadSession).toHaveBeenCalled();
+  });
+
+  it("closes uploads more than 24 hours after the event ends", async () => {
+    state.findPublicEvent.mockResolvedValue({
+      id: "event-1", organization_id: "org-1", uploads_enabled: 1,
+      ends_at: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
+    });
+    const response = await createSession("guest_0123456789abcdef");
+    expect(response.status).toBe(410);
+    expect(state.createUploadSession).not.toHaveBeenCalled();
+  });
 });

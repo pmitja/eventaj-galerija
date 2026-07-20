@@ -1,4 +1,5 @@
 import { problem } from "@/lib/http/problem";
+import { areUploadsOpen } from "@/lib/domain/events";
 import { findPublicEvent } from "@/lib/repositories/events";
 import { createUploadSession } from "@/lib/repositories/uploads";
 import { findActiveAccessPoint } from "@/lib/repositories/access-points";
@@ -20,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   const { slug } = await params;
   const event = await findPublicEvent(slug);
   if (!event || !event.uploads_enabled) return problem(404, "UPLOADS_DISABLED", "Nalaganje ni na voljo");
-  if (new Date(event.ends_at).getTime() + 15 * 60 * 1000 < Date.now()) {
+  if (!areUploadsOpen(event.ends_at)) {
     return problem(410, "EVENT_ENDED", "Nalaganje za ta dogodek je zaključeno");
   }
   const accessPointCode = cookieValue(request, "eventaj_access_point");
