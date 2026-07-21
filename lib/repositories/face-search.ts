@@ -145,7 +145,7 @@ export async function createFaceReSearchSession(input: {
        FROM events e
        JOIN event_guests g ON g.event_id = e.id AND g.id = ?
        JOIN event_entitlements ee ON ee.event_id = e.id
-       WHERE e.id = ? AND e.organization_id = ? AND e.status = 'active'
+       WHERE e.id = ? AND e.organization_id = ? AND e.status IN ('active', 'ended')
          AND ee.feature_code = 'face_collections' AND ee.value_json = 'true'`,
     ).bind(
       sessionId, input.guestId, probe.consent_record_id, input.tokenHash,
