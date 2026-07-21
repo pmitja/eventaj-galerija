@@ -4,6 +4,7 @@ export const LIVE_COMMENT_WINDOW_MS = 2 * 60_000;
 export const LIVE_COMMENT_LIMIT = 20;
 export const LIVE_COMMENT_DURATION_MS = 7_000;
 export const MAX_VISIBLE_LIVE_COMMENTS = 3;
+export const MAX_SLIDE_COMMENTS = 5;
 
 export type LiveMediaComment = {
   id: string;

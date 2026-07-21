@@ -37,6 +37,11 @@
 .commentBubble::after { position: absolute; right: -1px; bottom: -8px; width: 14px; height: 14px; background: rgba(255,255,255,.93); clip-path: polygon(0 0,100% 0,100% 100%); content: ""; }
 .commentBubble strong { display: block; overflow: hidden; color: #b91c5c; font-size: clamp(12px,1vw,14px); font-weight: 800; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
 .commentBubble p { display: -webkit-box; overflow: hidden; margin: 3px 0 0; font-size: clamp(15px,1.35vw,19px); font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.slideComments { position: absolute; z-index: 5; left: clamp(18px,3vw,48px); bottom: clamp(104px,11vh,150px); width: min(390px,calc(100% - 36px)); max-height: calc(100% - 210px); display: flex; align-items: flex-start; flex-direction: column; gap: 12px; overflow: hidden; pointer-events: none; }
+.slideCommentBubble { border-radius: 20px 20px 20px 6px; animation: slideCommentIn .5s cubic-bezier(.22,.75,.25,1) both; }
+.slideCommentBubble::after { right: auto; left: -1px; clip-path: polygon(0 0,100% 0,0 100%); }
+.slideCommentBubble strong { color: #b91c5c; }
+@keyframes slideCommentIn { from { opacity: 0; transform: translate3d(-22px,10px,0) scale(.97); } to { opacity: 1; transform: translate3d(0,0,0) scale(1); } }
 .controls { position: absolute; z-index: 3; right: clamp(18px,2.6vw,38px); bottom: clamp(18px,2.6vw,38px); left: clamp(18px,2.6vw,38px); display: flex; align-items: end; justify-content: space-between; gap: 24px; opacity: .35; transition: opacity .2s ease; }
 .display:hover .controls, .controls:focus-within { opacity: 1; }
 .controls > div { display: flex; flex-direction: column; gap: 5px; text-shadow: 0 2px 12px #000; }
@@ -58,6 +63,6 @@
 @keyframes overlayLifecycle { 0% { opacity: 0; translate: 0 14px; } 7%,88% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 0 -8px; } }
 @keyframes commentFloat { 0% { opacity: 0; transform: translate3d(22px,28px,0) scale(.96); } 10%,72% { opacity: 1; } 100% { opacity: 0; transform: translate3d(0,clamp(-150px,-11vh,-80px),0) scale(1); } }
 @media (max-width: 600px) { .controls { align-items: stretch; flex-direction: column; }.controls nav { justify-content: flex-end; }.controls strong { font-size: 23px; } }
-@media (prefers-reduced-motion: reduce) { .frame { animation: none; }.pulse { animation: none; }.controls { transition: none; }.liveOverlay { animation-name: overlayFade; }.commentBubble { animation-name: commentFade; } }
+@media (prefers-reduced-motion: reduce) { .frame { animation: none; }.pulse { animation: none; }.controls { transition: none; }.liveOverlay { animation-name: overlayFade; }.commentBubble { animation-name: commentFade; }.slideCommentBubble { animation: none; } }
 @keyframes overlayFade { 0%,100% { opacity: 0; } 5%,90% { opacity: 1; } }
 @keyframes commentFade { 0%,100% { opacity: 0; } 5%,88% { opacity: 1; } }

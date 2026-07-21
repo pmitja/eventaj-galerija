@@ -14,7 +14,7 @@ import {
 import type { EngagementSnapshot } from "@/lib/repositories/engagement";
 import styles from "./slideshow-display.module.css";
 
-type Slide = { publicId: string; filename: string; imageUrl: string };
+type Slide = { publicId: string; filename: string; imageUrl: string; comments: LiveMediaComment[] };
 
 const engagementIconPaths = {
   camera: "/icons/engagement/camera.png",
@@ -240,6 +240,22 @@ export function SlideshowDisplay({ token, initialEventName }: { token: string; i
           </article>
         ))}
       </section>
+
+      {currentSlide?.comments.length ? (
+        <section className={styles.slideComments} aria-label="Komentarji trenutne fotografije">
+          {currentSlide.comments.map((comment) => (
+            <article className={`${styles.commentBubble} ${styles.slideCommentBubble}`} key={`${currentSlide.publicId}:${comment.id}`}>
+              <span className={styles.commentThumb} aria-hidden="true">
+                <Image src={currentSlide.imageUrl} alt="" fill unoptimized sizes="44px" />
+              </span>
+              <span className={styles.commentBody}>
+                <strong>{comment.displayName}</strong>
+                <p>{comment.body}</p>
+              </span>
+            </article>
+          ))}
+        </section>
+      ) : null}
 
       {currentSlide ? (
         <footer className={styles.controls}>

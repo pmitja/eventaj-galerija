@@ -5,6 +5,7 @@ import {
   COMMENT_RATE_WINDOW_MS,
   LIVE_COMMENT_LIMIT,
   LIVE_COMMENT_WINDOW_MS,
+  MAX_SLIDE_COMMENTS,
   type LiveMediaComment,
 } from "@/lib/domain/media-comments";
 import type { CreateMediaComment } from "@/lib/validation/media-comments";
@@ -77,14 +78,44 @@ export async function listLiveMediaComments(eventId: string): Promise<LiveMediaC
      ORDER BY c.created_at DESC
      LIMIT ?`,
   ).bind(eventId, cutoff, LIVE_COMMENT_LIMIT).all<LiveCommentRow>();
-  return result.results.reverse().map((row) => ({
+  return result.results.reverse().map(toLiveComment);
+}
+
+function toLiveComment(row: LiveCommentRow): LiveMediaComment {
+  return {
     id: row.id,
     displayName: row.display_name ?? "Gost",
     body: row.body,
     createdAt: row.created_at,
     mediaPublicId: row.media_public_id,
     mediaFilename: row.media_filename ?? "",
-  }));
+  };
+}
+
+export async function listSlideMediaComments(eventId: string): Promise<Record<string, LiveMediaComment[]>> {
+  const result = await getCloudflareEnv().DB.prepare(
+    `SELECT id, display_name, body, created_at, media_public_id, media_filename FROM (
+       SELECT c.id, g.display_name, c.body, c.created_at,
+              m.public_id AS media_public_id, m.original_filename AS media_filename,
+              ROW_NUMBER() OVER (PARTITION BY c.media_id ORDER BY c.created_at DESC) AS rn
+       FROM media_comments c
+       JOIN events e ON e.id = c.event_id
+       JOIN event_guests g ON g.id = c.guest_id AND g.event_id = c.event_id
+       JOIN media_files m ON m.id = c.media_id AND m.event_id = c.event_id
+       WHERE c.event_id = ? AND e.comments_enabled = 1 AND c.status = 'visible'
+         AND g.show_on_live_screen = 1 AND g.display_name IS NOT NULL
+         AND m.status = 'ready' AND m.slideshow_state = 'approved' AND m.publication_consent = 1
+         AND COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')
+     )
+     WHERE rn <= ?
+     ORDER BY media_public_id, created_at ASC`,
+  ).bind(eventId, MAX_SLIDE_COMMENTS).all<LiveCommentRow>();
+
+  const grouped: Record<string, LiveMediaComment[]> = {};
+  for (const row of result.results) {
+    (grouped[row.media_public_id] ??= []).push(toLiveComment(row));
+  }
+  return grouped;
 }
 
 export type CreateMediaCommentResult =
