@@ -17,6 +17,8 @@ type IconName =
   | "chevron"
   | "more"
   | "help"
+  | "link"
+  | "copy"
   | "sparkles";
 
 export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
@@ -39,6 +41,8 @@ export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
     chevron: <path d="m9 18 6-6-6-6"/>,
     more: <><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></>,
     help: <><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.8-1.1 1.8M12 17h.01"/></>,
+    link: <><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7L12 19"/></>,
+    copy: <><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>,
     sparkles: <><path d="m12 3 1 3.2L16 8l-3 1.8-1 3.2-1-3.2L8 8l3-1.8L12 3Z"/><path d="m18.5 13 .7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3Z"/><path d="m5.5 12 .8 2.2 2.2.8-2.2.8L5.5 18l-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/></>,
   };
 

@@ -297,6 +297,17 @@
 .contextStats span { min-width: 82px; display: flex; flex-direction: column; gap: 3px; padding-left: 16px; border-left: 1px solid #e9e4e6; }
 .contextStats strong { font-size: 13px; }
 .contextStats small { color: #978b91; font-size: 9px; }
+.galleryLinkBar { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; padding: 12px 17px; border: 1px solid var(--admin-border); border-radius: 15px; background: #fff; }
+.galleryLinkIcon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: color-mix(in srgb, var(--admin-accent) 12%, #fff); color: var(--admin-accent-dark); }
+.galleryLinkBody { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.galleryLinkBody small { color: #9a8e94; font-size: 8.5px; font-weight: 800; letter-spacing: .08em; }
+.galleryLinkBody a { overflow: hidden; color: var(--admin-accent-dark); font-size: 12.5px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.galleryLinkActions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.galleryLinkOk { color: #15803d; font-size: 10.5px; font-weight: 700; }
+.galleryLinkError { color: #b91c1c; font-size: 10.5px; font-weight: 700; }
+.galleryLinkOpen { display: flex; align-items: center; gap: 3px; min-height: 40px; padding: 8px 11px; color: var(--admin-accent-dark) !important; font-size: 10.5px; font-weight: 750; }
+.galleryLinkCopy { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 9px 14px; border: 0; border-radius: 10px; background: var(--admin-accent); color: #fff; font: inherit; font-size: 10.5px; font-weight: 750; cursor: pointer; }
+.galleryLinkCopy:hover { background: var(--admin-accent-dark); }
 .tabList { display: flex; align-items: stretch; gap: 2px; align-self: stretch; }
 .tabList button { position: relative; min-height: 44px; padding: 8px 13px; border: 0; background: transparent; color: #7f7379; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
 .tabList button[aria-selected="true"] { color: var(--admin-accent-dark); }
@@ -454,6 +465,9 @@
   .formGrid input, .formGrid select { min-height: 48px; font-size: 16px; }
   .formActions { display: grid; grid-template-columns: 1fr 1fr; }
   .contextBar { grid-template-columns: 1fr auto; gap: 10px; }
+  .galleryLinkBar { flex-wrap: wrap; }
+  .galleryLinkActions { width: 100%; justify-content: flex-end; }
+  .galleryLinkCopy { flex: 1; justify-content: center; }
   .eventPicker { grid-template-columns: 44px 1fr; min-height: 0; padding: 20px 16px; }
   .eventPicker form { grid-column: 1 / -1; align-items: stretch; flex-direction: column; }
   .eventPicker .selectControl, .eventPicker select, .eventPicker .primaryAction { width: 100%; min-width: 0; min-height: 48px; }
