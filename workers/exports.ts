@@ -1,4 +1,4 @@
-import { ZipWriter } from "@zip.js/zip.js";
+import { Uint8ArrayReader, ZipWriter } from "@zip.js/zip.js";
 import { archiveSchedulingCutoff, createDeliveryToken, hashDeliveryToken } from "../lib/domain/delivery";
 import { exportExpiry, exportFileName, uniqueWebpEntryNames } from "../lib/domain/exports";
 import { archiveDeliveryEmail, qrDeliveryEmail, ResendEmailAdapter } from "../lib/notifications/email";
@@ -57,19 +57,85 @@ type ArchiveDeliveryRow = {
 
 export type ZipSource = {
   name: string;
-  body: ReadableStream;
+  // Full bytes of the entry. Providing a known size lets zip.js write the size into the
+  // local file header instead of a trailing data descriptor — data descriptors combined
+  // with forced zip64 are what made macOS Archive Utility reject the archive (Error 79).
+  body: Uint8Array;
   uploaded: Date;
 };
 
 export async function writeZipArchive(output: WritableStream, sources: AsyncIterable<ZipSource>): Promise<void> {
-  const writer = new ZipWriter(output, { level: 0, zip64: true, useWebWorkers: false });
+  // `zip64` intentionally omitted: zip.js enables it per-entry only when a size or offset
+  // actually exceeds 4 GiB, so normal galleries produce a plain zip every tool can open,
+  // while multi-GB galleries still get a valid zip64 archive.
+  const writer = new ZipWriter(output, { level: 0, useWebWorkers: false });
   try {
     for await (const source of sources) {
-      await writer.add(source.name, source.body, { level: 0, lastModDate: source.uploaded });
+      await writer.add(source.name, new Uint8ArrayReader(source.body), { lastModDate: source.uploaded });
     }
     await writer.close();
   } catch (error) {
     await writer.close().catch(() => undefined);
+    throw error;
+  }
+}
+
+// R2 rejects a streaming `put()` whose body has no known Content-Length, so we cannot
+// pipe the zip output straight into `MEDIA.put(stream)`. Instead we drive an R2 multipart
+// upload from the zip writer: chunks are buffered until they reach the part size and
+// uploaded incrementally, keeping memory bounded even for multi-GB galleries.
+const R2_MULTIPART_PART_SIZE = 8 * 1024 * 1024; // 8 MiB (R2 requires every non-final part >= 5 MiB)
+
+function concatChunks(chunks: Uint8Array[], totalLength: number): Uint8Array {
+  const merged = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    merged.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return merged;
+}
+
+export async function writeZipToR2Multipart(
+  env: Pick<Env, "MEDIA">,
+  objectKey: string,
+  httpMetadata: R2HTTPMetadata,
+  sources: AsyncIterable<ZipSource>,
+): Promise<number> {
+  const multipart = await env.MEDIA.createMultipartUpload(objectKey, { httpMetadata });
+  const parts: R2UploadedPart[] = [];
+  let pending: Uint8Array[] = [];
+  let pendingBytes = 0;
+  let totalBytes = 0;
+  let partNumber = 1;
+
+  async function flushPart(): Promise<void> {
+    if (pendingBytes === 0) return;
+    const body = concatChunks(pending, pendingBytes);
+    pending = [];
+    pendingBytes = 0;
+    parts.push(await multipart.uploadPart(partNumber, body));
+    partNumber += 1;
+  }
+
+  const sink = new WritableStream<Uint8Array>({
+    async write(chunk) {
+      pending.push(chunk);
+      pendingBytes += chunk.byteLength;
+      totalBytes += chunk.byteLength;
+      if (pendingBytes >= R2_MULTIPART_PART_SIZE) await flushPart();
+    },
+    async close() {
+      await flushPart();
+    },
+  });
+
+  try {
+    await writeZipArchive(sink, sources);
+    await multipart.complete(parts);
+    return totalBytes;
+  } catch (error) {
+    await multipart.abort().catch(() => undefined);
     throw error;
   }
 }
@@ -177,41 +243,34 @@ export async function buildDownloadExport(env: Env, exportId: string, retry = fa
   if (!media.results.length) throw new Error("EXPORT_EMPTY");
 
   const objectKey = `exports/${exportJob.event_id}/${exportJob.id}.zip`;
-  const zipStream = new TransformStream<Uint8Array, Uint8Array>();
-  const upload = env.MEDIA.put(objectKey, zipStream.readable, {
-    httpMetadata: {
-      contentType: "application/zip",
-      contentDisposition: `attachment; filename="${exportJob.file_name}"`,
-      cacheControl: "private, no-store",
-    },
-  });
   const entryNames = uniqueWebpEntryNames(media.results.map((item) => item.original_filename));
 
   async function* sources(): AsyncGenerator<ZipSource> {
     for (const [index, item] of media.results.entries()) {
       const object = await env.MEDIA.get(item.gallery_key);
-      if (!object?.body) throw new Error("EXPORT_SOURCE_MISSING");
-      yield { name: entryNames[index], body: object.body, uploaded: object.uploaded };
+      if (!object) throw new Error("EXPORT_SOURCE_MISSING");
+      // Buffer one gallery file at a time (webp, typically < 1 MiB) so zip.js knows its
+      // size up front. Memory stays bounded — the zip output itself streams to R2.
+      const body = new Uint8Array(await object.arrayBuffer());
+      yield { name: entryNames[index], body, uploaded: object.uploaded };
     }
   }
 
-  try {
-    await writeZipArchive(zipStream.writable, sources());
-    const stored = await upload;
-    const now = new Date();
-    await env.DB.prepare(
-      `UPDATE download_exports
-       SET status = 'ready', object_key = ?, media_count = ?, size_bytes = ?, error_code = NULL,
-           expires_at = ?, completed_at = ?, updated_at = ?
-       WHERE id = ? AND status = 'processing'`,
-    ).bind(
-      objectKey, media.results.length, stored.size, exportExpiry(now), now.toISOString(), now.toISOString(), exportJob.id,
-    ).run();
-  } catch (error) {
-    await upload.catch(() => undefined);
-    await env.MEDIA.delete(objectKey);
-    throw error;
-  }
+  const sizeBytes = await writeZipToR2Multipart(env, objectKey, {
+    contentType: "application/zip",
+    contentDisposition: `attachment; filename="${exportJob.file_name}"`,
+    cacheControl: "private, no-store",
+  }, sources());
+
+  const now = new Date();
+  await env.DB.prepare(
+    `UPDATE download_exports
+     SET status = 'ready', object_key = ?, media_count = ?, size_bytes = ?, error_code = NULL,
+         expires_at = ?, completed_at = ?, updated_at = ?
+     WHERE id = ? AND status = 'processing'`,
+  ).bind(
+    objectKey, media.results.length, sizeBytes, exportExpiry(now), now.toISOString(), now.toISOString(), exportJob.id,
+  ).run();
 }
 
 async function queueArchiveEmail(env: Env, exportId: string): Promise<void> {
@@ -335,14 +394,32 @@ export default {
         message.ack();
       } catch (error) {
         console.error(JSON.stringify({
-          event: "delivery.job_failed", type: job.type, attempt: message.attempts, errorCode: errorCode(error),
+          event: "delivery.job_failed",
+          type: job.type,
+          attempt: message.attempts,
+          errorCode: errorCode(error),
+          errorName: error instanceof Error ? error.name : typeof error,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : undefined,
         }));
-        if (message.attempts < 3) {
-          if (job.type === "build_export") await markExportRetry(env, job.exportId, error);
+        // Never let bookkeeping failures escape the handler — an uncaught throw here
+        // leaves the export stuck in `processing` with no error recorded.
+        try {
+          if (message.attempts < 3) {
+            if (job.type === "build_export") await markExportRetry(env, job.exportId, error);
+            message.retry({ delaySeconds: 30 * message.attempts });
+          } else {
+            await markJobFailed(env, job, error);
+            message.ack();
+          }
+        } catch (bookkeepingError) {
+          console.error(JSON.stringify({
+            event: "delivery.bookkeeping_failed",
+            type: job.type,
+            errorMessage: bookkeepingError instanceof Error ? bookkeepingError.message : String(bookkeepingError),
+            errorStack: bookkeepingError instanceof Error ? bookkeepingError.stack : undefined,
+          }));
           message.retry({ delaySeconds: 30 * message.attempts });
-        } else {
-          await markJobFailed(env, job, error);
-          message.ack();
         }
       }
     }

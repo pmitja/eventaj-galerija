@@ -17,7 +17,8 @@ export function Header() {
     <header className="site-header">
       <div className="header-inner shell">
         <a className="brand" href="#top" aria-label="Eventaj.si Galerija">
-          Eventaj.si <span>|</span> <b>Galerija</b>
+          <img className="brand-logo" src="/logo.svg" alt="Eventaj.si" width={40} height={40} />
+          <span>|</span> <b>Galerija</b>
         </a>
         <nav className="desktop-nav" aria-label="Glavna navigacija">
           <a href="#kako-deluje">Kako deluje</a>
