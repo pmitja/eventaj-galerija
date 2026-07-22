@@ -44,7 +44,7 @@
     ]
   },
   "vars": {
-    "PUBLIC_APP_URL": "https://eventaj-galerija.eventaj.workers.dev",
+    "PUBLIC_APP_URL": "https://galerija.eventaj.si",
     "EMAIL_FROM": "Eventaj Galerija <galerija@eventaj.si>"
   }
 }

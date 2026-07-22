@@ -10,6 +10,8 @@ const REVEAL_SELECTORS = [
   ".ai-grid",
   ".slideshow-copy",
   ".slideshow-visual-wrap",
+  ".showcase-copy",
+  ".showcase-visual-wrap",
   ".devices .shell",
   ".pricing-grid",
   ".addons",

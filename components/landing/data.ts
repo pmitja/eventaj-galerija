@@ -41,14 +41,14 @@ export const howSteps = [
 ] as const;
 
 export const features = [
-  { glyph: "▣", title: "Digitalni album", description: "Fotografije gostov v elegantni skupni galeriji.", mobile: "Fotografije gostov v skupni galeriji." },
-  { glyph: "⤓", title: "Prenos v ZIP", description: "Organizator lahko fotografije iz galerije prenese v ZIP datoteki.", mobile: "Prenos fotografij iz galerije v ZIP." },
-  { glyph: "◎", title: "Brez aplikacije", description: "Gostje sodelujejo v brskalniku — brez namestitve in prijave.", mobile: "Vse poteka v brskalniku, brez prijave." },
-  { glyph: "▦", title: "QR koda za tisk", mobileTitle: "QR koda", description: "Prenesite QR kodo dogodka v SVG ali PNG obliki; predlogo lahko pripravimo ročno.", mobile: "QR koda v SVG ali PNG obliki." },
-  { glyph: "▶", title: "Live slideshow", description: "Fotografije se sproti prikazujejo na projektorju ali TV zaslonu.", mobile: "Fotografije na projektorju ali TV." },
-  { glyph: "✎", title: "Komentarji", description: "Gostje lahko fotografijam dodajo sporočila in voščila.", mobile: "Sporočila in voščila ob fotografijah." },
-  { glyph: "◆", title: "Nadzor vidnosti", description: "Organizator upravlja vidnost galerije in posameznih fotografij.", mobile: "Organizator upravlja vidnost galerije." },
-  { glyph: "◫", title: "Administracija", description: "Pregled dogodka, QR kode, fotografij, analitike in izvozov na enem mestu.", mobile: "Dogodek, fotografije in izvozi na enem mestu." },
+  { glyph: "▣", icon: "/marketing/icons/digitalni-album.png", title: "Digitalni album", description: "Fotografije gostov v elegantni skupni galeriji.", mobile: "Fotografije gostov v skupni galeriji." },
+  { glyph: "⤓", icon: "/marketing/icons/prenos-zip.png", title: "Prenos v ZIP", description: "Organizator lahko fotografije iz galerije prenese v ZIP datoteki.", mobile: "Prenos fotografij iz galerije v ZIP." },
+  { glyph: "◎", icon: "/marketing/icons/brez-aplikacije.png", title: "Brez aplikacije", description: "Gostje sodelujejo v brskalniku — brez namestitve in prijave.", mobile: "Vse poteka v brskalniku, brez prijave." },
+  { glyph: "▦", icon: "/marketing/icons/qr-koda.png", title: "QR koda za tisk", mobileTitle: "QR koda", description: "Prenesite QR kodo dogodka v SVG ali PNG obliki; predlogo lahko pripravimo ročno.", mobile: "QR koda v SVG ali PNG obliki." },
+  { glyph: "▶", icon: "/marketing/icons/live-slideshow.png", title: "Live slideshow", description: "Fotografije se sproti prikazujejo na projektorju ali TV zaslonu.", mobile: "Fotografije na projektorju ali TV." },
+  { glyph: "✎", icon: "/marketing/icons/komentarji.png", title: "Komentarji", description: "Gostje lahko fotografijam dodajo sporočila in voščila.", mobile: "Sporočila in voščila ob fotografijah." },
+  { glyph: "◆", icon: "/marketing/icons/nadzor-vidnosti.png", title: "Nadzor vidnosti", description: "Organizator upravlja vidnost galerije in posameznih fotografij.", mobile: "Organizator upravlja vidnost galerije." },
+  { glyph: "◫", icon: "/marketing/icons/administracija.png", title: "Administracija", description: "Pregled dogodka, QR kode, fotografij, analitike in izvozov na enem mestu.", mobile: "Dogodek, fotografije in izvozi na enem mestu." },
 ] as const;
 
 export const plans = [

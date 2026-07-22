@@ -55,7 +55,9 @@ export function Features() {
         <div className="feature-grid">
           {features.map((feature) => (
             <article className="feature-card" key={feature.title}>
-              <span className="feature-glyph" aria-hidden="true">{feature.glyph}</span>
+              <span className="feature-glyph" aria-hidden="true">
+                <img src={feature.icon} alt="" width={22} height={22} loading="lazy" />
+              </span>
               <h3 className={"mobileTitle" in feature ? "desktop-only" : ""}>{feature.title}</h3>
               {"mobileTitle" in feature ? <h3 className="mobile-only">{feature.mobileTitle}</h3> : null}
               <p className="desktop-only">{feature.description}</p>
@@ -105,7 +107,7 @@ export function Slideshow() {
           <a className="dark-cta desktop-only" href="#cene">Poglej ceno →</a>
         </div>
         <div className="slideshow-visual-wrap">
-          <VisualPlaceholder label="Fotografija v predstavitvi dogodka" imageSrc="/gallery/ana-marko/photo-5.jpg" className="slideshow-visual" />
+          <VisualPlaceholder label="Live slideshow dogodka na velikem zaslonu" imageSrc="/marketing/screenshots/liveshow-desktop.png" imageAlt="Live slideshow dogodka z voščili gostov na velikem zaslonu" className="slideshow-visual" />
           <div className="qr-callout"><QrMark /><small>Dodaj svoje fotografije</small></div>
         </div>
         <a className="dark-cta mobile-only" href="#cene">Poglej ceno →</a>
@@ -122,8 +124,8 @@ export function Devices() {
         <p>V vsakem brskalniku · brez aplikacije · v Apple slogu preprosto</p>
         <div className="browser-mock">
           <div className="browser-bar"><span /><span /><span /><small>galerija.eventaj.si/ana-in-marko</small></div>
-          <VisualPlaceholder label="Galerija na namizju" imageSrc="/gallery/ana-marko/photo-2.jpg" className="browser-visual" />
-          <div className="device-phone"><VisualPlaceholder label="Mobilna galerija" imageSrc="/gallery/ana-marko/photo-7.jpg" /></div>
+          <VisualPlaceholder label="Galerija na namizju" imageSrc="/marketing/screenshots/gallery-desktop-frame.png" imageAlt="Galerija dogodka na namiznem računalniku" className="browser-visual" />
+          <div className="device-phone"><VisualPlaceholder label="Mobilna galerija" imageSrc="/marketing/screenshots/gallery-mobile.png" imageAlt="Galerija dogodka na telefonu" /></div>
         </div>
       </div>
     </section>

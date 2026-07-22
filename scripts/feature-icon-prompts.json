@@ -1,0 +1,10 @@
+[
+  { "id": "digitalni-album", "subject": "a small stack of overlapping photo cards forming a photo gallery" },
+  { "id": "prenos-zip", "subject": "a downward arrow pointing into an open tray, representing a file download" },
+  { "id": "brez-aplikacije", "subject": "a simple web browser window with a globe inside, representing no app needed" },
+  { "id": "qr-koda", "subject": "a simple QR code square with rounded finder squares in the corners" },
+  { "id": "live-slideshow", "subject": "a wide presentation screen with a play triangle in the center" },
+  { "id": "komentarji", "subject": "a rounded speech bubble with a small heart inside" },
+  { "id": "nadzor-vidnosti", "subject": "an outlined eye symbol representing visibility control" },
+  { "id": "administracija", "subject": "a dashboard layout made of a sidebar and two rectangular panels" }
+]

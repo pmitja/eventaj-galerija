@@ -1,0 +1,47 @@
+[
+  {
+    "id": "photo-1",
+    "image_size": "square_hd",
+    "prompt": "Candid amateur smartphone photo taken by a wedding guest at an outdoor Slovenian summer wedding. A bride in a simple white dress and a groom in a light suit walk hand in hand down a path lined with wildflowers, guests clapping in soft background bokeh, golden late-afternoon light. Natural colors, slight motion, authentic user-generated content look, shot vertically on a modern phone, no text, no watermark, no logos."
+  },
+  {
+    "id": "photo-2",
+    "image_size": "square_hd",
+    "prompt": "Candid smartphone photo by a guest: a long wooden banquet table at a Slovenian wedding reception, decorated with greenery, white candles and glasses of sparkling wine, warm string lights overhead, a few guests laughing in the background slightly out of focus. Cozy evening ambiance, realistic phone camera look, natural white balance, no text, no watermark."
+  },
+  {
+    "id": "photo-3",
+    "image_size": "square_hd",
+    "prompt": "Candid group photo taken by a friend at a wedding: five cheerful guests in their late twenties, smart-casual summer outfits, arms around each other, laughing toward the camera on a garden terrace, blurred vineyard hills behind them. Bright natural daylight, authentic snapshot feel, mild phone-camera imperfections, no text, no watermark."
+  },
+  {
+    "id": "photo-4",
+    "image_size": "square_hd",
+    "prompt": "Candid smartphone photo of the first dance at a Slovenian wedding: bride and groom dancing closely in a softly lit barn venue, warm amber fairy lights and bokeh around them, guests watching in the shadows. Romantic mood, slight grain, realistic low-light phone photo, natural colors, no text, no watermark."
+  },
+  {
+    "id": "photo-5",
+    "image_size": "landscape_4_3",
+    "prompt": "Candid wide smartphone photo of a wedding toast: the groom raising a champagne glass at the head table, guests around long tables lifting their glasses, warm evening light, greenery and candles on the tables. Joyful celebratory moment, authentic guest-captured look, natural colors, mild motion blur, no text, no watermark."
+  },
+  {
+    "id": "photo-6",
+    "image_size": "square_hd",
+    "prompt": "Candid photo of a wedding guest holding up a smartphone to take a picture of the couple during the reception, seen from slightly behind and to the side, warm party lights and blurred dance floor in the background. Documentary snapshot style, realistic phone-camera look, natural colors, no text, no watermark."
+  },
+  {
+    "id": "photo-7",
+    "image_size": "portrait_4_3",
+    "prompt": "Candid vertical smartphone portrait of a bride laughing joyfully, holding a small bouquet of white and green wildflowers, soft evening sun flare behind her, blurred wedding garden background. Natural skin tones, shallow depth of field, authentic phone-photo aesthetic, no text, no watermark."
+  },
+  {
+    "id": "photo-8",
+    "image_size": "square_hd",
+    "prompt": "Candid overhead smartphone photo of the dance floor at a wedding reception at night: a crowd of guests dancing with hands in the air, colorful warm party lighting and a hint of confetti, energetic blur. Fun festive nightlife feel, realistic phone low-light photo with slight grain, no text, no watermark."
+  },
+  {
+    "id": "photo-9",
+    "image_size": "square_hd",
+    "prompt": "Candid smartphone photo of confetti being thrown over the newlyweds as they walk out of a rustic Slovenian venue, bright confetti frozen mid-air, guests cheering on both sides, bride and groom laughing. Joyful spontaneous moment, authentic guest snapshot look, natural daylight, no text, no watermark."
+  }
+]

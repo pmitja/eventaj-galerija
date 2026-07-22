@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { LoginTrigger, useLoginModal } from "@/components/auth/login-modal";
@@ -56,17 +57,14 @@ function PhoneGallery() {
   return (
     <div className="phone">
       <div className="phone-screen">
-        <div className="phone-heading">
-          <span>Poroka</span>
-          <strong>Ana &amp; Marko</strong>
-          <small>Vsi spomini na enem mestu</small>
-        </div>
-        <div className="phone-grid">
-          {[1, 2, 3, 4].map((item) => (
-            <VisualPlaceholder key={item} label={`Fotografija gosta ${item}`} imageSrc={`/gallery/ana-marko/photo-${item}.jpg`} />
-          ))}
-        </div>
-        <div className="phone-action">+ Dodaj fotografije</div>
+        <Image
+          className="phone-shot"
+          src="/marketing/screenshots/gallery-mobile.png"
+          alt="Galerija dogodka Ana & Marko na telefonu"
+          fill
+          sizes="300px"
+          priority
+        />
       </div>
     </div>
   );

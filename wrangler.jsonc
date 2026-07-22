@@ -6,6 +6,12 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-15",
   "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    {
+      "pattern": "galerija.eventaj.si",
+      "custom_domain": true
+    }
+  ],
   "observability": { "enabled": true },
   "assets": {
     "directory": ".open-next/assets",
@@ -56,7 +62,7 @@
     "ORGANIZATION_ID": "eventaj",
     "R2_ACCOUNT_ID": "a8061b4ae8e71cdcd6f6b69b8023f2e1",
     "R2_BUCKET_NAME": "eventaj-galerija-media",
-    "PUBLIC_APP_URL": "https://eventaj-galerija.eventaj.workers.dev",
+    "PUBLIC_APP_URL": "https://galerija.eventaj.si",
     "FACE_SEARCH_ENABLED": "true",
     "FACE_SEARCH_POLICY_VERSION": "2026-07-20",
     "RETENTION_DAYS": "90"

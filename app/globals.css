@@ -107,7 +107,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .visual-placeholder svg { width: 24px; height: 24px; }
 .visual-placeholder--circle { border-radius: 50%; }
 .phone { position: absolute; z-index: 2; top: 0; left: 50%; width: 300px; height: 590px; padding: 10px; transform: translateX(-50%); border-radius: 46px; background: var(--ink); box-shadow: 0 30px 60px rgba(15,23,42,.28); }
-.phone-screen { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: 37px; background: #fff; text-align: left; }
+.phone-screen { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: 37px; background: #fff; text-align: left; }
+.phone-shot { object-fit: cover; object-position: top center; }
 .phone-heading { display: flex; flex-direction: column; gap: 2px; padding: 18px 18px 12px; }
 .phone-heading span { color: var(--accent); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
 .phone-heading strong { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
@@ -180,6 +181,23 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .qr-callout { position: absolute; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 9px; padding: 9px; border-radius: 11px; background: #fff; pointer-events: none; }
 .qr-callout small { max-width: 80px; color: var(--ink); font-size: 10.5px; line-height: 1.3; font-weight: 600; }
 .qr-mark { width: 42px; height: 42px; display: block; border-radius: 4px; background: repeating-linear-gradient(0deg,#0f172a 0 3px,#fff 3px 6px), repeating-linear-gradient(90deg,#0f172a 0 3px,#fff 3px 6px); background-blend-mode: screen; }
+
+/* Showcase feature rows (alternating copy + floating screenshot) */
+.showcase-row { display: grid; grid-template-columns: 1fr 1.08fr; align-items: center; gap: 60px; }
+.showcase-row + .showcase-row { margin-top: 96px; }
+.showcase-row--flip .showcase-copy { order: 2; }
+.showcase-copy h2 { margin: 12px 0 14px; font-size: 34px; line-height: 1.18; letter-spacing: -.02em; font-weight: 800; }
+.showcase-copy > p { margin: 0 0 24px; color: var(--muted); font-size: 16px; line-height: 1.65; }
+.showcase-checks { list-style: none; display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; }
+.showcase-checks li { display: flex; align-items: center; gap: 12px; color: #334155; font-size: 15px; font-weight: 500; }
+.showcase-check { flex: none; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.showcase-check svg { width: 14px; height: 14px; }
+.showcase-visual-wrap { position: relative; }
+.showcase-visual { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 18px; border: 1px solid var(--soft-line); background: var(--surface-muted); box-shadow: 0 26px 60px rgba(15,23,42,.16); }
+.showcase-visual img { object-fit: cover; object-position: top center; }
+.showcase-visual-wrap--tint { padding: 30px; border-radius: 24px; background: linear-gradient(135deg, #fdf2f5 0%, #fee7ee 100%); }
+.showcase-visual-wrap--tint .showcase-visual { aspect-ratio: 4 / 3; box-shadow: 0 20px 44px rgba(190,18,60,.16); }
+.showcase-visual-wrap--tint .showcase-visual img { object-position: center; }
 
 /* Photobooth + devices */
 .photobooth { border-bottom: 1px solid var(--soft-line); }
@@ -460,6 +478,16 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .qr-mark { width: 32px; height: 32px; }
   .qr-callout small { max-width: 70px; font-size: 9.5px; }
   .dark-cta.mobile-only { display: flex !important; width: 100%; justify-content: center; padding: 14px; }
+
+  .showcase-row { display: flex; flex-direction: column; gap: 18px; }
+  .showcase-row + .showcase-row { margin-top: 48px; }
+  .showcase-row--flip .showcase-copy { order: 0; }
+  .showcase-copy .section-pill { margin-bottom: 4px; }
+  .showcase-copy h2 { margin: 0 0 8px; font-size: 25px; }
+  .showcase-copy > p { margin: 0 0 18px; font-size: 14.5px; line-height: 1.65; }
+  .showcase-checks { gap: 10px; }
+  .showcase-checks li { font-size: 14px; }
+  .showcase-visual-wrap--tint { padding: 18px; border-radius: 20px; }
 
   .photobooth { padding-inline: 22px; }
   .photobooth-inner { display: flex; flex-direction: column; align-items: stretch; gap: 18px; padding-inline: 0; }
