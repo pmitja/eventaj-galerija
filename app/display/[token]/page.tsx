@@ -5,10 +5,20 @@ import { findPublicSlideshow } from "@/lib/repositories/slideshows";
 import { hashToken } from "@/lib/security/tokens";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
-  title: "Projekcija | Eventaj Galerija",
-  robots: { index: false, follow: false },
-};
+
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const { token } = await params;
+  const slideshow = await findPublicSlideshow(await hashToken(token));
+  const title = slideshow?.event_name ?? "Projekcija";
+  const description = slideshow
+    ? ["Dogodek", slideshow.event_location, slideshow.event_name].filter(Boolean).join(" | ")
+    : "Projekcija dogodka.";
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function Page({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;

@@ -12,6 +12,7 @@ export type SlideshowRow = {
 
 export type PublicSlideshow = SlideshowRow & {
   event_name: string;
+  event_location: string;
   event_slug: string;
 };
 
@@ -45,7 +46,7 @@ export async function rotateSlideshow(eventId: string, tokenHash: string, organi
 
 export async function findPublicSlideshow(tokenHash: string): Promise<PublicSlideshow | null> {
   return getCloudflareEnv().DB.prepare(
-    `SELECT s.*, e.name AS event_name, e.public_slug AS event_slug
+    `SELECT s.*, e.name AS event_name, e.location AS event_location, e.public_slug AS event_slug
      FROM slideshows s JOIN events e ON e.id = s.event_id
      WHERE s.token_hash = ? AND s.status = 'active' AND e.status IN ('active', 'ended')`,
   ).bind(tokenHash).first<PublicSlideshow>();
