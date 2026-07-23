@@ -5,7 +5,7 @@ import type { FormEvent } from "react";
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import styles from "./photo-comments.module.css";
 
-type MediaComment = {
+export type MediaComment = {
   id: string;
   guestId: string;
   displayName: string;
@@ -27,21 +27,23 @@ export function PhotoComments({
   publicMediaId,
   guestIdentity,
   onClose,
+  demoComments,
 }: {
   eventSlug: string;
   publicMediaId: string | null;
-  guestIdentity: StoredGuestIdentity;
+  guestIdentity?: StoredGuestIdentity;
   onClose: () => void;
+  demoComments?: readonly MediaComment[];
 }) {
-  const [comments, setComments] = useState<MediaComment[]>([]);
-  const [loading, setLoading] = useState(Boolean(publicMediaId));
+  const [comments, setComments] = useState<MediaComment[]>(demoComments ? [...demoComments] : []);
+  const [loading, setLoading] = useState(Boolean(publicMediaId) && !demoComments);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [body, setBody] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const load = useCallback(async (signal?: AbortSignal) => {
-    if (!publicMediaId) return;
+    if (!publicMediaId || demoComments) return;
     try {
       const response = await fetch(
         `/api/v1/events/${encodeURIComponent(eventSlug)}/media/${encodeURIComponent(publicMediaId)}/comments`,
@@ -56,7 +58,7 @@ export function PhotoComments({
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-  }, [eventSlug, publicMediaId]);
+  }, [demoComments, eventSlug, publicMediaId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -76,7 +78,7 @@ export function PhotoComments({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextBody = body.trim();
-    if (!publicMediaId || !nextBody || saving) return;
+    if (!publicMediaId || !guestIdentity || demoComments || !nextBody || saving) return;
     setSaving(true);
     setError(null);
     try {
@@ -132,7 +134,9 @@ export function PhotoComments({
         )}
       </div>
 
-      {publicMediaId ? (
+      {demoComments ? (
+        <p className={styles.demoNotice}>Vzorčni komentarji v demo galeriji</p>
+      ) : publicMediaId && guestIdentity ? (
         <form onSubmit={submit}>
           <label htmlFor="photo-comment">Dodaj komentar</label>
           <div>

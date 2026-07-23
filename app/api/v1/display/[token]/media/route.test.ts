@@ -6,6 +6,7 @@ const state = vi.hoisted(() => ({
   hashToken: vi.fn(),
   getEngagementSnapshot: vi.fn(),
   listLiveMediaComments: vi.fn(),
+  listSlideMediaComments: vi.fn(),
 }));
 
 vi.mock("@/lib/repositories/slideshows", () => ({
@@ -14,7 +15,10 @@ vi.mock("@/lib/repositories/slideshows", () => ({
 }));
 vi.mock("@/lib/security/tokens", () => ({ hashToken: state.hashToken }));
 vi.mock("@/lib/repositories/engagement", () => ({ getEngagementSnapshot: state.getEngagementSnapshot }));
-vi.mock("@/lib/repositories/media-comments", () => ({ listLiveMediaComments: state.listLiveMediaComments }));
+vi.mock("@/lib/repositories/media-comments", () => ({
+  listLiveMediaComments: state.listLiveMediaComments,
+  listSlideMediaComments: state.listSlideMediaComments,
+}));
 
 import { GET } from "./route";
 
@@ -35,6 +39,7 @@ describe("display playlist route", () => {
       id: "comment-1", displayName: "Barbara", body: "Čudovito!", createdAt: "2026-07-18T20:00:00Z",
       mediaPublicId: "photo-1", mediaFilename: "photo.jpg",
     }]);
+    state.listSlideMediaComments.mockResolvedValue({});
   });
 
   it("rejects an unknown or rotated token", async () => {
@@ -56,6 +61,7 @@ describe("display playlist route", () => {
         filename: "photo.jpg",
         uploadedAt: "2026-07-16T12:00:00Z",
         imageUrl: "/api/v1/display/secret/media/photo-1",
+        comments: [],
       }],
       engagement: { leaderboard: [], stats: { acceptedPhotos: 1, contributors: 0 }, events: [] },
       comments: [{ id: "comment-1", displayName: "Barbara", body: "Čudovito!", createdAt: "2026-07-18T20:00:00Z", mediaPublicId: "photo-1", mediaFilename: "photo.jpg" }],
@@ -65,5 +71,6 @@ describe("display playlist route", () => {
   it("loads live comments for the token-scoped event", async () => {
     await requestMedia();
     expect(state.listLiveMediaComments).toHaveBeenCalledWith("event-1");
+    expect(state.listSlideMediaComments).toHaveBeenCalledWith("event-1");
   });
 });

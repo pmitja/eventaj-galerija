@@ -12,6 +12,16 @@ Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere f
   Naročnik ne dobi računa: QR prejme po e-pošti, po zaključku pa še varen ZIP.
 - Trenutni upload sprejema samo fotografije; video ni del oglaševane ponudbe.
 
+## Javni predstavitveni tok
+
+- Marketing header in hero vsebujeta sekundarno akcijo »Preizkusi demo dogodek«,
+  ki brez prijave odpre vzorčno galerijo Ana & Marko.
+- Vzorčna galerija jasno ponudi »Predvajaj demo Live Show« in odpre interaktivni
+  celozaslonski prikaz z vzorčnimi fotografijami ter običajnimi kontrolami.
+- Demo uporablja samo statične vzorčne podatke, ne odpira identitetne ali upload
+  seje in ne izdaja oziroma posnema produkcijskega slideshow tokena. Produkcijske
+  projekcije ostajajo zaščitene skladno z ADR-005.
+
 ## Uporabniki in vloge
 
 ### Platform administrator

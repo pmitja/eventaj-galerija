@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, Download, Mail, MonitorPlay, QrCode } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { fulfillCheckout, findDeliveryLinks } from "@/lib/repositories/checkout";
 import { checkoutSessionIdSchema } from "@/lib/validation/checkout";
 import styles from "@/components/checkout/checkout.module.css";
+
+export const metadata: Metadata = {
+  title: "Status naročila | Eventaj Galerija",
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {
   const parsed = checkoutSessionIdSchema.safeParse((await searchParams).session_id);

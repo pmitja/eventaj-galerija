@@ -95,7 +95,7 @@ export function AiFeatures() {
   );
 }
 
-export function Slideshow() {
+export function Slideshow({ priceHref = "#cene" }: { priceHref?: string } = {}) {
   return (
     <section className="slideshow-section">
       <div className="slideshow-inner shell">
@@ -104,13 +104,13 @@ export function Slideshow() {
           <h2>Live Slideshow na velikem platnu</h2>
           <p className="desktop-only">Novo naložene fotografije se sproti prikazujejo na projektorju ali TV zaslonu — z gladkimi animacijami in QR kodo, ki vabi goste k sodelovanju.</p>
           <p className="mobile-only">Novo naložene fotografije se sproti prikazujejo na projektorju ali TV zaslonu — s QR kodo za goste.</p>
-          <a className="dark-cta desktop-only" href="#cene">Poglej ceno →</a>
+          <a className="dark-cta desktop-only" href={priceHref}>Poglej ceno →</a>
         </div>
         <div className="slideshow-visual-wrap">
           <VisualPlaceholder label="Live slideshow dogodka na velikem zaslonu" imageSrc="/marketing/screenshots/liveshow-desktop.png" imageAlt="Live slideshow dogodka z voščili gostov na velikem zaslonu" className="slideshow-visual" />
           <div className="qr-callout"><QrMark /><small>Dodaj svoje fotografije</small></div>
         </div>
-        <a className="dark-cta mobile-only" href="#cene">Poglej ceno →</a>
+        <a className="dark-cta mobile-only" href={priceHref}>Poglej ceno →</a>
       </div>
     </section>
   );

@@ -21,6 +21,7 @@
 .loading { min-height: 210px; display: grid; align-content: center; gap: 12px; }
 .loading span { height: 52px; border-radius: 12px; background: linear-gradient(90deg,#f3e8ed,#fff,#f3e8ed); background-size: 200% 100%; animation: shimmer 1.3s linear infinite; }
 .panel form { position: relative; padding: 12px 14px max(14px,env(safe-area-inset-bottom)); border-top: 1px solid #eadde3; background: white; }
+.demoNotice { margin: 0; padding: 15px 18px max(15px,env(safe-area-inset-bottom)); border-top: 1px solid #eadde3; background: #fff; color: #806b74; font-size: 11px; font-weight: 700; text-align: center; }
 .panel form label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .panel form > div { display: grid; grid-template-columns: minmax(0,1fr) 46px; align-items: end; gap: 8px; }
 .panel textarea { width: 100%; min-height: 46px; max-height: 112px; resize: vertical; padding: 12px 14px; border: 1px solid #decbd3; border-radius: 18px; background: #fffafd; color: #2c1821; font: inherit; font-size: 16px; line-height: 1.35; }

@@ -5,6 +5,7 @@ import { AiFeatures, Devices, Features, HowItWorks, Slideshow } from "./content-
 import { Footer } from "./footer";
 import { Header, Hero, QuickSteps } from "./header-hero";
 import { Showcase } from "./showcase-sections";
+import { EventUseCasesSection } from "./use-case-page";
 
 export function LandingPage() {
   return (
@@ -20,6 +21,7 @@ export function LandingPage() {
         <Slideshow />
         <Showcase />
         <Devices />
+        <EventUseCasesSection />
         <Pricing />
         <Faq />
         <Footer />

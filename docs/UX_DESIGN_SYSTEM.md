@@ -78,3 +78,49 @@ Vsak podatkovni pogled definira: initial loading, background refresh, empty, par
 ## Breakpoint QA
 
 Obvezno ročno in avtomatizirano preverjanje pri 375, 768, 1024 in 1440 px. Dodatno preveri iOS Safari, Android Chrome, landscape, povečavo 200 %, tipkovnico in počasno/prekinitveno omrežje.
+
+## Informacijska arhitektura marketing strani
+
+Marketing navigacija segmentira **vrste dogodkov**, ne ljudi. Primarni naziv je
+»Za dogodke«, ker je razumljivejši od »Komu je namenjeno« in ne ustvarja vtisa,
+da je produkt omejen na poroke.
+
+- Zasebni dogodki: poroke, rojstni dnevi in druga praznovanja.
+- Poslovni dogodki: team buildingi, poslovni dogodki ter konference in sejmi.
+- Vsaka vrsta dogodka ima svojo indeksabilno podstran z unikatnim naslovom,
+  opisom, primeri uporabe in kontekstualnimi pogostimi vprašanji.
+- Desktop uporablja dvostolpčni besedilni dropdown brez slik; na mobilnem je isti
+  nabor prikazan v semantičnem razširljivem seznamu.
+- Dropdown se odpre s klikom in tipkovnico, zapre s tipko Escape ali klikom zunaj
+  ter ohrani vidna fokusna stanja in najmanj 44 px velike mobilne tarče.
+
+## Prednakupni demo
+
+- Primarni CTA ostaja »Ustvari dogodek«, sekundarni »Preizkusi demo dogodek« pa
+  je v headerju in hero območju vizualno manj izrazit, vendar vedno jasno viden.
+- Na mobilnem sta obe akciji na dnu odprte navigacije prikazani v polni širini.
+- V vzorčni galeriji je Live Show predstavljen kot široka kontrastna kartica nad
+  mrežo fotografij, z jasno ikono predvajanja, opisom in smerno puščico.
+- Celozaslonski demo ohrani kontrole produkcijske projekcije, označen je kot
+  »Demo v živo« in vedno ponuja pot nazaj v galerijo.
+- Vzorčne fotografije vsebujejo statične komentarje, ki so vidni v mreži,
+  lightbox panelu in Live Showu brez omrežnih zahtev ali možnosti objave.
+- Logotip v demo galeriji, lightboxu in Live Showu vedno vodi nazaj na marketing
+  stran. Lightbox puščici uporabljata optično centrirani SVG ikoni in na večjih
+  zaslonih ostaneta ob fotografiji, ne ob robu celotnega viewporta.
+- Vsi demo prehodi spoštujejo `prefers-reduced-motion`, kontrole imajo najmanj
+  44 × 44 px in vidna fokusna stanja.
+
+## SEO in AI discovery
+
+- Kanonična domena aplikacije je `https://galerija.eventaj.si`; strukturirani
+  podatki jo povezujejo z glavno znamko `https://eventaj.si`.
+- Sitemap vsebuje samo domačo stran, naročilo in marketinške podstrani po vrstah
+  dogodkov. Zasebne galerije, admin, demo in plačilni rezultati niso vključeni.
+- Javni marketing je indeksabilen; zasebni in operativni tokovi uporabljajo
+  `noindex` ter ustrezne `robots.txt` omejitve.
+- JSON-LD uporablja dejanske tipe `Organization`, `WebSite`, `WebApplication`,
+  `WebPage` in `BreadcrumbList`. Dokler ni preverjenih ocen, se
+  `aggregateRating`, reviewi in testimonial trditve ne objavljajo.
+- `/llms.txt` je kratek kuriran zemljevid javnih virov, `/llms-full.txt` pa
+  avtoritativni razširjeni opis ponudbe, omejitev, zasebnosti in vseh use-caseov.

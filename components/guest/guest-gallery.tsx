@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EventUpload } from "@/components/event/event-upload";
 import { GuestIdentityGate } from "@/components/guest/guest-identity-gate";
 import { PhotoComments } from "@/components/guest/photo-comments";
 import { FaceSearch } from "@/components/guest/face-search";
 import { shareGallery, type GalleryShareResult } from "@/lib/client/share-gallery";
+import { DEMO_EVENT_SLUG, demoEventPhotos } from "@/lib/demo/event";
 import { faceSearchResultStorageKey, isFaceSearchLocalResultCurrent } from "@/lib/domain/face-search";
 import { galleryLikesStorageKey, toggleMediaLike } from "@/lib/domain/media-comments";
 import { storedFaceSearchResultSchema, type StoredFaceSearchResult } from "@/lib/validation/face-search";
@@ -14,17 +16,14 @@ import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import { storedGalleryLikesSchema } from "@/lib/validation/media-comments";
 import styles from "./guest-gallery.module.css";
 
-const demoPhotos = [
-  { key: "demo-1", publicId: null, src: "/gallery/ana-marko/photo-1.jpg", alt: "Ana in Marko na sprehodu po obredu", commentCount: 0 },
-  { key: "demo-2", publicId: null, src: "/gallery/ana-marko/photo-2.jpg", alt: "Poročna prstana na rokah mladoporočencev", commentCount: 0 },
-  { key: "demo-3", publicId: null, src: "/gallery/ana-marko/photo-3.jpg", alt: "Gostje se smejijo med poročno večerjo", commentCount: 0 },
-  { key: "demo-4", publicId: null, src: "/gallery/ana-marko/photo-4.jpg", alt: "Nazdravljanje s penino", commentCount: 0 },
-  { key: "demo-5", publicId: null, src: "/gallery/ana-marko/photo-5.jpg", alt: "Ana in Marko plešeta", commentCount: 0 },
-  { key: "demo-6", publicId: null, src: "/gallery/ana-marko/photo-6.jpg", alt: "Cvetlični aranžma na poročni mizi", commentCount: 0 },
-  { key: "demo-7", publicId: null, src: "/gallery/ana-marko/photo-7.jpg", alt: "Prijatelji se fotografirajo na poroki", commentCount: 0 },
-  { key: "demo-8", publicId: null, src: "/gallery/ana-marko/photo-8.jpg", alt: "Poročna torta s cvetjem", commentCount: 0 },
-  { key: "demo-9", publicId: null, src: "/gallery/ana-marko/photo-9.jpg", alt: "Gostje plešejo pod lučkami", commentCount: 0 },
-] as const;
+const demoPhotos = demoEventPhotos.map((photo) => ({
+  key: photo.id,
+  publicId: photo.id,
+  src: photo.src,
+  alt: photo.alt,
+  commentCount: photo.comments.length,
+  comments: photo.comments,
+}));
 
 function CameraIcon() {
   return (
@@ -70,24 +69,26 @@ const shareMessages: Record<Exclude<GalleryShareResult, "cancelled">, { message:
 };
 
 export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: string }) {
+  const isDemoEvent = eventSlug === DEMO_EVENT_SLUG;
   const [guestIdentity, setGuestIdentity] = useState<StoredGuestIdentity | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [liked, setLiked] = useState<string[]>([]);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [visiblePhotoCount, setVisiblePhotoCount] = useState(6);
-  const [livePhotos, setLivePhotos] = useState<Array<{ key: string; publicId: string; src: string; alt: string; commentCount: number }>>([]);
+  const [livePhotos, setLivePhotos] = useState<Array<{ key: string; publicId: string; src: string; alt: string; commentCount: number; comments?: never }>>([]);
   const [faceSearchResult, setFaceSearchResult] = useState<StoredFaceSearchResult | null>(null);
   const [faceFilterActive, setFaceFilterActive] = useState(false);
   const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null });
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
-  const allPhotos = livePhotos.length > 0 || eventSlug !== "ana-in-marko" ? livePhotos : [...demoPhotos];
+  const allPhotos = isDemoEvent ? [...demoPhotos] : livePhotos;
   const faceMatchIds = new Set(faceSearchResult?.mediaIds ?? []);
   const faceSearchPhotos = faceSearchResult ? allPhotos.filter((photo) => photo.publicId && faceMatchIds.has(photo.publicId)) : [];
   const photos = faceFilterActive && faceSearchResult ? faceSearchPhotos : allPhotos;
   const commentsVisible = eventInfo.commentsEnabled && commentsOpen;
 
   useEffect(() => {
+    if (isDemoEvent) return;
     let active = true;
     const load = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/media`, { cache: "no-store" });
@@ -98,7 +99,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     void load();
     const interval = window.setInterval(() => void load(), 5000);
     return () => { active = false; window.clearInterval(interval); };
-  }, [eventSlug]);
+  }, [eventSlug, isDemoEvent]);
 
   useEffect(() => {
     const guestId = guestIdentity?.guestId;
@@ -139,6 +140,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   }, [eventSlug]);
 
   useEffect(() => {
+    if (isDemoEvent) return;
     const loadEvent = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}`, { cache: "no-store" });
       if (!response.ok) return;
@@ -146,7 +148,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
       setEventInfo({ name: body.event.name, location: body.event.location ?? "", startsAt: body.event.startsAt, commentsEnabled: body.event.commentsEnabled, uploadsOpen: body.event.uploadsOpen, faceSearchEnabled: body.event.faceSearchEnabled, faceSearchPolicyVersion: body.event.faceSearchPolicyVersion });
     };
     void loadEvent();
-  }, [eventSlug]);
+  }, [eventSlug, isDemoEvent]);
 
   useEffect(() => {
     if (!shareFeedback) return;
@@ -268,11 +270,11 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <a className={styles.brand} href="#top" aria-label="Na vrh galerije">
+        <Link className={styles.brand} href="/" aria-label="Nazaj na predstavitveno stran Eventaj Galerije">
           eventaj<span>.</span>
-        </a>
+        </Link>
         <div className={styles.headerActions}>
-        <GuestIdentityGate eventSlug={eventSlug} onIdentity={setGuestIdentity} />
+        {!isDemoEvent ? <GuestIdentityGate eventSlug={eventSlug} onIdentity={setGuestIdentity} /> : null}
         <button
           className={styles.shareButton}
           type="button"
@@ -304,7 +306,15 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
           <p className={styles.kicker}>{new Intl.DateTimeFormat("sl-SI", { dateStyle: "long" }).format(new Date(eventInfo.startsAt))}{eventInfo.location ? ` · ${eventInfo.location}` : ""}</p>
           <h1>{eventInfo.name}</h1>
           <p className={styles.welcome}>Dobrodošli v skupni galeriji. Dodajte utrinke, ki ste jih ujeli, in podoživite dogodek skupaj.</p>
-          {eventInfo.uploadsOpen ? (
+          {isDemoEvent ? (
+            <>
+              <a className={styles.heroCta} href="#gallery-title">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                Razišči demo galerijo
+              </a>
+              <p className={styles.uploadHint}>Brez prijave in brez obveznosti</p>
+            </>
+          ) : eventInfo.uploadsOpen ? (
             <>
               <a className={styles.heroCta} href="#dodaj">
                 <CameraIcon /> Dodaj fotografije
@@ -317,13 +327,25 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         </div>
       </section>
 
-      {eventInfo.uploadsOpen ? (
+      {eventInfo.uploadsOpen && !isDemoEvent ? (
         <div className={styles.uploadSection}>
           {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} /> : null}
         </div>
       ) : null}
 
       <section className={styles.gallerySection} aria-labelledby="gallery-title">
+        {isDemoEvent ? (
+          <a className={styles.liveShowCta} href="/demo/live-show">
+            <span className={styles.liveShowIcon} aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m9 7 8 5-8 5V7Z" /><rect x="3" y="3" width="18" height="18" rx="4" /></svg>
+            </span>
+            <span>
+              <small>Doživi galerijo na velikem zaslonu</small>
+              <strong>Predvajaj demo Live Show</strong>
+            </span>
+            <svg className={styles.liveShowArrow} viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+          </a>
+        ) : null}
         <div className={styles.galleryIntro}>
           <div>
             <p className={styles.sectionEyebrow}>Skupni spomini</p>
@@ -389,12 +411,17 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <div className={styles.lightbox} role="dialog" aria-modal="true" aria-label="Celozaslonski pregled fotografije" onClick={() => setSelectedPhoto(null)}>
           <div className={`${styles.lightboxShell} ${commentsVisible ? styles.withComments : ""}`} onClick={(event) => event.stopPropagation()}>
             <div className={styles.lightboxStage}>
+              <Link className={styles.lightboxBrand} href="/" aria-label="Nazaj na predstavitveno stran Eventaj Galerije">eventaj<span>.</span></Link>
               <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label="Zapri pregled">×</button>
-              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((selectedPhoto - 1 + photos.length) % photos.length)} aria-label="Prejšnja fotografija">‹</button>
+              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((selectedPhoto - 1 + photos.length) % photos.length)} aria-label="Prejšnja fotografija">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+              </button>
               <div className={styles.lightboxImage}>
                 <Image src={photos[selectedPhoto].src} alt={photos[selectedPhoto].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[selectedPhoto].src.startsWith("/api/")} />
               </div>
-              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((selectedPhoto + 1) % photos.length)} aria-label="Naslednja fotografija">›</button>
+              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((selectedPhoto + 1) % photos.length)} aria-label="Naslednja fotografija">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+              </button>
               <span className={styles.lightboxCount}>{selectedPhoto + 1} / {photos.length}</span>
               <div className={styles.lightboxActions}>
                 <button type="button" onClick={() => toggleLike(photos[selectedPhoto].key)} aria-label={liked.includes(photos[selectedPhoto].key) ? "Odstrani iz priljubljenih" : "Dodaj med priljubljene"} aria-pressed={liked.includes(photos[selectedPhoto].key)}>
@@ -405,8 +432,15 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                 </button> : null}
               </div>
             </div>
-            {commentsVisible && guestIdentity ? (
-              <PhotoComments eventSlug={eventSlug} publicMediaId={photos[selectedPhoto].publicId} guestIdentity={guestIdentity} onClose={() => setCommentsOpen(false)} />
+            {commentsVisible && (guestIdentity || isDemoEvent) ? (
+              <PhotoComments
+                key={photos[selectedPhoto].key}
+                eventSlug={eventSlug}
+                publicMediaId={photos[selectedPhoto].publicId}
+                guestIdentity={guestIdentity ?? undefined}
+                demoComments={isDemoEvent ? photos[selectedPhoto].comments : undefined}
+                onClose={() => setCommentsOpen(false)}
+              />
             ) : null}
           </div>
         </div>

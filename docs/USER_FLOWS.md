@@ -114,3 +114,15 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
 8. Zaprtje komentarjev ohrani odprto fotografijo, `Escape` pa najprej zapre komentarje in šele nato lightbox.
 9. Če administrator za dogodek izključi komentarje, gost gumba ne vidi, API pa zavrne branje in objavo; obstoječi komentarji ostanejo shranjeni za morebitno ponovno vključitev.
 9. Liveshow sveže komentarje privoljenih gostov prikaže v največ treh oblačkih, ki se na desni strani umirjeno dvignejo in nato izginejo; pri `prefers-reduced-motion` se samo prikažejo ter zbledijo.
+
+## 9. Obiskovalec preizkusi demo pred nakupom
+
+1. Na marketing strani izbere sekundarni CTA »Preizkusi demo dogodek« v headerju
+   ali hero območju.
+2. Brez prijave, identitetnega dialoga ali podatkovnih zahtev odpre statično
+   vzorčno galerijo Ana & Marko in lahko pregleda njeno mobilno izkušnjo.
+3. Nad mrežo fotografij izbere široko akcijo »Predvajaj demo Live Show«.
+4. Demo samodejno menja vzorčne fotografije in omogoča premik naprej/nazaj,
+   premor ter celozaslonski način.
+5. Z akcijo »Nazaj v galerijo« se vrne v isti vzorčni dogodek; demo ne ustvari
+   dogodka, upload seje ali produkcijskega slideshow tokena.

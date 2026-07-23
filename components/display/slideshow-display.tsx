@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { nextSlideshowIndex, SLIDESHOW_FRAME_INTERVAL_MS } from "@/lib/domain/slideshow";
@@ -14,7 +15,19 @@ import {
 import type { EngagementSnapshot } from "@/lib/repositories/engagement";
 import styles from "./slideshow-display.module.css";
 
-type Slide = { publicId: string; filename: string; imageUrl: string; comments: LiveMediaComment[] };
+export type SlideshowSlide = {
+  publicId: string;
+  filename: string;
+  imageUrl: string;
+  comments: LiveMediaComment[];
+};
+
+type SlideshowDisplayProps = {
+  token?: string;
+  initialEventName: string;
+  initialSlides?: SlideshowSlide[];
+  backHref?: string;
+};
 
 const engagementIconPaths = {
   camera: "/icons/engagement/camera.png",
@@ -41,12 +54,18 @@ function ControlIcon({ name }: { name: "previous" | "next" | "pause" | "play" | 
   return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
 }
 
-export function SlideshowDisplay({ token, initialEventName }: { token: string; initialEventName: string }) {
+export function SlideshowDisplay({
+  token,
+  initialEventName,
+  initialSlides,
+  backHref,
+}: SlideshowDisplayProps) {
+  const demoMode = Boolean(initialSlides);
   const [eventName, setEventName] = useState(initialEventName);
-  const [slides, setSlides] = useState<Slide[]>([]);
+  const [slides, setSlides] = useState<SlideshowSlide[]>(initialSlides ?? []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialSlides);
   const [error, setError] = useState<string | null>(null);
   const [overlayQueue, setOverlayQueue] = useState<LiveOverlay[]>([]);
   const [floatingComments, setFloatingComments] = useState<LiveMediaComment[]>([]);
@@ -56,12 +75,13 @@ export function SlideshowDisplay({ token, initialEventName }: { token: string; i
   const lastLeaderboardAtRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    if (!token) return;
     try {
       const response = await fetch(`/api/v1/display/${encodeURIComponent(token)}/media`, { cache: "no-store" });
       if (!response.ok) throw new Error(response.status === 404 ? "Povezava do projekcije ni več veljavna." : "Projekcije ni bilo mogoče osvežiti.");
       const body = await response.json() as {
         event: { name: string };
-        media: Slide[];
+        media: SlideshowSlide[];
         engagement: EngagementSnapshot;
         comments: LiveMediaComment[];
       };
@@ -119,7 +139,10 @@ export function SlideshowDisplay({ token, initialEventName }: { token: string; i
     }
   }, [token]);
 
-  useEffect(() => subscribeToSlideshowUpdates(refresh), [refresh]);
+  useEffect(() => {
+    if (demoMode) return;
+    return subscribeToSlideshowUpdates(refresh);
+  }, [demoMode, refresh]);
 
   useEffect(() => () => {
     for (const timeout of commentTimeoutsRef.current.values()) window.clearTimeout(timeout);
@@ -171,7 +194,7 @@ export function SlideshowDisplay({ token, initialEventName }: { token: string; i
         </div>
       ) : (
         <section className={styles.emptyState}>
-          <span className={styles.brand}>eventaj<i>.</i></span>
+          <Link className={styles.brand} href="/" aria-label="Nazaj na predstavitveno stran Eventaj Galerije">eventaj<i>.</i></Link>
           <p>{loading ? "Pripravljamo projekcijo …" : error ? "Povezava ni na voljo" : "V živo"}</p>
           <h1>{eventName}</h1>
           <small>{error ?? "Fotografije se bodo prikazale samodejno, ko bodo dodane."}</small>
@@ -180,8 +203,11 @@ export function SlideshowDisplay({ token, initialEventName }: { token: string; i
       )}
 
       <header className={styles.topBar}>
-        <span className={styles.brand}>eventaj<i>.</i></span>
-        <div><Image className={styles.liveIndicator} src="/icons/engagement/live-indicator.png" alt="" width={24} height={24} aria-hidden="true" /> V živo</div>
+        <Link className={styles.brand} href="/" aria-label="Nazaj na predstavitveno stran Eventaj Galerije">eventaj<i>.</i></Link>
+        <div className={styles.topBarActions}>
+          {backHref ? <a className={styles.backLink} href={backHref}>Nazaj v galerijo</a> : null}
+          <span><Image className={styles.liveIndicator} src="/icons/engagement/live-indicator.png" alt="" width={24} height={24} aria-hidden="true" /> {demoMode ? "Demo v živo" : "V živo"}</span>
+        </div>
       </header>
 
       {currentOverlay?.kind === "leaderboard" ? (
@@ -226,7 +252,7 @@ export function SlideshowDisplay({ token, initialEventName }: { token: string; i
           >
             <span className={styles.commentThumb} aria-hidden="true">
               <Image
-                src={`/api/v1/display/${encodeURIComponent(token)}/media/${comment.mediaPublicId}`}
+                src={`/api/v1/display/${encodeURIComponent(token ?? "")}/media/${comment.mediaPublicId}`}
                 alt=""
                 fill
                 unoptimized

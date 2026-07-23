@@ -13,6 +13,7 @@ const REVEAL_SELECTORS = [
   ".showcase-copy",
   ".showcase-visual-wrap",
   ".devices .shell",
+  ".event-use-cases__grid",
   ".pricing-grid",
   ".addons",
   ".faq-shell",

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StickyCreateEventCta } from "./sticky-create-event-cta";
 
 export function Footer() {
   return (
@@ -17,9 +18,9 @@ export function Footer() {
             </div>
             <p>QR galerija za poroke, poslovne dogodke, team buildinge in praznovanja. Del ekipe Eventaj.si.</p>
           </div>
-          <div className="footer-column"><strong>Produkt</strong><a href="#kako-deluje">Kako deluje</a><a className="desktop-only" href="#funkcije">Funkcije</a><a href="#cene">Cene</a><a className="desktop-only" href="#faq">FAQ</a></div>
-          <div className="footer-column desktop-only"><strong>Dogodki</strong><a href="#">Poroke</a><a href="#">Poslovni dogodki</a><a href="#">Team building</a><a href="#">Praznovanja</a></div>
-          <div className="footer-column"><strong>Eventaj.si</strong><a href="#kako-deluje">QR galerija</a><a href="#faq">Pomoč</a><a href="mailto:info@eventaj.si">Kontakt</a></div>
+          <div className="footer-column"><strong>Produkt</strong><Link href="/#kako-deluje">Kako deluje</Link><Link className="desktop-only" href="/#funkcije">Funkcije</Link><Link href="/#cene">Cene</Link><Link className="desktop-only" href="/#faq">FAQ</Link></div>
+          <div className="footer-column desktop-only"><strong>Dogodki</strong><Link href="/za-dogodke/poroke">Poroke</Link><Link href="/za-dogodke/poslovni-dogodki">Poslovni dogodki</Link><Link href="/za-dogodke/team-building">Team buildingi</Link><Link href="/za-dogodke/praznovanja">Praznovanja</Link></div>
+          <div className="footer-column"><strong>Eventaj.si</strong><a href="https://eventaj.si">Glavna stran</a><Link href="/#kako-deluje">QR galerija</Link><Link href="/#faq">Pomoč</Link><a href="mailto:info@eventaj.si">Kontakt</a></div>
         </div>
         <div className="copyright shell">
           <span className="copyright-brand">
@@ -29,7 +30,7 @@ export function Footer() {
           <span className="desktop-only">Pogoji uporabe · Zasebnost</span>
         </div>
       </footer>
-      <div className="sticky-cta"><Link className="button" href="/naroci">Ustvari dogodek — 35 €</Link></div>
+      <StickyCreateEventCta />
     </>
   );
 }
