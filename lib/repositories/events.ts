@@ -90,6 +90,18 @@ export async function insertEvent(input: CreateEventInput, organizationId: strin
       now,
       now,
     ),
+    DB.prepare(
+      `INSERT INTO event_entitlements
+        (id, event_id, feature_code, value_json, source, source_id, created_at, updated_at)
+       VALUES (?, ?, 'ai_best_photos', ?, 'package', ?, ?, ?)`,
+    ).bind(
+      crypto.randomUUID(),
+      event.id,
+      JSON.stringify({ enabled: true, photoLimit: 3000 }),
+      selectedPackage.id,
+      now,
+      now,
+    ),
   ]);
   return findEventById(event.id, organizationId) as Promise<EventRow>;
 }
