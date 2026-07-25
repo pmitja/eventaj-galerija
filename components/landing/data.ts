@@ -47,8 +47,8 @@ export const features = [
   { glyph: "▦", icon: "/marketing/icons/qr-koda.png", title: "QR koda za tisk", mobileTitle: "QR koda", description: "Prenesite QR kodo dogodka v SVG ali PNG obliki; predlogo lahko pripravimo ročno.", mobile: "QR koda v SVG ali PNG obliki." },
   { glyph: "▶", icon: "/marketing/icons/live-slideshow.png", title: "Live slideshow", description: "Fotografije se sproti prikazujejo na projektorju ali TV zaslonu.", mobile: "Fotografije na projektorju ali TV." },
   { glyph: "✎", icon: "/marketing/icons/komentarji.png", title: "Komentarji", description: "Gostje lahko fotografijam dodajo sporočila in voščila.", mobile: "Sporočila in voščila ob fotografijah." },
-  { glyph: "◆", icon: "/marketing/icons/nadzor-vidnosti.png", title: "Nadzor vidnosti", description: "Organizator upravlja vidnost galerije in posameznih fotografij.", mobile: "Organizator upravlja vidnost galerije." },
-  { glyph: "◫", icon: "/marketing/icons/administracija.png", title: "Administracija", description: "Pregled dogodka, QR kode, fotografij, analitike in izvozov na enem mestu.", mobile: "Dogodek, fotografije in izvozi na enem mestu." },
+  { glyph: "◉", icon: "/marketing/icons/ai-iskanje-po-obrazu.png", title: "AI iskanje po obrazu", mobileTitle: "Iskanje po obrazu", description: "Gostje s selfijem v nekaj sekundah najdejo vse svoje fotografije z dogodka.", mobile: "Gostje s selfijem najdejo svoje fotografije." },
+  { glyph: "✦", icon: "/marketing/icons/ai-best-photos.png", title: "AI Best Photos", description: "Umetna inteligenca oceni kakovost posnetkov ter označi zamegljene in podvojene fotografije.", mobile: "AI označi najboljše, zamegljene in podvojene." },
 ] as const;
 
 export const plans = [

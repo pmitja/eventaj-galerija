@@ -6,5 +6,7 @@
   { "id": "live-slideshow", "subject": "a wide presentation screen with a play triangle in the center" },
   { "id": "komentarji", "subject": "a rounded speech bubble with a small heart inside" },
   { "id": "nadzor-vidnosti", "subject": "an outlined eye symbol representing visibility control" },
-  { "id": "administracija", "subject": "a dashboard layout made of a sidebar and two rectangular panels" }
+  { "id": "administracija", "subject": "a dashboard layout made of a sidebar and two rectangular panels" },
+  { "id": "ai-iskanje-po-obrazu", "subject": "a simple face outline inside camera-style focus brackets, representing AI face recognition" },
+  { "id": "ai-best-photos", "subject": "a single photo card with a four-pointed sparkle star in the top corner, representing AI-picked best photos" }
 ]
