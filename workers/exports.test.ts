@@ -27,6 +27,10 @@ function fakeMultipartMedia() {
           return { partNumber, etag: `etag-${partNumber}` };
         },
         async complete(uploaded: Array<{ partNumber: number; etag: string }>) {
+          const nonFinalParts = parts.slice(0, -1);
+          if (nonFinalParts.some((part) => part.body.byteLength !== nonFinalParts[0]?.body.byteLength)) {
+            throw new Error("All non-trailing parts must have the same length");
+          }
           return { size: uploaded.length };
         },
         async abort() {
@@ -66,9 +70,10 @@ describe("ZIP export worker", () => {
 
     expect(aborted.value).toBe(false);
     expect(parts.length).toBeGreaterThan(1);
-    // Every non-final part must satisfy R2's 5 MiB minimum.
+    // Every non-final part must be the exact configured size. R2 rejects a
+    // multipart upload when non-trailing parts have different lengths.
     for (const part of parts.slice(0, -1)) {
-      expect(part.body.byteLength).toBeGreaterThanOrEqual(5 * 1024 * 1024);
+      expect(part.body.byteLength).toBe(8 * 1024 * 1024);
     }
 
     const assembled = new Blob(parts.sort((a, b) => a.partNumber - b.partNumber).map((part) => part.body) as BlobPart[]);

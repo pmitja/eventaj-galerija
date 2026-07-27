@@ -147,12 +147,14 @@ Bucket ostaja zaseben; `r2.dev` ni omogočen. Brskalnik nalaga neposredno prek 1
 Vsak nov dogodek dobi glavno QR dostopno točko. QR sliki sta na `/qr/{publicCode}.svg` in `.png`, stabilna povezava `/t/{publicCode}` pa zabeleži obisk, ohrani attribution za upload sejo in preusmeri na trenutni dogodek. Kanonični izvor, ki se zapiše v QR, določa `PUBLIC_APP_URL` v `wrangler.jsonc`.
 
 Trenutna produkcijska aplikacija je na `https://galerija.eventaj.si`, ki je kot
-Cloudflare Custom Domain vezana na glavni Worker. HTTPS se zaključi na
-Cloudflare robu; preusmeritve glede protokola se ne izvajajo v Next.js
-middleware, ker OpenNext notranji zahtevi ne ohrani zanesljivega zunanjega
-protokola. Glavni Worker uporablja EU D1/R2 bindinge, retention Worker pa ni
-javno dostopen in se zažene vsak dan ob 02:17 UTC. Obstoječa stran `eventaj.si`
-na Vercelu ostaja nespremenjena.
+Cloudflare Custom Domain vezana na glavni Worker. Tudi
+`https://www.galerija.eventaj.si` je Custom Domain istega Workerja in se s
+trajnim `308` preusmeri na kanonično domeno, pri čemer ohrani pot ter query
+parametre. HTTPS se zaključi na Cloudflare robu; preusmeritve glede protokola se
+ne izvajajo v Next.js middleware, ker OpenNext notranji zahtevi ne ohrani
+zanesljivega zunanjega protokola. Glavni Worker uporablja EU D1/R2 bindinge,
+retention Worker pa ni javno dostopen in se zažene vsak dan ob 02:17 UTC.
+Obstoječa stran `eventaj.si` na Vercelu ostaja nespremenjena.
 
 ## Stripe Checkout
 

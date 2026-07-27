@@ -86,16 +86,6 @@ export async function writeZipArchive(output: WritableStream, sources: AsyncIter
 // uploaded incrementally, keeping memory bounded even for multi-GB galleries.
 const R2_MULTIPART_PART_SIZE = 8 * 1024 * 1024; // 8 MiB (R2 requires every non-final part >= 5 MiB)
 
-function concatChunks(chunks: Uint8Array[], totalLength: number): Uint8Array {
-  const merged = new Uint8Array(totalLength);
-  let offset = 0;
-  for (const chunk of chunks) {
-    merged.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return merged;
-}
-
 export async function writeZipToR2Multipart(
   env: Pick<Env, "MEDIA">,
   objectKey: string,
@@ -104,29 +94,34 @@ export async function writeZipToR2Multipart(
 ): Promise<number> {
   const multipart = await env.MEDIA.createMultipartUpload(objectKey, { httpMetadata });
   const parts: R2UploadedPart[] = [];
-  let pending: Uint8Array[] = [];
+  let pending = new Uint8Array(R2_MULTIPART_PART_SIZE);
   let pendingBytes = 0;
   let totalBytes = 0;
   let partNumber = 1;
 
-  async function flushPart(): Promise<void> {
+  async function flushPart(final = false): Promise<void> {
     if (pendingBytes === 0) return;
-    const body = concatChunks(pending, pendingBytes);
-    pending = [];
-    pendingBytes = 0;
+    const body = final ? pending.slice(0, pendingBytes) : pending;
     parts.push(await multipart.uploadPart(partNumber, body));
+    pending = new Uint8Array(R2_MULTIPART_PART_SIZE);
+    pendingBytes = 0;
     partNumber += 1;
   }
 
   const sink = new WritableStream<Uint8Array>({
     async write(chunk) {
-      pending.push(chunk);
-      pendingBytes += chunk.byteLength;
       totalBytes += chunk.byteLength;
-      if (pendingBytes >= R2_MULTIPART_PART_SIZE) await flushPart();
+      let offset = 0;
+      while (offset < chunk.byteLength) {
+        const length = Math.min(R2_MULTIPART_PART_SIZE - pendingBytes, chunk.byteLength - offset);
+        pending.set(chunk.subarray(offset, offset + length), pendingBytes);
+        pendingBytes += length;
+        offset += length;
+        if (pendingBytes === R2_MULTIPART_PART_SIZE) await flushPart();
+      }
     },
     async close() {
-      await flushPart();
+      await flushPart(true);
     },
   });
 

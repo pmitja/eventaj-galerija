@@ -13,7 +13,10 @@ import {
   RetryIcon,
   UploadIcon,
 } from "./event-icons";
-import { getUploadActionState } from "./event-upload-state";
+import {
+  DEFAULT_PUBLICATION_CONSENT,
+  getUploadActionState,
+} from "./event-upload-state";
 import type { ClientUploadStatus } from "./event-upload-state";
 import styles from "../../app/(public)/e/[slug]/event-page.module.css";
 
@@ -77,7 +80,7 @@ async function responseError(response: Response, fallback: string): Promise<Erro
 
 export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId: string }) {
   const [items, setItems] = useState<UploadItem[]>([]);
-  const [allowPublishing, setAllowPublishing] = useState(false);
+  const [allowPublishing, setAllowPublishing] = useState(DEFAULT_PUBLICATION_CONSENT);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const itemsRef = useRef(items);
@@ -223,6 +226,51 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
     hasValidationError: Boolean(validateFile(item.file)),
   })));
 
+  useEffect(() => {
+    if (!isUploading) return;
+
+    let wakeLock: WakeLockSentinel | null = null;
+    let stopped = false;
+
+    const requestWakeLock = async () => {
+      if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+      try {
+        const lock = await navigator.wakeLock.request("screen");
+        if (stopped) {
+          await lock.release();
+          return;
+        }
+        wakeLock = lock;
+        lock.addEventListener("release", () => {
+          if (wakeLock === lock) wakeLock = null;
+        });
+      } catch {
+        // Wake Lock is a best-effort enhancement and may be denied by the OS.
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && !wakeLock) {
+        void requestWakeLock();
+      }
+    };
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "Fotografije se še nalagajo.";
+    };
+
+    void requestWakeLock();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      stopped = true;
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      void wakeLock?.release();
+    };
+  }, [isUploading]);
+
   if (isComplete) {
     return (
       <section className={styles.successCard} aria-live="polite">
@@ -351,7 +399,11 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
         </>
       )}
 
-      <p className={styles.uploadPrivacy}>Z nadaljevanjem dovoliš varno obdelavo izbranih datotek za ta dogodek.</p>
+      <p className={styles.uploadPrivacy}>
+        {isUploading
+          ? "Pusti to stran odprto do konca nalaganja. Zaslon bo ostal prižgan, če naprava to podpira."
+          : "Z nadaljevanjem dovoliš varno obdelavo izbranih datotek za ta dogodek."}
+      </p>
     </section>
   );
 }

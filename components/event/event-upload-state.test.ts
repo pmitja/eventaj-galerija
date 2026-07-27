@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { getUploadActionState } from "./event-upload-state";
+import {
+  DEFAULT_PUBLICATION_CONSENT,
+  getUploadActionState,
+} from "./event-upload-state";
 
 describe("getUploadActionState", () => {
+  it("publishes new uploads to the gallery and slideshow by default", () => {
+    expect(DEFAULT_PUBLICATION_CONSENT).toBe(true);
+  });
+
   it("keeps recoverable upload failures available to the primary retry action", () => {
     expect(getUploadActionState([
       { status: "error", hasValidationError: false },

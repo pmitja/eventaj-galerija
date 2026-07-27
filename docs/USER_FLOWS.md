@@ -19,7 +19,8 @@
 3. Če za dogodek še nima lokalne identitete, izbere ime/vzdevek ali nadaljuje anonimno; ne ustvari računa.
 4. Na hero območju izbere »Dodaj fotografije«.
 5. Sistemski izbirnik odpre galerijo naprave z večkratnim izborom.
-6. Gost odstrani neželene predoglede in potrdi objavo.
+6. Gost odstrani neželene predoglede in potrdi objavo; prikaz v skupni galeriji
+   in projekciji je privzeto vključen, gost pa ga lahko pred nalaganjem izključi.
 7. Aplikacija ustvari na lokalni `guest_id` vezano sejo, pridobi podpisane URL-je in nalaga datoteke vzporedno z omejeno konkurenco.
 8. Vsaka datoteka prikazuje napredek; neuspešna ima jasen »Poskusi znova«.
 9. Po zaključenem prenosu se prikaže: »Hvala! Tvoje fotografije so bile uspešno dodane.«
@@ -33,6 +34,9 @@
 - neveljaven tip ali prevelika datoteka: zavrni pred uploadom in znova na strežniku;
 - dogodek se med uploadom konča: že podpisane aktivne seje imajo kratko grace obdobje;
 - delni uspeh: zahvala navede uspešne datoteke, neuspešne ostanejo za retry.
+- med aktivnim nalaganjem aplikacija na podprtih napravah prepreči samodejni
+  zaklep zaslona in opozori pred zaprtjem strani; operacijski sistem po ročnem
+  zaklepu ali zaprtju brskalnika nadaljevanja prenosa ne zagotavlja.
 
 ## 2. Administrator pripravi dogodek
 

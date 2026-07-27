@@ -1,5 +1,7 @@
 export type ClientUploadStatus = "ready" | "uploading" | "done" | "error";
 
+export const DEFAULT_PUBLICATION_CONSENT = true;
+
 export type UploadItemState = {
   status: ClientUploadStatus;
   hasValidationError: boolean;
