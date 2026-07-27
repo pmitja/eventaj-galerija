@@ -2,6 +2,7 @@ import { getCloudflareEnv } from "@/lib/cloudflare";
 import { createAccessPointRecord } from "@/lib/domain/access-points";
 import { createEventRecord } from "@/lib/domain/events";
 import { packageIncludesFaceCollections } from "@/lib/domain/face-search";
+import { createPublicToken, hashToken } from "@/lib/security/tokens";
 import type { CreateEventInput } from "@/lib/validation/events";
 
 export type EventRow = {
@@ -29,6 +30,7 @@ export async function insertEvent(input: CreateEventInput, organizationId: strin
   const accessPoint = createAccessPointRecord({ eventId: event.id, label: "Glavna QR koda" });
   const { DB } = getCloudflareEnv();
   const now = event.createdAt;
+  const slideshowToken = createPublicToken(32);
   const proposedCustomerId = crypto.randomUUID();
   await DB.prepare(
     `INSERT INTO customers (id, organization_id, name, email, created_at, updated_at)
@@ -101,6 +103,18 @@ export async function insertEvent(input: CreateEventInput, organizationId: strin
       selectedPackage.id,
       now,
       now,
+    ),
+    DB.prepare(
+      `INSERT INTO slideshows
+        (id, event_id, token_hash, status, created_at, rotated_at, access_token)
+       VALUES (?, ?, ?, 'active', ?, ?, ?)`,
+    ).bind(
+      crypto.randomUUID(),
+      event.id,
+      await hashToken(slideshowToken),
+      now,
+      now,
+      slideshowToken,
     ),
   ]);
   return findEventById(event.id, organizationId) as Promise<EventRow>;

@@ -1,9 +1,14 @@
 import type { CreateEventInput } from "@/lib/validation/events";
 
 export const RETENTION_DAYS = 90;
+export const MAX_EVENT_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Guests may keep uploading for this long after an event ends; afterwards the gallery stays visible but uploads close. */
 export const UPLOAD_GRACE_PERIOD_MS = 24 * 60 * 60 * 1000;
+
+export function isEventDurationAllowed(startsAt: string | number, endsAt: string | number): boolean {
+  return new Date(endsAt).getTime() - new Date(startsAt).getTime() <= MAX_EVENT_DURATION_MS;
+}
 
 export function uploadsCloseAt(endsAt: string): number {
   return new Date(endsAt).getTime() + UPLOAD_GRACE_PERIOD_MS;

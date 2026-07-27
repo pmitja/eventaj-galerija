@@ -4,38 +4,19 @@ import { useState } from "react";
 import { Icon } from "./icon";
 import styles from "./admin.module.css";
 
-async function readError(response: Response): Promise<string> {
-  const body = await response.json().catch(() => null) as { detail?: string; title?: string } | null;
-  return body?.detail ?? body?.title ?? "Dejanja ni bilo mogoče dokončati.";
-}
-
-export function SlideshowManager({ eventId, active, photoCount }: { eventId: string; active: boolean; photoCount: number }) {
-  const [url, setUrl] = useState<string | null>(null);
-  const [isActive, setIsActive] = useState(active);
-  const [pending, setPending] = useState(false);
+export function SlideshowManager({ url, photoCount }: { url: string; photoCount: number }) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function rotate() {
-    setPending(true);
-    setError(null);
-    const response = await fetch(`/api/v1/admin/events/${encodeURIComponent(eventId)}/slideshow`, { method: "POST" });
-    if (!response.ok) {
-      setError(await readError(response));
-      setPending(false);
-      return;
-    }
-    const body = await response.json() as { slideshow: { url: string } };
-    setUrl(body.slideshow.url);
-    setIsActive(true);
-    setPending(false);
-  }
-
   async function copyLink() {
-    if (!url) return;
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+    try {
+      await navigator.clipboard.writeText(url);
+      setError(null);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setError("Povezave ni bilo mogoče kopirati. Označi jo v polju in jo kopiraj ročno.");
+    }
   }
 
   return (
@@ -44,15 +25,13 @@ export function SlideshowManager({ eventId, active, photoCount }: { eventId: str
       <div className={styles.slideshowCopy}>
         <div><p>LIVE PROJEKCIJA</p><h2 id="slideshow-title">Slideshow za platno</h2></div>
         <p>{photoCount ? `${photoCount} fotografij je trenutno odobrenih za projekcijo.` : "Odobrene fotografije se bodo pojavile samodejno."}</p>
-        {isActive && !url ? <small>Projekcija je aktivna. Zaradi varnosti obstoječega skrivnega URL-ja ni mogoče ponovno prikazati; ustvari novega.</small> : null}
-        {url ? <label><span>Nova projekcijska povezava</span><input value={url} readOnly /></label> : null}
+        <small>Ta projekcijska povezava je stalna in ostane enaka ob vsakem obisku dashboarda.</small>
+        <label><span>Projekcijska povezava</span><input value={url} readOnly /></label>
         {error ? <p className={styles.slideshowError} role="alert">{error}</p> : null}
       </div>
       <div className={styles.slideshowActions}>
-        {url ? <><a className={styles.primaryAction} href={url} target="_blank" rel="noreferrer">Odpri projekcijo</a><button type="button" className={styles.secondaryAction} onClick={() => void copyLink()}>{copied ? "Kopirano" : "Kopiraj povezavo"}</button></> : null}
-        <button type="button" className={url ? styles.tertiaryAction : styles.primaryAction} onClick={() => void rotate()} disabled={pending}>
-          {pending ? "Ustvarjam …" : isActive ? "Ustvari novo povezavo" : "Ustvari projekcijo"}
-        </button>
+        <a className={styles.primaryAction} href={url} target="_blank" rel="noreferrer">Odpri projekcijo</a>
+        <button type="button" className={styles.secondaryAction} onClick={() => void copyLink()}>{copied ? "Kopirano" : "Kopiraj povezavo"}</button>
       </div>
     </section>
   );

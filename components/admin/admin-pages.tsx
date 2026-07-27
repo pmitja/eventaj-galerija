@@ -11,7 +11,7 @@ import { getCloudflareEnv } from "@/lib/cloudflare";
 import { AccessPointsPanel } from "./access-points-panel";
 import { presentCustomerStatus, presentEventStatus, formatRelativeTime, percentage, scaleChart } from "@/lib/domain/admin-dashboard";
 import { adminGalleryQuerySchema } from "@/lib/validation/admin";
-import { findOwnedSlideshow } from "@/lib/repositories/slideshows";
+import { ensureOwnedSlideshow } from "@/lib/repositories/slideshows";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasAiBestPhotosEntitlement } from "@/lib/repositories/entitlements";
 import { SlideshowManager, SlideshowMediaToggle } from "./slideshow-manager";
@@ -99,7 +99,7 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
     ? await Promise.all([
       listAdminMedia(selectedEvent.id, context.organizationId, { quality: filters.quality, status: filters.status, query: filters.q }),
       getAdminMediaQualitySummary(selectedEvent.id, context.organizationId),
-      findOwnedSlideshow(selectedEvent.id, context.organizationId),
+      ensureOwnedSlideshow(selectedEvent.id, context.organizationId),
       findLatestOwnedDownloadExport(selectedEvent.id, context.organizationId),
       findLatestOwnedQualityBackfill(selectedEvent.id, context.organizationId),
     ])
@@ -127,7 +127,10 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
     {!selectedEvent ? <section className={styles.eventPicker} aria-labelledby="event-picker-title"><span className={`${styles.metricIcon} ${styles.violet}`}><Icon name="image" size={22} /></span><div><h2 id="event-picker-title">Izberi dogodek</h2><p>Fotografije se prikažejo šele, ko izbereš dogodek.</p></div>{events.length ? <form action="/admin/gallery" method="get"><label className={styles.selectControl}><span className={styles.srOnly}>Dogodek</span><select name="eventId" required defaultValue=""><option value="" disabled>Izberi dogodek …</option>{events.map((event) => <option key={event.id} value={event.id}>{event.name}</option>)}</select></label><button className={styles.primaryAction} type="submit">Prikaži galerijo</button></form> : <Link className={styles.primaryAction} href="/admin/events/new"><Icon name="plus" size={18} /> Ustvari dogodek</Link>}</section> : <>
       <section className={styles.contextBar}><div className={styles.contextEvent}><span className={`${styles.miniVisual} ${styles.violet}`} /><div><small>IZBRANI DOGODEK</small><strong>{selectedEvent.name}</strong></div></div><Link className={styles.changeEventLink} href="/admin/gallery">Zamenjaj dogodek <Icon name="chevron" size={16} /></Link><div className={styles.contextStats}><span><strong>{summary?.ready ?? 0}</strong><small>fotografij</small></span><span><strong>{storage}</strong><small>porabe</small></span></div></section>
       <GalleryLinkBar url={`${getCloudflareEnv().PUBLIC_APP_URL.replace(/\/$/, "")}/e/${selectedEvent.public_slug}`} eventName={selectedEvent.name} />
-      <SlideshowManager eventId={selectedEvent.id} active={slideshow?.status === "active"} photoCount={summary?.slideshow_approved ?? 0} />
+      <SlideshowManager
+        url={`${getCloudflareEnv().PUBLIC_APP_URL.replace(/\/$/, "")}/display/${encodeURIComponent(slideshow!.access_token)}`}
+        photoCount={summary?.slideshow_approved ?? 0}
+      />
       {aiBestPhotosEnabled ? <QualityBackfillManager eventId={selectedEvent.id} initialBackfill={latestBackfill ? {
         id: latestBackfill.id,
         mode: latestBackfill.mode,

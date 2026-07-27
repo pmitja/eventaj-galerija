@@ -1,5 +1,6 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
-import type { SlideshowMediaState } from "@/lib/domain/slideshow";
+import { resolveStableSlideshowToken, type SlideshowMediaState } from "@/lib/domain/slideshow";
+import { createPublicToken, hashToken } from "@/lib/security/tokens";
 
 export type SlideshowRow = {
   id: string;
@@ -8,9 +9,14 @@ export type SlideshowRow = {
   status: "active" | "revoked";
   created_at: string;
   rotated_at: string;
+  access_token: string | null;
 };
 
-export type PublicSlideshow = SlideshowRow & {
+export type StableSlideshowRow = Omit<SlideshowRow, "access_token"> & {
+  access_token: string;
+};
+
+export type PublicSlideshow = Omit<SlideshowRow, "access_token"> & {
   event_name: string;
   event_location: string;
   event_slug: string;
@@ -30,23 +36,41 @@ export async function findOwnedSlideshow(eventId: string, organizationId: string
   ).bind(eventId, organizationId).first<SlideshowRow>();
 }
 
-export async function rotateSlideshow(eventId: string, tokenHash: string, organizationId: string): Promise<SlideshowRow> {
+export async function ensureOwnedSlideshow(eventId: string, organizationId: string): Promise<StableSlideshowRow> {
   const { DB } = getCloudflareEnv();
+  const existing = await findOwnedSlideshow(eventId, organizationId);
+  if (existing?.access_token) return existing as StableSlideshowRow;
   const event = await DB.prepare("SELECT id FROM events WHERE id = ? AND organization_id = ?")
     .bind(eventId, organizationId).first<{ id: string }>();
   if (!event) throw new Error("EVENT_NOT_FOUND");
+  const token = resolveStableSlideshowToken(existing?.access_token, () => createPublicToken(32));
   const now = new Date().toISOString();
-  await DB.prepare(
-    `INSERT INTO slideshows (id, event_id, token_hash, status, created_at, rotated_at)
-     VALUES (?, ?, ?, 'active', ?, ?)
-     ON CONFLICT(event_id) DO UPDATE SET token_hash = excluded.token_hash, status = 'active', rotated_at = excluded.rotated_at`,
-  ).bind(crypto.randomUUID(), eventId, tokenHash, now, now).run();
-  return findOwnedSlideshow(eventId, organizationId) as Promise<SlideshowRow>;
+  const result = await DB.prepare(
+    `INSERT INTO slideshows (id, event_id, token_hash, status, created_at, rotated_at, access_token)
+     VALUES (?, ?, ?, 'active', ?, ?, ?)
+     ON CONFLICT(event_id) DO UPDATE SET
+       token_hash = excluded.token_hash,
+       status = 'active',
+       rotated_at = excluded.rotated_at,
+       access_token = excluded.access_token
+     WHERE slideshows.access_token IS NULL`,
+  ).bind(crypto.randomUUID(), eventId, await hashToken(token), now, now, token).run();
+  const slideshow = await findOwnedSlideshow(eventId, organizationId);
+  if (!slideshow?.access_token) throw new Error("SLIDESHOW_PROVISIONING_FAILED");
+  if (result.meta.changes === 1) {
+    await DB.prepare(
+      `INSERT INTO audit_logs
+        (id, event_id, actor_type, actor_id, action, target_type, target_id, created_at)
+       VALUES (?, ?, 'system', 'slideshow-provisioning', 'slideshow.stable_token_initialized', 'slideshow', ?, ?)`,
+    ).bind(crypto.randomUUID(), eventId, slideshow.id, now).run();
+  }
+  return slideshow as StableSlideshowRow;
 }
 
 export async function findPublicSlideshow(tokenHash: string): Promise<PublicSlideshow | null> {
   return getCloudflareEnv().DB.prepare(
-    `SELECT s.*, e.name AS event_name, e.location AS event_location, e.public_slug AS event_slug
+    `SELECT s.id, s.event_id, s.token_hash, s.status, s.created_at, s.rotated_at,
+            e.name AS event_name, e.location AS event_location, e.public_slug AS event_slug
      FROM slideshows s JOIN events e ON e.id = s.event_id
      WHERE s.token_hash = ? AND s.status = 'active' AND e.status IN ('active', 'ended')`,
   ).bind(tokenHash).first<PublicSlideshow>();

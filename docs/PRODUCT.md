@@ -99,6 +99,7 @@ Galerijska in slideshow odobritev sta ločeni polji/stroja stanj. Zavrnitev ne i
 ### Ustvarjanje dogodka
 
 - Administrator vnese naziv, datum, časovni pas, lokacijo, slug, paket in zasebnost.
+- Čas med začetkom in koncem dogodka je lahko največ 7 dni; hramba se računa ločeno od konca dogodka.
 - Sistem preveri unikatnost sluga in ustvari nepredvidljiv javni ID.
 - Dogodek v `draft` ni javno dostopen.
 - Aktivacija ni možna brez obveznih nastavitev in pravil hrambe.

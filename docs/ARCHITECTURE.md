@@ -132,7 +132,9 @@ Originali so vedno zasebni. Javne variante se dostavljajo prek podpisanih CDN UR
 - Plačan webhook ustvari stranko in dogodek v interni organizaciji `eventaj`.
 - Seja identificira uporabnika, avtorizacijska storitev pa preveri članstvo, vlogo, organizacijo in po potrebi dogodek.
 - Platform admin je ločena globalna sposobnost, ne članstvo v vsaki organizaciji.
-- Javni slideshow uporablja preklicljiv, rotirajoč, hashiran token.
+- Javni slideshow uporablja stalen, kriptografsko naključen token dogodka. Za
+  preverjanje javnih zahtev uporablja hash, izvorni token pa je dostopen samo
+  organizacijsko omejenemu dashboardu in se ne logira.
 
 ## Plačilni tok
 

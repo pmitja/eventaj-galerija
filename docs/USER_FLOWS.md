@@ -97,13 +97,13 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
 
 ## 7. Projekcija dogodka
 
-1. Administrator v galeriji izbere dogodek in ustvari projekcijsko povezavo.
-2. Sistem prikaže skrivni URL samo ob ustvarjanju ali rotaciji; v bazi ostane hash.
+1. Dogodek ob ustvarjanju samodejno dobi stalno projekcijsko povezavo.
+2. Administrator v galeriji izbere dogodek ter stalni skrivni URL prikaže, kopira ali odpre; nove povezave v dashboardu ne more ustvariti.
 3. Administrator odpre povezavo na projektorju in po želji vključi celozaslonski način.
 4. Projekcija vsakih pet sekund pridobi avtoriziran posnetek odobrenih fotografij in jih samodejno menja.
 5. Playlist vsebuje samo efektivni kategoriji kakovosti `best` in `good`; neanalizirane in slabše fotografije ostanejo v adminu.
 6. Administrator lahko posamezno fotografijo neodvisno skrije s projekcije.
-7. Ob sumu razkritja ustvari novo povezavo; stara pri naslednji zahtevi preneha delovati.
+7. Povezava ostane enaka ob vsakem obisku dashboarda.
 8. Projekcija po sprejetem uploadu prikaže kratko združeno obvestilo, dosežke in nato AI-filtriran top leaderboard; overlay ne ustavi predvajanja.
 
 ## 8. Gost všečka ali komentira fotografijo

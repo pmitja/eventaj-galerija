@@ -18,7 +18,8 @@
 | POST | `/api/webhooks/stripe` | preveri Stripe podpis ter idempotentno provisionira plačan dogodek | Stripe podpis |
 
 Javni nakup zahteva kontaktno ime, e-pošto in podatke dogodka. Geslo, uporabnik in
-organizacijska seja niso del toka. Javni `GET /prenosi/{token}` preveri hashiran,
+organizacijska seja niso del toka. `endsAt` mora biti po `startsAt`, razlika med
+njima pa ne sme presegati 7 dni. Javni `GET /prenosi/{token}` preveri hashiran,
 časovno omejen token ter preusmeri na kratkotrajen podpisan R2 prenos.
 
 ## Javni event API
@@ -45,13 +46,14 @@ Upload manifest vsebuje samo metapodatke, nikoli binarne datoteke. `token` se v 
 
 | Metoda | Pot | Namen | Auth |
 | --- | --- | --- | --- |
-| GET/POST | `/admin/events/{eventId}/slideshow` | stanje oziroma rotacija zaščitene povezave | admin + organization scope |
+| GET | `/admin/events/{eventId}/slideshow` | vrne stalno zaščiteno povezavo dogodka; pri starem zapisu jo po potrebi enkratno inicializira | admin + organization scope |
 | PATCH | `/admin/events/{eventId}/slideshow/media/{mediaId}` | ločena slideshow odobritev | admin + organization scope |
 | GET | `/display/{token}` | celozaslonska projekcija | hashiran slideshow token |
 | GET | `/api/v1/display/{token}/media` | near-real-time posnetek playliste, AI-filtriranega leaderboarda, engagement dogodkov in dovoljenih svežih komentarjev | hashiran slideshow token |
 | GET | `/api/v1/display/{token}/media/{publicId}` | zasebna dostava projekcijske slike | hashiran slideshow token |
 
-Rotacija takoj zamenja veljavni hash. Odgovori playliste in slik niso shranjeni v javnem CDN cacheu.
+Projekcijska povezava se po inicializaciji ne spreminja in je dashboard ne more
+rotirati. Odgovori playliste in slik niso shranjeni v javnem CDN cacheu.
 
 ## Stabilne QR/NFC poti
 

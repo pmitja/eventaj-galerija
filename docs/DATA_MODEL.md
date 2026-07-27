@@ -111,7 +111,9 @@ Prvi rez faze 3 uporablja `ai_analyses` tudi za deterministično analizo `techni
 
 ### Slideshow, izvozi in obvestila
 
-- `slideshows`: id, event_id, status, token_hash, settings_json, last_heartbeat_at.
+- `slideshows`: id, event_id, status, token_hash, access_token, settings_json,
+  last_heartbeat_at. `access_token` omogoča, da organizacijsko omejen dashboard
+  vedno znova prikaže isto projekcijsko povezavo; ne sme se zapisovati v loge.
 - `slideshow_items`: slideshow_id, media_file_id, status, position, approved_by, approved_at.
 - `download_exports`: id, event_id, requested_by, status, object_key, file_name, media_count, size_bytes, expires_at, error_code, completed_at.
 - `notifications`: id, organization_id, user_id, event_id, type, channel, status, payload_json, sent_at.

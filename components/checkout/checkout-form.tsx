@@ -194,7 +194,7 @@ export function CheckoutForm() {
                 </div>
               </div>
               <div className={styles.dateTimeGroup}>
-                <div className={styles.dateTimeHeading}><span>Konec</span><small>Po začetku dogodka</small></div>
+                <div className={styles.dateTimeHeading}><span>Konec</span><small>Največ 7 dni po začetku</small></div>
                 <div className={styles.dateTimeFields}>
                   <Controller control={form.control} name="endDate" render={({ field }) => <DatePickerField id="endDate" label="Izberi datum konca" value={field.value} onChange={field.onChange} error={errors.endDate?.message} disabledBefore={dateFromValue(startDate)} />} />
                   <Field>

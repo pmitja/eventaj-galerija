@@ -25,6 +25,27 @@ describe("checkout validation", () => {
     expect(createCheckoutSchema.safeParse({ ...valid, endsAt: "2026-08-01T12:00:00.000Z" }).success).toBe(false);
   });
 
+  it("rejects checkout events longer than seven days", () => {
+    const apiResult = createCheckoutSchema.safeParse({ ...valid, endsAt: "2026-08-08T14:00:00.001Z" });
+    expect(apiResult.success).toBe(false);
+    if (!apiResult.success) expect(apiResult.error.issues[0]?.message).toBe("Dogodek lahko traja največ 7 dni");
+
+    expect(checkoutFormSchema.safeParse({
+      organizationName: "Studio Sever",
+      ownerName: "Nina Novak",
+      ownerEmail: "nina@example.com",
+      eventName: "Poletni piknik",
+      eventLocation: "",
+      startDate: "2026-08-01",
+      startTime: "14:00",
+      endDate: "2026-08-08",
+      endTime: "14:01",
+      commentsEnabled: true,
+      aiBestPhotos: false,
+      faceCollections: false,
+    }).success).toBe(false);
+  });
+
   it("accepts a public purchase without account credentials", () => {
     expect(checkoutFormSchema.safeParse({
       organizationName: "Studio Sever",

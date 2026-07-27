@@ -12,7 +12,7 @@ vi.mock("@/lib/cloudflare", () => ({
   }),
 }));
 
-import { findSlideshowMediaKey, listSlideshowMedia } from "./slideshows";
+import { findPublicSlideshow, findSlideshowMediaKey, listSlideshowMedia } from "./slideshows";
 
 describe("slideshow quality gate", () => {
   beforeEach(() => vi.clearAllMocks());
@@ -27,5 +27,12 @@ describe("slideshow quality gate", () => {
     state.first.mockResolvedValue(null);
     await expect(findSlideshowMediaKey("token", "photo")).resolves.toBeNull();
     expect(state.sql).toContain("COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')");
+  });
+
+  it("never selects the stored raw token for a public slideshow lookup", async () => {
+    state.first.mockResolvedValue(null);
+    await expect(findPublicSlideshow("token-hash")).resolves.toBeNull();
+    expect(state.sql).not.toContain("s.*");
+    expect(state.sql).not.toContain("access_token");
   });
 });

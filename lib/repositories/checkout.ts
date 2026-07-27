@@ -174,9 +174,9 @@ export async function fulfillCheckout(sessionId: string): Promise<CheckoutOrder>
        VALUES (?, ?, 'face_collections', ?, 'checkout', ?, ?, ?)`,
     ).bind(crypto.randomUUID(), event.id, order.face_collections ? "true" : "false", order.id, timestamp, timestamp),
     env.DB.prepare(
-      `INSERT INTO slideshows (id, event_id, token_hash, status, created_at, rotated_at)
-       VALUES (?, ?, ?, 'active', ?, ?)`,
-    ).bind(crypto.randomUUID(), event.id, await hashToken(slideshowToken), timestamp, timestamp),
+      `INSERT INTO slideshows (id, event_id, token_hash, status, created_at, rotated_at, access_token)
+       VALUES (?, ?, ?, 'active', ?, ?, ?)`,
+    ).bind(crypto.randomUUID(), event.id, await hashToken(slideshowToken), timestamp, timestamp, slideshowToken),
     env.DB.prepare(
       `INSERT INTO event_deliveries
         (id, event_id, checkout_order_id, access_point_id, recipient_email,
