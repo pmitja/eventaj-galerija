@@ -162,6 +162,17 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .feature-glyph { width: 38px; height: 38px; display: grid; place-items: center; margin-bottom: 14px; border-radius: 11px; background: var(--accent-soft); color: var(--accent); font-size: 17px; font-weight: 700; }
 .feature-card h3 { margin: 0 0 6px; font-size: 15.5px; }
 .feature-card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+.video-feature { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 22px; margin-bottom: 22px; padding: 24px 28px; border: 1px solid #fecdd8; border-radius: 20px; background: linear-gradient(135deg, #fff7f9 0%, #fff 72%); box-shadow: 0 12px 34px rgba(190,18,60,.08); }
+.video-feature__icon { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 17px; background: var(--accent); color: #fff; box-shadow: 0 10px 24px rgba(225,29,72,.2); }
+.video-feature__icon svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.video-feature__copy { max-width: 580px; }
+.video-feature__badge { display: block; margin-bottom: 5px; color: #9f1239; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.video-feature h3 { margin: 0 0 5px; color: var(--ink); font-size: 20px; }
+.video-feature p { margin: 0; color: #475569; font-size: 14px; line-height: 1.55; }
+.video-feature__facts { display: flex; align-items: stretch; gap: 8px; }
+.video-feature__facts > span { min-width: 108px; display: flex; flex-direction: column; justify-content: center; padding: 11px 13px; border: 1px solid #ffe4e9; border-radius: 13px; background: rgba(255,255,255,.86); text-align: center; }
+.video-feature__facts strong { color: #9f1239; font-size: 17px; }
+.video-feature__facts small { margin-top: 2px; color: #64748b; font-size: 10px; line-height: 1.3; }
 
 /* AI */
 .ai .section-heading { margin-bottom: 52px; }
@@ -567,6 +578,15 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 
   .features .section-heading { margin-bottom: 30px; }
   .features .section-heading h2 { max-width: 330px; margin-inline: auto; }
+  .video-feature { grid-template-columns: auto 1fr; gap: 14px; margin-bottom: 16px; padding: 18px 16px; border-radius: 17px; }
+  .video-feature__icon { width: 46px; height: 46px; border-radius: 13px; }
+  .video-feature__icon svg { width: 25px; height: 25px; }
+  .video-feature h3 { font-size: 17px; }
+  .video-feature p { font-size: 13px; }
+  .video-feature__facts { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .video-feature__facts > span { min-width: 0; padding: 9px 5px; }
+  .video-feature__facts strong { font-size: 15px; }
+  .video-feature__facts small { font-size: 9px; }
   .feature-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .feature-card { min-height: 150px; padding: 18px 16px; border-radius: 16px; }
   .feature-glyph { width: 34px; height: 34px; margin-bottom: 11px; border-radius: 10px; font-size: 15px; }

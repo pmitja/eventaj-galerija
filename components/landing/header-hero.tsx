@@ -154,8 +154,8 @@ export function Hero() {
     <section className="hero" id="top">
       <div className="hero-copy shell">
         <div className="eyebrow"><span />QR galerija za dogodke</div>
-        <h1>Vse fotografije vašega dogodka na enem mestu.</h1>
-        <p>Gostje preprosto skenirajo QR kodo in delijo svoje fotografije — brez aplikacije in brez registracije.</p>
+        <h1>Vse fotografije in videi vašega dogodka na enem mestu.</h1>
+        <p>Gostje preprosto skenirajo QR kodo ter delijo fotografije in kratke videe — brez aplikacije in brez registracije.</p>
         <div className="hero-buttons">
           <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">Ustvari dogodek</Link>
           <Link className="button button--secondary" href="/e/ana-in-marko">Preizkusi demo dogodek</Link>
@@ -177,7 +177,7 @@ export function Hero() {
 export function QuickSteps() {
   const steps = [
     ["Ustvarite dogodek", "in prejmete svojo galerijo"],
-    ["Gostje skenirajo QR", "in naložijo fotografije"],
+    ["Gostje skenirajo QR", "in naložijo fotografije ali video"],
     ["Uživajte v spominih", "vsi trenutki na enem mestu"],
   ];
 

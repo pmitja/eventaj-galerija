@@ -5,7 +5,7 @@ export const SITE_LANGUAGE = "sl-SI";
 export const SEO_LAST_UPDATED = "2026-07-23";
 
 export const SITE_DESCRIPTION =
-  "QR galerija za zbiranje fotografij s porok, praznovanj, team buildingov in poslovnih dogodkov. Gostje ne potrebujejo aplikacije ali registracije.";
+  "QR galerija za zbiranje fotografij in kratkih videov s porok, praznovanj, team buildingov in poslovnih dogodkov. Gostje ne potrebujejo aplikacije ali registracije.";
 
 export const PRIVATE_ROBOTS_PATHS = [
   "/admin/",
@@ -70,7 +70,7 @@ export const siteStructuredData = {
       },
       featureList: [
         "QR dostop brez aplikacije",
-        "Nalaganje fotografij brez registracije gostov",
+        "Nalaganje fotografij in kratkih videov brez registracije gostov",
         "Neomejeno število gostov",
         "Skupna zasebna galerija",
         "Live slideshow",

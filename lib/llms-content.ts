@@ -71,7 +71,7 @@ export const llmsFullTxt = `# ${SITE_NAME} – celoten opis
 
 ## Kaj je Eventaj Galerija
 
-Eventaj Galerija je spletna QR galerija za zbiranje fotografij z dogodkov. Organizator ustvari in plača dogodek, nato po e-pošti prejme QR kodo. Gostje kodo skenirajo s telefonom in fotografije naložijo neposredno v brskalniku. Ne potrebujejo aplikacije, registracije, gesla ali uporabniškega računa.
+Eventaj Galerija je spletna QR galerija za zbiranje fotografij in kratkih videov z dogodkov. Organizator ustvari in plača dogodek, nato po e-pošti prejme QR kodo. Gostje kodo skenirajo s telefonom ter fotografije ali videe naložijo neposredno v brskalniku. Ne potrebujejo aplikacije, registracije, gesla ali uporabniškega računa.
 
 Storitev je primerna za poroke, rojstne dneve, družinska praznovanja, team buildinge, poslovne dogodke, konference in sejme.
 
@@ -90,7 +90,7 @@ Storitev je primerna za poroke, rojstne dneve, družinska praznovanja, team buil
 ## Ključne funkcije
 
 - QR dostop do galerije.
-- Nalaganje fotografij brez aplikacije in registracije.
+- Nalaganje fotografij in kratkih videov brez aplikacije in registracije.
 - Skupna galerija fotografij.
 - Komentarji in všečki.
 - Nadzor vidnosti fotografij.
