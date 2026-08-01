@@ -78,7 +78,7 @@ function SectionHeading({ step, title, description }: { step: string; title: str
   </CardHeader>;
 }
 
-export function CheckoutForm() {
+export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnabled?: boolean }) {
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
@@ -235,7 +235,7 @@ export function CheckoutForm() {
               <li><Check aria-hidden="true" /> Neomejeno gostov</li>
               <li><Check aria-hidden="true" /> QR koda in foto galerija</li>
               <li><Check aria-hidden="true" /> QR takoj po e-pošti</li>
-              <li><Check aria-hidden="true" /> 20 videov do 60 sekund</li>
+              {videoUploadsEnabled ? <li><Check aria-hidden="true" /> 20 videov do 60 sekund</li> : null}
               <li><Check aria-hidden="true" /> ZIP po zaključku dogodka</li>
             </ul>
             <Separator />
@@ -249,11 +249,11 @@ export function CheckoutForm() {
               <span><strong><ScanFace aria-hidden="true" /> AI iskanje po obrazu</strong><small>Gostje s selfijem najdejo svoje fotografije.</small></span>
               <b>+5 €</b>
             </label>} />
-            <Controller control={form.control} name="videoUnlimited" render={({ field }) => <label className={styles.addon} htmlFor="videoUnlimited">
+            {videoUploadsEnabled ? <Controller control={form.control} name="videoUnlimited" render={({ field }) => <label className={styles.addon} htmlFor="videoUnlimited">
               <Checkbox id="videoUnlimited" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
               <span><strong><Video aria-hidden="true" /> Neomejeno videov</strong><small>Do 60 sekund in 500 MB na video. Velja fair-use politika.</small></span>
               <b>+15 €</b>
-            </label>} />
+            </label>} /> : null}
             <Separator />
             <div className={styles.total}><span>Skupaj</span><strong>{totalEuros} €</strong></div>
             <span className={styles.taxNote}>Cena vključuje DDV.</span>

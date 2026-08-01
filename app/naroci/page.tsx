@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Check, CreditCard, Images } from "lucide-react";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 import styles from "@/components/checkout/checkout.module.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OrderPage() {
+  const videoUploadsEnabled = String(getCloudflareEnv().VIDEO_UPLOAD_ENABLED) === "true";
   return <main className={styles.page}><div className={styles.shell}>
     <Link className={styles.back} href="/"><ArrowLeft aria-hidden="true" /> Nazaj</Link>
     <header className={styles.heading}>
@@ -30,6 +32,6 @@ export default async function OrderPage() {
       <li><span><CreditCard aria-hidden="true" /></span><small>Varno plačilo</small></li>
       <li><span><Images aria-hidden="true" /></span><small>QR po e-pošti</small></li>
     </ol>
-    <CheckoutForm />
+    <CheckoutForm videoUploadsEnabled={videoUploadsEnabled} />
   </div></main>;
 }

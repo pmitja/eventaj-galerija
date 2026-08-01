@@ -1,11 +1,15 @@
 import { problem } from "@/lib/http/problem";
 import { createCheckoutOrder } from "@/lib/repositories/checkout";
 import { createCheckoutSchema } from "@/lib/validation/checkout";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 
 export async function POST(request: Request) {
   const parsed = createCheckoutSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return problem(422, "INVALID_CHECKOUT", "Podatki za naročilo niso veljavni", parsed.error.issues[0]?.message);
+  }
+  if (parsed.data.videoUnlimited && String(getCloudflareEnv().VIDEO_UPLOAD_ENABLED) !== "true") {
+    return problem(422, "VIDEO_ADDON_UNAVAILABLE", "Video dodatek trenutno ni na voljo");
   }
   try {
     const checkout = await createCheckoutOrder(parsed.data);
