@@ -42,6 +42,7 @@ export const howSteps = [
 
 export const features = [
   { glyph: "▣", icon: "/marketing/icons/digitalni-album.png", title: "Digitalni album", description: "Fotografije gostov v elegantni skupni galeriji.", mobile: "Fotografije gostov v skupni galeriji." },
+  { glyph: "▷", icon: "/marketing/icons/video-posnetki.svg", title: "Kratki videi", description: "20 videov do 60 sekund je vključenih v galerijo dogodka.", mobile: "20 videov do 60 sekund v galeriji." },
   { glyph: "⤓", icon: "/marketing/icons/prenos-zip.png", title: "Prenos v ZIP", description: "Organizator lahko fotografije iz galerije prenese v ZIP datoteki.", mobile: "Prenos fotografij iz galerije v ZIP." },
   { glyph: "◎", icon: "/marketing/icons/brez-aplikacije.png", title: "Brez aplikacije", description: "Gostje sodelujejo v brskalniku — brez namestitve in prijave.", mobile: "Vse poteka v brskalniku, brez prijave." },
   { glyph: "▦", icon: "/marketing/icons/qr-koda.png", title: "QR koda za tisk", mobileTitle: "QR koda", description: "Prenesite QR kodo dogodka v SVG ali PNG obliki; predlogo lahko pripravimo ročno.", mobile: "QR koda v SVG ali PNG obliki." },

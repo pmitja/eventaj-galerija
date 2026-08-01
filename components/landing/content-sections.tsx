@@ -52,21 +52,6 @@ export function Features() {
           <p className="desktop-only">Fotografije, kratki videi, QR koda in predstavitev v živo — vse na enem mestu.</p>
           <p className="mobile-only">Fotografije, videi in QR koda na enem mestu.</p>
         </div>
-        <article className="video-feature">
-          <span className="video-feature__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="3" /><path d="m17 10 4-2v8l-4-2Z" /><path d="m9.5 9 4 3-4 3Z" /></svg>
-          </span>
-          <div className="video-feature__copy">
-            <span className="video-feature__badge">Vključeno v paket</span>
-            <h3>Tudi videi vaših gostov</h3>
-            <p>Vsak dogodek vključuje 20 videov do 60 sekund. Videi ostanejo v galeriji, fotografije pa lahko še naprej predvajate v Live Slideshowu.</p>
-          </div>
-          <div className="video-feature__facts" aria-label="Video omejitve">
-            <span><strong>20</strong><small>videov vključeno</small></span>
-            <span><strong>60 s</strong><small>na videoposnetek</small></span>
-            <span><strong>+15 €</strong><small>neomejeno · fair-use</small></span>
-          </div>
-        </article>
         <div className="feature-grid">
           {features.map((feature) => (
             <article className="feature-card" key={feature.title}>
