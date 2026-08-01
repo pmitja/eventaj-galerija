@@ -36,6 +36,7 @@ async function stripeRequest<T>(path: string, init: RequestInit = {}): Promise<T
 
 export async function createStripeCheckout(input: {
   orderId: string; email: string; amountCents: number; aiBestPhotos: boolean; faceCollections: boolean;
+  videoUnlimited: boolean;
   successUrl: string; cancelUrl: string; customerId?: string | null;
 }): Promise<StripeCheckoutSession> {
   const body = new URLSearchParams({
@@ -64,6 +65,7 @@ export async function createStripeCheckout(input: {
   };
   if (input.aiBestPhotos) addLineItem("AI Best Photos · do 3.000 fotografij", "1500");
   if (input.faceCollections) addLineItem("AI iskanje po obrazu", "500");
+  if (input.videoUnlimited) addLineItem("Neomejeno videoposnetkov · do 60 sekund", "1500");
   const session = await stripeRequest<StripeCheckoutSession>("/checkout/sessions", { method: "POST", body });
   if (!session.url || session.amount_total !== input.amountCents) throw new Error("STRIPE_INVALID_CHECKOUT");
   return session;

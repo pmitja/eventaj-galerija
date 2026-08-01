@@ -1,7 +1,14 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { createAccessPointRecord } from "@/lib/domain/access-points";
-import { checkoutTotalCents } from "@/lib/domain/billing";
+import {
+  INCLUDED_VIDEO_COUNT,
+  VIDEO_FAIR_USE_COUNT,
+  VIDEO_MAX_BYTES,
+  VIDEO_MAX_DURATION_SECONDS,
+  checkoutTotalCents,
+} from "@/lib/domain/billing";
 import { createEventRecord } from "@/lib/domain/events";
+import { CURRENT_TERMS_VERSION } from "@/lib/domain/legal";
 import type { z } from "zod";
 import type { createCheckoutSchema } from "@/lib/validation/checkout";
 import { createStripeCheckout, retrieveStripeCheckout } from "@/lib/billing/stripe";
@@ -25,6 +32,8 @@ export type CheckoutOrder = {
   comments_enabled: number;
   ai_best_photos: number;
   face_collections: number;
+  video_unlimited: number;
+  legal_terms_version: string | null;
   amount_cents: number;
   currency: string;
   stripe_checkout_session_id: string | null;
@@ -44,18 +53,19 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<{ id: s
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const amount = checkoutTotalCents(input.aiBestPhotos, input.faceCollections);
+  const amount = checkoutTotalCents(input.aiBestPhotos, input.faceCollections, input.videoUnlimited);
   await env.DB.prepare(
     `INSERT INTO checkout_orders
       (id, organization_id, existing_user_id, owner_name, owner_email, password_hash,
        organization_name, event_name, event_location, starts_at, ends_at, timezone,
-       comments_enabled, ai_best_photos, face_collections, amount_cents, currency, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', 'pending', ?, ?)`,
+       comments_enabled, ai_best_photos, face_collections, video_unlimited, legal_terms_version,
+       amount_cents, currency, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', 'pending', ?, ?)`,
   ).bind(
     id, null, null, input.ownerName, input.ownerEmail, null,
     input.organizationName, input.eventName, input.eventLocation || null, input.startsAt, input.endsAt,
     input.timezone, input.commentsEnabled ? 1 : 0, input.aiBestPhotos ? 1 : 0, input.faceCollections ? 1 : 0,
-    amount, now, now,
+    input.videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, now, now,
   ).run();
 
   try {
@@ -66,6 +76,7 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<{ id: s
       amountCents: amount,
       aiBestPhotos: input.aiBestPhotos,
       faceCollections: input.faceCollections,
+      videoUnlimited: input.videoUnlimited,
       successUrl: `${root}/nakup/uspesen?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${root}/naroci?preklicano=1`,
     });
@@ -173,6 +184,23 @@ export async function fulfillCheckout(sessionId: string): Promise<CheckoutOrder>
       `INSERT INTO event_entitlements (id, event_id, feature_code, value_json, source, source_id, created_at, updated_at)
        VALUES (?, ?, 'face_collections', ?, 'checkout', ?, ?, ?)`,
     ).bind(crypto.randomUUID(), event.id, order.face_collections ? "true" : "false", order.id, timestamp, timestamp),
+    env.DB.prepare(
+      `INSERT INTO event_entitlements (id, event_id, feature_code, value_json, source, source_id, created_at, updated_at)
+       VALUES (?, ?, 'video_uploads', ?, 'checkout', ?, ?, ?)`,
+    ).bind(
+      crypto.randomUUID(),
+      event.id,
+      JSON.stringify({
+        includedCount: INCLUDED_VIDEO_COUNT,
+        unlimited: Boolean(order.video_unlimited),
+        maxDurationSeconds: VIDEO_MAX_DURATION_SECONDS,
+        maxBytes: VIDEO_MAX_BYTES,
+        fairUseCount: VIDEO_FAIR_USE_COUNT,
+      }),
+      order.id,
+      timestamp,
+      timestamp,
+    ),
     env.DB.prepare(
       `INSERT INTO slideshows (id, event_id, token_hash, status, created_at, rotated_at, access_token)
        VALUES (?, ?, ?, 'active', ?, ?, ?)`,

@@ -43,7 +43,7 @@ function toPublicComment(row: CommentRow): PublicMediaComment {
 
 const PUBLIC_MEDIA_WHERE = `m.event_id = ? AND m.public_id = ?
   AND m.status = 'ready' AND m.gallery_state = 'visible' AND m.publication_consent = 1
-  AND COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')`;
+  AND (m.kind = 'video' OR COALESCE(m.quality_override, m.quality_category) IN ('best', 'good'))`;
 
 export async function listMediaComments(eventId: string, publicMediaId: string): Promise<PublicMediaComment[] | null> {
   const DB = getCloudflareEnv().DB;
@@ -73,7 +73,7 @@ export async function listLiveMediaComments(eventId: string): Promise<LiveMediaC
      JOIN media_files m ON m.id = c.media_id AND m.event_id = c.event_id
      WHERE c.event_id = ? AND e.comments_enabled = 1 AND c.status = 'visible'
        AND c.created_at >= ? AND g.show_on_live_screen = 1 AND g.display_name IS NOT NULL
-       AND m.status = 'ready' AND m.slideshow_state = 'approved' AND m.publication_consent = 1
+       AND m.kind = 'image' AND m.status = 'ready' AND m.slideshow_state = 'approved' AND m.publication_consent = 1
        AND COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')
      ORDER BY c.created_at DESC
      LIMIT ?`,
@@ -104,7 +104,7 @@ export async function listSlideMediaComments(eventId: string): Promise<Record<st
        JOIN media_files m ON m.id = c.media_id AND m.event_id = c.event_id
        WHERE c.event_id = ? AND e.comments_enabled = 1 AND c.status = 'visible'
          AND g.show_on_live_screen = 1 AND g.display_name IS NOT NULL
-         AND m.status = 'ready' AND m.slideshow_state = 'approved' AND m.publication_consent = 1
+         AND m.kind = 'image' AND m.status = 'ready' AND m.slideshow_state = 'approved' AND m.publication_consent = 1
          AND COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')
      )
      WHERE rn <= ?

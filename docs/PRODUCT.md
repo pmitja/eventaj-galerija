@@ -2,7 +2,7 @@
 
 ## Vrednost produkta
 
-Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere fotografije vseh gostov na enem mestu. QR koda zmanjša trenje, tehnična analiza in opcijski AI izbor pa povečata uporabnost zbranega gradiva.
+Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere fotografije in kratke videe vseh gostov na enem mestu. QR koda zmanjša trenje, tehnična analiza in opcijski AI izbor pa povečata uporabnost zbranega gradiva.
 
 ## Trenutna javna ponudba
 
@@ -10,7 +10,10 @@ Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere f
 - AI Best Photos: 15 EUR na dogodek do 3.000 fotografij; več po ponudbi.
 - Po plačilu Stripe webhook samodejno ustvari aktiven dogodek in glavno QR kodo.
   Naročnik ne dobi računa: QR prejme po e-pošti, po zaključku pa še varen ZIP.
-- Trenutni upload sprejema samo fotografije; video ni del oglaševane ponudbe.
+- Osnovni dogodek vključuje 20 videov. Dodatek »Neomejeno videov« stane 15 EUR
+  in ima interno fair-use mejo 1.000 videov na dogodek.
+- Video je dolg največ 60 sekund in velik največ 500 MB. Prikaže se samo v
+  galeriji, nikoli v Live Slideshowu; hramba novih dogodkov je 180 dni.
 
 ## Javni predstavitveni tok
 
@@ -109,14 +112,15 @@ Galerijska in slideshow odobritev sta ločeni polji/stroja stanj. Zavrnitev ne i
 - Izbirnik ne zahteva dostopa do celotne galerije naprave.
 - Omogočen je izbor več datotek, predogled, odstranitev in ponovni poskus.
 - Vsaka datoteka ima lasten napredek in stanje.
-- Nadaljevanje uporablja multipart upload ter lokalno shranjen neobčutljiv ID seje.
+- Slike uporabljajo neposreden podpisan R2 upload, video pa resumable TUS upload
+  neposredno v Cloudflare Stream.
 - Uspešen prenos takoj prikaže zahvalo; procesiranje se nadaljuje v ozadju.
 - Privolitev za objavo je ločena od tehničnega soglasja za upload.
 
 ### Galerija
 
 - Prikaže le `ready` datoteke, dovoljene s privacy in moderation pravili.
-- Podpira slike najprej, nato video, filtre in celozaslonski pregled.
+- Podpira slike in video, filtre ter celozaslonski pregled s podpisanim predvajanjem.
 - Slike imajo določeno razmerje stranic pred prikazom, da ni layout shiftov.
 
 ## Izven prvega vertikalnega reza

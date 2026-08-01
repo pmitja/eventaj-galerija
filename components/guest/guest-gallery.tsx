@@ -23,7 +23,20 @@ const demoPhotos = demoEventPhotos.map((photo) => ({
   alt: photo.alt,
   commentCount: photo.comments.length,
   comments: photo.comments,
+  kind: "image" as const,
+  playbackUrl: null,
 }));
+
+type LiveGalleryMedia = {
+  key: string;
+  publicId: string;
+  src: string;
+  alt: string;
+  commentCount: number;
+  kind: "image" | "video";
+  playbackUrl: string | null;
+  comments?: never;
+};
 
 function CameraIcon() {
   return (
@@ -75,10 +88,10 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [liked, setLiked] = useState<string[]>([]);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [visiblePhotoCount, setVisiblePhotoCount] = useState(6);
-  const [livePhotos, setLivePhotos] = useState<Array<{ key: string; publicId: string; src: string; alt: string; commentCount: number; comments?: never }>>([]);
+  const [livePhotos, setLivePhotos] = useState<LiveGalleryMedia[]>([]);
   const [faceSearchResult, setFaceSearchResult] = useState<StoredFaceSearchResult | null>(null);
   const [faceFilterActive, setFaceFilterActive] = useState(false);
-  const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null });
+  const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null, videoUploadsEnabled: false });
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const allPhotos = isDemoEvent ? [...demoPhotos] : livePhotos;
@@ -93,8 +106,16 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     const load = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/media`, { cache: "no-store" });
       if (!response.ok || !active) return;
-      const body = await response.json() as { media: Array<{ publicId: string; imageUrl: string; filename: string; commentCount: number }> };
-      setLivePhotos(body.media.map((item) => ({ key: item.publicId, publicId: item.publicId, src: item.imageUrl, alt: item.filename, commentCount: item.commentCount })));
+      const body = await response.json() as { media: Array<{ publicId: string; imageUrl: string | null; thumbnailUrl: string; playbackUrl: string | null; kind: "image" | "video"; filename: string; commentCount: number }> };
+      setLivePhotos(body.media.map((item) => ({
+        key: item.publicId,
+        publicId: item.publicId,
+        src: item.imageUrl ?? item.thumbnailUrl,
+        playbackUrl: item.playbackUrl,
+        kind: item.kind,
+        alt: item.filename,
+        commentCount: item.commentCount,
+      })));
     };
     void load();
     const interval = window.setInterval(() => void load(), 5000);
@@ -144,8 +165,8 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     const loadEvent = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}`, { cache: "no-store" });
       if (!response.ok) return;
-      const body = await response.json() as { event: { name: string; location: string | null; startsAt: string; commentsEnabled: boolean; uploadsOpen: boolean; faceSearchEnabled: boolean; faceSearchPolicyVersion: string | null } };
-      setEventInfo({ name: body.event.name, location: body.event.location ?? "", startsAt: body.event.startsAt, commentsEnabled: body.event.commentsEnabled, uploadsOpen: body.event.uploadsOpen, faceSearchEnabled: body.event.faceSearchEnabled, faceSearchPolicyVersion: body.event.faceSearchPolicyVersion });
+      const body = await response.json() as { event: { name: string; location: string | null; startsAt: string; commentsEnabled: boolean; uploadsOpen: boolean; faceSearchEnabled: boolean; faceSearchPolicyVersion: string | null; videoUploadsEnabled: boolean } };
+      setEventInfo({ name: body.event.name, location: body.event.location ?? "", startsAt: body.event.startsAt, commentsEnabled: body.event.commentsEnabled, uploadsOpen: body.event.uploadsOpen, faceSearchEnabled: body.event.faceSearchEnabled, faceSearchPolicyVersion: body.event.faceSearchPolicyVersion, videoUploadsEnabled: body.event.videoUploadsEnabled });
     };
     void loadEvent();
   }, [eventSlug, isDemoEvent]);
@@ -329,7 +350,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
 
       {eventInfo.uploadsOpen && !isDemoEvent ? (
         <div className={styles.uploadSection}>
-          {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} /> : null}
+          {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} videoUploadsEnabled={eventInfo.videoUploadsEnabled} /> : null}
         </div>
       ) : null}
 
@@ -351,7 +372,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
             <p className={styles.sectionEyebrow}>Skupni spomini</p>
             <h2 id="gallery-title">{faceFilterActive ? "Tvoje fotografije" : "Najlepši trenutki"}</h2>
           </div>
-          <span className={styles.count}>{photos.length} fotografij</span>
+          <span className={styles.count}>{photos.length} utrinkov</span>
         </div>
 
         {guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion ? (
@@ -381,8 +402,9 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <div className={styles.grid} data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => (
             <article className={styles.photoCard} key={photo.key}>
-              <button className={styles.photoButton} type="button" onClick={() => openPhoto(index)} aria-label={`Odpri fotografijo: ${photo.alt}`}>
+              <button className={styles.photoButton} type="button" onClick={() => openPhoto(index)} aria-label={`Odpri ${photo.kind === "video" ? "video" : "fotografijo"}: ${photo.alt}`}>
                 <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized={photo.src.startsWith("/api/")} />
+                {photo.kind === "video" ? <span className={styles.videoBadge} aria-hidden="true">▶</span> : null}
               </button>
               <button className={styles.likeButton} type="button" onClick={() => toggleLike(photo.key)} aria-label={liked.includes(photo.key) ? "Odstrani iz priljubljenih" : "Dodaj med priljubljene"} aria-pressed={liked.includes(photo.key)}>
                 <HeartIcon filled={liked.includes(photo.key)} />
@@ -417,7 +439,19 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
               </button>
               <div className={styles.lightboxImage}>
-                <Image src={photos[selectedPhoto].src} alt={photos[selectedPhoto].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[selectedPhoto].src.startsWith("/api/")} />
+                {photos[selectedPhoto].kind === "video" && photos[selectedPhoto].playbackUrl ? (
+                  <video
+                    key={photos[selectedPhoto].publicId}
+                    src={photos[selectedPhoto].playbackUrl ?? undefined}
+                    poster={photos[selectedPhoto].src}
+                    controls
+                    autoPlay
+                    playsInline
+                    aria-label={photos[selectedPhoto].alt}
+                  />
+                ) : (
+                  <Image src={photos[selectedPhoto].src} alt={photos[selectedPhoto].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[selectedPhoto].src.startsWith("/api/")} />
+                )}
               </div>
               <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((selectedPhoto + 1) % photos.length)} aria-label="Naslednja fotografija">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>

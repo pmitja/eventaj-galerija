@@ -1,6 +1,7 @@
 interface Env {
   DB: D1Database;
   MEDIA: R2Bucket;
+  STREAM: StreamBinding;
 }
 
 async function deletePrefix(bucket: R2Bucket, prefix: string): Promise<void> {
@@ -27,6 +28,15 @@ async function deleteExpiredEvents(env: Env): Promise<void> {
         eventId: event.id,
         referenceCount: biometricReferences!.count,
       }));
+      continue;
+    }
+    const videos = await env.DB.prepare(
+      "SELECT stream_uid FROM media_files WHERE event_id = ? AND kind = 'video' AND stream_uid IS NOT NULL",
+    ).bind(event.id).all<{ stream_uid: string }>();
+    try {
+      for (const video of videos.results) await env.STREAM.video(video.stream_uid).delete();
+    } catch {
+      console.warn(JSON.stringify({ event: "retention.awaiting_stream_cleanup", eventId: event.id }));
       continue;
     }
     await deletePrefix(env.MEDIA, `originals/${event.id}/`);

@@ -36,7 +36,7 @@ ${useCaseLinks}
 
 ## Pomembno
 
-- Trenutni javni produkt sprejema fotografije; video ni del oglaševane ponudbe.
+- Osnovni dogodek vključuje 20 videov do 60 sekund; dodatek za neomejeno število videov stane 15 EUR in velja fair-use. Videi so samo v galeriji, ne v projekciji.
 - Eventaj Galerija trenutno ne objavlja ocen strank ali agregatne ocene.
 - Zasebne galerije dogodkov, administracija in plačilni rezultati niso javna dokumentacija ter niso namenjeni indeksiranju.
 `;
@@ -80,7 +80,7 @@ Storitev je primerna za poroke, rojstne dneve, družinska praznovanja, team buil
 - Cena: 35 EUR za en dogodek.
 - Naročnina: ni potrebna.
 - Število gostov: neomejeno.
-- Privzeta hramba galerije: 90 dni.
+- Privzeta hramba galerije za nove dogodke: 180 dni.
 - Trenutna vrsta uploada: fotografije.
 - AI Best Photos: opcijski dodatek 15 EUR do 3.000 fotografij.
 - Večje količine: ponudba po meri.

@@ -27,6 +27,18 @@ export type MediaRow = {
   publication_consent: number;
   uploaded_at: string | null;
   created_at: string;
+  kind: "image" | "video";
+  stream_uid: string | null;
+  duration_ms: number | null;
+  poster_key: string | null;
+};
+
+export type VideoUploadPolicy = {
+  includedCount: number;
+  unlimited: boolean;
+  maxDurationSeconds: number;
+  maxBytes: number;
+  fairUseCount: number;
 };
 
 export async function createUploadSession(
@@ -116,4 +128,78 @@ export async function rejectMedia(id: string): Promise<void> {
   await getCloudflareEnv().DB.prepare(
     "UPDATE media_files SET status = 'rejected' WHERE id = ? AND status IN ('pending', 'processing')",
   ).bind(id).run();
+}
+
+export async function getVideoUploadPolicy(eventId: string): Promise<VideoUploadPolicy | null> {
+  const row = await getCloudflareEnv().DB.prepare(
+    "SELECT value_json FROM event_entitlements WHERE event_id = ? AND feature_code = 'video_uploads'",
+  ).bind(eventId).first<{ value_json: string }>();
+  if (!row) return null;
+  try {
+    const value = JSON.parse(row.value_json) as VideoUploadPolicy;
+    return Number.isInteger(value.includedCount) && Number.isInteger(value.fairUseCount) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function reservePendingVideo(input: {
+  sessionId: string;
+  eventId: string;
+  filename: string;
+  mime: string;
+  sizeBytes: number;
+  publicationConsent: boolean;
+  limit: number;
+}): Promise<MediaRow | null> {
+  const id = crypto.randomUUID();
+  const publicId = crypto.randomUUID().replaceAll("-", "");
+  const now = new Date().toISOString();
+  const objectKey = `stream-pending/${input.eventId}/${id}`;
+  const result = await getCloudflareEnv().DB.prepare(
+    `INSERT INTO media_files
+      (id, public_id, event_id, upload_session_id, object_key, original_filename, declared_mime,
+       size_bytes, publication_consent, kind, slideshow_state, created_at)
+     SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, 'video', 'hidden', ?
+     WHERE (SELECT COUNT(*) FROM media_files
+            WHERE event_id = ? AND kind = 'video' AND status IN ('pending', 'processing', 'ready')) < ?`,
+  ).bind(
+    id, publicId, input.eventId, input.sessionId, objectKey, input.filename, input.mime,
+    input.sizeBytes, input.publicationConsent ? 1 : 0, now, input.eventId, input.limit,
+  ).run();
+  return result.meta.changes === 1 ? findMediaById(id) : null;
+}
+
+export async function attachStreamUid(mediaId: string, uid: string): Promise<void> {
+  await getCloudflareEnv().DB.prepare(
+    "UPDATE media_files SET stream_uid = ?, object_key = ?, status = 'processing' WHERE id = ? AND kind = 'video' AND status = 'pending'",
+  ).bind(uid, `stream/${uid}`, mediaId).run();
+}
+
+export async function recordUploadConsents(input: {
+  eventId: string;
+  sessionId: string;
+  guestId: string | null;
+  mediaId: string;
+  policyVersion: string;
+  publicationConsent: boolean;
+}): Promise<void> {
+  const now = new Date().toISOString();
+  const subject = input.guestId ?? `upload-session:${input.sessionId}`;
+  const evidence = JSON.stringify({ uploadSessionId: input.sessionId, mediaFileId: input.mediaId });
+  await getCloudflareEnv().DB.batch([
+    getCloudflareEnv().DB.prepare(
+      `INSERT INTO consent_records
+       (id, event_id, subject_reference, purpose, policy_version, granted, granted_at, evidence_json, created_at)
+       VALUES (?, ?, ?, 'event_media_upload', ?, 1, ?, ?, ?)`,
+    ).bind(crypto.randomUUID(), input.eventId, subject, input.policyVersion, now, evidence, now),
+    getCloudflareEnv().DB.prepare(
+      `INSERT INTO consent_records
+       (id, event_id, subject_reference, purpose, policy_version, granted, granted_at, evidence_json, created_at)
+       VALUES (?, ?, ?, 'gallery_publication', ?, ?, ?, ?, ?)`,
+    ).bind(
+      crypto.randomUUID(), input.eventId, subject, input.policyVersion,
+      input.publicationConsent ? 1 : 0, input.publicationConsent ? now : null, evidence, now,
+    ),
+  ]);
 }

@@ -30,6 +30,8 @@ describe("public event gallery route", () => {
         original_filename: "photo.jpg",
         uploaded_at: "2026-07-16T10:44:27.611Z",
         comment_count: 3,
+        kind: "image",
+        duration_ms: null,
       },
     ]);
   });
@@ -46,8 +48,11 @@ describe("public event gallery route", () => {
         filename: "photo.jpg",
         uploadedAt: "2026-07-16T10:44:27.611Z",
         commentCount: 3,
+        kind: "image",
+        durationMs: null,
         thumbnailUrl: "/api/v1/events/event-slug/media/photo-public-id?variant=thumbnail",
         imageUrl: "/api/v1/events/event-slug/media/photo-public-id?variant=gallery",
+        playbackUrl: null,
       }],
     });
   });

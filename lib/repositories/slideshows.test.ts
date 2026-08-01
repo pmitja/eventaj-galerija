@@ -20,12 +20,14 @@ describe("slideshow quality gate", () => {
   it("lists only effective best/good media", async () => {
     state.all.mockResolvedValue({ results: [] });
     await listSlideshowMedia("event-1");
+    expect(state.sql).toContain("kind = 'image'");
     expect(state.sql).toContain("COALESCE(quality_override, quality_category) IN ('best', 'good')");
   });
 
   it("also protects direct slideshow image delivery", async () => {
     state.first.mockResolvedValue(null);
     await expect(findSlideshowMediaKey("token", "photo")).resolves.toBeNull();
+    expect(state.sql).toContain("m.kind = 'image'");
     expect(state.sql).toContain("COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')");
   });
 

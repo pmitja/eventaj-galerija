@@ -26,4 +26,27 @@ describe("biometric retention barrier", () => {
     expect(DB.batch).not.toHaveBeenCalled();
     expect(preparedSql.some((sql) => sql.includes("face_provider_faces"))).toBe(true);
   });
+
+  it("keeps the event when a Stream video cannot be deleted", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const DB = {
+      prepare: vi.fn((sql: string) => ({
+        bind: vi.fn(() => ({
+          all: vi.fn(async () => sql.includes("SELECT id FROM events")
+            ? { results: [{ id: "event-1" }] }
+            : { results: [{ stream_uid: "stream-1" }] }),
+          first: vi.fn(async () => ({ count: 0 })),
+        })),
+      })),
+      batch: vi.fn(),
+    };
+    const MEDIA = { list: vi.fn(), delete: vi.fn() };
+    const STREAM = { video: vi.fn(() => ({ delete: vi.fn(async () => { throw new Error("provider unavailable"); }) })) };
+
+    await deleteExpiredEvents({ DB, MEDIA, STREAM } as never);
+
+    expect(STREAM.video).toHaveBeenCalledWith("stream-1");
+    expect(MEDIA.list).not.toHaveBeenCalled();
+    expect(DB.batch).not.toHaveBeenCalled();
+  });
 });

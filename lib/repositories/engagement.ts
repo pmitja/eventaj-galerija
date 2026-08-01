@@ -37,7 +37,7 @@ export async function recordAcceptedEngagement(mediaId: string, database: D1Data
   const context = await database.prepare(
     `SELECT m.event_id, m.upload_session_id, s.guest_id
      FROM media_files m JOIN upload_sessions s ON s.id = m.upload_session_id
-     WHERE m.id = ? AND m.status = 'ready' AND ${ACCEPTED_QUALITY}`,
+     WHERE m.id = ? AND m.kind = 'image' AND m.status = 'ready' AND ${ACCEPTED_QUALITY}`,
   ).bind(mediaId).first<AcceptedMediaContext>();
   if (!context) return;
 

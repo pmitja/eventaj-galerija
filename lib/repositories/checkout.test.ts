@@ -54,6 +54,8 @@ describe("checkout rate limit", () => {
       commentsEnabled: true,
       aiBestPhotos: false,
       faceCollections: false,
+      videoUnlimited: false,
+      termsAccepted: true,
     });
 
     const rateLimitQuery = state.queries.find((query) => query.includes("COUNT(*)"));
@@ -73,6 +75,8 @@ describe("checkout rate limit", () => {
       commentsEnabled: true,
       aiBestPhotos: false,
       faceCollections: false,
+      videoUnlimited: false,
+      termsAccepted: true,
     });
 
     const insert = state.bindings.find(({ sql }) => sql.includes("INSERT INTO checkout_orders"));

@@ -13,6 +13,8 @@ const valid = {
   commentsEnabled: true,
   aiBestPhotos: false,
   faceCollections: false,
+  videoUnlimited: false,
+  termsAccepted: true as const,
 };
 
 describe("checkout validation", () => {
@@ -43,6 +45,8 @@ describe("checkout validation", () => {
       commentsEnabled: true,
       aiBestPhotos: false,
       faceCollections: false,
+      videoUnlimited: false,
+      termsAccepted: true,
     }).success).toBe(false);
   });
 
@@ -60,6 +64,12 @@ describe("checkout validation", () => {
       commentsEnabled: true,
       aiBestPhotos: false,
       faceCollections: false,
+      videoUnlimited: false,
+      termsAccepted: true,
     }).success).toBe(true);
+  });
+
+  it("requires acceptance of the current terms before checkout", () => {
+    expect(createCheckoutSchema.safeParse({ ...valid, termsAccepted: false }).success).toBe(false);
   });
 });

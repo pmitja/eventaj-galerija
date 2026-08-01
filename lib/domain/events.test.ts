@@ -12,8 +12,8 @@ describe("event duration", () => {
 });
 
 describe("event retention", () => {
-  it("expires exactly 90 days after event end", () => {
-    expect(retentionDate("2026-07-18T22:00:00.000Z")).toBe("2026-10-16T22:00:00.000Z");
+  it("expires exactly 180 days after event end", () => {
+    expect(retentionDate("2026-07-18T22:00:00.000Z")).toBe("2027-01-14T22:00:00.000Z");
   });
 
   it("creates an active event with an unpredictable public slug", () => {
@@ -30,6 +30,6 @@ describe("event retention", () => {
     });
     expect(event.status).toBe("active");
     expect(event.publicSlug).toMatch(/^[a-f0-9]{32}$/);
-    expect(event.retentionUntil).toBe("2026-10-16T22:00:00.000Z");
+    expect(event.retentionUntil).toBe("2027-01-14T22:00:00.000Z");
   });
 });

@@ -52,7 +52,7 @@ export function NewEventForm() {
           <label><span>Čas konca</span><input name="endTime" type="time" required defaultValue="23:59" /></label>
           <label className={styles.fieldWide}><span>Lokacija</span><input name="location" placeholder="npr. Vila Bled" /></label>
           <label><span>Časovni pas</span><input value="Europe/Ljubljana" readOnly /></label>
-          <label><span>Hramba</span><input value="90 dni po koncu" readOnly /></label>
+          <label><span>Hramba</span><input value="180 dni po koncu" readOnly /></label>
         </div>
       </section>
       <section className={styles.formSection}>

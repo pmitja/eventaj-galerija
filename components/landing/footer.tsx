@@ -27,7 +27,7 @@ export function Footer() {
             <img className="brand-logo brand-logo--small" src="/logo.svg" alt="Eventaj.si" width={28} height={28} />
             © 2026 Eventaj.si. Vse pravice pridržane.
           </span>
-          <span className="desktop-only">Pogoji uporabe · Zasebnost</span>
+          <span><Link href="/pogoji-uporabe">Pogoji uporabe</Link> · <Link href="/zasebnost">Zasebnost</Link></span>
         </div>
       </footer>
       <StickyCreateEventCta />

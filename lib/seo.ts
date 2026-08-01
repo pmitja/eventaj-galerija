@@ -76,7 +76,7 @@ export const siteStructuredData = {
         "Live slideshow",
         "Komentarji in všečki",
         "ZIP izvoz fotografij",
-        "90-dnevna hramba galerije",
+        "180-dnevna hramba galerije",
       ],
     },
   ],

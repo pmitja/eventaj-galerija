@@ -1,9 +1,12 @@
 "use client";
 
 import NextImage from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
+import { Upload as TusUpload } from "tus-js-client";
 import { runWithConcurrency } from "@/lib/client/concurrency";
+import { CURRENT_UPLOAD_CONSENT_VERSION } from "@/lib/domain/legal";
 import {
   CameraIcon,
   CheckIcon,
@@ -26,8 +29,12 @@ const ACCEPTED_TYPES = new Set([
   "image/webp",
   "image/heic",
   "image/heif",
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
 ]);
 const IMAGE_LIMIT = 20 * 1024 * 1024;
+const VIDEO_LIMIT = 500 * 1024 * 1024;
 const MAX_CONCURRENT_UPLOADS = 3;
 
 type UploadItem = {
@@ -46,9 +53,10 @@ function validateFile(file: File) {
     return "Ta vrsta datoteke ni podprta.";
   }
 
-  if (file.size > IMAGE_LIMIT) {
+  if (file.type.startsWith("image/") && file.size > IMAGE_LIMIT) {
     return "Fotografija je večja od 20 MB.";
   }
+  if (file.type.startsWith("video/") && file.size > VIDEO_LIMIT) return "Video je večji od 500 MB.";
 
   return undefined;
 }
@@ -78,11 +86,13 @@ async function responseError(response: Response, fallback: string): Promise<Erro
   return new Error(body?.detail || body?.title || fallback);
 }
 
-export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId: string }) {
+export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }: { eventSlug: string; guestId: string; videoUploadsEnabled?: boolean }) {
   const [items, setItems] = useState<UploadItem[]>([]);
   const [allowPublishing, setAllowPublishing] = useState(DEFAULT_PUBLICATION_CONSENT);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const itemsRef = useRef(items);
   const sessionTokenRef = useRef<string | null>(null);
   const sessionPromiseRef = useRef<Promise<string> | null>(null);
@@ -157,7 +167,8 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
       let fileId = item.serverFileId;
       let uploadUrl = item.uploadUrl;
       if (!fileId || !uploadUrl) {
-        const prepared = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/files`, {
+        const isVideo = item.file.type.startsWith("video/");
+        const prepared = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/${isVideo ? "videos" : "files"}`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
@@ -165,6 +176,7 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
             mime: item.file.type,
             sizeBytes: item.file.size,
             publicationConsent: allowPublishing,
+            ...(isVideo ? { termsAccepted, consentVersion: CURRENT_UPLOAD_CONSENT_VERSION } : {}),
           }),
         });
         if (!prepared.ok) {
@@ -177,22 +189,39 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
         setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, serverFileId: fileId, uploadUrl } : candidate));
       }
 
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("PUT", uploadUrl);
-        xhr.setRequestHeader("content-type", item.file.type);
-        xhr.upload.onprogress = (event) => {
-          if (!event.lengthComputable) return;
-          const progress = Math.min(99, Math.round((event.loaded / event.total) * 100));
-          setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, progress } : candidate));
-        };
-        xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error("Prenos ni uspel."));
-        xhr.onerror = () => reject(new Error("Omrežna napaka."));
-        xhr.send(item.file);
-      });
-
-      const completed = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/files/${fileId}/complete`, { method: "POST" });
-      if (!completed.ok) throw await responseError(completed, "Zaključevanje prenosa ni uspelo.");
+      if (item.file.type.startsWith("video/")) {
+        await new Promise<void>((resolve, reject) => {
+          const upload = new TusUpload(item.file, {
+            uploadUrl,
+            chunkSize: 25 * 1024 * 1024,
+            retryDelays: [0, 1000, 3000, 5000, 10000],
+            removeFingerprintOnSuccess: true,
+            onProgress: (uploaded, total) => {
+              const progress = Math.min(99, Math.round((uploaded / total) * 100));
+              setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, progress } : candidate));
+            },
+            onSuccess: () => resolve(),
+            onError: (error) => reject(error),
+          });
+          upload.start();
+        });
+      } else {
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("PUT", uploadUrl);
+          xhr.setRequestHeader("content-type", item.file.type);
+          xhr.upload.onprogress = (event) => {
+            if (!event.lengthComputable) return;
+            const progress = Math.min(99, Math.round((event.loaded / event.total) * 100));
+            setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, progress } : candidate));
+          };
+          xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error("Prenos ni uspel."));
+          xhr.onerror = () => reject(new Error("Omrežna napaka."));
+          xhr.send(item.file);
+        });
+        const completed = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/files/${fileId}/complete`, { method: "POST" });
+        if (!completed.ok) throw await responseError(completed, "Zaključevanje prenosa ni uspelo.");
+      }
       setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, status: "done", progress: 100 } : candidate));
     } catch (error) {
       setItems((current) => current.map((candidate) => candidate.id === id ? {
@@ -201,7 +230,7 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
         error: error instanceof Error ? error.message : "Nalaganje ni uspelo.",
       } : candidate));
     }
-  }, [allowPublishing, getSessionToken]);
+  }, [allowPublishing, getSessionToken, termsAccepted]);
 
   const startUpload = () => {
     const uploadableItems = items.filter((item) => (
@@ -300,15 +329,24 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
       <div className={styles.uploadHeading}>
         <span>Čisto preprosto</span>
         <h2 id="upload-title">Kaj želiš dodati?</h2>
-        <p>Izberi eno ali več fotografij.</p>
+        <p>{videoUploadsEnabled ? "Izberi fotografije ali video do 60 sekund." : "Izberi eno ali več fotografij."}</p>
       </div>
 
-      <input
+      {videoUploadsEnabled ? <input
         ref={galleryInputRef}
         className={styles.visuallyHidden}
         type="file"
         aria-label="Izberi fotografije iz telefona"
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+        multiple
+        onChange={handleFileChange}
+      /> : null}
+      <input
+        ref={videoInputRef}
+        className={styles.visuallyHidden}
+        type="file"
+        aria-label="Izberi videe iz telefona"
+        accept="video/mp4,video/quicktime,video/webm"
         multiple
         onChange={handleFileChange}
       />
@@ -332,6 +370,9 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
           <button className={styles.cameraPicker} type="button" onClick={() => cameraInputRef.current?.click()}>
             <CameraIcon /> Fotografiraj zdaj
           </button>
+          {videoUploadsEnabled ? <button className={styles.cameraPicker} type="button" onClick={() => videoInputRef.current?.click()}>
+            <span aria-hidden="true">▶</span> Dodaj video
+          </button> : null}
         </div>
       ) : (
         <>
@@ -343,7 +384,9 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
                     // Blob URLs are local previews; next/image cannot optimize them.
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.previewUrl} alt="Predogled izbrane fotografije" />
-                  ) : null}
+                  ) : (
+                    <video src={item.previewUrl} aria-label="Predogled izbranega videa" muted playsInline />
+                  )}
                 </div>
                 <div className={styles.fileInfo}>
                   <strong>{item.file.name}</strong>
@@ -375,6 +418,9 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
           <button className={styles.addMoreButton} type="button" onClick={() => galleryInputRef.current?.click()} disabled={isUploading}>
             <PlusIcon /> Dodaj še
           </button>
+          {videoUploadsEnabled ? <button className={styles.addMoreButton} type="button" onClick={() => videoInputRef.current?.click()} disabled={isUploading}>
+            <span aria-hidden="true">▶</span> Dodaj video
+          </button> : null}
 
           <label className={styles.consentRow}>
             <input
@@ -388,7 +434,15 @@ export function EventUpload({ eventSlug, guestId }: { eventSlug: string; guestId
             </span>
           </label>
 
-          <button className={styles.uploadButton} type="button" onClick={startUpload} disabled={actionableCount === 0 || isUploading}>
+          <label className={styles.consentRow}>
+            <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} />
+            <span>
+              <strong>Strinjam se s pogoji nalaganja</strong>
+              <small>Potrjujem, da smem deliti datoteke, ter sprejemam <Link href="/pogoji-uporabe" target="_blank">pogoje</Link> in <Link href="/zasebnost" target="_blank">politiko zasebnosti</Link>.</small>
+            </span>
+          </label>
+
+          <button className={styles.uploadButton} type="button" onClick={startUpload} disabled={actionableCount === 0 || isUploading || !termsAccepted}>
             {retryableCount > 0 && readyCount === 0 ? <RetryIcon /> : <UploadIcon />}
             {isUploading
               ? "Nalaganje …"

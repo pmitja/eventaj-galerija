@@ -17,6 +17,8 @@ export const checkoutFormSchema = z.object({
   commentsEnabled: z.boolean(),
   aiBestPhotos: z.boolean(),
   faceCollections: z.boolean(),
+  videoUnlimited: z.boolean(),
+  termsAccepted: z.boolean().refine((value) => value, "Za nadaljevanje sprejmi pogoje uporabe"),
 }).superRefine((value, context) => {
   const startsAt = Date.parse(`${value.startDate}T${value.startTime}`);
   const endsAt = Date.parse(`${value.endDate}T${value.endTime}`);
@@ -41,6 +43,8 @@ export const createCheckoutSchema = z.object({
   commentsEnabled: z.boolean().default(true),
   aiBestPhotos: z.boolean().default(false),
   faceCollections: z.boolean().default(false),
+  videoUnlimited: z.boolean().default(false),
+  termsAccepted: z.literal(true),
 }).superRefine((value, context) => {
   if (Date.parse(value.endsAt) <= Date.parse(value.startsAt)) {
     context.addIssue({ code: "custom", path: ["endsAt"], message: "Konec mora biti po začetku" });

@@ -20,6 +20,9 @@
       "jurisdiction": "eu"
     }
   ],
+  "stream": {
+    "binding": "STREAM"
+  },
   "triggers": {
     "crons": ["17 2 * * *"]
   }

@@ -15,8 +15,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       filename: item.original_filename,
       uploadedAt: item.uploaded_at,
       commentCount: item.comment_count,
+      kind: item.kind,
+      durationMs: item.duration_ms,
       thumbnailUrl: `/api/v1/events/${slug}/media/${item.public_id}?variant=thumbnail`,
-      imageUrl: `/api/v1/events/${slug}/media/${item.public_id}?variant=gallery`,
+      imageUrl: item.kind === "image" ? `/api/v1/events/${slug}/media/${item.public_id}?variant=gallery` : null,
+      playbackUrl: item.kind === "video" ? `/api/v1/events/${slug}/media/${item.public_id}/playback` : null,
     })) },
     { headers: { "cache-control": "private, no-store, max-age=0" } },
   );

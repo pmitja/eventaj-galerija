@@ -68,6 +68,8 @@
 .total span { color: #68495a; font-size: 14px; font-weight: 700; }
 .total strong { font-size: 30px; line-height: 1; letter-spacing: -.03em; }
 .taxNote { margin-top: -12px; color: #8a707c; font-size: 11.5px; text-align: right; }
+.legalConsent { display: flex; align-items: flex-start; gap: 10px; color: #68495a; font-size: 12px; line-height: 1.5; cursor: pointer; }
+.legalConsent a { color: #9d174d; font-weight: 750; text-decoration: underline; text-underline-offset: 2px; }
 .submit { width: 100%; min-height: 54px; font-size: 16px; }
 .submit svg { width: 18px; height: 18px; }
 .spinner { animation: spin 800ms linear infinite; }

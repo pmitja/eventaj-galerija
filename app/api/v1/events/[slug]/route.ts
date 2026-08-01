@@ -3,6 +3,7 @@ import { problem } from "@/lib/http/problem";
 import { areUploadsOpen } from "@/lib/domain/events";
 import { findPublicEvent } from "@/lib/repositories/events";
 import { hasFaceCollectionsEntitlement } from "@/lib/repositories/face-search";
+import { getVideoUploadPolicy } from "@/lib/repositories/uploads";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -10,6 +11,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   if (!event) return problem(404, "EVENT_NOT_FOUND", "Dogodek ne obstaja");
   const faceSearchEnabled = String(getCloudflareEnv().FACE_SEARCH_ENABLED) === "true"
     && await hasFaceCollectionsEntitlement(event.id);
+  const videoUploadsEnabled = String(getCloudflareEnv().VIDEO_UPLOAD_ENABLED) === "true"
+    && Boolean(await getVideoUploadPolicy(event.id));
   return Response.json({
     event: {
       slug: event.public_slug,
@@ -23,6 +26,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       commentsEnabled: Boolean(event.comments_enabled),
       faceSearchEnabled,
       faceSearchPolicyVersion: faceSearchEnabled ? getCloudflareEnv().FACE_SEARCH_POLICY_VERSION : null,
+      videoUploadsEnabled,
     },
   });
 }

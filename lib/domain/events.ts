@@ -1,6 +1,6 @@
 import type { CreateEventInput } from "@/lib/validation/events";
 
-export const RETENTION_DAYS = 90;
+export const RETENTION_DAYS = 180;
 export const MAX_EVENT_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Guests may keep uploading for this long after an event ends; afterwards the gallery stays visible but uploads close. */

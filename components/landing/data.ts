@@ -63,7 +63,7 @@ export const plans = [
       "Nalaganje fotografij in komentarji",
       "Administracijski portal in QR prenosi",
       "Live slideshow in ZIP izvoz",
-      "90-dnevna hramba galerije",
+      "180-dnevna hramba galerije",
     ],
     featured: true,
   },
@@ -75,7 +75,7 @@ export const faqs = [
   ["Ali morajo gostje namestiti aplikacijo?", "Ne. Gostje skenirajo QR kodo in galerija se odpre v brskalniku. Fotografije lahko dodajo brez aplikacije in brez registracije."],
   ["Kako dobim QR kodo?", "QR kodo dogodka lahko v administraciji prenesete kot SVG ali PNG. Po dogovoru vam lahko ročno pripravimo tudi predlogo za tisk."],
   ["Ali lahko prenesem fotografije gostov?", "Da. V administracijskem portalu lahko pripravite ZIP izvoz fotografij iz galerije."],
-  ["Kako dolgo je galerija na voljo?", "Galerija je po dogodku shranjena 90 dni."],
+  ["Kako dolgo je galerija na voljo?", "Galerija je po dogodku shranjena 180 dni."],
   ["So fotografije zasebne?", "Galerija ni javno indeksirana in je dostopna prek nepredvidljive povezave oziroma QR kode. Organizator lahko upravlja vidnost galerije in posameznih fotografij."],
   ["Kaj vključuje AI Best Photos?", "Za 15 € na dogodek dodatek tehnično razvrsti kakovost in zazna dvojnike pri največ 3.000 fotografijah. Večje količine pripravimo po meri."],
 ] as const;

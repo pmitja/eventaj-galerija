@@ -79,6 +79,7 @@
 .photoButton { position: absolute; inset: 0; display: block; width: 100%; border: 0; padding: 0; background: none; cursor: zoom-in; }
 .photoButton img { object-fit: cover; transition: transform .28s cubic-bezier(.22,1,.36,1); }
 .photoButton:hover img { transform: scale(1.025); }
+.videoBadge { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; display: grid; place-items: center; padding-left: 3px; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; background: rgba(35,17,24,.58); color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.22); font-size: 18px; transform: translate(-50%,-50%); backdrop-filter: blur(8px); }
 .likeButton { position: absolute; z-index: 1; top: 7px; right: 7px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(35,17,24,.3); color: white; backdrop-filter: blur(8px); }
 .likeButton svg { width: 20px; fill: transparent; stroke: currentColor; stroke-width: 1.8; transition: fill .18s ease, transform .18s ease; }
 .likeButton .filledHeart { fill: #ef6d9b; stroke: #ef6d9b; }
@@ -94,6 +95,7 @@
 .lightboxStage { position: relative; min-width: 0; min-height: 0; display: grid; place-items: center; }
 .lightboxImage { position: relative; width: 100%; height: min(76vh, 760px); }
 .lightboxImage img { object-fit: contain; }
+.lightboxImage video { width: 100%; height: 100%; object-fit: contain; background: #120b0f; }
 .lightboxBrand { position: absolute; z-index: 3; top: max(18px,env(safe-area-inset-top)); left: 20px; color: #fff; font-size: 21px; font-weight: 850; letter-spacing: -.05em; }
 .lightboxBrand:hover { color: #fff; }
 .lightboxBrand span { color: #ef6d9b; }

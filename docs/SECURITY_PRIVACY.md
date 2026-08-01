@@ -49,7 +49,9 @@ Za vsak namen se zabeležijo verzija pravilnika, čas, dogodek, subjekt/seja in 
 - face collection processing;
 - selfie match processing.
 
-Soglasje ni edina možna pravna podlaga za celoten produkt; končno pravno podlago in vloge upravljavec/obdelovalec mora potrditi pravni svetovalec.
+Soglasje ni edina možna pravna podlaga za celoten produkt; končno pravno podlago in vloge upravljavec/obdelovalec mora potrditi pravni svetovalec. Objavljeni strani `/pogoji-uporabe` in `/zasebnost` sta produktni različici z dne 2026-07-31 in pred produkcijsko vključitvijo videov potrebujeta pravni pregled ter dopolnitev polnih podatkov pravne osebe.
+
+Videi so zasebni objekti v Cloudflare Stream s podpisanim predvajanjem. Ne vstopajo v slideshow, AI-izbor ali obrazno iskanje. Retention worker mora pred izbrisom dogodka uspešno izbrisati tudi vse pripadajoče Stream UID-je; ob napaki je izbris dogodka blokiran in se ponovi.
 
 ## Življenjski cikel podatkov
 

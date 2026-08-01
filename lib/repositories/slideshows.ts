@@ -79,7 +79,7 @@ export async function findPublicSlideshow(tokenHash: string): Promise<PublicSlid
 export async function listSlideshowMedia(eventId: string): Promise<SlideshowMediaRow[]> {
   const result = await getCloudflareEnv().DB.prepare(
     `SELECT public_id, original_filename, uploaded_at FROM media_files
-     WHERE event_id = ? AND status = 'ready' AND slideshow_state = 'approved' AND publication_consent = 1
+     WHERE event_id = ? AND kind = 'image' AND status = 'ready' AND slideshow_state = 'approved' AND publication_consent = 1
        AND COALESCE(quality_override, quality_category) IN ('best', 'good')
      ORDER BY uploaded_at DESC LIMIT 200`,
   ).bind(eventId).all<SlideshowMediaRow>();
@@ -92,7 +92,7 @@ export async function findSlideshowMediaKey(tokenHash: string, publicId: string)
      JOIN slideshows s ON s.event_id = m.event_id
      JOIN events e ON e.id = m.event_id
      WHERE s.token_hash = ? AND s.status = 'active' AND e.status IN ('active', 'ended')
-       AND m.public_id = ? AND m.status = 'ready' AND m.slideshow_state = 'approved'
+       AND m.public_id = ? AND m.kind = 'image' AND m.status = 'ready' AND m.slideshow_state = 'approved'
        AND m.publication_consent = 1
        AND COALESCE(m.quality_override, m.quality_category) IN ('best', 'good')`,
   ).bind(tokenHash, publicId).first<{ gallery_key: string | null }>();
@@ -108,7 +108,7 @@ export async function setMediaSlideshowState(
   const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     `UPDATE media_files SET slideshow_state = ?
-     WHERE id = ? AND event_id = ? AND EXISTS (
+     WHERE id = ? AND event_id = ? AND kind = 'image' AND EXISTS (
        SELECT 1 FROM events e WHERE e.id = media_files.event_id AND e.organization_id = ?
      )`,
   ).bind(state, mediaId, eventId, organizationId).run();

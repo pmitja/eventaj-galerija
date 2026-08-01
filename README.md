@@ -1,6 +1,6 @@
 # Eventaj Galerija
 
-Mobilno prilagojena SaaS platforma za zbiranje fotografij z dogodkov prek QR kode. Gostje ne potrebujejo računa ali aplikacije; naročnik po Stripe plačilu prejme QR kodo po e-pošti, po dogodku pa varno povezavo do ZIP prenosa.
+Mobilno prilagojena SaaS platforma za zbiranje fotografij in kratkih videov z dogodkov prek QR kode. Gostje ne potrebujejo računa ali aplikacije; naročnik po Stripe plačilu prejme QR kodo po e-pošti, po dogodku pa varno povezavo do ZIP prenosa fotografij.
 
 Osnovna cena je 35 EUR na dogodek. Opcijski `AI Best Photos` stane 15 EUR do 3.000 fotografij; večje količine so ponudba po meri.
 
@@ -62,7 +62,7 @@ lib/repositories/      # D1 dostop
 lib/storage/           # R2 podpisovanje in Cloudflare Images obdelava
 lib/validation/        # deljene Zod sheme
 migrations/            # D1 migracije
-workers/retention.ts   # dnevni fizični izbris po 90 dneh
+workers/retention.ts   # dnevni fizični izbris po 180 dneh za nove dogodke
 workers/exports.ts     # asinhrona izdelava ZIP izvozov prek Cloudflare Queue
 workers/quality.ts     # idempotenten masovni backfill tehnične kakovosti
 workers/media-processing.ts # omejena, ponovljiva obdelava novih slik
@@ -72,6 +72,19 @@ workers/face-processing.ts # dogodkovno omejen face index + ephemeral selfie sea
 ## Cloudflare namestitev
 
 Konfiguracije so `wrangler.jsonc` za aplikacijo, `wrangler.retention.jsonc` za dnevni retention worker, `wrangler.exports.jsonc` za ZIP queue consumer in `wrangler.quality.jsonc` za masovno tehnično analizo. Produkcijske skrivnosti (`AUTH_SECRET`, `ADMIN_PASSWORD_HASH`, R2 S3 ključa) se nastavijo z `wrangler secret put` in se ne zapisujejo v repozitorij.
+
+Za video ustvari Cloudflare Stream API token z najmanjšim potrebnim obsegom,
+nastavi podpis webhooka in šele po uspešnem testnem uploadu spremeni
+`VIDEO_UPLOAD_ENABLED` na `true`:
+
+```bash
+pnpm wrangler secret put CLOUDFLARE_STREAM_API_TOKEN
+pnpm wrangler secret put STREAM_WEBHOOK_SECRET
+```
+
+Cloudflare Stream webhook usmeri na `/api/webhooks/cloudflare-stream`. Isti
+Stream binding je potreben tudi na retention workerju, saj mora pred izbrisom
+dogodka fizično izbrisati vse videe.
 
 Pred prvim deploymentom e-poštne dostave in ZIP izvoza ustvari glavno in
 dead-letter vrsto, nastavi Resend skrivnost ter namesti consumer. Domena pošiljatelja
