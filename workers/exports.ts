@@ -4,6 +4,7 @@ import { exportExpiry, exportFileName, uniqueWebpEntryNames } from "../lib/domai
 import { archiveDeliveryEmail, qrDeliveryEmail, ResendEmailAdapter } from "../lib/notifications/email";
 import { exportQueueMessageSchema } from "../lib/validation/exports";
 import { appUrlForLocale, intlLocale, type Locale } from "../lib/i18n/locale";
+import { downloadPath } from "../lib/i18n/routes";
 
 type ExportMessage =
   | { type: "build_export"; exportId: string }
@@ -208,7 +209,7 @@ async function sendArchiveDelivery(env: Env, deliveryId: string, token: string):
     recipientName: row.owner_name,
     eventName: row.event_name,
     mediaCount: row.media_count,
-    downloadUrl: `${appRoot(env, row.locale)}/prenosi/${encodeURIComponent(token)}`,
+    downloadUrl: `${appRoot(env, row.locale)}${downloadPath(row.locale, token)}`,
     expiresAtLabel: new Intl.DateTimeFormat(intlLocale(row.locale), {
       dateStyle: "long", timeStyle: "short", timeZone: "Europe/Ljubljana",
     }).format(new Date(row.download_expires_at)),

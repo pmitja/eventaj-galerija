@@ -36,6 +36,26 @@ describe("canonical hostname middleware", () => {
     const response = middleware(request);
 
     expect(response.status).toBe(308);
-    expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/naroci?ref=invite");
+    expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/order?ref=invite");
+  });
+
+  it("redirects Slovenian public paths on the English domain", () => {
+    const response = middleware(new NextRequest("https://gallery.eventaj.si/za-dogodke/poroke"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/for-events/weddings");
+  });
+
+  it("internally rewrites English public paths to App Router routes", () => {
+    const response = middleware(new NextRequest("https://gallery.eventaj.si/terms-of-use"));
+
+    expect(response.headers.get("x-middleware-rewrite")).toBe("https://gallery.eventaj.si/pogoji-uporabe");
+  });
+
+  it("keeps English paths off the Slovenian domain", () => {
+    const response = middleware(new NextRequest("https://galerija.eventaj.si/order/success?session_id=cs_1"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://galerija.eventaj.si/nakup/uspesen?session_id=cs_1");
   });
 });

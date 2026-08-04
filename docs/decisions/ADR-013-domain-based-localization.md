@@ -17,9 +17,16 @@ prvotno naročilo, tudi ko se opravilo izvede pozneje brez HTTP zahteve.
 
 - Obe domeni kažeta na isti Next.js/OpenNext Worker in uporabljata iste D1, R2
   ter Queue vire.
-- Zunanje poti ostanejo enake. Jezik se določi iz strogo dovoljenega hostnamea,
-  ne iz poljubnega `Host` oziroma `Origin` URL-ja, ki bi ga odjemalec poslal v
-  telesu zahteve.
+- Javne marketinške, pravne in checkout poti so lokalizirane. Slovenska domena
+  uporablja npr. `/naroci`, `/za-dogodke/poroke`, `/pogoji-uporabe` in
+  `/zasebnost`; angleška uporablja `/order`, `/for-events/weddings`,
+  `/terms-of-use` in `/privacy`. Stabilne tehnične poti (API, QR, javni dogodki
+  in projekcije) ostanejo jezikovno nevtralne. Jezik se določi iz strogo
+  dovoljenega hostnamea, ne iz poljubnega `Host` oziroma `Origin` URL-ja, ki bi
+  ga odjemalec poslal v telesu zahteve.
+- Zahteva na poti napačnega jezika se trajno preusmeri na lokalizirano pot iste
+  domene. Jezikovni preklopnik preslika tudi segment poti in slug namenske
+  marketinške strani.
 - `PUBLIC_APP_URL` ostane kanonični slovenski izvor zaradi povratne
   združljivosti. `PUBLIC_APP_URL_EN` je angleški izvor.
 - Podprta locale sta `sl` in `en`; neznani host varno uporabi `sl`.
@@ -42,4 +49,3 @@ posamezno domeno, zato se anonimna gostujoča seja med domenama ne prenaša.
 
 Migracija je aditivna in povratno združljiva: starejša aplikacija dodatni polji
 ignorira, novi aplikaciji pa privzeta vrednost `sl` ohrani dosedanje vedenje.
-

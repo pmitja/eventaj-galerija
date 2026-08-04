@@ -14,6 +14,7 @@ import type { createCheckoutSchema } from "@/lib/validation/checkout";
 import { createStripeCheckout, retrieveStripeCheckout } from "@/lib/billing/stripe";
 import { createPublicToken, hashToken } from "@/lib/security/tokens";
 import { appUrlForLocale, type Locale } from "@/lib/i18n/locale";
+import { checkoutSuccessPath, orderPath } from "@/lib/i18n/routes";
 
 type CheckoutInput = z.infer<typeof createCheckoutSchema>;
 
@@ -80,8 +81,8 @@ export async function createCheckoutOrder(input: CheckoutInput, locale: Locale =
       faceCollections: input.faceCollections,
       videoUnlimited: input.videoUnlimited,
       locale,
-      successUrl: `${root}/nakup/uspesen?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${root}/naroci?preklicano=1`,
+      successUrl: `${root}${checkoutSuccessPath(locale)}?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${root}${orderPath(locale)}?preklicano=1`,
     });
     await env.DB.prepare(
       "UPDATE checkout_orders SET stripe_checkout_session_id = ?, updated_at = ? WHERE id = ? AND status = 'pending'",

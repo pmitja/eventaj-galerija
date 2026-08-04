@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/locale";
+import { orderPath } from "@/lib/i18n/routes";
 
 function MicrophoneIcon() {
   return (
@@ -77,7 +78,7 @@ export function MemoryFeatures({ locale = "sl" }: { locale?: Locale }) {
             <strong>{en ? "Your guests create the memories. You keep every one." : "Gostje ustvarijo spomine. Vi ohranite prav vsakega."}</strong>
             <span>{en ? "One event, unlimited guests, no subscription." : "En dogodek, neomejeno gostov, brez naročnine."}</span>
           </div>
-          <Link className="button" href="/naroci">{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
+          <Link className="button" href={orderPath(locale)}>{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
         </div>
       </div>
     </section>

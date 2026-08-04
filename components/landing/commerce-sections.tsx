@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { landingData } from "./data";
 import type { Locale } from "@/lib/i18n/locale";
+import { orderPath } from "@/lib/i18n/routes";
 
 export function Pricing({ locale = "sl" }: { locale?: Locale }) {
   const { addOns, plans } = landingData(locale);
   const en = locale === "en";
   return (
-    <section className="pricing section-muted" id="cene">
+    <section className="pricing section-muted" id={en ? "pricing" : "cene"}>
       <div className="shell">
         <div className="section-heading">
           <h2>{en ? "Everything for your event. €35 once." : "Vse za vaš dogodek. Enkratnih 35 €."}</h2>
@@ -21,7 +22,7 @@ export function Pricing({ locale = "sl" }: { locale?: Locale }) {
                 <h3>{plan.name}</h3>
                 <div className="price"><strong>{plan.price}</strong><span>/ {en ? "event" : "dogodek"}</span></div>
                 <p>{plan.description}</p>
-                <Link className={"featured" in plan ? "button plan-button" : "plan-button"} href="/naroci">{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
+                <Link className={"featured" in plan ? "button plan-button" : "plan-button"} href={orderPath(locale)}>{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
                 <small className="price-reassurance">{en ? "One-time Stripe payment. Your gallery and QR code arrive by email." : "Enkratno plačilo prek Stripe. Galerijo in QR kodo prejmete po e-pošti."}</small>
               </div>
               <div className="plan-features">

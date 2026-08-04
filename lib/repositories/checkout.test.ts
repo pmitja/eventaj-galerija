@@ -108,8 +108,8 @@ describe("checkout rate limit", () => {
     expect(insert?.values).toContain("en");
     expect(state.createStripeCheckout).toHaveBeenCalledWith(expect.objectContaining({
       locale: "en",
-      successUrl: "https://gallery-en.example.test/nakup/uspesen?session_id={CHECKOUT_SESSION_ID}",
-      cancelUrl: "https://gallery-en.example.test/naroci?preklicano=1",
+      successUrl: "https://gallery-en.example.test/order/success?session_id={CHECKOUT_SESSION_ID}",
+      cancelUrl: "https://gallery-en.example.test/order?preklicano=1",
     }));
   });
 });

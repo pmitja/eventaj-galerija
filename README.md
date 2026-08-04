@@ -170,8 +170,10 @@ retention Worker pa ni javno dostopen in se zažene vsak dan ob 02:17 UTC.
 Obstoječa stran `eventaj.si` na Vercelu ostaja nespremenjena.
 
 Angleška različica je na `https://gallery.eventaj.si` in uporablja isti Worker,
-bazo ter hrambo. Jezik se določi iz domene; zunanje poti so na obeh domenah
-enake. `https://www.gallery.eventaj.si` se kanonizira na angleško domeno.
+bazo ter hrambo. Jezik se določi iz domene; javne marketinške, pravne in checkout
+poti imajo angleške segmente (na primer `/order`, `/for-events/weddings`,
+`/terms-of-use` in `/privacy`). `https://www.gallery.eventaj.si` se kanonizira
+na angleško domeno.
 
 ## Stripe Checkout
 

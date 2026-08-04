@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "../legal.module.css";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { privacyPath } from "@/lib/i18n/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Privacy | Eventaj Gallery" : "Zasebnost | Eventaj Galerija", robots: { index: true, follow: true } };
+  return { title: locale === "en" ? "Privacy | Eventaj Gallery" : "Zasebnost | Eventaj Galerija", alternates: { canonical: privacyPath(locale) }, robots: { index: true, follow: true } };
 }
 
 export default async function PrivacyPage() {

@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n/locale";
+import { orderPath } from "@/lib/i18n/routes";
 
 export const SITE_URL = "https://galerija.eventaj.si";
 export const ENGLISH_SITE_URL = "https://gallery.eventaj.si";
@@ -96,7 +97,7 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
           "@type": "Offer",
           price: "35.00",
           priceCurrency: "EUR",
-          url: `${siteUrl}/naroci`,
+          url: `${siteUrl}${orderPath(locale)}`,
           availability: "https://schema.org/InStock",
         },
         featureList: copy.featureList,

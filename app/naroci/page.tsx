@@ -4,6 +4,7 @@ import { ArrowLeft, Check, CreditCard, Images } from "lucide-react";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { orderPath } from "@/lib/i18n/routes";
 import styles from "@/components/checkout/checkout.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,7 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = locale === "en"
     ? "Create a QR gallery for €35 per event. No subscription, no guest app and unlimited guests."
     : "Ustvari QR galerijo za 35 EUR na dogodek. Brez naročnine, brez aplikacije za goste in z neomejenim številom gostov.";
-  return { title, description, alternates: { canonical: "/naroci" }, openGraph: { title, description, url: "/naroci" } };
+  const url = orderPath(locale);
+  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url } };
 }
 
 export const dynamic = "force-dynamic";

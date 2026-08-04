@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { privacyPath, termsPath } from "@/lib/i18n/routes";
 import { CURRENT_UPLOAD_CONSENT_VERSION } from "@/lib/domain/legal";
 import {
   VOICE_MESSAGE_MAX_BYTES,
@@ -280,7 +281,7 @@ export function VoiceMessageRecorder({
               <audio className={styles.audioPreview} src={recording.url} controls preload="metadata">{en ? "Your browser cannot play this recording." : "Brskalnik ne more predvajati posnetka."}</audio>
               <span className={styles.duration}>{formatDuration(recording.durationMs)}</span>
               <label className={styles.choice}><input type="checkbox" checked={allowPublishing} onChange={(event) => setAllowPublishing(event.target.checked)} /><span><strong>{en ? "Show it in the audio guestbook" : "Prikaži v audio knjigi gostov"}</strong><small>{en ? "Other guests with the gallery link can listen." : "Poslušajo ga lahko drugi gostje s povezavo do galerije."}</small></span></label>
-              <label className={styles.choice}><input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} /><span><strong>{en ? "I may share this recording" : "Posnetek smem deliti"}</strong><small>{en ? <>I accept the <Link href="/pogoji-uporabe" target="_blank">terms</Link> and <Link href="/zasebnost" target="_blank">privacy policy</Link>.</> : <>Sprejemam <Link href="/pogoji-uporabe" target="_blank">pogoje</Link> in <Link href="/zasebnost" target="_blank">politiko zasebnosti</Link>.</>}</small></span></label>
+              <label className={styles.choice}><input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} /><span><strong>{en ? "I may share this recording" : "Posnetek smem deliti"}</strong><small>{en ? <>I accept the <Link href={termsPath(locale)} target="_blank">terms</Link> and <Link href={privacyPath(locale)} target="_blank">privacy policy</Link>.</> : <>Sprejemam <Link href={termsPath(locale)} target="_blank">pogoje</Link> in <Link href={privacyPath(locale)} target="_blank">politiko zasebnosti</Link>.</>}</small></span></label>
               <div className={styles.previewActions}><button type="button" onClick={recordAgain}>{en ? "Record again" : "Posnemi znova"}</button><button type="button" onClick={() => void uploadRecording()} disabled={!termsAccepted}>{en ? "Send message" : "Pošlji voščilo"}</button></div>
             </> : null}
 

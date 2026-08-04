@@ -23,6 +23,7 @@ import {
 import type { ClientUploadStatus } from "./event-upload-state";
 import styles from "../../app/(public)/e/[slug]/event-page.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { privacyPath, termsPath } from "@/lib/i18n/routes";
 import type { Locale } from "@/lib/i18n/locale";
 
 const ACCEPTED_TYPES = new Set([
@@ -443,7 +444,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
             <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} />
             <span>
               <strong>{en ? "I agree to the upload terms" : "Strinjam se s pogoji nalaganja"}</strong>
-              <small>{en ? <>I confirm that I may share these files and accept the <Link href="/pogoji-uporabe" target="_blank">terms</Link> and <Link href="/zasebnost" target="_blank">privacy policy</Link>.</> : <>Potrjujem, da smem deliti datoteke, ter sprejemam <Link href="/pogoji-uporabe" target="_blank">pogoje</Link> in <Link href="/zasebnost" target="_blank">politiko zasebnosti</Link>.</>}</small>
+              <small>{en ? <>I confirm that I may share these files and accept the <Link href={termsPath(locale)} target="_blank">terms</Link> and <Link href={privacyPath(locale)} target="_blank">privacy policy</Link>.</> : <>Potrjujem, da smem deliti datoteke, ter sprejemam <Link href={termsPath(locale)} target="_blank">pogoje</Link> in <Link href={privacyPath(locale)} target="_blank">politiko zasebnosti</Link>.</>}</small>
             </span>
           </label>
 

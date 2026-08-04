@@ -8,10 +8,14 @@ import { LoginTrigger, useLoginModal } from "@/components/auth/login-modal";
 import { eventUseCaseGroupsFor, eventUseCasesFor } from "./use-cases";
 import { VisualPlaceholder } from "./visual-placeholder";
 import type { Locale } from "@/lib/i18n/locale";
+import { demoEventPath, eventUseCasePath, localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
 
-export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", alternateOrigin }: { howItWorksHref?: string; locale?: Locale; alternateOrigin?: string } = {}) {
+export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { howItWorksHref?: string; locale?: Locale; alternateOrigin?: string } = {}) {
   const pathname = usePathname();
   const en = locale === "en";
+  const targetLocale = en ? "sl" : "en";
+  const localeSwitchPath = localizedMarketingPath(pathname, targetLocale);
+  const howHref = howItWorksHref ?? `/#${en ? "how-it-works" : "kako-deluje"}`;
   const eventUseCases = eventUseCasesFor(locale);
   const eventUseCaseGroups = eventUseCaseGroupsFor(locale);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -51,7 +55,7 @@ export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", altern
           <span>|</span> <b>{en ? "Gallery" : "Galerija"}</b>
         </Link>
         <nav className="desktop-nav" aria-label={en ? "Main navigation" : "Glavna navigacija"}>
-          <Link href={howItWorksHref}>{en ? "How it works" : "Kako deluje"}</Link>
+          <Link href={howHref}>{en ? "How it works" : "Kako deluje"}</Link>
           <div
             className="nav-dropdown"
             ref={eventsMenuRef}
@@ -77,7 +81,7 @@ export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", altern
                 <div className="nav-dropdown__group" key={group}>
                   <strong>{group}</strong>
                   {eventUseCases.filter((item) => item.group === group).map((item) => (
-                    <Link href={`/za-dogodke/${item.slug}`} key={item.slug} onClick={() => setEventsOpen(false)}>
+                    <Link href={eventUseCasePath(locale, item.slug)} key={item.slug} onClick={() => setEventsOpen(false)}>
                       <span>{item.navTitle}</span>
                       <small>{item.navDescription}</small>
                     </Link>
@@ -86,15 +90,15 @@ export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", altern
               ))}
             </div>
           </div>
-          <Link href="/#funkcije">{en ? "Features" : "Funkcije"}</Link>
-          <Link href="/#cene">{en ? "Pricing" : "Cene"}</Link>
+          <Link href={`/#${en ? "features" : "funkcije"}`}>{en ? "Features" : "Funkcije"}</Link>
+          <Link href={`/#${en ? "pricing" : "cene"}`}>{en ? "Pricing" : "Cene"}</Link>
           <Link href="/#faq">FAQ</Link>
         </nav>
         <div className="header-actions">
-          {alternateOrigin ? <a className="login-link" href={`${alternateOrigin}${pathname}`}>{en ? "SL" : "EN"}</a> : null}
+          {alternateOrigin ? <a className="login-link" href={`${alternateOrigin}${localeSwitchPath}`}>{en ? "SL" : "EN"}</a> : null}
           <LoginTrigger className="login-link">{en ? "Sign in" : "Prijava"}</LoginTrigger>
-          <Link className="button button--small button--secondary desktop-only" href="/e/ana-in-marko">{en ? "Demo event" : "Demo dogodek"}</Link>
-          <Link className="button button--small desktop-only" href="/naroci">{en ? "Create event · €35" : "Ustvari dogodek · 35 €"}</Link>
+          <Link className="button button--small button--secondary desktop-only" href={demoEventPath(locale)}>{en ? "Demo event" : "Demo dogodek"}</Link>
+          <Link className="button button--small desktop-only" href={orderPath(locale)}>{en ? "Create event · €35" : "Ustvari dogodek · 35 €"}</Link>
           <button
             className={`menu-button ${menuOpen ? "menu-button--open" : ""}`}
             type="button"
@@ -108,23 +112,23 @@ export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", altern
         </div>
       </div>
       <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`} aria-label={en ? "Mobile navigation" : "Mobilna navigacija"} aria-hidden={!menuOpen}>
-        <Link href={howItWorksHref} onClick={closeMenu}>{en ? "How it works" : "Kako deluje"}</Link>
+        <Link href={howHref} onClick={closeMenu}>{en ? "How it works" : "Kako deluje"}</Link>
         <details className="mobile-nav__events">
           <summary>{en ? "Events" : "Za dogodke"} <span aria-hidden="true">+</span></summary>
           <div>
             {eventUseCases.map((item) => (
-              <Link href={`/za-dogodke/${item.slug}`} key={item.slug} onClick={closeMenu}>{item.navTitle}</Link>
+              <Link href={eventUseCasePath(locale, item.slug)} key={item.slug} onClick={closeMenu}>{item.navTitle}</Link>
             ))}
           </div>
         </details>
-        <Link href="/#funkcije" onClick={closeMenu}>{en ? "Features" : "Funkcije"}</Link>
-        <Link href="/#cene" onClick={closeMenu}>{en ? "Pricing" : "Cene"}</Link>
+        <Link href={`/#${en ? "features" : "funkcije"}`} onClick={closeMenu}>{en ? "Features" : "Funkcije"}</Link>
+        <Link href={`/#${en ? "pricing" : "cene"}`} onClick={closeMenu}>{en ? "Pricing" : "Cene"}</Link>
         <Link href="/#faq" onClick={closeMenu}>FAQ</Link>
-        {alternateOrigin ? <a href={`${alternateOrigin}${pathname}`}>{en ? "Slovenščina" : "English"}</a> : null}
+        {alternateOrigin ? <a href={`${alternateOrigin}${localeSwitchPath}`}>{en ? "Slovenščina" : "English"}</a> : null}
         <button type="button" onClick={() => { closeMenu(); openLogin("/admin"); }}>{en ? "Sign in" : "Prijava"}</button>
         <div className="mobile-nav__actions">
-          <Link className="button button--secondary" href="/e/ana-in-marko" onClick={closeMenu}>{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
-          <Link className="button" href="/naroci" onClick={closeMenu}>{en ? "Create event for €35" : "Ustvari dogodek za 35 €"}</Link>
+          <Link className="button button--secondary" href={demoEventPath(locale)} onClick={closeMenu}>{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
+          <Link className="button" href={orderPath(locale)} onClick={closeMenu}>{en ? "Create event for €35" : "Ustvari dogodek za 35 €"}</Link>
         </div>
       </nav>
     </header>
@@ -166,8 +170,8 @@ export function Hero({ locale = "sl" }: { locale?: Locale }) {
         <h1>{en ? "Every memory from your guests. In one place." : "Vsi spomini vaših gostov. Na enem mestu."}</h1>
         <p>{en ? "Collect photos, short videos and heartfelt voice messages in one beautiful event gallery — with no app or guest registration." : "Zberite fotografije, kratke videe in iskrena glasovna voščila v eni čudoviti galeriji dogodka — brez aplikacije in registracije gostov."}</p>
         <div className="hero-buttons">
-          <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
-          <Link className="button button--secondary" href="/e/ana-in-marko">{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
+          <Link className="button" href={orderPath(locale)} data-sticky-cta-trigger="create-event">{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
+          <Link className="button button--secondary" href={demoEventPath(locale)}>{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
         </div>
         <div className="hero-trust" aria-label={en ? "Purchase benefits" : "Prednosti nakupa"}>
           <span>{en ? "One-time payment" : "Enkratno plačilo"}</span>

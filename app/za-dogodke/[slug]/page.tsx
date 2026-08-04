@@ -6,6 +6,7 @@ import { eventUseCases, getEventUseCase } from "@/components/landing/use-cases";
 import { absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { appUrlForLocale, openGraphLocale } from "@/lib/i18n/locale";
+import { eventUseCasePath } from "@/lib/i18n/routes";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -23,14 +24,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = locale === "en" ? `${useCase.navTitle} – QR photo gallery | Eventaj` : `${useCase.navTitle} – QR galerija za fotografije | Eventaj`;
   const description = useCase.description;
 
+  const routePath = eventUseCasePath(locale, useCase.slug);
   return {
     title,
     description,
-    alternates: { canonical: `/za-dogodke/${useCase.slug}` },
+    alternates: { canonical: routePath },
     openGraph: {
       title,
       description,
-      url: `/za-dogodke/${useCase.slug}`,
+      url: routePath,
       siteName: SITE_NAME,
       locale: openGraphLocale(locale),
       type: "website",
@@ -52,7 +54,7 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
   if (!useCase) notFound();
 
   const siteUrl = appUrlForLocale(env, locale);
-  const pageUrl = absoluteUrl(`/za-dogodke/${useCase.slug}`, siteUrl);
+  const pageUrl = absoluteUrl(eventUseCasePath(locale, useCase.slug), siteUrl);
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [

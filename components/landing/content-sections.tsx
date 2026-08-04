@@ -16,7 +16,7 @@ export function HowItWorks({ locale = "sl" }: { locale?: Locale }) {
   const { howSteps } = landingData(locale);
   const en = locale === "en";
   return (
-    <section className="how section-muted" id="kako-deluje">
+    <section className="how section-muted" id={en ? "how-it-works" : "kako-deluje"}>
       <div className="shell">
         <SectionHeading title={en ? "How does it work?" : "Kako deluje?"} desktopSubtitle={en ? "Effortless for you and your guests." : "Brez zapletov — za vas in vaše goste."} />
         <div className="how-list">
@@ -49,7 +49,7 @@ export function Features({ locale = "sl" }: { locale?: Locale }) {
   const { features } = landingData(locale);
   const en = locale === "en";
   return (
-    <section className="features section" id="funkcije">
+    <section className="features section" id={en ? "features" : "funkcije"}>
       <div className="shell">
         <div className="section-heading">
           <h2 className="desktop-only">{en ? "Everything you need for a memorable event" : "Vse, kar potrebujete za popoln dogodek"}</h2>

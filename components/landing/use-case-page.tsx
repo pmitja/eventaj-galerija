@@ -8,12 +8,13 @@ import { Header } from "./header-hero";
 import { Showcase } from "./showcase-sections";
 import { eventUseCasesFor, type EventUseCase } from "./use-cases";
 import type { Locale } from "@/lib/i18n/locale";
+import { eventUseCasePath, orderPath } from "@/lib/i18n/routes";
 
 export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
   const en = locale === "en";
   const eventUseCases = eventUseCasesFor(locale);
   return (
-    <section className="section-muted event-use-cases" id="za-dogodke">
+    <section className="section-muted event-use-cases" id={en ? "for-events" : "za-dogodke"}>
       <div className="shell">
         <div className="section-heading">
           <span className="section-pill">{en ? "For every occasion" : "Za vsako priložnost"}</span>
@@ -22,7 +23,7 @@ export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
         </div>
         <div className="event-use-cases__grid">
           {eventUseCases.map((item) => (
-            <Link href={`/za-dogodke/${item.slug}`} key={item.slug}>
+            <Link href={eventUseCasePath(locale, item.slug)} key={item.slug}>
               <span>{item.group}</span>
               <strong>{item.navTitle}</strong>
               <p>{item.navDescription}</p>
@@ -46,7 +47,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
     <LoginModalProvider>
     <main className="landing-page use-case-page" id="top">
       <AnimationController />
-      <Header howItWorksHref="#kako-deluje" locale={locale} alternateOrigin={alternateOrigin} />
+      <Header howItWorksHref={`#${en ? "how-it-works" : "kako-deluje"}`} locale={locale} alternateOrigin={alternateOrigin} />
       <section className="use-case-hero">
         <div className="use-case-hero__inner shell">
           <div className="use-case-hero__copy">
@@ -55,8 +56,8 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
             <h1>{useCase.title}</h1>
             <p>{useCase.description}</p>
             <div className="hero-buttons">
-              <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">{en ? "Create event — €35" : "Ustvari dogodek — 35 €"}</Link>
-              <Link className="button button--secondary" href="#kako-deluje">{en ? "How it works" : "Kako deluje"}</Link>
+              <Link className="button" href={orderPath(locale)} data-sticky-cta-trigger="create-event">{en ? "Create event — €35" : "Ustvari dogodek — 35 €"}</Link>
+              <Link className="button button--secondary" href={`#${en ? "how-it-works" : "kako-deluje"}`}>{en ? "How it works" : "Kako deluje"}</Link>
             </div>
             <div className="use-case-trust">
               <span>{en ? "No app" : "Brez aplikacije"}</span>
@@ -126,7 +127,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
         </div>
       </section>
 
-      <Slideshow priceHref="/#cene" locale={locale} />
+      <Slideshow priceHref={`/#${en ? "pricing" : "cene"}`} locale={locale} />
       <Showcase locale={locale} />
 
       <section className="section use-case-faq">
@@ -151,11 +152,11 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
           <div className="shell">
             <div className="use-case-related__heading">
               <h2>{en ? "Explore more" : "Oglejte si še"}</h2>
-              <Link href="/#za-dogodke">{en ? "All event types" : "Vse vrste dogodkov"}</Link>
+              <Link href={`/#${en ? "for-events" : "za-dogodke"}`}>{en ? "All event types" : "Vse vrste dogodkov"}</Link>
             </div>
             <div className="use-case-related__grid">
               {related.map((item) => (
-                <Link href={`/za-dogodke/${item.slug}`} key={item.slug}>
+                <Link href={eventUseCasePath(locale, item.slug)} key={item.slug}>
                   <span>{item.group}</span>
                   <strong>{item.navTitle}</strong>
                   <p>{item.navDescription}</p>

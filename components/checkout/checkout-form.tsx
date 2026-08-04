@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { checkoutFormSchemaFor, type CheckoutFormValues } from "@/lib/validation/checkout";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { privacyPath, termsPath } from "@/lib/i18n/routes";
 import styles from "./checkout.module.css";
 
 const CHECKOUT_COPY = {
@@ -316,7 +317,7 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
             <Controller control={form.control} name="termsAccepted" render={({ field }) => <div>
               <label className={styles.legalConsent} htmlFor="termsAccepted">
                 <Checkbox id="termsAccepted" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} aria-invalid={Boolean(errors.termsAccepted)} />
-                <span>{copy.consentPrefix} <Link href="/pogoji-uporabe" target="_blank">{copy.terms}</Link> {copy.consentMiddle} <Link href="/zasebnost" target="_blank">{copy.privacy}</Link>.</span>
+                <span>{copy.consentPrefix} <Link href={termsPath(locale)} target="_blank">{copy.terms}</Link> {copy.consentMiddle} <Link href={privacyPath(locale)} target="_blank">{copy.privacy}</Link>.</span>
               </label>
               {errors.termsAccepted ? <FieldError>{errors.termsAccepted.message}</FieldError> : null}
             </div>} />

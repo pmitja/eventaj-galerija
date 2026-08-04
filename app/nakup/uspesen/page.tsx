@@ -6,6 +6,7 @@ import { fulfillCheckout, findDeliveryLinks } from "@/lib/repositories/checkout"
 import { checkoutSessionIdSchema } from "@/lib/validation/checkout";
 import styles from "@/components/checkout/checkout.module.css";
 import { getRequestLocale } from "@/lib/i18n/server";
+import { checkoutSuccessPath, orderPath } from "@/lib/i18n/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
@@ -43,6 +44,6 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
       </div>
       {eventId ? <p className={styles.eventRef}><strong>{en ? "Event number" : "Številka dogodka"}</strong><code>{eventId}</code>{en ? "If anything goes wrong, send us this number and we will help." : "Če kaj ne deluje, nam pošlji to številko in ti pomagamo."}</p> : null}
       <p className={styles.successNote}>{en ? "We did not create an account and no sign-in is required. You can safely close this page." : "Računa nismo ustvarili in prijava ni potrebna. To stran lahko varno zapreš."}</p>
-    </CardContent></Card> : <Link className={styles.submit} style={{display:"grid",placeItems:"center",textDecoration:"none",maxWidth:420,margin:"24px auto 0"}} href={parsed.success ? `/nakup/uspesen?session_id=${encodeURIComponent(parsed.data)}` : "/naroci"}>{en ? "Check again" : "Preveri znova"}</Link>}
+    </CardContent></Card> : <Link className={styles.submit} style={{display:"grid",placeItems:"center",textDecoration:"none",maxWidth:420,margin:"24px auto 0"}} href={parsed.success ? `${checkoutSuccessPath(locale)}?session_id=${encodeURIComponent(parsed.data)}` : orderPath(locale)}>{en ? "Check again" : "Preveri znova"}</Link>}
   </div></main>;
 }
