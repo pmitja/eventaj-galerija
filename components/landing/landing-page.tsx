@@ -5,6 +5,7 @@ import { AiFeatures, Devices, Features, HowItWorks, Slideshow } from "./content-
 import { Footer } from "./footer";
 import { Header, Hero, QuickSteps } from "./header-hero";
 import { Showcase } from "./showcase-sections";
+import { MemoryFeatures } from "./memory-features";
 import { EventUseCasesSection } from "./use-case-page";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { appUrlForLocale } from "@/lib/i18n/locale";
@@ -21,6 +22,7 @@ export async function LandingPage() {
         <QuickSteps locale={locale} />
         <HowItWorks locale={locale} />
         <Features locale={locale} />
+        <MemoryFeatures locale={locale} />
         <AiFeatures locale={locale} />
         <Slideshow locale={locale} />
         <Showcase locale={locale} />

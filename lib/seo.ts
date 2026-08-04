@@ -5,14 +5,14 @@ export const ENGLISH_SITE_URL = "https://gallery.eventaj.si";
 export const BRAND_URL = "https://eventaj.si";
 export const SITE_NAME = "Eventaj Galerija";
 export const SITE_LANGUAGE = "sl-SI";
-export const SEO_LAST_UPDATED = "2026-08-03";
+export const SEO_LAST_UPDATED = "2026-08-04";
 
 export const SEO_COPY = {
   sl: {
     language: "sl-SI",
     openGraphLocale: "sl_SI",
     title: `${SITE_NAME} | QR galerija za dogodke`,
-    description: "QR galerija za zbiranje fotografij in kratkih videov s porok, praznovanj, team buildingov in poslovnih dogodkov. Gostje ne potrebujejo aplikacije ali registracije.",
+    description: "Zberite fotografije, kratke videe in glasovna voščila gostov v eni QR galeriji dogodka. Brez aplikacije, registracije ali naročnine.",
     imageAlt: "Eventaj.si Galerija – vse fotografije z dogodka na enem mestu.",
     operatingSystem: "Vsaka naprava s sodobnim spletnim brskalnikom",
     browserRequirements: "JavaScript in internetna povezava",
@@ -23,6 +23,8 @@ export const SEO_COPY = {
       "Skupna zasebna galerija",
       "Live slideshow",
       "Komentarji in všečki",
+      "Audio knjiga gostov z glasovnimi voščili",
+      "Neposreden prenos originalne fotografije",
       "ZIP izvoz fotografij",
       "180-dnevna hramba galerije",
     ],
@@ -31,7 +33,7 @@ export const SEO_COPY = {
     language: "en-GB",
     openGraphLocale: "en_GB",
     title: `${SITE_NAME} | QR gallery for events`,
-    description: "A QR gallery for collecting photos and short videos from weddings, celebrations, team buildings and corporate events. Guests need no app or account.",
+    description: "Collect guest photos, short videos and voice messages in one event QR gallery. No app, guest account or subscription required.",
     imageAlt: "Eventaj Gallery – every event photo in one place.",
     operatingSystem: "Any device with a modern web browser",
     browserRequirements: "JavaScript and an internet connection",
@@ -42,6 +44,8 @@ export const SEO_COPY = {
       "Shared private gallery",
       "Live slideshow",
       "Comments and likes",
+      "Audio guestbook with voice messages",
+      "Direct original-photo downloads",
       "ZIP photo export",
       "180-day gallery retention",
     ],
@@ -106,4 +110,3 @@ export const siteStructuredData = siteStructuredDataFor("sl", SITE_URL);
 export function absoluteUrl(path: string, siteUrl = SITE_URL) {
   return new URL(path, siteUrl).toString();
 }
-

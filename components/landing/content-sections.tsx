@@ -54,8 +54,8 @@ export function Features({ locale = "sl" }: { locale?: Locale }) {
         <div className="section-heading">
           <h2 className="desktop-only">{en ? "Everything you need for a memorable event" : "Vse, kar potrebujete za popoln dogodek"}</h2>
           <h2 className="mobile-only">{en ? "Everything for your event" : "Vse za popoln dogodek"}</h2>
-          <p className="desktop-only">{en ? "Photos, short videos, a QR code and a live display — all in one place." : "Fotografije, kratki videi, QR koda in predstavitev v živo — vse na enem mestu."}</p>
-          <p className="mobile-only">{en ? "Photos, videos and a QR code in one place." : "Fotografije, videi in QR koda na enem mestu."}</p>
+          <p className="desktop-only">{en ? "Photos, short videos, voice messages, a QR code and a live display — all in one place." : "Fotografije, kratki videi, glasovna voščila, QR koda in predstavitev v živo — vse na enem mestu."}</p>
+          <p className="mobile-only">{en ? "Photos, videos and voice messages in one place." : "Fotografije, videi in glasovna voščila na enem mestu."}</p>
         </div>
         <div className="feature-grid">
           {features.map((feature) => (

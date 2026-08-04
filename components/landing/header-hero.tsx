@@ -94,7 +94,7 @@ export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", altern
           {alternateOrigin ? <a className="login-link" href={`${alternateOrigin}${pathname}`}>{en ? "SL" : "EN"}</a> : null}
           <LoginTrigger className="login-link">{en ? "Sign in" : "Prijava"}</LoginTrigger>
           <Link className="button button--small button--secondary desktop-only" href="/e/ana-in-marko">{en ? "Demo event" : "Demo dogodek"}</Link>
-          <Link className="button button--small desktop-only" href="/naroci">{en ? "Create event" : "Ustvari dogodek"}</Link>
+          <Link className="button button--small desktop-only" href="/naroci">{en ? "Create event · €35" : "Ustvari dogodek · 35 €"}</Link>
           <button
             className={`menu-button ${menuOpen ? "menu-button--open" : ""}`}
             type="button"
@@ -124,7 +124,7 @@ export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", altern
         <button type="button" onClick={() => { closeMenu(); openLogin("/admin"); }}>{en ? "Sign in" : "Prijava"}</button>
         <div className="mobile-nav__actions">
           <Link className="button button--secondary" href="/e/ana-in-marko" onClick={closeMenu}>{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
-          <Link className="button" href="/naroci" onClick={closeMenu}>{en ? "Create event" : "Ustvari dogodek"}</Link>
+          <Link className="button" href="/naroci" onClick={closeMenu}>{en ? "Create event for €35" : "Ustvari dogodek za 35 €"}</Link>
         </div>
       </nav>
     </header>
@@ -162,14 +162,18 @@ export function Hero({ locale = "sl" }: { locale?: Locale }) {
   return (
     <section className="hero" id="top">
       <div className="hero-copy shell">
-        <div className="eyebrow"><span />{en ? "QR gallery for events" : "QR galerija za dogodke"}</div>
-        <h1>{en ? "Every photo and video from your event in one place." : "Vse fotografije in videi vašega dogodka na enem mestu."}</h1>
-        <p>{en ? "Guests simply scan a QR code and share photos and short videos — with no app or registration." : "Gostje preprosto skenirajo QR kodo ter delijo fotografije in kratke videe — brez aplikacije in brez registracije."}</p>
+        <div className="eyebrow"><span />{en ? "One QR code · no app" : "Ena QR koda · brez aplikacije"}</div>
+        <h1>{en ? "Every memory from your guests. In one place." : "Vsi spomini vaših gostov. Na enem mestu."}</h1>
+        <p>{en ? "Collect photos, short videos and heartfelt voice messages in one beautiful event gallery — with no app or guest registration." : "Zberite fotografije, kratke videe in iskrena glasovna voščila v eni čudoviti galeriji dogodka — brez aplikacije in registracije gostov."}</p>
         <div className="hero-buttons">
-          <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">{en ? "Create event" : "Ustvari dogodek"}</Link>
+          <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
           <Link className="button button--secondary" href="/e/ana-in-marko">{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
         </div>
-        <div className="rating"><span>{en ? "€35" : "35 €"}</span><em>{en ? "per event · no subscription · unlimited guests" : "na dogodek · brez naročnine · neomejeno gostov"}</em></div>
+        <div className="hero-trust" aria-label={en ? "Purchase benefits" : "Prednosti nakupa"}>
+          <span>{en ? "One-time payment" : "Enkratno plačilo"}</span>
+          <span>{en ? "Unlimited guests" : "Neomejeno gostov"}</span>
+          <span>{en ? "Gallery for 180 days" : "Galerija za 180 dni"}</span>
+        </div>
       </div>
       <div className="hero-stage shell">
         {cards.map(([className, label, photo]) => (
@@ -186,11 +190,11 @@ export function Hero({ locale = "sl" }: { locale?: Locale }) {
 export function QuickSteps({ locale = "sl" }: { locale?: Locale }) {
   const steps = locale === "en" ? [
     ["Create your event", "and receive your gallery"],
-    ["Guests scan the QR", "and upload photos or video"],
+    ["Guests scan the QR", "and add photos, video or voice"],
     ["Enjoy the memories", "every moment in one place"],
   ] : [
     ["Ustvarite dogodek", "in prejmete svojo galerijo"],
-    ["Gostje skenirajo QR", "in naložijo fotografije ali video"],
+    ["Gostje skenirajo QR", "in dodajo fotografije, video ali glas"],
     ["Uživajte v spominih", "vsi trenutki na enem mestu"],
   ];
 

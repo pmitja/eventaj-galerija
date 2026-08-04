@@ -23,8 +23,8 @@ export const howSteps = [
     title: "Gostje skenirajo in naložijo — brez prijave",
     mobileTitle: "Gostje naložijo — brez prijave",
     description:
-      "Galerija deluje v brskalniku na telefonu. Gostje odprejo povezavo ter dodajo fotografije ali kratke videe brez aplikacije in uporabniškega računa.",
-    mobileDescription: "Gostje skenirajo QR ter dodajo fotografije ali videe brez aplikacije in prijave.",
+      "Galerija deluje v brskalniku na telefonu. Gostje odprejo povezavo ter dodajo fotografije, kratke videe ali glasovno voščilo brez aplikacije in uporabniškega računa.",
+    mobileDescription: "Gostje skenirajo QR ter dodajo fotografije, videe ali glasovno voščilo brez aplikacije in prijave.",
     imageSrc: "/gallery/ana-marko/photo-6.jpg",
     imageAlt: "Gost uporablja telefon na dogodku",
   },
@@ -62,6 +62,7 @@ export const plans = [
       "QR galerija brez aplikacije",
       "Neomejeno število gostov",
       "Nalaganje fotografij in komentarji",
+      "Audio knjiga gostov in prenos originalov",
       "20 videov do 60 sekund",
       "Administracijski portal in QR prenosi",
       "Live slideshow in ZIP izvoz",
@@ -79,7 +80,8 @@ export const addOns = [
 export const faqs = [
   ["Ali morajo gostje namestiti aplikacijo?", "Ne. Gostje skenirajo QR kodo in galerija se odpre v brskalniku. Fotografije lahko dodajo brez aplikacije in brez registracije."],
   ["Kako dobim QR kodo?", "QR kodo dogodka lahko v administraciji prenesete kot SVG ali PNG. Po dogovoru vam lahko ročno pripravimo tudi predlogo za tisk."],
-  ["Ali lahko prenesem fotografije gostov?", "Da. V administracijskem portalu lahko pripravite ZIP izvoz fotografij iz galerije."],
+  ["Ali lahko prenesem fotografije gostov?", "Da. Posamezno fotografijo lahko prenesete neposredno v galeriji, v administracijskem portalu pa pripravite tudi ZIP izvoz vseh fotografij."],
+  ["Kako deluje audio knjiga gostov?", "Gost tapne možnost za glasovno voščilo, dovoli mikrofon ter posname do dve minuti. Posnetek lahko pred pošiljanjem posluša in po potrebi posname znova. Aplikacija ali račun nista potrebna."],
   ["Kako dolgo je galerija na voljo?", "Galerija je po dogodku shranjena 180 dni."],
   ["Ali lahko gostje naložijo videe?", "Da. Paket vključuje do 20 videov na dogodek. Posamezen video je lahko dolg največ 60 sekund in velik največ 500 MB. Videi so prikazani v galeriji, ne pa v Live Slideshowu. Neomejeno število videov je na voljo kot dodatek za 15 € po fair-use politiki."],
   ["So fotografije zasebne?", "Galerija ni javno indeksirana in je dostopna prek nepredvidljive povezave oziroma QR kode. Organizator lahko upravlja vidnost galerije in posameznih fotografij."],

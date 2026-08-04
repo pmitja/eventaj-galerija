@@ -7,6 +7,7 @@ const REVEAL_SELECTORS = [
   ".section-heading",
   ".how-card",
   ".feature-grid",
+  ".memory-feature-grid",
   ".ai-grid",
   ".slideshow-copy",
   ".slideshow-visual-wrap",

@@ -81,7 +81,7 @@ Storitev je primerna za poroke, rojstne dneve, družinska praznovanja, team buil
 - Naročnina: ni potrebna.
 - Število gostov: neomejeno.
 - Privzeta hramba galerije za nove dogodke: 180 dni.
-- Trenutna vrsta uploada: fotografije.
+- Trenutne vrste vsebin: fotografije, kratki videi in glasovna voščila.
 - AI Best Photos: opcijski dodatek 15 EUR do 3.000 fotografij.
 - Večje količine: ponudba po meri.
 - Plačilo: Stripe Checkout.
@@ -93,6 +93,8 @@ Storitev je primerna za poroke, rojstne dneve, družinska praznovanja, team buil
 - Nalaganje fotografij in kratkih videov brez aplikacije in registracije.
 - Skupna galerija fotografij.
 - Komentarji in všečki.
+- Audio knjiga gostov z do dvema minutama dolgimi glasovnimi voščili.
+- Neposreden varen prenos originala posamezne fotografije iz galerije.
 - Nadzor vidnosti fotografij.
 - Live slideshow za projektor ali televizijo.
 - Administracija dogodka.

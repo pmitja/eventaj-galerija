@@ -8,9 +8,9 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
     <>
       <footer className="footer">
         <div className="footer-cta shell">
-          <h2>{en ? "Ready for your next event?" : "Pripravljeni na svoj naslednji dogodek?"}</h2>
-          <p>{en ? "Create a QR gallery for €35 per event — no subscription." : "Ustvarite QR galerijo za 35 € na dogodek — brez naročnine."}</p>
-          <Link className="button" href="/naroci">{en ? "Create event" : "Ustvari dogodek"}</Link>
+          <h2>{en ? "Do not let your guests' memories disappear." : "Ne pustite, da spomini vaših gostov izginejo."}</h2>
+          <p>{en ? "Create your event gallery for a one-time €35 payment. No subscription." : "Ustvarite galerijo dogodka z enkratnim plačilom 35 €. Brez naročnine."}</p>
+          <Link className="button" href="/naroci">{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
         </div>
         <div className="footer-links shell">
           <div className="footer-about">

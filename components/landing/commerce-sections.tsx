@@ -9,21 +9,24 @@ export function Pricing({ locale = "sl" }: { locale?: Locale }) {
     <section className="pricing section-muted" id="cene">
       <div className="shell">
         <div className="section-heading">
-          <h2>{en ? "Simple pricing" : "Preprosta cena"}</h2>
-          <p className="desktop-only">{en ? "One price per event. No subscription or hidden fees." : "Ena cena na dogodek. Brez naročnine, brez skritih stroškov."}</p>
-          <p className="mobile-only">{en ? "One price per event. No subscription." : "Ena cena na dogodek. Brez naročnine."}</p>
+          <h2>{en ? "Everything for your event. €35 once." : "Vse za vaš dogodek. Enkratnih 35 €."}</h2>
+          <p className="desktop-only">{en ? "One complete package. No subscription, no per-guest fees and no hidden costs." : "En celovit paket. Brez naročnine, doplačil na gosta ali skritih stroškov."}</p>
+          <p className="mobile-only">{en ? "One complete package. No subscription or hidden costs." : "En celovit paket. Brez naročnine ali skritih stroškov."}</p>
         </div>
         <div className="pricing-grid pricing-grid--single">
           {plans.map((plan) => (
             <article className={`price-card price-card--${plan.id} ${"featured" in plan ? "price-card--featured" : ""}`} key={plan.id}>
-              {"featured" in plan ? <span className="popular">{en ? "Everything for your event" : "Vse za vaš dogodek"}</span> : null}
-              <h3>{plan.name}</h3>
-              <div className="price"><strong>{plan.price}</strong><span>/ {en ? "event" : "dogodek"}</span></div>
-              <p>{plan.description}</p>
+              {"featured" in plan ? <span className="popular">{en ? "One package · everything included" : "En paket · vse vključeno"}</span> : null}
+              <div className="price-card-summary">
+                <h3>{plan.name}</h3>
+                <div className="price"><strong>{plan.price}</strong><span>/ {en ? "event" : "dogodek"}</span></div>
+                <p>{plan.description}</p>
+                <Link className={"featured" in plan ? "button plan-button" : "plan-button"} href="/naroci">{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
+                <small className="price-reassurance">{en ? "One-time Stripe payment. Your gallery and QR code arrive by email." : "Enkratno plačilo prek Stripe. Galerijo in QR kodo prejmete po e-pošti."}</small>
+              </div>
               <div className="plan-features">
                 {plan.features.map((feature) => <span key={feature}><i>✓</i>&nbsp; {feature}</span>)}
               </div>
-              <Link className={"featured" in plan ? "button plan-button" : "plan-button"} href="/naroci">{en ? "Create gallery" : "Ustvari galerijo"}</Link>
             </article>
           ))}
         </div>
