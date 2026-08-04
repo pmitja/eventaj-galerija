@@ -1,16 +1,16 @@
 import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
 
-import { proxy } from "./proxy";
+import { middleware } from "./middleware";
 
-describe("canonical hostname proxy", () => {
+describe("canonical hostname middleware", () => {
   it("redirects the www hostname while preserving path and query", () => {
     const request = new NextRequest(
       "https://www.galerija.eventaj.si/e/poroka?slika=42",
       { headers: { host: "www.galerija.eventaj.si" } },
     );
 
-    const response = proxy(request);
+    const response = middleware(request);
 
     expect(response.status).toBe(308);
     expect(response.headers.get("location")).toBe(
@@ -23,7 +23,7 @@ describe("canonical hostname proxy", () => {
       headers: { host: "galerija.eventaj.si" },
     });
 
-    const response = proxy(request);
+    const response = middleware(request);
 
     expect(response.headers.get("location")).toBeNull();
   });
@@ -33,7 +33,7 @@ describe("canonical hostname proxy", () => {
       headers: { host: "www.gallery.eventaj.si" },
     });
 
-    const response = proxy(request);
+    const response = middleware(request);
 
     expect(response.status).toBe(308);
     expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/naroci?ref=invite");

@@ -6,7 +6,9 @@ const CANONICAL_ORIGINS: Readonly<Record<string, string>> = {
   "www.gallery.eventaj.si": "https://gallery.eventaj.si",
 };
 
-export function proxy(request: NextRequest) {
+// Keep the deprecated middleware convention until OpenNext supports the
+// Node.js runtime used by Next.js 16 proxy.ts. Middleware remains Edge-based.
+export function middleware(request: NextRequest) {
   const hostname = (request.headers.get("host") ?? request.nextUrl.hostname)
     .split(":")[0]
     .toLowerCase();
