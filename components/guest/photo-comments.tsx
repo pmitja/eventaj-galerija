@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import styles from "./photo-comments.module.css";
+import { useLocale } from "@/components/i18n/locale-provider";
+import { intlLocale, type Locale } from "@/lib/i18n/locale";
 
 export type MediaComment = {
   id: string;
@@ -13,13 +15,13 @@ export type MediaComment = {
   createdAt: string;
 };
 
-async function responseMessage(response: Response, fallback: string): Promise<string> {
+async function responseMessage(response: Response, fallback: string, locale: Locale = "sl"): Promise<string> {
   const body = await response.json().catch(() => null) as { title?: string; detail?: string } | null;
-  return body?.detail ?? body?.title ?? fallback;
+  return locale === "en" ? fallback : body?.detail ?? body?.title ?? fallback;
 }
 
-function commentTime(value: string): string {
-  return new Intl.DateTimeFormat("sl-SI", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+function commentTime(value: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
 export function PhotoComments({
@@ -35,6 +37,8 @@ export function PhotoComments({
   onClose: () => void;
   demoComments?: readonly MediaComment[];
 }) {
+  const locale = useLocale();
+  const en = locale === "en";
   const [comments, setComments] = useState<MediaComment[]>(demoComments ? [...demoComments] : []);
   const [loading, setLoading] = useState(Boolean(publicMediaId) && !demoComments);
   const [saving, setSaving] = useState(false);
@@ -49,16 +53,16 @@ export function PhotoComments({
         `/api/v1/events/${encodeURIComponent(eventSlug)}/media/${encodeURIComponent(publicMediaId)}/comments`,
         { cache: "no-store", signal },
       );
-      if (!response.ok) throw new Error(await responseMessage(response, "Komentarjev ni bilo mogoče naložiti."));
+      if (!response.ok) throw new Error(await responseMessage(response, en ? "Comments could not be loaded." : "Komentarjev ni bilo mogoče naložiti.", locale));
       const payload = await response.json() as { comments: MediaComment[] };
       setComments(payload.comments);
     } catch (reason) {
       if (reason instanceof DOMException && reason.name === "AbortError") return;
-      setError(reason instanceof Error ? reason.message : "Komentarjev ni bilo mogoče naložiti.");
+      setError(reason instanceof Error ? reason.message : en ? "Comments could not be loaded." : "Komentarjev ni bilo mogoče naložiti.");
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-  }, [demoComments, eventSlug, publicMediaId]);
+  }, [demoComments, en, eventSlug, locale, publicMediaId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -90,44 +94,44 @@ export function PhotoComments({
           body: JSON.stringify({ guestId: guestIdentity.guestId, body: nextBody }),
         },
       );
-      if (!response.ok) throw new Error(await responseMessage(response, "Komentarja ni bilo mogoče objaviti."));
+      if (!response.ok) throw new Error(await responseMessage(response, en ? "The comment could not be posted." : "Komentarja ni bilo mogoče objaviti.", locale));
       const payload = await response.json() as { comment: MediaComment };
       setComments((current) => [...current, payload.comment]);
       setBody("");
       inputRef.current?.focus();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Komentarja ni bilo mogoče objaviti.");
+      setError(reason instanceof Error ? reason.message : en ? "The comment could not be posted." : "Komentarja ni bilo mogoče objaviti.");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <section className={styles.panel} aria-label="Komentarji fotografije">
+    <section className={styles.panel} aria-label={en ? "Photo comments" : "Komentarji fotografije"}>
       <div className={styles.handle} aria-hidden="true" />
       <header>
         <div>
-          <h2>Komentarji</h2>
-          <span>{comments.length} {comments.length === 1 ? "komentar" : "komentarjev"}</span>
+          <h2>{en ? "Comments" : "Komentarji"}</h2>
+          <span>{comments.length} {en ? (comments.length === 1 ? "comment" : "comments") : (comments.length === 1 ? "komentar" : "komentarjev")}</span>
         </div>
-        <button type="button" onClick={onClose} aria-label="Zapri komentarje">×</button>
+        <button type="button" onClick={onClose} aria-label={en ? "Close comments" : "Zapri komentarje"}>×</button>
       </header>
 
       <div className={styles.list} aria-live="polite">
         {!publicMediaId ? (
-          <div className={styles.empty}><strong>Predogledna fotografija</strong><p>Komentarji so na voljo pri objavljenih fotografijah dogodka.</p></div>
+          <div className={styles.empty}><strong>{en ? "Preview photo" : "Predogledna fotografija"}</strong><p>{en ? "Comments are available on published event photos." : "Komentarji so na voljo pri objavljenih fotografijah dogodka."}</p></div>
         ) : loading ? (
-          <div className={styles.loading} aria-label="Nalagam komentarje"><span /><span /><span /></div>
+          <div className={styles.loading} aria-label={en ? "Loading comments" : "Nalagam komentarje"}><span /><span /><span /></div>
         ) : error && comments.length === 0 ? (
-          <div className={styles.empty} role="alert"><strong>Nalaganje ni uspelo</strong><p>{error}</p><button type="button" onClick={retry}>Poskusi znova</button></div>
+          <div className={styles.empty} role="alert"><strong>{en ? "Loading failed" : "Nalaganje ni uspelo"}</strong><p>{error}</p><button type="button" onClick={retry}>{en ? "Try again" : "Poskusi znova"}</button></div>
         ) : comments.length === 0 ? (
-          <div className={styles.empty}><strong>Še ni komentarjev</strong><p>Bodi prvi in dodaj nekaj lepega.</p></div>
+          <div className={styles.empty}><strong>{en ? "No comments yet" : "Še ni komentarjev"}</strong><p>{en ? "Be the first to add something kind." : "Bodi prvi in dodaj nekaj lepega."}</p></div>
         ) : (
           <ol>
             {comments.map((comment) => (
               <li key={comment.id}>
-                <span className={styles.avatar} aria-hidden="true">{comment.displayName.slice(0, 1).toLocaleUpperCase("sl-SI")}</span>
-                <div><p><strong>{comment.displayName}</strong><time dateTime={comment.createdAt}>{commentTime(comment.createdAt)}</time></p><span>{comment.body}</span></div>
+                <span className={styles.avatar} aria-hidden="true">{comment.displayName.slice(0, 1).toLocaleUpperCase(intlLocale(locale))}</span>
+                <div><p><strong>{comment.displayName}</strong><time dateTime={comment.createdAt}>{commentTime(comment.createdAt, locale)}</time></p><span>{comment.body}</span></div>
               </li>
             ))}
           </ol>
@@ -135,22 +139,22 @@ export function PhotoComments({
       </div>
 
       {demoComments ? (
-        <p className={styles.demoNotice}>Vzorčni komentarji v demo galeriji</p>
+        <p className={styles.demoNotice}>{en ? "Sample comments in the demo gallery" : "Vzorčni komentarji v demo galeriji"}</p>
       ) : publicMediaId && guestIdentity ? (
         <form onSubmit={submit}>
-          <label htmlFor="photo-comment">Dodaj komentar</label>
+          <label htmlFor="photo-comment">{en ? "Add comment" : "Dodaj komentar"}</label>
           <div>
             <textarea
               ref={inputRef}
               id="photo-comment"
               value={body}
               onChange={(event) => { setBody(event.target.value); setError(null); }}
-              placeholder={guestIdentity.displayName ? `Komentiraj kot ${guestIdentity.displayName} …` : "Dodaj komentar kot gost …"}
+              placeholder={guestIdentity.displayName ? (en ? `Comment as ${guestIdentity.displayName} …` : `Komentiraj kot ${guestIdentity.displayName} …`) : (en ? "Add a comment as guest …" : "Dodaj komentar kot gost …")}
               maxLength={500}
               rows={1}
               disabled={saving}
             />
-            <button type="submit" disabled={!body.trim() || saving} aria-label="Objavi komentar">
+            <button type="submit" disabled={!body.trim() || saving} aria-label={en ? "Post comment" : "Objavi komentar"}>
               {saving ? <span className={styles.spinner} /> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-4.5 14-3-5.5L5 12Z" /><path d="m11.5 13.5 3-3" /></svg>}
             </button>
           </div>

@@ -53,6 +53,7 @@ describe("public event gallery route", () => {
         thumbnailUrl: "/api/v1/events/event-slug/media/photo-public-id?variant=thumbnail",
         imageUrl: "/api/v1/events/event-slug/media/photo-public-id?variant=gallery",
         playbackUrl: null,
+        downloadUrl: "/api/v1/events/event-slug/media/photo-public-id/download",
       }],
     });
   });

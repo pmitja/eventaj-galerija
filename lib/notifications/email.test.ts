@@ -24,4 +24,17 @@ describe("event delivery emails", () => {
     expect(email.text).toContain("42 fotografijami");
     expect(email.text).toContain("jutri ob 12:00");
   });
+
+  it("renders the full transaction handoff in English", () => {
+    const email = qrDeliveryEmail({
+      deliveryId: "delivery-en", recipientEmail: "nina@example.com", recipientName: "Nina",
+      eventName: "Launch party", eventDate: "1 August 2026", qrImageUrl: "https://example.test/qr/code.png",
+      eventUrl: "https://example.test/t/code", qrDownloadUrl: "https://example.test/qr/code.png?download=1",
+      liveshowUrl: "https://example.test/display/live-token", locale: "en",
+    });
+    expect(email.subject).toBe("QR code for Launch party");
+    expect(email.html).toContain('<html lang="en">');
+    expect(email.text).toContain("No account or sign-in is required");
+    expect(email.text).not.toContain("Živjo");
+  });
 });

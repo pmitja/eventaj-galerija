@@ -28,4 +28,11 @@ describe("live engagement overlays", () => {
       expect.objectContaining({ icon: "community" }),
     ]));
   });
+
+  it("renders English overlays for the English domain", () => {
+    const overlays = overlaysForNewEvents([
+      { id: "1", type: "upload_accepted", guestId: "guest_a", displayName: "Nina", uploadSessionId: "session", count: 2, createdAt: "2026-07-18T10:00:00Z" },
+    ], "en");
+    expect(overlays[0]).toMatchObject({ title: "Nina • 2 new photos", detail: "Just added to the album." });
+  });
 });

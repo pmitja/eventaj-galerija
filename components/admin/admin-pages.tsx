@@ -11,7 +11,7 @@ import { getCloudflareEnv } from "@/lib/cloudflare";
 import { AccessPointsPanel } from "./access-points-panel";
 import { presentCustomerStatus, presentEventStatus, formatRelativeTime, percentage, scaleChart } from "@/lib/domain/admin-dashboard";
 import { adminGalleryQuerySchema } from "@/lib/validation/admin";
-import { ensureOwnedSlideshow } from "@/lib/repositories/slideshows";
+import { findOwnedSlideshow } from "@/lib/repositories/slideshows";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasAiBestPhotosEntitlement } from "@/lib/repositories/entitlements";
 import { SlideshowManager, SlideshowMediaToggle } from "./slideshow-manager";
@@ -22,6 +22,7 @@ import { QualityBackfillManager } from "./quality-backfill-manager";
 import { findLatestOwnedQualityBackfill } from "@/lib/repositories/quality-backfills";
 import { EventCommentsToggle } from "./event-comments-toggle";
 import { GalleryLinkBar } from "./gallery-link-bar";
+import { listAdminVoiceMessages } from "@/lib/repositories/voice-messages";
 
 const mediaItems = [
   ["IMG_4821.jpg", "rose", "pred 4 min"], ["IMG_4818.jpg", "violet", "pred 7 min"],
@@ -84,6 +85,11 @@ export function NewEventPage() {
   </main>;
 }
 
+function formatVoiceDuration(milliseconds: number): string {
+  const seconds = Math.floor(milliseconds / 1000);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
 export async function GalleryPage({ query }: { query: { eventId?: string; quality?: string; status?: string; q?: string } }) {
   const context = await getAuthContext();
   if (!context) return null;
@@ -95,15 +101,16 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
   const filters = parsedQuery.success
     ? parsedQuery.data
     : { eventId: undefined, quality: undefined, status: undefined, q: undefined };
-  const [media, summary, slideshow, latestExport, latestBackfill] = selectedEvent
+  const [media, summary, slideshow, latestExport, latestBackfill, voiceMessages] = selectedEvent
     ? await Promise.all([
       listAdminMedia(selectedEvent.id, context.organizationId, { quality: filters.quality, status: filters.status, query: filters.q }),
       getAdminMediaQualitySummary(selectedEvent.id, context.organizationId),
-      ensureOwnedSlideshow(selectedEvent.id, context.organizationId),
+      findOwnedSlideshow(selectedEvent.id, context.organizationId),
       findLatestOwnedDownloadExport(selectedEvent.id, context.organizationId),
       findLatestOwnedQualityBackfill(selectedEvent.id, context.organizationId),
+      listAdminVoiceMessages(selectedEvent.id, context.organizationId),
     ])
-    : [[], null, null, null, null];
+    : [[], null, null, null, null, []];
   const aiBestPhotosEnabled = selectedEvent
     ? await hasAiBestPhotosEntitlement(selectedEvent.id, context.organizationId)
     : false;
@@ -128,7 +135,10 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
       <section className={styles.contextBar}><div className={styles.contextEvent}><span className={`${styles.miniVisual} ${styles.violet}`} /><div><small>IZBRANI DOGODEK</small><strong>{selectedEvent.name}</strong></div></div><Link className={styles.changeEventLink} href="/admin/gallery">Zamenjaj dogodek <Icon name="chevron" size={16} /></Link><div className={styles.contextStats}><span><strong>{summary?.ready ?? 0}</strong><small>fotografij</small></span><span><strong>{storage}</strong><small>porabe</small></span></div></section>
       <GalleryLinkBar url={`${getCloudflareEnv().PUBLIC_APP_URL.replace(/\/$/, "")}/e/${selectedEvent.public_slug}`} eventName={selectedEvent.name} />
       <SlideshowManager
-        url={`${getCloudflareEnv().PUBLIC_APP_URL.replace(/\/$/, "")}/display/${encodeURIComponent(slideshow!.access_token)}`}
+        eventId={selectedEvent.id}
+        initialUrl={slideshow?.access_token
+          ? `${getCloudflareEnv().PUBLIC_APP_URL.replace(/\/$/, "")}/display/${encodeURIComponent(slideshow.access_token)}`
+          : null}
         photoCount={summary?.slideshow_approved ?? 0}
       />
       {aiBestPhotosEnabled ? <QualityBackfillManager eventId={selectedEvent.id} initialBackfill={latestBackfill ? {
@@ -148,6 +158,13 @@ export async function GalleryPage({ query }: { query: { eventId?: string; qualit
         <article><span className={styles.quality_blurry}>Neostre/slabše</span><strong>{(summary?.blurry ?? 0) + (summary?.low_quality ?? 0)}</strong></article>
         <article><span className={styles.quality_pending}>Čaka/napaka</span><strong>{(summary?.processing ?? 0) + (summary?.failed_processing ?? 0) + (summary?.unanalyzed ?? 0) + (summary?.failed_analyses ?? 0)}</strong></article>
       </section> : null}
+      <section className={styles.panel} aria-labelledby="admin-voice-messages-title">
+        <div className={styles.panelTop}><div><h2 id="admin-voice-messages-title">Glasovna voščila</h2><p>{voiceMessages.length} {voiceMessages.length === 1 ? "posnetek" : "posnetkov"} v dogodku</p></div></div>
+        {voiceMessages.length ? <div className={styles.voiceAdminList}>{voiceMessages.map((message, index) => <article className={styles.voiceAdminMessage} key={message.id}>
+          <span className={styles.voiceAdminAvatar}>{(message.display_name ?? "Gost").slice(0, 1).toUpperCase()}</span>
+          <div><strong>{message.display_name ?? "Gost"}</strong><small>Voščilo {voiceMessages.length - index} · {formatVoiceDuration(message.duration_ms)} · {message.publication_consent ? "javno" : "samo za organizatorja"}</small><audio controls preload="none" src={`/api/v1/admin/voice-messages/${encodeURIComponent(message.id)}/playback`}>Brskalnik ne more predvajati voščila.</audio></div>
+        </article>)}</div> : <p className={styles.emptyState}>Za ta dogodek še ni glasovnih voščil.</p>}
+      </section>
       <section className={styles.panel}>
         <div className={styles.panelTop}><div><h2>Fotografije</h2><p>{summary?.total ?? 0} datotek v dogodku</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Mreža" className={styles.viewActive}><Icon name="image" size={17} /></button></div></div>
         <form className={styles.filterBar} action="/admin/gallery" method="get" aria-label="Filtri galerije">

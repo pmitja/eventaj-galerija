@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GuestGallery } from "@/components/guest/guest-gallery";
 import { findPublicEvent } from "@/lib/repositories/events";
+import { getRequestLocale } from "@/lib/i18n/server";
 
 type EventPageProps = {
   params: Promise<{ slug: string }>;
@@ -8,11 +9,12 @@ type EventPageProps = {
 
 export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const locale = await getRequestLocale();
   const event = await findPublicEvent(slug);
   const title = event?.name ?? "Eventaj Galerija";
   const description = event
-    ? ["Dogodek", event.location, event.name].filter(Boolean).join(" | ")
-    : "Dodaj fotografije in videe z dogodka.";
+    ? [locale === "en" ? "Event" : "Dogodek", event.location, event.name].filter(Boolean).join(" | ")
+    : locale === "en" ? "Add photos and videos from the event." : "Dodaj fotografije in videe z dogodka.";
   return {
     title,
     description,

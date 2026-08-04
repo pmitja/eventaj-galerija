@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { isStickyCtaVisible } from "./sticky-create-event-cta-state";
+import type { Locale } from "@/lib/i18n/locale";
 
 const HERO_CTA_SELECTOR = '[data-sticky-cta-trigger="create-event"]';
 const MOBILE_HEADER_HEIGHT = 60;
 
-export function StickyCreateEventCta() {
+export function StickyCreateEventCta({ locale = "sl" }: { locale?: Locale }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export function StickyCreateEventCta() {
       aria-hidden={!visible}
     >
       <Link className="button" href="/naroci" tabIndex={visible ? undefined : -1}>
-        Ustvari dogodek — 35 €
+        {locale === "en" ? "Create event — €35" : "Ustvari dogodek — 35 €"}
       </Link>
     </div>
   );

@@ -6,25 +6,29 @@ import { Footer } from "./footer";
 import { Header, Hero, QuickSteps } from "./header-hero";
 import { Showcase } from "./showcase-sections";
 import { EventUseCasesSection } from "./use-case-page";
+import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
+import { appUrlForLocale } from "@/lib/i18n/locale";
 
-export function LandingPage() {
+export async function LandingPage() {
+  const locale = await getRequestLocale();
+  const alternateOrigin = appUrlForLocale(getPublicAppUrls(), locale === "en" ? "sl" : "en");
   return (
     <LoginModalProvider>
       <main className="landing-page">
         <AnimationController />
-        <Header />
-        <Hero />
-        <QuickSteps />
-        <HowItWorks />
-        <Features />
-        <AiFeatures />
-        <Slideshow />
-        <Showcase />
-        <Devices />
-        <EventUseCasesSection />
-        <Pricing />
-        <Faq />
-        <Footer />
+        <Header locale={locale} alternateOrigin={alternateOrigin} />
+        <Hero locale={locale} />
+        <QuickSteps locale={locale} />
+        <HowItWorks locale={locale} />
+        <Features locale={locale} />
+        <AiFeatures locale={locale} />
+        <Slideshow locale={locale} />
+        <Showcase locale={locale} />
+        <Devices locale={locale} />
+        <EventUseCasesSection locale={locale} />
+        <Pricing locale={locale} />
+        <Faq locale={locale} />
+        <Footer locale={locale} />
       </main>
     </LoginModalProvider>
   );

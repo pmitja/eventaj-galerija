@@ -119,7 +119,23 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
 9. Če administrator za dogodek izključi komentarje, gost gumba ne vidi, API pa zavrne branje in objavo; obstoječi komentarji ostanejo shranjeni za morebitno ponovno vključitev.
 9. Liveshow sveže komentarje privoljenih gostov prikaže v največ treh oblačkih, ki se na desni strani umirjeno dvignejo in nato izginejo; pri `prefers-reduced-motion` se samo prikažejo ter zbledijo.
 
-## 9. Obiskovalec preizkusi demo pred nakupom
+## 9. Gost posname glasovno voščilo
+
+1. Gost na strani dogodka izbere »Pusti glasovno voščilo« oziroma »Leave a voice message«.
+2. Brskalnik zahteva mikrofon šele po eksplicitnem kliku »Začni snemanje«.
+3. Med snemanjem so vidni čas, aktivno stanje in velik gumb za konec; pri dveh minutah se snemanje varno zaključi.
+4. Gost posnetek posluša, ga po želji ponovno posname ter izbere, ali je viden drugim gostom.
+5. Pred oddajo potrdi pravico do deljenja in pogoje. Posnetek se neposredno naloži v zasebni R2.
+6. UI prikaže napredek, recoverable error/retry in uspeh. Dovoljenje za mikrofon, ki je zavrnjeno, dobi ločeno navodilo.
+7. Javno dovoljena voščila se prikažejo v audio knjigi gostov; zasebna ostanejo shranjena za organizatorja.
+
+## 10. Gost prenese fotografijo
+
+1. Gost odpre javno fotografijo v lightboxu in izbere »Prenesi« oziroma »Download«.
+2. Strežnik znova preveri dogodek, vidnost, soglasje in kakovostni gate.
+3. Brskalnik se preusmeri na kratkotrajni signed GET izvirnika; datoteka ne teče skozi Next.js proces.
+
+## 11. Obiskovalec preizkusi demo pred nakupom
 
 1. Na marketing strani izbere sekundarni CTA »Preizkusi demo dogodek« v headerju
    ali hero območju.

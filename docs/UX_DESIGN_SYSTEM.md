@@ -55,7 +55,16 @@ Prvi viewport vsebuje naziv dogodka, kratek pozdrav in en dominantni CTA »Dodaj
 - Virtualizacija ali postopno nalaganje pri večjih galerijah.
 - Lightbox podpira swipe, tipke, escape, fokus trap in reduced motion.
 - Video nikoli ne autoplaya z zvokom.
+- Lightbox ima ob všečku in komentarjih jasno akcijo za prenos izvirne fotografije; na telefonu je ikona z dostopnim imenom, na večjih zaslonih tudi besedilo.
 - Filter in bulk izbira sta v adminu, gostujoči pogled ostane enostaven.
+
+## Audio knjiga gostov
+
+- Sekundarni CTA »Pusti glasovno voščilo« je viden ob glavnem foto CTA, vendar ga vizualno ne preglasi.
+- Snemalni dialog ima stanja intro, permission denied, recording, preview, uploading, success in recoverable error.
+- Mikrofon se zahteva samo kot posledica uporabnikovega klika. Med snemanjem so čas, besedno stanje in stop kontrola; valovna oblika je dekorativna.
+- Pred pošiljanjem je obvezen predogled z možnostjo »Posnemi znova« in ločeno privolitvijo za javno objavo.
+- Native audio kontrole zagotavljajo tipkovnico, hitrost/predvajanje, ki ga podpira brskalnik, in ne zahtevajo lastnega težkega playerja.
 
 ## Dashboard
 
@@ -115,6 +124,9 @@ da je produkt omejen na poroke.
 
 - Kanonična domena aplikacije je `https://galerija.eventaj.si`; strukturirani
   podatki jo povezujejo z glavno znamko `https://eventaj.si`.
+- Angleška domena uporablja isto aplikacijo in poti, jezik pa določa domena po
+  ADR-013. Indeksabilne strani imajo vzajemne absolutne `hreflang` povezave za
+  `sl-SI` in `en-GB`; zasebne galerije ostanejo `noindex` na obeh domenah.
 - Sitemap vsebuje samo domačo stran, naročilo in marketinške podstrani po vrstah
   dogodkov. Zasebne galerije, admin, demo in plačilni rezultati niso vključeni.
 - Javni marketing je indeksabilen; zasebni in operativni tokovi uporabljajo

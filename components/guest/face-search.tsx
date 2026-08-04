@@ -5,6 +5,8 @@ import { FACE_SEARCH_MAX_FILE_BYTES } from "@/lib/domain/face-search";
 import type { StoredFaceSearchResult } from "@/lib/validation/face-search";
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import styles from "./face-search.module.css";
+import { useLocale } from "@/components/i18n/locale-provider";
+import { intlLocale, type Locale } from "@/lib/i18n/locale";
 
 type Phase = "idle" | "ready" | "uploading" | "searching" | "completed" | "error";
 
@@ -16,11 +18,12 @@ function CloseIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>;
 }
 
-function messageForError(code?: string | null) {
-  if (code === "InvalidParameterException" || code === "INVALIDPARAMETEREXCEPTION") return "Na selfiju nismo našli dovolj jasnega obraza. Poskusi z obrazom naravnost proti kameri.";
-  if (code === "FACE_INDEX_INCOMPLETE") return "Nekaterih fotografij še ni bilo mogoče pregledati. Poskusi znova čez nekaj minut.";
-  if (code === "SESSION_EXPIRED") return "Iskanje je poteklo. Izberi nov selfie in poskusi znova.";
-  return "Iskanja trenutno ni bilo mogoče dokončati. Selfie smo izbrisali; lahko poskusiš znova.";
+function messageForError(code: string | null | undefined, locale: Locale) {
+  const en = locale === "en";
+  if (code === "InvalidParameterException" || code === "INVALIDPARAMETEREXCEPTION") return en ? "We could not find a clear enough face in the selfie. Face the camera directly and try again." : "Na selfiju nismo našli dovolj jasnega obraza. Poskusi z obrazom naravnost proti kameri.";
+  if (code === "FACE_INDEX_INCOMPLETE") return en ? "Some photos could not be checked yet. Try again in a few minutes." : "Nekaterih fotografij še ni bilo mogoče pregledati. Poskusi znova čez nekaj minut.";
+  if (code === "SESSION_EXPIRED") return en ? "The search expired. Choose a new selfie and try again." : "Iskanje je poteklo. Izberi nov selfie in poskusi znova.";
+  return en ? "The search could not be completed. We deleted the selfie; you can try again." : "Iskanja trenutno ni bilo mogoče dokončati. Selfie smo izbrisali; lahko poskusiš znova.";
 }
 
 export function FaceSearch({
@@ -44,6 +47,8 @@ export function FaceSearch({
   onMatches: (mediaIds: string[]) => void;
   onForget: () => void;
 }) {
+  const locale = useLocale();
+  const en = locale === "en";
   const inputId = useId();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -108,7 +113,7 @@ export function FaceSearch({
     }
     if (!["image/jpeg", "image/png"].includes(next.type) || next.size > FACE_SEARCH_MAX_FILE_BYTES) {
       setPhase("error");
-      setFeedback("Izberi JPEG ali PNG fotografijo, veliko največ 5 MB.");
+      setFeedback(en ? "Choose a JPEG or PNG photo no larger than 5 MB." : "Izberi JPEG ali PNG fotografijo, veliko največ 5 MB.");
       return;
     }
     setPreviewUrl(URL.createObjectURL(next));
@@ -144,7 +149,7 @@ export function FaceSearch({
         const mediaIds = [...new Set((body.media ?? []).map((item) => item.publicId))];
         setPhase("completed");
         if (!mediaIds.length) {
-          setFeedback("Ujemanj nismo našli. Poskusi z bolj jasnim selfijem.");
+          setFeedback(en ? "We found no matches. Try a clearer selfie." : "Ujemanj nismo našli. Poskusi z bolj jasnim selfijem.");
           return;
         }
         onMatches(mediaIds);
@@ -180,7 +185,7 @@ export function FaceSearch({
       await poll(body.token);
     } catch (error) {
       setPhase("error");
-      setFeedback(messageForError(error instanceof Error ? error.message : null));
+      setFeedback(messageForError(error instanceof Error ? error.message : null, locale));
       setOpen(true);
     }
   }
@@ -188,7 +193,7 @@ export function FaceSearch({
   async function search() {
     if (!file || !consent || busy) return;
     setPhase("uploading");
-    setFeedback("Selfie varno nalagamo …");
+    setFeedback(en ? "Uploading your selfie securely …" : "Selfie varno nalagamo …");
     try {
       const createResponse = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/face-search-sessions`, {
         method: "POST",
@@ -213,16 +218,16 @@ export function FaceSearch({
         throw new Error(body?.title ?? "COMPLETE_FAILED");
       }
       setPhase("searching");
-      setFeedback("Pregledujemo fotografije dogodka. Panel lahko zapreš in medtem nadaljuješ z ogledom galerije.");
+      setFeedback(en ? "We are checking the event photos. You can close this panel and continue browsing the gallery." : "Pregledujemo fotografije dogodka. Panel lahko zapreš in medtem nadaljuješ z ogledom galerije.");
       await poll(created.token);
     } catch (error) {
       setPhase("error");
-      setFeedback(messageForError(error instanceof Error ? error.message : null));
+      setFeedback(messageForError(error instanceof Error ? error.message : null, locale));
       setOpen(true);
     }
   }
 
-  const savedAt = result ? new Intl.DateTimeFormat("sl-SI", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(result.createdAt)) : null;
+  const savedAt = result ? new Intl.DateTimeFormat(intlLocale(locale), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(result.createdAt)) : null;
 
   return (
     <>
@@ -235,15 +240,15 @@ export function FaceSearch({
         aria-busy={busy}
       >
         {busy ? <span className={styles.spinner} aria-hidden="true" /> : <FaceScanIcon />}
-        {busy ? "Iščem …" : result ? `Moje fotografije · ${matchCount}` : "Poišči me"}
+        {busy ? (en ? "Searching …" : "Iščem …") : result ? `${en ? "My photos" : "Moje fotografije"} · ${matchCount}` : (en ? "Find me" : "Poišči me")}
       </button>
 
       {active && result ? (
         <div className={styles.savedResult} role="status">
-          <span><strong>{matchCount} {matchCount === 1 ? "najdena fotografija" : "najdenih fotografij"}</strong><small>Shranjeno samo na tej napravi · {savedAt}</small></span>
+          <span><strong>{matchCount} {en ? (matchCount === 1 ? "photo found" : "photos found") : (matchCount === 1 ? "najdena fotografija" : "najdenih fotografij")}</strong><small>{en ? "Stored only on this device" : "Shranjeno samo na tej napravi"} · {savedAt}</small></span>
           <span className={styles.savedActions}>
-            <button type="button" onClick={() => void reSearch()} disabled={busy}>Osveži</button>
-            <button type="button" onClick={() => void forget()} disabled={busy}>Pozabi</button>
+            <button type="button" onClick={() => void reSearch()} disabled={busy}>{en ? "Refresh" : "Osveži"}</button>
+            <button type="button" onClick={() => void forget()} disabled={busy}>{en ? "Forget" : "Pozabi"}</button>
           </span>
         </div>
       ) : null}
@@ -252,12 +257,12 @@ export function FaceSearch({
         <div className={styles.backdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="face-search-title" aria-describedby="face-search-description">
             <div className={styles.handle} aria-hidden="true" />
-            <button ref={closeRef} className={styles.closeButton} type="button" onClick={closeDialog} aria-label="Zapri iskanje po obrazu"><CloseIcon /></button>
+            <button ref={closeRef} className={styles.closeButton} type="button" onClick={closeDialog} aria-label={en ? "Close face search" : "Zapri iskanje po obrazu"}><CloseIcon /></button>
             <div className={styles.heading}>
               <span className={styles.icon}><FaceScanIcon /></span>
-              <div><p>AI iskanje</p><h2 id="face-search-title">Poišči me na fotografijah</h2></div>
+              <div><p>{en ? "AI search" : "AI iskanje"}</p><h2 id="face-search-title">{en ? "Find me in the photos" : "Poišči me na fotografijah"}</h2></div>
             </div>
-            <p id="face-search-description" className={styles.description}>Dodaj jasen selfie. Primerjamo ga samo s fotografijami tega dogodka. Sliko selfija izbrišemo, tvoj obraz pa varno shranimo do konca dogodka, da lahko iskanje kadarkoli osvežiš brez novega selfija.</p>
+            <p id="face-search-description" className={styles.description}>{en ? "Add a clear selfie. We compare it only with photos from this event. We delete the selfie image and securely keep the face reference until the event ends so you can refresh the search without another selfie." : "Dodaj jasen selfie. Primerjamo ga samo s fotografijami tega dogodka. Sliko selfija izbrišemo, tvoj obraz pa varno shranimo do konca dogodka, da lahko iskanje kadarkoli osvežiš brez novega selfija."}</p>
 
             <div className={styles.controls}>
               <input
@@ -271,19 +276,19 @@ export function FaceSearch({
               />
               <label className={styles.selfieButton} htmlFor={inputId}>
                 {previewUrl ? <span className={styles.preview} style={{ backgroundImage: `url(${previewUrl})` }} aria-hidden="true" /> : <FaceScanIcon />}
-                <span>{file ? "Zamenjaj selfie" : "Posnemi ali izberi selfie"}<small>JPEG ali PNG · največ 5 MB</small></span>
+                <span>{file ? (en ? "Change selfie" : "Zamenjaj selfie") : (en ? "Take or choose a selfie" : "Posnemi ali izberi selfie")}<small>JPEG or PNG · {en ? "up to" : "največ"} 5 MB</small></span>
               </label>
               <label className={styles.consent}>
                 <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} disabled={busy} />
-                <span><strong>Soglašam z biometričnim iskanjem in hrambo obraza do konca dogodka</strong><small>Sliko selfija izbrišemo po iskanju (najpozneje v 15 minutah). Tvoj obraz (brez slike) hranimo do konca dogodka, da lahko osvežiš zadetke; kadarkoli ga izbrišeš z gumbom »Pozabi«.</small></span>
+                <span><strong>{en ? "I consent to biometric search and storage of my face reference until the event ends" : "Soglašam z biometričnim iskanjem in hrambo obraza do konca dogodka"}</strong><small>{en ? "We delete the selfie image after the search (within 15 minutes). We keep the face reference without the image until the event ends so you can refresh matches; delete it at any time with “Forget”." : "Sliko selfija izbrišemo po iskanju (najpozneje v 15 minutah). Tvoj obraz (brez slike) hranimo do konca dogodka, da lahko osvežiš zadetke; kadarkoli ga izbrišeš z gumbom »Pozabi«."}</small></span>
               </label>
               <button className={styles.searchButton} type="button" onClick={() => void search()} disabled={!file || !consent || busy} aria-busy={busy}>
-                <FaceScanIcon /> {phase === "uploading" ? "Nalaganje …" : phase === "searching" ? "Iščem tvoje fotografije …" : "Poišči moje fotografije"}
+                <FaceScanIcon /> {phase === "uploading" ? (en ? "Uploading …" : "Nalaganje …") : phase === "searching" ? (en ? "Searching for your photos …" : "Iščem tvoje fotografije …") : (en ? "Find my photos" : "Poišči moje fotografije")}
               </button>
             </div>
             {feedback ? <div className={phase === "error" ? styles.error : styles.feedback} role={phase === "error" ? "alert" : "status"} aria-live="polite">
               <span>{busy ? <span className={styles.spinner} aria-hidden="true" /> : null}{feedback}</span>
-              {(phase === "completed" || phase === "error") && !busy ? <button type="button" onClick={() => { setFeedback(null); setPhase(file ? "ready" : "idle"); }}>Poskusi znova</button> : null}
+              {(phase === "completed" || phase === "error") && !busy ? <button type="button" onClick={() => { setFeedback(null); setPhase(file ? "ready" : "idle"); }}>{en ? "Try again" : "Poskusi znova"}</button> : null}
             </div> : null}
           </div>
         </div>

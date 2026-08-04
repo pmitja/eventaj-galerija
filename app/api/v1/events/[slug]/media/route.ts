@@ -20,6 +20,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       thumbnailUrl: `/api/v1/events/${slug}/media/${item.public_id}?variant=thumbnail`,
       imageUrl: item.kind === "image" ? `/api/v1/events/${slug}/media/${item.public_id}?variant=gallery` : null,
       playbackUrl: item.kind === "video" ? `/api/v1/events/${slug}/media/${item.public_id}/playback` : null,
+      downloadUrl: item.kind === "image" ? `/api/v1/events/${slug}/media/${item.public_id}/download` : null,
     })) },
     { headers: { "cache-control": "private, no-store, max-age=0" } },
   );

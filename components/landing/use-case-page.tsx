@@ -6,16 +6,19 @@ import { HowItWorks, Slideshow } from "./content-sections";
 import { Footer } from "./footer";
 import { Header } from "./header-hero";
 import { Showcase } from "./showcase-sections";
-import { eventUseCases, type EventUseCase } from "./use-cases";
+import { eventUseCasesFor, type EventUseCase } from "./use-cases";
+import type { Locale } from "@/lib/i18n/locale";
 
-export function EventUseCasesSection() {
+export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
+  const en = locale === "en";
+  const eventUseCases = eventUseCasesFor(locale);
   return (
     <section className="section-muted event-use-cases" id="za-dogodke">
       <div className="shell">
         <div className="section-heading">
-          <span className="section-pill">Za vsako priložnost</span>
-          <h2>Ni samo za poroke. Je za vsak dogodek.</h2>
-          <p>Ena preprosta QR galerija, prilagojena načinu, kako se zberejo vaši gostje ali udeleženci.</p>
+          <span className="section-pill">{en ? "For every occasion" : "Za vsako priložnost"}</span>
+          <h2>{en ? "Not only for weddings. For every event." : "Ni samo za poroke. Je za vsak dogodek."}</h2>
+          <p>{en ? "One simple QR gallery, ready for the way your guests or participants come together." : "Ena preprosta QR galerija, prilagojena načinu, kako se zberejo vaši gostje ali udeleženci."}</p>
         </div>
         <div className="event-use-cases__grid">
           {eventUseCases.map((item) => (
@@ -23,7 +26,7 @@ export function EventUseCasesSection() {
               <span>{item.group}</span>
               <strong>{item.navTitle}</strong>
               <p>{item.navDescription}</p>
-              <b aria-hidden="true">Preberi več →</b>
+              <b aria-hidden="true">{en ? "Read more" : "Preberi več"} →</b>
             </Link>
           ))}
         </div>
@@ -32,7 +35,9 @@ export function EventUseCasesSection() {
   );
 }
 
-export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
+export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCase: EventUseCase; locale?: Locale; alternateOrigin?: string }) {
+  const en = locale === "en";
+  const eventUseCases = eventUseCasesFor(locale);
   const related = eventUseCases
     .filter((item) => item.group === useCase.group && item.slug !== useCase.slug)
     .slice(0, 2);
@@ -41,7 +46,7 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
     <LoginModalProvider>
     <main className="landing-page use-case-page" id="top">
       <AnimationController />
-      <Header howItWorksHref="#kako-deluje" />
+      <Header howItWorksHref="#kako-deluje" locale={locale} alternateOrigin={alternateOrigin} />
       <section className="use-case-hero">
         <div className="use-case-hero__inner shell">
           <div className="use-case-hero__copy">
@@ -50,20 +55,20 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
             <h1>{useCase.title}</h1>
             <p>{useCase.description}</p>
             <div className="hero-buttons">
-              <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">Ustvari dogodek — 35 €</Link>
-              <Link className="button button--secondary" href="#kako-deluje">Kako deluje</Link>
+              <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">{en ? "Create event — €35" : "Ustvari dogodek — 35 €"}</Link>
+              <Link className="button button--secondary" href="#kako-deluje">{en ? "How it works" : "Kako deluje"}</Link>
             </div>
             <div className="use-case-trust">
-              <span>Brez aplikacije</span>
-              <span>Brez naročnine</span>
-              <span>Neomejeno gostov</span>
+              <span>{en ? "No app" : "Brez aplikacije"}</span>
+              <span>{en ? "No subscription" : "Brez naročnine"}</span>
+              <span>{en ? "Unlimited guests" : "Neomejeno gostov"}</span>
             </div>
           </div>
           <div className="use-case-hero__visual">
             <div className="use-case-app-desktop">
               <Image
                 src="/marketing/screenshots/gallery-desktop-frame.png"
-                alt="Eventaj Galerija z vsemi fotografijami dogodka na računalniku"
+                alt={en ? "Eventaj Gallery with all event photos on a computer" : "Eventaj Galerija z vsemi fotografijami dogodka na računalniku"}
                 fill
                 sizes="(max-width: 767px) 330px, 520px"
                 priority
@@ -72,7 +77,7 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
             <div className="use-case-app-mobile">
               <Image
                 src="/marketing/screenshots/gallery-mobile.png"
-                alt="Mobilna galerija, ki jo gost odpre prek QR kode"
+                alt={en ? "Mobile gallery opened by a guest through a QR code" : "Mobilna galerija, ki jo gost odpre prek QR kode"}
                 fill
                 sizes="(max-width: 767px) 108px, 150px"
               />
@@ -80,22 +85,22 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
             <div className="use-case-app-note">
               <span>QR</span>
               <div>
-                <strong>Gostje dodajo</strong>
-                <small>brez aplikacije in prijave</small>
+                <strong>{en ? "Guests upload" : "Gostje dodajo"}</strong>
+                <small>{en ? "without an app or sign-in" : "brez aplikacije in prijave"}</small>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <HowItWorks />
+      <HowItWorks locale={locale} />
 
       <section className="section use-case-benefits">
         <div className="shell">
           <div className="section-heading">
-            <span className="section-pill">Narejeno za vaš dogodek</span>
-            <h2>Manj usklajevanja. Več skupnih spominov.</h2>
-            <p>Enostaven tok za organizatorja in za vsakega gosta s telefonom.</p>
+            <span className="section-pill">{en ? "Made for your event" : "Narejeno za vaš dogodek"}</span>
+            <h2>{en ? "Less coordination. More shared memories." : "Manj usklajevanja. Več skupnih spominov."}</h2>
+            <p>{en ? "A simple journey for the organiser and every guest with a phone." : "Enostaven tok za organizatorja in za vsakega gosta s telefonom."}</p>
           </div>
           <div className="use-case-benefit-grid">
             {useCase.highlights.map((highlight, index) => (
@@ -111,9 +116,9 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
       <section className="section-muted use-case-scenarios">
         <div className="shell use-case-scenarios__inner">
           <div>
-            <span className="section-pill">Prilagodljivo</span>
-            <h2>Ena galerija, različne priložnosti.</h2>
-            <p>Isti preprost QR tok lahko uporabite za celoten dogodek ali njegov posamezni del.</p>
+            <span className="section-pill">{en ? "Flexible" : "Prilagodljivo"}</span>
+            <h2>{en ? "One gallery, many occasions." : "Ena galerija, različne priložnosti."}</h2>
+            <p>{en ? "Use the same simple QR journey for the whole event or one part of it." : "Isti preprost QR tok lahko uporabite za celoten dogodek ali njegov posamezni del."}</p>
           </div>
           <ul>
             {useCase.scenarios.map((scenario) => <li key={scenario}>{scenario}</li>)}
@@ -121,14 +126,14 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
         </div>
       </section>
 
-      <Slideshow priceHref="/#cene" />
-      <Showcase />
+      <Slideshow priceHref="/#cene" locale={locale} />
+      <Showcase locale={locale} />
 
       <section className="section use-case-faq">
         <div className="faq-shell">
           <div className="section-heading">
-            <span className="section-pill">Pogosta vprašanja</span>
-            <h2>Preden ustvarite galerijo</h2>
+            <span className="section-pill">{en ? "Frequently asked questions" : "Pogosta vprašanja"}</span>
+            <h2>{en ? "Before you create a gallery" : "Preden ustvarite galerijo"}</h2>
           </div>
           <div className="faq-list">
             {useCase.faq.map(([question, answer]) => (
@@ -145,8 +150,8 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
         <section className="section-bottom use-case-related">
           <div className="shell">
             <div className="use-case-related__heading">
-              <h2>Oglejte si še</h2>
-              <Link href="/#za-dogodke">Vse vrste dogodkov</Link>
+              <h2>{en ? "Explore more" : "Oglejte si še"}</h2>
+              <Link href="/#za-dogodke">{en ? "All event types" : "Vse vrste dogodkov"}</Link>
             </div>
             <div className="use-case-related__grid">
               {related.map((item) => (
@@ -161,7 +166,7 @@ export function UseCasePage({ useCase }: { useCase: EventUseCase }) {
           </div>
         </section>
       ) : null}
-      <Footer />
+      <Footer locale={locale} />
     </main>
     </LoginModalProvider>
   );

@@ -316,6 +316,10 @@
 .mediaGrid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 13px; padding: 18px; }
 .mediaCard { min-width: 0; overflow: hidden; border: 1px solid #ece7e9; border-radius: 13px; background: #fff; transition: border-color .18s ease, box-shadow .18s ease; }
 .mediaCard:hover { border-color: #ddcfd5; box-shadow: 0 8px 24px rgba(48,25,34,.07); }
+.voiceAdminList { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; padding: 18px; }
+.voiceAdminMessage { min-width: 0; display: flex; gap: 12px; padding: 15px; border: 1px solid #ece7e9; border-radius: 13px; background: #fffafb; }
+.voiceAdminAvatar { width: 42px; height: 42px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #fbe1eb; color: var(--admin-accent-dark); font-size: 13px; font-weight: 800; }
+.voiceAdminMessage > div { min-width: 0; flex: 1; }.voiceAdminMessage strong,.voiceAdminMessage small { display: block; }.voiceAdminMessage strong { font-size: 12px; }.voiceAdminMessage small { margin: 3px 0 8px; color: var(--admin-muted); font-size: 9.5px; }.voiceAdminMessage audio { width: 100%; height: 34px; accent-color: var(--admin-accent); }
 .mediaVisual, .moderationVisual { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: linear-gradient(145deg,#fbdae5,#f6a8bd); }
 .mediaVisual > img { object-fit: cover; }
 .slideshowPanel { display: grid; grid-template-columns: 48px minmax(0,1fr) auto; align-items: center; gap: 16px; margin-bottom: 18px; padding: 18px 20px; border: 1px solid #e6d9ef; border-radius: 17px; background: linear-gradient(135deg,#fff 0,#fbf7ff 55%,#fff4f8 100%); }
@@ -484,6 +488,7 @@
   .tabList button { min-width: max-content; min-height: 44px; }
   .tabList button[aria-selected="true"]::after { bottom: -10px; }
   .mediaGrid, .moderationGrid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; padding: 12px; }
+  .voiceAdminList { grid-template-columns: 1fr; padding: 12px; }
   .qualitySummary { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
   .qualitySummary article:last-child { grid-column: 1 / -1; }
   .qualityControl select, .qualityControl button { min-height: 44px; }

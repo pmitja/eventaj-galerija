@@ -1,4 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/i18n/server", () => ({
+  getRequestLocale: vi.fn(async () => "sl"),
+  getPublicAppUrls: () => ({ PUBLIC_APP_URL: "https://galerija.eventaj.si", PUBLIC_APP_URL_EN: "https://gallery.eventaj.si" }),
+}));
+vi.mock("@/lib/cloudflare", () => ({ getCloudflareEnv: () => ({
+  PUBLIC_APP_URL: "https://galerija.eventaj.si",
+  PUBLIC_APP_URL_EN: "https://gallery.eventaj.si",
+}) }));
 import sitemap from "@/app/sitemap";
 import robots from "@/app/robots";
 import { GET as getLlmsTxt } from "@/app/llms.txt/route";
@@ -7,8 +16,8 @@ import { eventUseCases } from "@/components/landing/use-cases";
 import { SITE_URL, siteStructuredData } from "@/lib/seo";
 
 describe("public SEO discovery", () => {
-  it("lists only canonical marketing pages in the sitemap", () => {
-    const entries = sitemap();
+  it("lists only canonical marketing pages in the sitemap", async () => {
+    const entries = await sitemap();
     const urls = entries.map((entry) => entry.url);
 
     expect(urls).toHaveLength(eventUseCases.length + 2);
@@ -22,8 +31,8 @@ describe("public SEO discovery", () => {
     }
   });
 
-  it("allows public discovery and keeps private application paths out of crawlers", () => {
-    const config = robots();
+  it("allows public discovery and keeps private application paths out of crawlers", async () => {
+    const config = await robots();
     const rules = Array.isArray(config.rules) ? config.rules : [config.rules];
     const openAiRule = rules.find((rule) => rule.userAgent === "OAI-SearchBot");
 

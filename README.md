@@ -157,7 +157,7 @@ pnpm r2:cors:list
 
 Bucket ostaja zaseben; `r2.dev` ni omogočen. Brskalnik nalaga neposredno prek 10-minutnega podpisanega `PUT` URL-ja, podpis pa je vezan tudi na deklarirani `Content-Type`.
 
-Vsak nov dogodek dobi glavno QR dostopno točko. QR sliki sta na `/qr/{publicCode}.svg` in `.png`, stabilna povezava `/t/{publicCode}` pa zabeleži obisk, ohrani attribution za upload sejo in preusmeri na trenutni dogodek. Kanonični izvor, ki se zapiše v QR, določa `PUBLIC_APP_URL` v `wrangler.jsonc`.
+Vsak nov dogodek dobi glavno QR dostopno točko. QR sliki sta na `/qr/{publicCode}.svg` in `.png`, stabilna povezava `/t/{publicCode}` pa zabeleži obisk, ohrani attribution za upload sejo in preusmeri na trenutni dogodek. Slovenski kanonični izvor določa `PUBLIC_APP_URL`, angleškega pa `PUBLIC_APP_URL_EN`; checkout locale določi domeno QR-ja in transakcijske e-pošte.
 
 Trenutna produkcijska aplikacija je na `https://galerija.eventaj.si`, ki je kot
 Cloudflare Custom Domain vezana na glavni Worker. Tudi
@@ -168,6 +168,10 @@ ne izvajajo v Next.js middleware, ker OpenNext notranji zahtevi ne ohrani
 zanesljivega zunanjega protokola. Glavni Worker uporablja EU D1/R2 bindinge,
 retention Worker pa ni javno dostopen in se zažene vsak dan ob 02:17 UTC.
 Obstoječa stran `eventaj.si` na Vercelu ostaja nespremenjena.
+
+Angleška različica je na `https://gallery.eventaj.si` in uporablja isti Worker,
+bazo ter hrambo. Jezik se določi iz domene; zunanje poti so na obeh domenah
+enake. `https://www.gallery.eventaj.si` se kanonizira na angleško domeno.
 
 ## Stripe Checkout
 

@@ -57,6 +57,16 @@ describe("createPresignedUploadUrl", () => {
     expect(signedUrl.searchParams.get("X-Amz-Signature")).toMatch(/^[a-f0-9]{64}$/);
   });
 
+  it("signs an attachment filename into an individual download URL", async () => {
+    const signedUrl = new URL(await createPresignedDownloadUrl(
+      "originals/event-1/photo/original",
+      "Čudovita fotografija.jpg",
+    ));
+    expect(signedUrl.searchParams.get("response-content-disposition")).toContain("attachment;");
+    expect(signedUrl.searchParams.get("response-content-disposition")).toContain("filename*=UTF-8''%C4%8Cudovita%20fotografija.jpg");
+    expect(signedUrl.searchParams.get("X-Amz-Signature")).toMatch(/^[a-f0-9]{64}$/);
+  });
+
   it("creates variants and quality analysis after the image becomes ready", async () => {
     const first = vi.fn().mockResolvedValue({
       id: "media-1",

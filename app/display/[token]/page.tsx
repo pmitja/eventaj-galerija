@@ -3,16 +3,18 @@ import { notFound } from "next/navigation";
 import { SlideshowDisplay } from "@/components/display/slideshow-display";
 import { findPublicSlideshow } from "@/lib/repositories/slideshows";
 import { hashToken } from "@/lib/security/tokens";
+import { getRequestLocale } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
   const { token } = await params;
+  const locale = await getRequestLocale();
   const slideshow = await findPublicSlideshow(await hashToken(token));
-  const title = slideshow?.event_name ?? "Projekcija";
+  const title = slideshow?.event_name ?? (locale === "en" ? "Live display" : "Projekcija");
   const description = slideshow
-    ? ["Dogodek", slideshow.event_location, slideshow.event_name].filter(Boolean).join(" | ")
-    : "Projekcija dogodka.";
+    ? [locale === "en" ? "Event" : "Dogodek", slideshow.event_location, slideshow.event_name].filter(Boolean).join(" | ")
+    : locale === "en" ? "Event live display." : "Projekcija dogodka.";
   return {
     title,
     description,

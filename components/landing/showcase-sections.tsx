@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { Locale } from "@/lib/i18n/locale";
 
 type ShowcaseRow = {
   pill: string;
@@ -15,7 +16,7 @@ type ShowcaseRow = {
   tint?: boolean;
 };
 
-const rows: ShowcaseRow[] = [
+const rowsSl: ShowcaseRow[] = [
   {
     pill: "Sodelovanje gostov",
     title: "Komentarji, všečki in voščila",
@@ -50,6 +51,12 @@ const rows: ShowcaseRow[] = [
   },
 ];
 
+const rowsEn: ShowcaseRow[] = [
+  { pill: "Guest participation", title: "Comments, likes and wishes", description: "Guests leave a message or wish alongside each photo and add a heart. Every moment and word stays together in one place after the event.", mobileDescription: "Guests add messages, wishes and hearts alongside photos — all in one place.", checks: ["Messages alongside every photo", "Hearts for favourite moments", "Everything together in one place"], imageSrc: "/marketing/screenshots/comments-desktop.png", imageAlt: "Event gallery with the comments panel open" },
+  { pill: "No sign-in", title: "Join in seconds", description: "A guest scans the QR code, enters a name or nickname and joins in. No app, account or password — simple for every generation.", mobileDescription: "Scan the QR, enter your name and join in. No app, account or password.", checks: ["No app installation", "No registration or password", "Works on every phone"], imageSrc: "/marketing/screenshots/identity-gate.png", imageAlt: "Guest name entry in an event gallery", flip: true, tint: true },
+  { pill: "Delivery", title: "Everything arrives by email", description: "After purchase, you receive the QR code and links to the gallery and live display. When the event ends, we also send a ZIP with all photos.", mobileDescription: "Receive the QR and links after purchase, then a ZIP with all photos after the event.", checks: ["QR code and links immediately after purchase", "Live display in one click", "ZIP with all photos after the event"], imageSrc: "/marketing/screenshots/email-qr.png", imageAlt: "Email containing an event QR code" },
+];
+
 function CheckIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -58,7 +65,8 @@ function CheckIcon() {
   );
 }
 
-export function Showcase() {
+export function Showcase({ locale = "sl" }: { locale?: Locale }) {
+  const rows = locale === "en" ? rowsEn : rowsSl;
   return (
     <section className="showcase section-muted" id="funkcije-podrobno">
       <div className="shell">

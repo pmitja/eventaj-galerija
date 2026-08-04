@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { UseCasePage } from "@/components/landing/use-case-page";
 import { JsonLd } from "@/components/seo/json-ld";
 import { eventUseCases, getEventUseCase } from "@/components/landing/use-cases";
-import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { absoluteUrl, SITE_NAME } from "@/lib/seo";
+import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
+import { appUrlForLocale, openGraphLocale } from "@/lib/i18n/locale";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -14,10 +16,11 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const useCase = getEventUseCase((await params).slug);
+  const locale = await getRequestLocale();
+  const useCase = getEventUseCase((await params).slug, locale);
   if (!useCase) return {};
 
-  const title = `${useCase.navTitle} – QR galerija za fotografije | Eventaj`;
+  const title = locale === "en" ? `${useCase.navTitle} – QR photo gallery | Eventaj` : `${useCase.navTitle} – QR galerija za fotografije | Eventaj`;
   const description = useCase.description;
 
   return {
@@ -29,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url: `/za-dogodke/${useCase.slug}`,
       siteName: SITE_NAME,
-      locale: "sl_SI",
+      locale: openGraphLocale(locale),
       type: "website",
       images: ["/og-image.png"],
     },
@@ -43,10 +46,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function EventUseCaseRoute({ params }: PageProps) {
-  const useCase = getEventUseCase((await params).slug);
+  const locale = await getRequestLocale();
+  const env = getPublicAppUrls();
+  const useCase = getEventUseCase((await params).slug, locale);
   if (!useCase) notFound();
 
-  const pageUrl = absoluteUrl(`/za-dogodke/${useCase.slug}`);
+  const siteUrl = appUrlForLocale(env, locale);
+  const pageUrl = absoluteUrl(`/za-dogodke/${useCase.slug}`, siteUrl);
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -54,11 +60,11 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
         "@type": "WebPage",
         "@id": `${pageUrl}#webpage`,
         url: pageUrl,
-        name: `${useCase.navTitle} – QR galerija za fotografije`,
+        name: locale === "en" ? `${useCase.navTitle} – QR photo gallery` : `${useCase.navTitle} – QR galerija za fotografije`,
         description: useCase.description,
-        inLanguage: "sl-SI",
-        isPartOf: { "@id": `${SITE_URL}/#website` },
-        about: { "@id": `${SITE_URL}/#application` },
+        inLanguage: locale === "en" ? "en-GB" : "sl-SI",
+        isPartOf: { "@id": `${siteUrl}/#website` },
+        about: { "@id": `${siteUrl}/#application` },
       },
       {
         "@type": "BreadcrumbList",
@@ -67,7 +73,7 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
             "@type": "ListItem",
             position: 1,
             name: "Eventaj Galerija",
-            item: SITE_URL,
+            item: siteUrl,
           },
           {
             "@type": "ListItem",
@@ -83,7 +89,7 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
   return (
     <>
       <JsonLd data={structuredData} />
-      <UseCasePage useCase={useCase} />
+      <UseCasePage useCase={useCase} locale={locale} alternateOrigin={appUrlForLocale(env, locale === "en" ? "sl" : "en")} />
     </>
   );
 }

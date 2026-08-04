@@ -85,3 +85,11 @@ export const faqs = [
   ["So fotografije zasebne?", "Galerija ni javno indeksirana in je dostopna prek nepredvidljive povezave oziroma QR kode. Organizator lahko upravlja vidnost galerije in posameznih fotografij."],
   ["Kaj vključuje AI Best Photos?", "Za 15 € na dogodek dodatek tehnično razvrsti kakovost in zazna dvojnike pri največ 3.000 fotografijah. Večje količine pripravimo po meri."],
 ] as const;
+
+export function landingData(locale: "sl" | "en") {
+  if (locale === "en") {
+    return { howSteps: howStepsEn, features: featuresEn, plans: plansEn, addOns: addOnsEn, faqs: faqsEn };
+  }
+  return { howSteps, features, plans, addOns, faqs };
+}
+import { addOnsEn, faqsEn, featuresEn, howStepsEn, plansEn } from "./data-en";

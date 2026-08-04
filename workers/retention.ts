@@ -41,6 +41,7 @@ async function deleteExpiredEvents(env: Env): Promise<void> {
     }
     await deletePrefix(env.MEDIA, `originals/${event.id}/`);
     await deletePrefix(env.MEDIA, `derived/${event.id}/`);
+    await deletePrefix(env.MEDIA, `voice-messages/${event.id}/`);
     await deletePrefix(env.MEDIA, `exports/${event.id}/`);
     const now = new Date().toISOString();
     await env.DB.batch([

@@ -74,6 +74,8 @@ flowchart LR
 - [ADR-009: zanesljiva vrsta za obdelavo medijev](decisions/ADR-009-media-processing-queue.md)
 - [ADR-010: ephemeral selfie search in face provider adapter](decisions/ADR-010-ephemeral-face-search.md)
 - [ADR-012: dostava dogodka brez uporabniškega računa](decisions/ADR-012-email-only-event-delivery.md)
+- [ADR-013: domensko določena lokalizacija ene aplikacije](decisions/ADR-013-domain-based-localization.md)
+- [ADR-014: glasovna voščila in neposredni prenosi originalov](decisions/ADR-014-voice-messages-and-direct-downloads.md)
 
 ## Pred začetkom kode
 

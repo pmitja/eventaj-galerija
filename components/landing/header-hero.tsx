@@ -2,12 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { LoginTrigger, useLoginModal } from "@/components/auth/login-modal";
-import { eventUseCaseGroups, eventUseCases } from "./use-cases";
+import { eventUseCaseGroupsFor, eventUseCasesFor } from "./use-cases";
 import { VisualPlaceholder } from "./visual-placeholder";
+import type { Locale } from "@/lib/i18n/locale";
 
-export function Header({ howItWorksHref = "/#kako-deluje" }: { howItWorksHref?: string } = {}) {
+export function Header({ howItWorksHref = "/#kako-deluje", locale = "sl", alternateOrigin }: { howItWorksHref?: string; locale?: Locale; alternateOrigin?: string } = {}) {
+  const pathname = usePathname();
+  const en = locale === "en";
+  const eventUseCases = eventUseCasesFor(locale);
+  const eventUseCaseGroups = eventUseCaseGroupsFor(locale);
   const [menuOpen, setMenuOpen] = useState(false);
   const [eventsOpen, setEventsOpen] = useState(false);
   const eventsMenuRef = useRef<HTMLDivElement>(null);
@@ -42,10 +48,10 @@ export function Header({ howItWorksHref = "/#kako-deluje" }: { howItWorksHref?: 
       <div className="header-inner shell">
         <Link className="brand" href="/#top" aria-label="Eventaj.si Galerija">
           <img className="brand-logo" src="/logo.svg" alt="Eventaj.si" width={40} height={40} />
-          <span>|</span> <b>Galerija</b>
+          <span>|</span> <b>{en ? "Gallery" : "Galerija"}</b>
         </Link>
-        <nav className="desktop-nav" aria-label="Glavna navigacija">
-          <Link href={howItWorksHref}>Kako deluje</Link>
+        <nav className="desktop-nav" aria-label={en ? "Main navigation" : "Glavna navigacija"}>
+          <Link href={howItWorksHref}>{en ? "How it works" : "Kako deluje"}</Link>
           <div
             className="nav-dropdown"
             ref={eventsMenuRef}
@@ -60,7 +66,7 @@ export function Header({ howItWorksHref = "/#kako-deluje" }: { howItWorksHref?: 
               aria-controls="event-use-cases-menu"
               onClick={() => setEventsOpen((open) => !open)}
             >
-              Za dogodke
+              {en ? "Events" : "Za dogodke"}
               <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4" /></svg>
             </button>
             <div
@@ -80,18 +86,19 @@ export function Header({ howItWorksHref = "/#kako-deluje" }: { howItWorksHref?: 
               ))}
             </div>
           </div>
-          <Link href="/#funkcije">Funkcije</Link>
-          <Link href="/#cene">Cene</Link>
+          <Link href="/#funkcije">{en ? "Features" : "Funkcije"}</Link>
+          <Link href="/#cene">{en ? "Pricing" : "Cene"}</Link>
           <Link href="/#faq">FAQ</Link>
         </nav>
         <div className="header-actions">
-          <LoginTrigger className="login-link">Prijava</LoginTrigger>
-          <Link className="button button--small button--secondary desktop-only" href="/e/ana-in-marko">Demo dogodek</Link>
-          <Link className="button button--small desktop-only" href="/naroci">Ustvari dogodek</Link>
+          {alternateOrigin ? <a className="login-link" href={`${alternateOrigin}${pathname}`}>{en ? "SL" : "EN"}</a> : null}
+          <LoginTrigger className="login-link">{en ? "Sign in" : "Prijava"}</LoginTrigger>
+          <Link className="button button--small button--secondary desktop-only" href="/e/ana-in-marko">{en ? "Demo event" : "Demo dogodek"}</Link>
+          <Link className="button button--small desktop-only" href="/naroci">{en ? "Create event" : "Ustvari dogodek"}</Link>
           <button
             className={`menu-button ${menuOpen ? "menu-button--open" : ""}`}
             type="button"
-            aria-label={menuOpen ? "Zapri meni" : "Odpri meni"}
+            aria-label={menuOpen ? (en ? "Close menu" : "Zapri meni") : (en ? "Open menu" : "Odpri meni")}
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
             onClick={() => setMenuOpen((open) => !open)}
@@ -100,37 +107,38 @@ export function Header({ howItWorksHref = "/#kako-deluje" }: { howItWorksHref?: 
           </button>
         </div>
       </div>
-      <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`} aria-label="Mobilna navigacija" aria-hidden={!menuOpen}>
-        <Link href={howItWorksHref} onClick={closeMenu}>Kako deluje</Link>
+      <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`} aria-label={en ? "Mobile navigation" : "Mobilna navigacija"} aria-hidden={!menuOpen}>
+        <Link href={howItWorksHref} onClick={closeMenu}>{en ? "How it works" : "Kako deluje"}</Link>
         <details className="mobile-nav__events">
-          <summary>Za dogodke <span aria-hidden="true">+</span></summary>
+          <summary>{en ? "Events" : "Za dogodke"} <span aria-hidden="true">+</span></summary>
           <div>
             {eventUseCases.map((item) => (
               <Link href={`/za-dogodke/${item.slug}`} key={item.slug} onClick={closeMenu}>{item.navTitle}</Link>
             ))}
           </div>
         </details>
-        <Link href="/#funkcije" onClick={closeMenu}>Funkcije</Link>
-        <Link href="/#cene" onClick={closeMenu}>Cene</Link>
+        <Link href="/#funkcije" onClick={closeMenu}>{en ? "Features" : "Funkcije"}</Link>
+        <Link href="/#cene" onClick={closeMenu}>{en ? "Pricing" : "Cene"}</Link>
         <Link href="/#faq" onClick={closeMenu}>FAQ</Link>
-        <button type="button" onClick={() => { closeMenu(); openLogin("/admin"); }}>Prijava</button>
+        {alternateOrigin ? <a href={`${alternateOrigin}${pathname}`}>{en ? "Slovenščina" : "English"}</a> : null}
+        <button type="button" onClick={() => { closeMenu(); openLogin("/admin"); }}>{en ? "Sign in" : "Prijava"}</button>
         <div className="mobile-nav__actions">
-          <Link className="button button--secondary" href="/e/ana-in-marko" onClick={closeMenu}>Preizkusi demo dogodek</Link>
-          <Link className="button" href="/naroci" onClick={closeMenu}>Ustvari dogodek</Link>
+          <Link className="button button--secondary" href="/e/ana-in-marko" onClick={closeMenu}>{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
+          <Link className="button" href="/naroci" onClick={closeMenu}>{en ? "Create event" : "Ustvari dogodek"}</Link>
         </div>
       </nav>
     </header>
   );
 }
 
-function PhoneGallery() {
+function PhoneGallery({ locale }: { locale: Locale }) {
   return (
     <div className="phone">
       <div className="phone-screen">
         <Image
           className="phone-shot"
           src="/marketing/screenshots/gallery-mobile.png"
-          alt="Galerija dogodka Ana & Marko na telefonu"
+          alt={locale === "en" ? "Anna and Mark's event gallery on a phone" : "Galerija dogodka Ana & Marko na telefonu"}
           fill
           sizes="300px"
           priority
@@ -140,27 +148,28 @@ function PhoneGallery() {
   );
 }
 
-export function Hero() {
+export function Hero({ locale = "sl" }: { locale?: Locale }) {
+  const en = locale === "en";
   const cards = [
-    ["hero-card--one", "Fotografija gosta 1", 5],
-    ["hero-card--two", "Fotografija gosta 2", 6],
-    ["hero-card--three", "Fotografija gosta 3", 7],
-    ["hero-card--four", "Fotografija gosta 4", 8],
-    ["hero-card--five", "Fotografija gosta 5", 9],
-    ["hero-card--six", "Fotografija gosta 6", 3],
+    ["hero-card--one", en ? "Guest photo 1" : "Fotografija gosta 1", 5],
+    ["hero-card--two", en ? "Guest photo 2" : "Fotografija gosta 2", 6],
+    ["hero-card--three", en ? "Guest photo 3" : "Fotografija gosta 3", 7],
+    ["hero-card--four", en ? "Guest photo 4" : "Fotografija gosta 4", 8],
+    ["hero-card--five", en ? "Guest photo 5" : "Fotografija gosta 5", 9],
+    ["hero-card--six", en ? "Guest photo 6" : "Fotografija gosta 6", 3],
   ] as const;
 
   return (
     <section className="hero" id="top">
       <div className="hero-copy shell">
-        <div className="eyebrow"><span />QR galerija za dogodke</div>
-        <h1>Vse fotografije in videi vašega dogodka na enem mestu.</h1>
-        <p>Gostje preprosto skenirajo QR kodo ter delijo fotografije in kratke videe — brez aplikacije in brez registracije.</p>
+        <div className="eyebrow"><span />{en ? "QR gallery for events" : "QR galerija za dogodke"}</div>
+        <h1>{en ? "Every photo and video from your event in one place." : "Vse fotografije in videi vašega dogodka na enem mestu."}</h1>
+        <p>{en ? "Guests simply scan a QR code and share photos and short videos — with no app or registration." : "Gostje preprosto skenirajo QR kodo ter delijo fotografije in kratke videe — brez aplikacije in brez registracije."}</p>
         <div className="hero-buttons">
-          <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">Ustvari dogodek</Link>
-          <Link className="button button--secondary" href="/e/ana-in-marko">Preizkusi demo dogodek</Link>
+          <Link className="button" href="/naroci" data-sticky-cta-trigger="create-event">{en ? "Create event" : "Ustvari dogodek"}</Link>
+          <Link className="button button--secondary" href="/e/ana-in-marko">{en ? "Try the demo event" : "Preizkusi demo dogodek"}</Link>
         </div>
-        <div className="rating"><span>35 €</span><em>na dogodek · brez naročnine · neomejeno gostov</em></div>
+        <div className="rating"><span>{en ? "€35" : "35 €"}</span><em>{en ? "per event · no subscription · unlimited guests" : "na dogodek · brez naročnine · neomejeno gostov"}</em></div>
       </div>
       <div className="hero-stage shell">
         {cards.map(([className, label, photo]) => (
@@ -168,14 +177,18 @@ export function Hero() {
             <VisualPlaceholder label={label} imageSrc={`/gallery/ana-marko/photo-${photo}.jpg`} imageAlt={label} priority />
           </div>
         ))}
-        <PhoneGallery />
+        <PhoneGallery locale={locale} />
       </div>
     </section>
   );
 }
 
-export function QuickSteps() {
-  const steps = [
+export function QuickSteps({ locale = "sl" }: { locale?: Locale }) {
+  const steps = locale === "en" ? [
+    ["Create your event", "and receive your gallery"],
+    ["Guests scan the QR", "and upload photos or video"],
+    ["Enjoy the memories", "every moment in one place"],
+  ] : [
     ["Ustvarite dogodek", "in prejmete svojo galerijo"],
     ["Gostje skenirajo QR", "in naložijo fotografije ali video"],
     ["Uživajte v spominih", "vsi trenutki na enem mestu"],

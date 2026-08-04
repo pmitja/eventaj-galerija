@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { storedGuestIdentitySchema, type StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import styles from "./guest-identity-gate.module.css";
+import { useLocale } from "@/components/i18n/locale-provider";
+import type { Locale } from "@/lib/i18n/locale";
 
 type IdentityResponse = {
   guest: Omit<StoredGuestIdentity, "version">;
@@ -20,6 +22,7 @@ function createGuestId() {
 async function persistIdentity(
   eventSlug: string,
   identity: StoredGuestIdentity,
+  locale: Locale = "sl",
 ): Promise<{ identity: StoredGuestIdentity } | { error: Error; suggestions: string[] }> {
   const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/guest-identity`, {
     method: "POST",
@@ -31,7 +34,7 @@ async function persistIdentity(
     suggestions?: string[];
   }) | null;
   if (!response.ok) {
-    const error = new Error(body?.title ?? "Identitete trenutno ni mogoče shraniti.");
+    const error = new Error(locale === "en" ? "Your identity cannot be saved right now." : body?.title ?? "Identitete trenutno ni mogoče shraniti.");
     return { error, suggestions: body?.suggestions ?? [] };
   }
   return { identity: { version: 1, ...body!.guest } satisfies StoredGuestIdentity };
@@ -44,6 +47,8 @@ export function GuestIdentityGate({
   eventSlug: string;
   onIdentity: (identity: StoredGuestIdentity) => void;
 }) {
+  const locale = useLocale();
+  const en = locale === "en";
   const [identity, setIdentity] = useState<StoredGuestIdentity | null>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -72,7 +77,7 @@ export function GuestIdentityGate({
         return;
       }
       guestIdRef.current = stored.guestId;
-      const result = await persistIdentity(eventSlug, stored);
+      const result = await persistIdentity(eventSlug, stored, locale);
       if (!active) return;
       if ("identity" in result) {
         setIdentity(result.identity);
@@ -89,7 +94,7 @@ export function GuestIdentityGate({
     };
     void restore();
     return () => { active = false; };
-  }, [eventSlug, onIdentity]);
+  }, [eventSlug, locale, onIdentity]);
 
   useEffect(() => {
     if (!open) return;
@@ -125,7 +130,7 @@ export function GuestIdentityGate({
     setSaving(true);
     setError(null);
     setSuggestions([]);
-    const result = await persistIdentity(eventSlug, candidate);
+    const result = await persistIdentity(eventSlug, candidate, locale);
     if ("error" in result) {
       setError(result.error.message);
       setSuggestions(result.suggestions);
@@ -135,7 +140,7 @@ export function GuestIdentityGate({
     try {
       localStorage.setItem(storageKey(eventSlug), JSON.stringify(result.identity));
     } catch {
-      setError("Brskalnik ne dovoli lokalnega shranjevanja. Omogoči ga in poskusi znova.");
+      setError(en ? "Your browser does not allow local storage. Enable it and try again." : "Brskalnik ne dovoli lokalnega shranjevanja. Omogoči ga in poskusi znova.");
       setSaving(false);
       return;
     }
@@ -160,7 +165,7 @@ export function GuestIdentityGate({
       {!loading && identity ? (
         <button className={styles.identityButton} type="button" onClick={startEditing}>
           <span aria-hidden="true"><Image src="/icons/engagement/guest.png" alt="" width={34} height={34} unoptimized /></span>
-          <span>{identity.displayName ?? "Gost"}<small>Spremeni prikaz</small></span>
+          <span>{identity.displayName ?? (en ? "Guest" : "Gost")}<small>{en ? "Change display" : "Spremeni prikaz"}</small></span>
         </button>
       ) : null}
       {open ? (
@@ -168,11 +173,11 @@ export function GuestIdentityGate({
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="guest-identity-title" aria-describedby="guest-identity-description">
             <div className={styles.handle} aria-hidden="true" />
             <span className={styles.mark} aria-hidden="true"><Image src="/icons/engagement/guest.png" alt="" width={62} height={62} priority unoptimized /></span>
-            <p className={styles.eyebrow}>Brez registracije</p>
-            <h2 id="guest-identity-title">Kako naj te prikažemo?</h2>
-            <p id="guest-identity-description">Ime ali vzdevek se uporablja samo pri tem dogodku. Ne potrebujemo e-pošte, telefona ali gesla.</p>
+            <p className={styles.eyebrow}>{en ? "No registration" : "Brez registracije"}</p>
+            <h2 id="guest-identity-title">{en ? "How should we display you?" : "Kako naj te prikažemo?"}</h2>
+            <p id="guest-identity-description">{en ? "Your name or nickname is only used for this event. We do not need your email, phone number or a password." : "Ime ali vzdevek se uporablja samo pri tem dogodku. Ne potrebujemo e-pošte, telefona ali gesla."}</p>
             <form onSubmit={(event) => { event.preventDefault(); if (displayName.trim()) void save(displayName.trim()); }}>
-              <label htmlFor="guest-display-name">Ime ali vzdevek</label>
+              <label htmlFor="guest-display-name">{en ? "Name or nickname" : "Ime ali vzdevek"}</label>
               <input
                 ref={inputRef}
                 id="guest-display-name"
@@ -180,14 +185,14 @@ export function GuestIdentityGate({
                 onChange={(event) => { setDisplayName(event.target.value); setError(null); setSuggestions([]); }}
                 maxLength={40}
                 autoComplete="nickname"
-                placeholder="npr. Barbara"
+                placeholder={en ? "e.g. Barbara" : "npr. Barbara"}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "guest-identity-error" : undefined}
               />
               {error ? <p id="guest-identity-error" className={styles.error} role="alert">{error}</p> : null}
               {suggestions.length ? (
-                <div className={styles.suggestions} aria-label="Predlogi prikaznega imena">
-                  <span>Izberi ali vpiši svoje:</span>
+                <div className={styles.suggestions} aria-label={en ? "Display name suggestions" : "Predlogi prikaznega imena"}>
+                  <span>{en ? "Choose one or enter your own:" : "Izberi ali vpiši svoje:"}</span>
                   <div>{suggestions.map((suggestion) => (
                     <button key={suggestion} type="button" onClick={() => { setDisplayName(suggestion); setError(null); setSuggestions([]); inputRef.current?.focus(); }}>{suggestion}</button>
                   ))}</div>
@@ -195,17 +200,17 @@ export function GuestIdentityGate({
               ) : null}
               <label className={styles.liveChoice}>
                 <input type="checkbox" checked={showOnLiveScreen} onChange={(event) => setShowOnLiveScreen(event.target.checked)} />
-                <span><strong>Prikaži moje ime na live zaslonu</strong><small>Ob dosežkih in na lestvici dogodka.</small></span>
+                <span><strong>{en ? "Show my name on the live screen" : "Prikaži moje ime na live zaslonu"}</strong><small>{en ? "For achievements and the event leaderboard." : "Ob dosežkih in na lestvici dogodka."}</small></span>
               </label>
               <button className={styles.continueButton} type="submit" disabled={!displayName.trim() || saving}>
-                {saving ? "Shranjujem …" : "Nadaljuj"}
+                {saving ? (en ? "Saving …" : "Shranjujem …") : (en ? "Continue" : "Nadaljuj")}
               </button>
               <button className={styles.anonymousButton} type="button" disabled={saving} onClick={() => void save(null)}>
                 <Image src="/icons/engagement/anonymous-guest.png" alt="" width={24} height={24} aria-hidden="true" unoptimized />
-                Nadaljuj kot gost (anonimno)
+                {en ? "Continue as guest (anonymous)" : "Nadaljuj kot gost (anonimno)"}
               </button>
             </form>
-            <small className={styles.privacy}>To ni uporabniški račun. Identiteta ostane shranjena le v tem brskalniku za ta dogodek.</small>
+            <small className={styles.privacy}>{en ? "This is not a user account. Your identity is stored only in this browser for this event." : "To ni uporabniški račun. Identiteta ostane shranjena le v tem brskalniku za ta dogodek."}</small>
           </div>
         </div>
       ) : null}

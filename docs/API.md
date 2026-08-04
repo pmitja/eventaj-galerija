@@ -31,7 +31,10 @@ njima pa ne sme presegati 7 dni. Javni `GET /prenosi/{token}` preveri hashiran,
 | POST | `/events/{slug}/gallery-access` | preveri geslo in izda kratko sejo | rate limit |
 | GET | `/events/{slug}/media` | javna galerija z `commentCount` za vsak medij; šteje samo vidne komentarje | javna seja |
 | GET | `/events/{slug}/media/{publicId}` | lightbox podatki | javna seja |
+| GET | `/events/{slug}/media/{publicId}/download` | preusmeri na kratkotrajni signed GET izvirne javne fotografije | javna seja/rate limit |
 | GET/POST | `/events/{slug}/media/{publicId}/comments` | seznam oziroma dodajanje dogodkovno omejenih komentarjev; `403 COMMENTS_DISABLED`, ko so za dogodek izključeni | javno + veljaven `guestId` za POST |
+| GET | `/events/{slug}/voice-messages` | javna voščila z dogodkovno omejenimi playback URL-ji | javna seja |
+| GET | `/events/{slug}/voice-messages/{publicId}/playback` | preusmeri na kratkotrajni signed R2 GET | javna seja/rate limit |
 | POST | `/events/{slug}/upload-sessions` | ustvari sejo ter jo veže na opcijski registrirani `guestId` in attribution | rate limit |
 | POST | `/upload-sessions/{token}/files` | registrira manifest in signed parts | session token |
 | POST | `/upload-sessions/{token}/files/{fileId}/parts` | osveži podpis za manjkajoče dele | session token |
@@ -39,6 +42,8 @@ njima pa ne sme presegati 7 dni. Javni `GET /prenosi/{token}` preveri hashiran,
 | DELETE | `/upload-sessions/{token}/files/{fileId}` | prekliče upload | session token |
 | GET | `/upload-sessions/{token}` | stanja vseh datotek | session token |
 | POST | `/upload-sessions/{token}/complete` | zaključi sejo in soglasja | session token |
+| POST | `/upload-sessions/{token}/voice-messages` | registrira posnetek do 120 s in vrne signed PUT | session token |
+| POST | `/upload-sessions/{token}/voice-messages/{messageId}/complete` | preveri velikost, MIME in podpis vsebine ter objavi voščilo | session token |
 
 Upload manifest vsebuje samo metapodatke, nikoli binarne datoteke. `token` se v bazi hrani hashiran.
 
@@ -73,6 +78,7 @@ rotirati. Odgovori playliste in slik niso shranjeni v javnem CDN cacheu.
 | DELETE | `/admin/events/{eventId}` | zahteva za izbris po politiki |
 | PATCH | `/admin/events/{eventId}/settings` | spremeni dogodkovne nastavitve; trenutno `commentsEnabled` | admin + organization scope |
 | GET | `/admin/events/{eventId}/media` | upravljavski seznam medijev |
+| GET | `/admin/voice-messages/{messageId}/playback` | tenant-scoped signed playback javnega ali zasebnega voščila | admin + organization scope |
 | POST | `/admin/events/{eventId}/media/{mediaId}/quality` | idempotenten ponovni zagon tehnične analize |
 | PATCH | `/admin/events/{eventId}/media/{mediaId}/quality` | nastavi ali počisti ročno kategorijo kakovosti; zapiše audit |
 | POST | `/admin/events/{eventId}/media/{mediaId}/processing` | ponovi neuspešno obdelavo medija; tenant scope in audit |

@@ -1,4 +1,5 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
+import type { Locale } from "@/lib/i18n/locale";
 
 type StripeCheckoutSession = {
   id: string;
@@ -37,6 +38,7 @@ async function stripeRequest<T>(path: string, init: RequestInit = {}): Promise<T
 export async function createStripeCheckout(input: {
   orderId: string; email: string; amountCents: number; aiBestPhotos: boolean; faceCollections: boolean;
   videoUnlimited: boolean;
+  locale: Locale;
   successUrl: string; cancelUrl: string; customerId?: string | null;
 }): Promise<StripeCheckoutSession> {
   const body = new URLSearchParams({
@@ -49,6 +51,7 @@ export async function createStripeCheckout(input: {
     "line_items[0][price_data][unit_amount]": "3500",
     "line_items[0][quantity]": "1",
     "payment_intent_data[metadata][orderId]": input.orderId,
+    locale: input.locale === "en" ? "en" : "auto",
   });
   if (input.customerId) body.set("customer", input.customerId);
   else {
@@ -63,9 +66,12 @@ export async function createStripeCheckout(input: {
     body.set(`line_items[${lineItemIndex}][quantity]`, "1");
     lineItemIndex += 1;
   };
-  if (input.aiBestPhotos) addLineItem("AI Best Photos · do 3.000 fotografij", "1500");
-  if (input.faceCollections) addLineItem("AI iskanje po obrazu", "500");
-  if (input.videoUnlimited) addLineItem("Neomejeno videoposnetkov · do 60 sekund", "1500");
+  if (input.locale === "en") {
+    body.set("line_items[0][price_data][product_data][name]", "Eventaj Gallery · event");
+  }
+  if (input.aiBestPhotos) addLineItem(input.locale === "en" ? "AI Best Photos · up to 3,000 photos" : "AI Best Photos · do 3.000 fotografij", "1500");
+  if (input.faceCollections) addLineItem(input.locale === "en" ? "AI face search" : "AI iskanje po obrazu", "500");
+  if (input.videoUnlimited) addLineItem(input.locale === "en" ? "Unlimited videos · up to 60 seconds" : "Neomejeno videoposnetkov · do 60 sekund", "1500");
   const session = await stripeRequest<StripeCheckoutSession>("/checkout/sessions", { method: "POST", body });
   if (!session.url || session.amount_total !== input.amountCents) throw new Error("STRIPE_INVALID_CHECKOUT");
   return session;

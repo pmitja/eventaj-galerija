@@ -18,6 +18,7 @@ Največja tveganja so zlonamerni ali množični uploadi, dostop do zasebnih gale
 
 - allowlist formatov, omejitev velikosti, števila in videodolžine;
 - magic-byte/MIME preverjanje v workerju;
+- glasovna voščila so omejena na 120 sekund/5 MB; zaključek preveri Content-Type in podpis WebM, MP4 ali Ogg vsebine pred objavo;
 - randomiziran object key in očiščeno originalno ime;
 - signed URL omejen na operacijo, key, čas in po možnosti content length/checksum;
 - karantena do zaključenega varnostnega procesiranja;
@@ -46,6 +47,7 @@ Za vsak namen se zabeležijo verzija pravilnika, čas, dogodek, subjekt/seja in 
 - tehnična obdelava uploada;
 - objava v galeriji;
 - prikaz na slideshowu, če je relevanten;
+- upload glasovnega voščila in njegova javna objava kot ločena namena;
 - face collection processing;
 - selfie match processing.
 
@@ -65,6 +67,7 @@ Videi so zasebni objekti v Cloudflare Stream s podpisanim predvajanjem. Ne vstop
   dogodek, lokalnega gosta in verzijo pravilnika ter ga lahko gost kadarkoli izbriše.
   Selfie, embedding, similarity in ponudniški face ID se ne zapisujejo v brskalnik.
 - Face embeddings imajo lasten krajši retention in jih je mogoče izbrisati ločeno.
+- R2 objekti glasovnih voščil uporabljajo dogodkovno predpono in se ob retentionu dogodka fizično izbrišejo skupaj z metapodatki.
 - Prvi face-search rez lokalno hrani samo opaque provider face ID-je; ponudniški
   face vector je v collection posameznega dogodka v konfigurirani EU regiji in
   poteče najpozneje v 30 dneh oziroma ob retentionu dogodka.

@@ -22,6 +22,8 @@ import {
 } from "./event-upload-state";
 import type { ClientUploadStatus } from "./event-upload-state";
 import styles from "../../app/(public)/e/[slug]/event-page.module.css";
+import { useLocale } from "@/components/i18n/locale-provider";
+import type { Locale } from "@/lib/i18n/locale";
 
 const ACCEPTED_TYPES = new Set([
   "image/jpeg",
@@ -48,21 +50,22 @@ type UploadItem = {
   uploadUrl?: string;
 };
 
-function validateFile(file: File) {
+function validateFile(file: File, locale: Locale = "sl") {
+  const en = locale === "en";
   if (!ACCEPTED_TYPES.has(file.type)) {
-    return "Ta vrsta datoteke ni podprta.";
+    return en ? "This file type is not supported." : "Ta vrsta datoteke ni podprta.";
   }
 
   if (file.type.startsWith("image/") && file.size > IMAGE_LIMIT) {
-    return "Fotografija je večja od 20 MB.";
+    return en ? "The photo is larger than 20 MB." : "Fotografija je večja od 20 MB.";
   }
-  if (file.type.startsWith("video/") && file.size > VIDEO_LIMIT) return "Video je večji od 500 MB.";
+  if (file.type.startsWith("video/") && file.size > VIDEO_LIMIT) return en ? "The video is larger than 500 MB." : "Video je večji od 500 MB.";
 
   return undefined;
 }
 
-function makeUploadItem(file: File): UploadItem {
-  const error = validateFile(file);
+function makeUploadItem(file: File, locale: Locale = "sl"): UploadItem {
+  const error = validateFile(file, locale);
   return {
     id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
     file,
@@ -78,15 +81,17 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-async function responseError(response: Response, fallback: string): Promise<Error> {
+async function responseError(response: Response, fallback: string, locale: Locale = "sl"): Promise<Error> {
   const body = await response.json().catch(() => null) as {
     title?: string;
     detail?: string;
   } | null;
-  return new Error(body?.detail || body?.title || fallback);
+  return new Error(locale === "en" ? fallback : body?.detail || body?.title || fallback);
 }
 
 export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }: { eventSlug: string; guestId: string; videoUploadsEnabled?: boolean }) {
+  const locale = useLocale();
+  const en = locale === "en";
   const [items, setItems] = useState<UploadItem[]>([]);
   const [allowPublishing, setAllowPublishing] = useState(DEFAULT_PUBLICATION_CONSENT);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -107,8 +112,8 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
 
   const addFiles = useCallback((files: FileList | null) => {
     if (!files?.length) return;
-    setItems((current) => [...current, ...Array.from(files, makeUploadItem)]);
-  }, []);
+    setItems((current) => [...current, ...Array.from(files, (file) => makeUploadItem(file, locale))]);
+  }, [locale]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     addFiles(event.target.files);
@@ -133,7 +138,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ guestId }),
       });
-      if (!response.ok) throw await responseError(response, "Nalaganje trenutno ni na voljo.");
+      if (!response.ok) throw await responseError(response, en ? "Uploads are currently unavailable." : "Nalaganje trenutno ni na voljo.", locale);
       const body = await response.json() as { token: string };
       sessionTokenRef.current = body.token;
       return body.token;
@@ -144,13 +149,13 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
     } finally {
       sessionPromiseRef.current = null;
     }
-  }, [eventSlug, guestId]);
+  }, [en, eventSlug, guestId, locale]);
 
   const uploadItem = useCallback(async (id: string) => {
     if (!navigator.onLine) {
       setItems((current) => current.map((item) => (
         item.id === id
-          ? { ...item, status: "error", error: "Ni povezave. Poskusi znova, ko boš na spletu." }
+          ? { ...item, status: "error", error: en ? "You are offline. Try again when you are connected." : "Ni povezave. Poskusi znova, ko boš na spletu." }
           : item
       )));
       return;
@@ -181,7 +186,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
         });
         if (!prepared.ok) {
           if (prepared.status === 401) sessionTokenRef.current = null;
-          throw await responseError(prepared, "Datoteke ni bilo mogoče pripraviti.");
+          throw await responseError(prepared, en ? "The file could not be prepared." : "Datoteke ni bilo mogoče pripraviti.", locale);
         }
         const body = await prepared.json() as { fileId: string; uploadUrl: string };
         fileId = body.fileId;
@@ -215,26 +220,26 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
             const progress = Math.min(99, Math.round((event.loaded / event.total) * 100));
             setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, progress } : candidate));
           };
-          xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error("Prenos ni uspel."));
-          xhr.onerror = () => reject(new Error("Omrežna napaka."));
+          xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(en ? "The upload failed." : "Prenos ni uspel."));
+          xhr.onerror = () => reject(new Error(en ? "Network error." : "Omrežna napaka."));
           xhr.send(item.file);
         });
         const completed = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/files/${fileId}/complete`, { method: "POST" });
-        if (!completed.ok) throw await responseError(completed, "Zaključevanje prenosa ni uspelo.");
+        if (!completed.ok) throw await responseError(completed, en ? "The upload could not be completed." : "Zaključevanje prenosa ni uspelo.", locale);
       }
       setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, status: "done", progress: 100 } : candidate));
     } catch (error) {
       setItems((current) => current.map((candidate) => candidate.id === id ? {
         ...candidate,
         status: "error",
-        error: error instanceof Error ? error.message : "Nalaganje ni uspelo.",
+        error: error instanceof Error ? error.message : en ? "The upload failed." : "Nalaganje ni uspelo.",
       } : candidate));
     }
-  }, [allowPublishing, getSessionToken, termsAccepted]);
+  }, [allowPublishing, en, getSessionToken, locale, termsAccepted]);
 
   const startUpload = () => {
     const uploadableItems = items.filter((item) => (
-      item.status === "ready" || (item.status === "error" && !validateFile(item.file))
+      item.status === "ready" || (item.status === "error" && !validateFile(item.file, locale))
     ));
     void runWithConcurrency(
       uploadableItems,
@@ -252,7 +257,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
     isComplete,
   } = getUploadActionState(items.map((item) => ({
     status: item.status,
-    hasValidationError: Boolean(validateFile(item.file)),
+    hasValidationError: Boolean(validateFile(item.file, locale)),
   })));
 
   useEffect(() => {
@@ -285,7 +290,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
     };
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
-      event.returnValue = "Fotografije se še nalagajo.";
+      event.returnValue = en ? "Your photos are still uploading." : "Fotografije se še nalagajo.";
     };
 
     void requestWakeLock();
@@ -298,17 +303,17 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
       window.removeEventListener("beforeunload", handleBeforeUnload);
       void wakeLock?.release();
     };
-  }, [isUploading]);
+  }, [en, isUploading]);
 
   if (isComplete) {
     return (
       <section className={styles.successCard} aria-live="polite">
         <span className={styles.successIcon}><NextImage src="/icons/engagement/thanks.png" alt="" width={70} height={70} aria-hidden="true" /></span>
-        <p className={styles.successEyebrow}>Uspelo je!</p>
-        <h2>Hvala za {doneCount === 1 ? "fotografijo" : "spomine"}.</h2>
+        <p className={styles.successEyebrow}>{en ? "Success!" : "Uspelo je!"}</p>
+        <h2>{en ? `Thank you for ${doneCount === 1 ? "the photo" : "the memories"}.` : <>Hvala za {doneCount === 1 ? "fotografijo" : "spomine"}.</>}</h2>
         <p>
-          {doneCount === 1 ? "Datoteka je varno dodana." : `${doneCount} datotek je varno dodanih.`}
-          {allowPublishing ? " Kmalu se bodo prikazale v galeriji." : " Varno so shranjene za organizatorja."}
+          {en ? (doneCount === 1 ? "The file was added securely." : `${doneCount} files were added securely.`) : (doneCount === 1 ? "Datoteka je varno dodana." : `${doneCount} datotek je varno dodanih.`)}
+          {allowPublishing ? (en ? " They will appear in the gallery shortly." : " Kmalu se bodo prikazale v galeriji.") : (en ? " They are stored securely for the organiser." : " Varno so shranjene za organizatorja.")}
         </p>
         <button
           className={styles.secondaryButton}
@@ -318,7 +323,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
             setItems([]);
           }}
         >
-          <PlusIcon /> Dodaj še
+          <PlusIcon /> {en ? "Add more" : "Dodaj še"}
         </button>
       </section>
     );
@@ -327,16 +332,16 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
   return (
     <section className={styles.uploadCard} id="dodaj" aria-labelledby="upload-title" aria-busy={isUploading}>
       <div className={styles.uploadHeading}>
-        <span>Čisto preprosto</span>
-        <h2 id="upload-title">Kaj želiš dodati?</h2>
-        <p>{videoUploadsEnabled ? "Izberi fotografije ali video do 60 sekund." : "Izberi eno ali več fotografij."}</p>
+        <span>{en ? "Nice and simple" : "Čisto preprosto"}</span>
+        <h2 id="upload-title">{en ? "What would you like to add?" : "Kaj želiš dodati?"}</h2>
+        <p>{videoUploadsEnabled ? (en ? "Choose photos or a video up to 60 seconds." : "Izberi fotografije ali video do 60 sekund.") : (en ? "Choose one or more photos." : "Izberi eno ali več fotografij.")}</p>
       </div>
 
       {videoUploadsEnabled ? <input
         ref={galleryInputRef}
         className={styles.visuallyHidden}
         type="file"
-        aria-label="Izberi fotografije iz telefona"
+        aria-label={en ? "Choose photos from your phone" : "Izberi fotografije iz telefona"}
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
         multiple
         onChange={handleFileChange}
@@ -345,7 +350,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
         ref={videoInputRef}
         className={styles.visuallyHidden}
         type="file"
-        aria-label="Izberi videe iz telefona"
+        aria-label={en ? "Choose videos from your phone" : "Izberi videe iz telefona"}
         accept="video/mp4,video/quicktime,video/webm"
         multiple
         onChange={handleFileChange}
@@ -354,7 +359,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
         ref={cameraInputRef}
         className={styles.visuallyHidden}
         type="file"
-        aria-label="Posnemi fotografijo"
+        aria-label={en ? "Take a photo" : "Posnemi fotografijo"}
         accept="image/*"
         capture="environment"
         onChange={handleFileChange}
@@ -364,14 +369,14 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
         <div className={styles.pickerActions}>
           <button className={styles.primaryPicker} type="button" onClick={() => galleryInputRef.current?.click()}>
             <span><ImageIcon /></span>
-            <strong>Izberi iz telefona</strong>
-            <small>Lahko izbereš več fotografij</small>
+            <strong>{en ? "Choose from your phone" : "Izberi iz telefona"}</strong>
+            <small>{en ? "You can select several photos" : "Lahko izbereš več fotografij"}</small>
           </button>
           <button className={styles.cameraPicker} type="button" onClick={() => cameraInputRef.current?.click()}>
-            <CameraIcon /> Fotografiraj zdaj
+            <CameraIcon /> {en ? "Take a photo now" : "Fotografiraj zdaj"}
           </button>
           {videoUploadsEnabled ? <button className={styles.cameraPicker} type="button" onClick={() => videoInputRef.current?.click()}>
-            <span aria-hidden="true">▶</span> Dodaj video
+            <span aria-hidden="true">▶</span> {en ? "Add video" : "Dodaj video"}
           </button> : null}
         </div>
       ) : (
@@ -383,31 +388,31 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
                   {item.file.type.startsWith("image/") ? (
                     // Blob URLs are local previews; next/image cannot optimize them.
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.previewUrl} alt="Predogled izbrane fotografije" />
+                    <img src={item.previewUrl} alt={en ? "Selected photo preview" : "Predogled izbrane fotografije"} />
                   ) : (
-                    <video src={item.previewUrl} aria-label="Predogled izbranega videa" muted playsInline />
+                    <video src={item.previewUrl} aria-label={en ? "Selected video preview" : "Predogled izbranega videa"} muted playsInline />
                   )}
                 </div>
                 <div className={styles.fileInfo}>
                   <strong>{item.file.name}</strong>
                   <span role={item.status === "error" ? "alert" : undefined}>
-                    {item.status === "ready" ? `${formatFileSize(item.file.size)} · Pripravljeno` : null}
-                    {item.status === "uploading" ? `Nalaganje · ${item.progress} %` : null}
-                    {item.status === "done" ? "Dodano" : null}
+                    {item.status === "ready" ? `${formatFileSize(item.file.size)} · ${en ? "Ready" : "Pripravljeno"}` : null}
+                    {item.status === "uploading" ? `${en ? "Uploading" : "Nalaganje"} · ${item.progress} %` : null}
+                    {item.status === "done" ? (en ? "Added" : "Dodano") : null}
                     {item.status === "error" ? item.error : null}
                   </span>
                   {item.status === "uploading" ? (
-                    <div className={styles.progressTrack} role="progressbar" aria-label={`Nalaganje ${item.file.name}`} aria-valuenow={item.progress} aria-valuemin={0} aria-valuemax={100}>
+                    <div className={styles.progressTrack} role="progressbar" aria-label={`${en ? "Uploading" : "Nalaganje"} ${item.file.name}`} aria-valuenow={item.progress} aria-valuemin={0} aria-valuemax={100}>
                       <span style={{ width: `${item.progress}%` }} />
                     </div>
                   ) : null}
                 </div>
-                {item.status === "error" && !validateFile(item.file) ? (
-                  <button className={styles.iconButton} type="button" onClick={() => uploadItem(item.id)} aria-label={`Poskusi znova: ${item.file.name}`}>
+                {item.status === "error" && !validateFile(item.file, locale) ? (
+                  <button className={styles.iconButton} type="button" onClick={() => uploadItem(item.id)} aria-label={`${en ? "Try again" : "Poskusi znova"}: ${item.file.name}`}>
                     <RetryIcon />
                   </button>
                 ) : (
-                  <button className={styles.iconButton} type="button" onClick={() => removeItem(item.id)} aria-label={`Odstrani ${item.file.name}`} disabled={item.status === "uploading"}>
+                  <button className={styles.iconButton} type="button" onClick={() => removeItem(item.id)} aria-label={`${en ? "Remove" : "Odstrani"} ${item.file.name}`} disabled={item.status === "uploading"}>
                     {item.status === "done" ? <CheckIcon /> : <CloseIcon />}
                   </button>
                 )}
@@ -416,10 +421,10 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
           </div>
 
           <button className={styles.addMoreButton} type="button" onClick={() => galleryInputRef.current?.click()} disabled={isUploading}>
-            <PlusIcon /> Dodaj še
+            <PlusIcon /> {en ? "Add more" : "Dodaj še"}
           </button>
           {videoUploadsEnabled ? <button className={styles.addMoreButton} type="button" onClick={() => videoInputRef.current?.click()} disabled={isUploading}>
-            <span aria-hidden="true">▶</span> Dodaj video
+            <span aria-hidden="true">▶</span> {en ? "Add video" : "Dodaj video"}
           </button> : null}
 
           <label className={styles.consentRow}>
@@ -429,34 +434,34 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
               onChange={(event) => setAllowPublishing(event.target.checked)}
             />
             <span>
-              <strong>Naj se pokažejo tudi v galeriji</strong>
-              <small>Objavljene bodo v skupni galeriji dogodka.</small>
+              <strong>{en ? "Also show them in the gallery" : "Naj se pokažejo tudi v galeriji"}</strong>
+              <small>{en ? "They will appear in the shared event gallery." : "Objavljene bodo v skupni galeriji dogodka."}</small>
             </span>
           </label>
 
           <label className={styles.consentRow}>
             <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} />
             <span>
-              <strong>Strinjam se s pogoji nalaganja</strong>
-              <small>Potrjujem, da smem deliti datoteke, ter sprejemam <Link href="/pogoji-uporabe" target="_blank">pogoje</Link> in <Link href="/zasebnost" target="_blank">politiko zasebnosti</Link>.</small>
+              <strong>{en ? "I agree to the upload terms" : "Strinjam se s pogoji nalaganja"}</strong>
+              <small>{en ? <>I confirm that I may share these files and accept the <Link href="/pogoji-uporabe" target="_blank">terms</Link> and <Link href="/zasebnost" target="_blank">privacy policy</Link>.</> : <>Potrjujem, da smem deliti datoteke, ter sprejemam <Link href="/pogoji-uporabe" target="_blank">pogoje</Link> in <Link href="/zasebnost" target="_blank">politiko zasebnosti</Link>.</>}</small>
             </span>
           </label>
 
           <button className={styles.uploadButton} type="button" onClick={startUpload} disabled={actionableCount === 0 || isUploading || !termsAccepted}>
             {retryableCount > 0 && readyCount === 0 ? <RetryIcon /> : <UploadIcon />}
             {isUploading
-              ? "Nalaganje …"
+              ? (en ? "Uploading …" : "Nalaganje …")
               : retryableCount > 0 && readyCount === 0
-                ? `Poskusi znova (${retryableCount})`
-                : `Dodaj ${actionableCount} ${actionableCount === 1 ? "datoteko" : "datotek"}`}
+                ? `${en ? "Try again" : "Poskusi znova"} (${retryableCount})`
+                : en ? `Add ${actionableCount} ${actionableCount === 1 ? "file" : "files"}` : `Dodaj ${actionableCount} ${actionableCount === 1 ? "datoteko" : "datotek"}`}
           </button>
         </>
       )}
 
       <p className={styles.uploadPrivacy}>
         {isUploading
-          ? "Pusti to stran odprto do konca nalaganja. Zaslon bo ostal prižgan, če naprava to podpira."
-          : "Z nadaljevanjem dovoliš varno obdelavo izbranih datotek za ta dogodek."}
+          ? (en ? "Keep this page open until the upload finishes. The screen will stay awake if your device supports it." : "Pusti to stran odprto do konca nalaganja. Zaslon bo ostal prižgan, če naprava to podpira.")
+          : (en ? "By continuing, you allow the selected files to be processed securely for this event." : "Z nadaljevanjem dovoliš varno obdelavo izbranih datotek za ta dogodek.")}
       </p>
     </section>
   );

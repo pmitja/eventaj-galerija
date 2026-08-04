@@ -50,9 +50,22 @@ export async function createPresignedUploadUrl(objectKey: string, contentType: s
   return request.url;
 }
 
-export async function createPresignedDownloadUrl(objectKey: string): Promise<string> {
+function contentDispositionFilename(filename: string): string {
+  const fallback = filename
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, "")
+    .replace(/["\\/]/g, "_")
+    .trim() || "download";
+  const encoded = encodeURIComponent(filename).replace(/[!'()*]/g, (character) => (
+    `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+  ));
+  return `attachment; filename="${fallback}"; filename*=UTF-8''${encoded}`;
+}
+
+export async function createPresignedDownloadUrl(objectKey: string, filename?: string): Promise<string> {
   const { client, env } = signingClient();
   const url = r2ObjectUrl(objectKey, env.R2_ACCOUNT_ID, env.R2_BUCKET_NAME);
+  if (filename) url.searchParams.set("response-content-disposition", contentDispositionFilename(filename));
   url.searchParams.set("X-Amz-Expires", String(EXPORT_DOWNLOAD_TTL_SECONDS));
   const request = await client.sign(url, { method: "GET", aws: { signQuery: true } });
   return request.url;

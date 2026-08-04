@@ -13,6 +13,7 @@ import type { z } from "zod";
 import type { createCheckoutSchema } from "@/lib/validation/checkout";
 import { createStripeCheckout, retrieveStripeCheckout } from "@/lib/billing/stripe";
 import { createPublicToken, hashToken } from "@/lib/security/tokens";
+import { appUrlForLocale, type Locale } from "@/lib/i18n/locale";
 
 type CheckoutInput = z.infer<typeof createCheckoutSchema>;
 
@@ -33,6 +34,7 @@ export type CheckoutOrder = {
   ai_best_photos: number;
   face_collections: number;
   video_unlimited: number;
+  locale: Locale;
   legal_terms_version: string | null;
   amount_cents: number;
   currency: string;
@@ -43,7 +45,7 @@ export type CheckoutOrder = {
   updated_at: string;
 };
 
-export async function createCheckoutOrder(input: CheckoutInput): Promise<{ id: string; url: string }> {
+export async function createCheckoutOrder(input: CheckoutInput, locale: Locale = "sl"): Promise<{ id: string; url: string }> {
   const env = getCloudflareEnv();
   const recent = await env.DB.prepare(
     `SELECT COUNT(*) AS count FROM checkout_orders
@@ -59,17 +61,17 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<{ id: s
       (id, organization_id, existing_user_id, owner_name, owner_email, password_hash,
        organization_name, event_name, event_location, starts_at, ends_at, timezone,
        comments_enabled, ai_best_photos, face_collections, video_unlimited, legal_terms_version,
-       amount_cents, currency, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', 'pending', ?, ?)`,
+       amount_cents, currency, locale, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', ?, 'pending', ?, ?)`,
   ).bind(
     id, null, null, input.ownerName, input.ownerEmail, null,
     input.organizationName, input.eventName, input.eventLocation || null, input.startsAt, input.endsAt,
     input.timezone, input.commentsEnabled ? 1 : 0, input.aiBestPhotos ? 1 : 0, input.faceCollections ? 1 : 0,
-    input.videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, now, now,
+    input.videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, locale, now, now,
   ).run();
 
   try {
-    const root = env.PUBLIC_APP_URL.replace(/\/$/, "");
+    const root = appUrlForLocale(env, locale);
     const session = await createStripeCheckout({
       orderId: id,
       email: input.ownerEmail,
@@ -77,6 +79,7 @@ export async function createCheckoutOrder(input: CheckoutInput): Promise<{ id: s
       aiBestPhotos: input.aiBestPhotos,
       faceCollections: input.faceCollections,
       videoUnlimited: input.videoUnlimited,
+      locale,
       successUrl: `${root}/nakup/uspesen?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${root}/naroci?preklicano=1`,
     });
@@ -168,10 +171,10 @@ export async function fulfillCheckout(sessionId: string): Promise<CheckoutOrder>
     env.DB.prepare(
       `INSERT INTO events
         (id, organization_id, customer_id, package_id, public_slug, name, location, starts_at, ends_at,
-         timezone, status, comments_enabled, retention_until, created_at, updated_at)
-       VALUES (?, ?, ?, 'pkg_event_35', ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)`,
+         timezone, locale, status, comments_enabled, retention_until, created_at, updated_at)
+       VALUES (?, ?, ?, 'pkg_event_35', ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)`,
     ).bind(event.id, organizationId, customerId, event.publicSlug, event.name, event.location || null,
-      event.startsAt, event.endsAt, event.timezone, order.comments_enabled, event.retentionUntil, timestamp, timestamp),
+      event.startsAt, event.endsAt, event.timezone, order.locale, order.comments_enabled, event.retentionUntil, timestamp, timestamp),
     env.DB.prepare(
       `INSERT INTO access_points (id, event_id, public_code, type, label, active, created_at, updated_at)
        VALUES (?, ?, ?, 'qr', ?, 1, ?, ?)`,

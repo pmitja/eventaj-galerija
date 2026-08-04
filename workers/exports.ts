@@ -3,6 +3,7 @@ import { archiveSchedulingCutoff, createDeliveryToken, hashDeliveryToken } from 
 import { exportExpiry, exportFileName, uniqueWebpEntryNames } from "../lib/domain/exports";
 import { archiveDeliveryEmail, qrDeliveryEmail, ResendEmailAdapter } from "../lib/notifications/email";
 import { exportQueueMessageSchema } from "../lib/validation/exports";
+import { appUrlForLocale, intlLocale, type Locale } from "../lib/i18n/locale";
 
 type ExportMessage =
   | { type: "build_export"; exportId: string }
@@ -17,6 +18,7 @@ interface Env {
   RESEND_API_KEY: string;
   EMAIL_FROM: string;
   PUBLIC_APP_URL: string;
+  PUBLIC_APP_URL_EN: string;
 }
 
 type ExportRow = {
@@ -41,6 +43,7 @@ type QrDeliveryRow = {
   timezone: string;
   public_code: string;
   slideshow_token: string | null;
+  locale: Locale;
 };
 
 type ArchiveDeliveryRow = {
@@ -53,6 +56,7 @@ type ArchiveDeliveryRow = {
   event_name: string;
   export_status: "ready" | "expired";
   media_count: number;
+  locale: Locale;
 };
 
 export type ZipSource = {
@@ -140,17 +144,17 @@ function emailAdapter(env: Env): ResendEmailAdapter {
   return new ResendEmailAdapter(env.RESEND_API_KEY, env.EMAIL_FROM);
 }
 
-function appRoot(env: Env): string {
-  return env.PUBLIC_APP_URL.replace(/\/$/, "");
+function appRoot(env: Env, locale: Locale): string {
+  return appUrlForLocale(env, locale);
 }
 
-function eventDate(value: string, timezone: string): string {
-  return new Intl.DateTimeFormat("sl-SI", { dateStyle: "long", timeStyle: "short", timeZone: timezone }).format(new Date(value));
+function eventDate(value: string, timezone: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long", timeStyle: "short", timeZone: timezone }).format(new Date(value));
 }
 
 async function sendQrDelivery(env: Env, deliveryId: string): Promise<void> {
   const row = await env.DB.prepare(
-    `SELECT ed.id, ed.recipient_email, ed.qr_email_status, ed.slideshow_token, co.owner_name,
+    `SELECT ed.id, ed.recipient_email, ed.qr_email_status, ed.slideshow_token, co.owner_name, co.locale,
             e.name AS event_name, e.starts_at, e.timezone, ap.public_code
      FROM event_deliveries ed
      JOIN checkout_orders co ON co.id = ed.checkout_order_id
@@ -161,17 +165,18 @@ async function sendQrDelivery(env: Env, deliveryId: string): Promise<void> {
   if (!row || row.qr_email_status === "sent") return;
   if (!row.slideshow_token) throw new Error("DELIVERY_SLIDESHOW_TOKEN_MISSING");
 
-  const root = appRoot(env);
+  const root = appRoot(env, row.locale);
   await emailAdapter(env).send(qrDeliveryEmail({
     deliveryId: row.id,
     recipientEmail: row.recipient_email,
     recipientName: row.owner_name,
     eventName: row.event_name,
-    eventDate: eventDate(row.starts_at, row.timezone),
+    eventDate: eventDate(row.starts_at, row.timezone, row.locale),
     qrImageUrl: `${root}/qr/${encodeURIComponent(row.public_code)}.png`,
     eventUrl: `${root}/t/${encodeURIComponent(row.public_code)}`,
     qrDownloadUrl: `${root}/qr/${encodeURIComponent(row.public_code)}.png?download=1`,
     liveshowUrl: `${root}/display/${encodeURIComponent(row.slideshow_token)}`,
+    locale: row.locale,
   }));
   const now = new Date().toISOString();
   await env.DB.prepare(
@@ -183,7 +188,7 @@ async function sendQrDelivery(env: Env, deliveryId: string): Promise<void> {
 async function sendArchiveDelivery(env: Env, deliveryId: string, token: string): Promise<void> {
   const row = await env.DB.prepare(
     `SELECT ed.id, ed.recipient_email, ed.archive_email_status, ed.download_token_hash,
-            ed.download_expires_at, co.owner_name, e.name AS event_name,
+            ed.download_expires_at, co.owner_name, co.locale, e.name AS event_name,
             de.status AS export_status, de.media_count
      FROM event_deliveries ed
      JOIN checkout_orders co ON co.id = ed.checkout_order_id
@@ -203,10 +208,11 @@ async function sendArchiveDelivery(env: Env, deliveryId: string, token: string):
     recipientName: row.owner_name,
     eventName: row.event_name,
     mediaCount: row.media_count,
-    downloadUrl: `${appRoot(env)}/prenosi/${encodeURIComponent(token)}`,
-    expiresAtLabel: new Intl.DateTimeFormat("sl-SI", {
+    downloadUrl: `${appRoot(env, row.locale)}/prenosi/${encodeURIComponent(token)}`,
+    expiresAtLabel: new Intl.DateTimeFormat(intlLocale(row.locale), {
       dateStyle: "long", timeStyle: "short", timeZone: "Europe/Ljubljana",
     }).format(new Date(row.download_expires_at)),
+    locale: row.locale,
   }));
   const now = new Date().toISOString();
   await env.DB.prepare(

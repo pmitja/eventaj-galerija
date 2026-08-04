@@ -1,14 +1,67 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Icon } from "./icon";
 import styles from "./admin.module.css";
 
-export function SlideshowManager({ url, photoCount }: { url: string; photoCount: number }) {
+async function fetchSlideshowUrl(eventId: string): Promise<string> {
+  const response = await fetch(`/api/v1/admin/events/${encodeURIComponent(eventId)}/slideshow`, {
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error("Povezave ni bilo mogoče naložiti.");
+  const body = await response.json() as { slideshow: { url: string } };
+  return body.slideshow.url;
+}
+
+export function SlideshowManager({
+  eventId,
+  initialUrl,
+  photoCount,
+}: {
+  eventId: string;
+  initialUrl: string | null;
+  photoCount: number;
+}) {
+  const [url, setUrl] = useState(initialUrl);
+  const [pending, setPending] = useState(!initialUrl);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const loadLink = useCallback(async () => {
+    setPending(true);
+    setError(null);
+    try {
+      setUrl(await fetchSlideshowUrl(eventId));
+    } catch {
+      setError("Projekcijske povezave ni bilo mogoče pripraviti.");
+    } finally {
+      setPending(false);
+    }
+  }, [eventId]);
+
+  useEffect(() => {
+    if (initialUrl) return;
+    let ignore = false;
+    void fetchSlideshowUrl(eventId)
+      .then((stableUrl) => {
+        if (!ignore) {
+          setUrl(stableUrl);
+          setPending(false);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setError("Projekcijske povezave ni bilo mogoče pripraviti.");
+          setPending(false);
+        }
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [eventId, initialUrl]);
+
   async function copyLink() {
+    if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
       setError(null);
@@ -26,12 +79,16 @@ export function SlideshowManager({ url, photoCount }: { url: string; photoCount:
         <div><p>LIVE PROJEKCIJA</p><h2 id="slideshow-title">Slideshow za platno</h2></div>
         <p>{photoCount ? `${photoCount} fotografij je trenutno odobrenih za projekcijo.` : "Odobrene fotografije se bodo pojavile samodejno."}</p>
         <small>Ta projekcijska povezava je stalna in ostane enaka ob vsakem obisku dashboarda.</small>
-        <label><span>Projekcijska povezava</span><input value={url} readOnly /></label>
+        {url ? <label><span>Projekcijska povezava</span><input value={url} readOnly /></label> : null}
+        {pending ? <p role="status">Pripravljam projekcijsko povezavo …</p> : null}
         {error ? <p className={styles.slideshowError} role="alert">{error}</p> : null}
       </div>
       <div className={styles.slideshowActions}>
-        <a className={styles.primaryAction} href={url} target="_blank" rel="noreferrer">Odpri projekcijo</a>
-        <button type="button" className={styles.secondaryAction} onClick={() => void copyLink()}>{copied ? "Kopirano" : "Kopiraj povezavo"}</button>
+        {url ? <>
+          <a className={styles.primaryAction} href={url} target="_blank" rel="noreferrer">Odpri projekcijo</a>
+          <button type="button" className={styles.secondaryAction} onClick={() => void copyLink()}>{copied ? "Kopirano" : "Kopiraj povezavo"}</button>
+        </> : null}
+        {error ? <button type="button" className={styles.secondaryAction} onClick={() => void loadLink()} disabled={pending}>Poskusi znova</button> : null}
       </div>
     </section>
   );

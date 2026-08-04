@@ -1,6 +1,6 @@
 # Podatkovni model
 
-Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja zaporedne D1 migracije v `migrations/`. Migracije 0001–0014 uvedejo dogodke, QR dostop, medije, slideshow, izvoze, tehnično kakovost, komentarje in face-search rez. Migracija 0015 zamenja implicitnega enega administratorja z organizacijami, uporabniki, članstvi in Stripe checkout naročili; stare podatke ohrani v organizaciji `eventaj`.
+Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja zaporedne D1 migracije v `migrations/`. Migracije 0001–0014 uvedejo dogodke, QR dostop, medije, slideshow, izvoze, tehnično kakovost, komentarje in face-search rez. Migracija 0015 zamenja implicitnega enega administratorja z organizacijami, uporabniki, članstvi in Stripe checkout naročili; stare podatke ohrani v organizaciji `eventaj`. Migracija 0024 aditivno doda `locale` na checkout naročilo in dogodek; obstoječe vrstice ostanejo slovenske.
 
 Stripe webhook po ADR-012 idempotentno materializira plačan dogodek in glavno QR
 kodo brez članskega dostopa. Dostavi QR in ZIP sta ločeni idempotentni opravili.
@@ -62,7 +62,7 @@ erDiagram
 
 ### Dogodki
 
-- `events`: id, public_id, organization_id, customer_id, package_id, slug, name, status, starts_at, ends_at, timezone, location, comments_enabled, gallery_expires_at, archived_at, deleted_at, created_by.
+- `events`: id, public_id, organization_id, customer_id, package_id, slug, name, locale (`sl` ali `en`), status, starts_at, ends_at, timezone, location, comments_enabled, gallery_expires_at, archived_at, deleted_at, created_by.
 - `event_settings`: event_id, privacy_mode, moderation_mode, uploads_enabled, gallery_enabled, welcome_text, password_hash, cover_media_id, client_logo_media_id, theme_json, max_photo_bytes, max_video_bytes, max_video_seconds.
 
 Pomembni indeksi: unique `(organization_id, slug)`, unique `public_id`, `(organization_id, status, starts_at)`, `(gallery_expires_at, status)`.
@@ -83,6 +83,7 @@ Pomembni indeksi: unique `(organization_id, slug)`, unique `public_id`, `(organi
 - `media_files`: id, event_id, upload_id, kind, status, original_object_key, checksum_sha256, perceptual_hash, width, height, duration_ms, captured_at, uploaded_at, gallery_state, slideshow_state, quality_category, technical_score, duplicate_of_media_id, uploader_name, guest_message, publication_consent_id, deleted_at.
 - `media_variants`: id, media_file_id, type (`thumbnail`, `web`, `poster`, `original`), object_key, mime, width, height, size_bytes, checksum.
 - `media_processing_jobs`: id, media_file_id, organization_id, status, attempt_count, error_code, last_enqueued_at, processing_started_at, created_at, updated_at, completed_at.
+- `voice_messages`: id, public_id, event_id, upload_session_id, guest_id, object_key, declared_mime, size_bytes, duration_ms, status, publication_consent, uploaded_at, created_at. Audio je ločen od `media_files`, ker nima slikovnih variant, AI-kakovosti ali slideshow stanja.
 - `media_comments`: id, event_id, media_id, guest_id, body, status (`visible`, `hidden`), created_at, updated_at.
 - `moderation_actions`: id, media_file_id, actor_user_id, action, target, reason, created_at.
 

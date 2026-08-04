@@ -6,7 +6,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, Check, Download, LoaderCircle, LockKeyhole, Mail, ScanFace, ShieldCheck, Sparkles, TriangleAlert, Video } from "lucide-react";
 import { format } from "date-fns";
-import { sl } from "date-fns/locale";
+import { enGB, sl } from "date-fns/locale";
 import { Alert, Separator } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -15,8 +15,58 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel, RequiredMark } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { checkoutFormSchema, type CheckoutFormValues } from "@/lib/validation/checkout";
+import { checkoutFormSchemaFor, type CheckoutFormValues } from "@/lib/validation/checkout";
+import { useLocale } from "@/components/i18n/locale-provider";
 import styles from "./checkout.module.css";
+
+const CHECKOUT_COPY = {
+  sl: {
+    date: "Datum", chooseDate: "Izberi datum", required: "označuje obvezno polje",
+    paymentError: "Plačila ni mogoče začeti.", deliveryTitle: "Kam pošljemo QR?",
+    deliveryDescription: "Na ta naslov pošljemo QR kodo, po dogodku pa še ZIP vseh fotografij. Prijave ne potrebuješ.",
+    organisation: "Organizacija", organisationPlaceholder: "npr. Studio Sever", fullName: "Ime in priimek",
+    namePlaceholder: "npr. Nina Novak", email: "E-pošta", emailPlaceholder: "ime@podjetje.si",
+    afterPayment: "Takoj po plačilu", afterPaymentNote: "QR koda in neposredna povezava do dogodka.",
+    afterEvent: "Po zaključku dogodka", afterEventNote: "24-urna povezava do ZIP-a vseh fotografij.",
+    eventDetails: "Podatki o dogodku", eventDescription: "Vnesi osnovne podatke in določi, kdaj bo galerija aktivna.",
+    eventName: "Naziv dogodka", eventPlaceholder: "npr. Poroka Ane in Marka", location: "Lokacija", optional: "neobvezno",
+    locationPlaceholder: "npr. Vila Bled", start: "Začetek", end: "Konec", maxSevenDays: "Največ 7 dni po začetku",
+    time: "Čas", startDateLabel: "Izberi datum začetka", endDateLabel: "Izberi datum konca",
+    startTimeLabel: "Čas začetka", endTimeLabel: "Čas konca", comments: "Omogoči komentarje gostov",
+    commentsNote: "Gostje bodo lahko komentirali fotografije v galeriji.", summary: "Povzetek naročila",
+    once: "Enkratno plačilo, brez naročnine.", oneEvent: "1 dogodek · 180 dni hrambe", unlimitedGuests: "Neomejeno gostov",
+    qrGallery: "QR koda in foto galerija", qrEmail: "QR takoj po e-pošti", videos: "20 videov do 60 sekund",
+    zip: "ZIP po zaključku dogodka", aiNote: "Samodejni izbor do 3.000 fotografij.", face: "AI iskanje po obrazu",
+    faceNote: "Gostje s selfijem najdejo svoje fotografije.", unlimitedVideos: "Neomejeno videov",
+    videoNote: "Do 60 sekund in 500 MB na video. Velja fair-use politika.", total: "Skupaj", tax: "Cena vključuje DDV.",
+    consentPrefix: "Strinjam se s", terms: "Pogoji uporabe", consentMiddle: "in potrjujem, da sem prebral/-a",
+    privacy: "Politiko zasebnosti", opening: "Odpiram varno plačilo …", continue: "Nadaljuj na plačilo",
+    secure: "Plačilo varno obdela Stripe. Kartičnih podatkov ne hranimo.",
+  },
+  en: {
+    date: "Date", chooseDate: "Choose a date", required: "marks a required field",
+    paymentError: "Payment cannot be started.", deliveryTitle: "Where should we send the QR code?",
+    deliveryDescription: "We will send the QR code to this address and a ZIP of all photos after the event. No sign-in is required.",
+    organisation: "Organisation", organisationPlaceholder: "e.g. North Studio", fullName: "Full name",
+    namePlaceholder: "e.g. Nina Novak", email: "Email", emailPlaceholder: "name@company.com",
+    afterPayment: "Immediately after payment", afterPaymentNote: "QR code and a direct event link.",
+    afterEvent: "After the event", afterEventNote: "A 24-hour link to a ZIP of all photos.",
+    eventDetails: "Event details", eventDescription: "Enter the event details and choose when the gallery will be active.",
+    eventName: "Event name", eventPlaceholder: "e.g. Anna and Mark's wedding", location: "Location", optional: "optional",
+    locationPlaceholder: "e.g. Bled Castle", start: "Start", end: "End", maxSevenDays: "No more than 7 days after the start",
+    time: "Time", startDateLabel: "Choose the start date", endDateLabel: "Choose the end date",
+    startTimeLabel: "Start time", endTimeLabel: "End time", comments: "Enable guest comments",
+    commentsNote: "Guests will be able to comment on photos in the gallery.", summary: "Order summary",
+    once: "One-off payment, no subscription.", oneEvent: "1 event · 180 days of storage", unlimitedGuests: "Unlimited guests",
+    qrGallery: "QR code and photo gallery", qrEmail: "QR sent immediately by email", videos: "20 videos up to 60 seconds",
+    zip: "ZIP after the event", aiNote: "Automatic selection for up to 3,000 photos.", face: "AI face search",
+    faceNote: "Guests use a selfie to find their photos.", unlimitedVideos: "Unlimited videos",
+    videoNote: "Up to 60 seconds and 500 MB per video. Fair-use policy applies.", total: "Total", tax: "VAT included.",
+    consentPrefix: "I agree to the", terms: "Terms of Use", consentMiddle: "and confirm that I have read the",
+    privacy: "Privacy Policy", opening: "Opening secure payment …", continue: "Continue to payment",
+    secure: "Payment is securely processed by Stripe. We do not store card details.",
+  },
+} as const;
 
 function dateFromValue(value: string) {
   const [year, month, day] = value.split("-").map(Number);
@@ -30,23 +80,26 @@ function valueFromDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function DatePickerField({ id, label, value, onChange, error, disabledBefore }: {
+function DatePickerField({ id, label, value, onChange, error, disabledBefore, locale, dateLabel, chooseDate }: {
   id: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
   error?: string;
   disabledBefore?: Date;
+  locale: "sl" | "en";
+  dateLabel: string;
+  chooseDate: string;
 }) {
   const [open, setOpen] = useState(false);
   const selected = dateFromValue(value);
   return <Field>
-    <FieldLabel htmlFor={id}>Datum<RequiredMark /></FieldLabel>
+    <FieldLabel htmlFor={id}>{dateLabel}<RequiredMark /></FieldLabel>
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button id={id} type="button" variant="outline" className={styles.dateButton} aria-label={label} aria-required="true" aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined}>
           <CalendarDays aria-hidden="true" />
-          <span>{selected ? format(selected, "d. MMM yyyy", { locale: sl }) : "Izberi datum"}</span>
+          <span>{selected ? format(selected, "d MMM yyyy", { locale: locale === "en" ? enGB : sl }) : chooseDate}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start">
@@ -61,6 +114,7 @@ function DatePickerField({ id, label, value, onChange, error, disabledBefore }: 
           }}
           disabled={disabledBefore ? { before: disabledBefore } : undefined}
           autoFocus
+          locale={locale === "en" ? enGB : sl}
         />
       </PopoverContent>
     </Popover>
@@ -79,9 +133,11 @@ function SectionHeading({ step, title, description }: { step: string; title: str
 }
 
 export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnabled?: boolean }) {
+  const locale = useLocale();
+  const copy = CHECKOUT_COPY[locale];
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<CheckoutFormValues>({
-    resolver: zodResolver(checkoutFormSchema),
+    resolver: zodResolver(checkoutFormSchemaFor(locale)),
     mode: "onBlur",
     defaultValues: {
       organizationName: "",
@@ -127,84 +183,84 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
         }),
       });
       const body = await response.json().catch(() => null) as { checkout?: { url: string }; detail?: string; title?: string } | null;
-      if (!response.ok || !body?.checkout?.url) throw new Error(body?.detail ?? body?.title ?? "Plačila ni mogoče začeti.");
+      if (!response.ok || !body?.checkout?.url) throw new Error(body?.detail ?? body?.title ?? copy.paymentError);
       window.location.assign(body.checkout.url);
     } catch (cause) {
-      setServerError(cause instanceof Error ? cause.message : "Plačila ni mogoče začeti.");
+      setServerError(cause instanceof Error ? cause.message : copy.paymentError);
     }
   }
 
   return <form className={styles.form} onSubmit={form.handleSubmit(submit)} noValidate>
-    <p className={styles.requiredNote}><span aria-hidden="true">*</span> označuje obvezno polje</p>
+    <p className={styles.requiredNote}><span aria-hidden="true">*</span> {copy.required}</p>
     <div className={styles.formLayout}>
       <div className={styles.formColumn}>
         <Card>
-          <SectionHeading step="1" title="Kam pošljemo QR?" description="Na ta naslov pošljemo QR kodo, po dogodku pa še ZIP vseh fotografij. Prijave ne potrebuješ." />
+          <SectionHeading step="1" title={copy.deliveryTitle} description={copy.deliveryDescription} />
           <CardContent className={styles.fieldsGrid}>
             <Field>
-              <FieldLabel htmlFor="organizationName">Organizacija<RequiredMark /></FieldLabel>
-              <Input id="organizationName" required autoComplete="organization" placeholder="npr. Studio Sever" aria-invalid={Boolean(errors.organizationName)} aria-describedby={errors.organizationName ? "organizationName-error" : undefined} {...form.register("organizationName")} />
+              <FieldLabel htmlFor="organizationName">{copy.organisation}<RequiredMark /></FieldLabel>
+              <Input id="organizationName" required autoComplete="organization" placeholder={copy.organisationPlaceholder} aria-invalid={Boolean(errors.organizationName)} aria-describedby={errors.organizationName ? "organizationName-error" : undefined} {...form.register("organizationName")} />
               {errors.organizationName ? <FieldError id="organizationName-error">{errors.organizationName.message}</FieldError> : null}
             </Field>
             <Field>
-              <FieldLabel htmlFor="ownerName">Ime in priimek<RequiredMark /></FieldLabel>
-              <Input id="ownerName" required autoComplete="name" placeholder="npr. Nina Novak" aria-invalid={Boolean(errors.ownerName)} aria-describedby={errors.ownerName ? "ownerName-error" : undefined} {...form.register("ownerName")} />
+              <FieldLabel htmlFor="ownerName">{copy.fullName}<RequiredMark /></FieldLabel>
+              <Input id="ownerName" required autoComplete="name" placeholder={copy.namePlaceholder} aria-invalid={Boolean(errors.ownerName)} aria-describedby={errors.ownerName ? "ownerName-error" : undefined} {...form.register("ownerName")} />
               {errors.ownerName ? <FieldError id="ownerName-error">{errors.ownerName.message}</FieldError> : null}
             </Field>
             <Field>
-              <FieldLabel htmlFor="ownerEmail">E-pošta<RequiredMark /></FieldLabel>
-              <Input id="ownerEmail" type="email" required inputMode="email" autoComplete="email" placeholder="ime@podjetje.si" aria-invalid={Boolean(errors.ownerEmail)} aria-describedby={errors.ownerEmail ? "ownerEmail-error" : undefined} {...form.register("ownerEmail")} />
+              <FieldLabel htmlFor="ownerEmail">{copy.email}<RequiredMark /></FieldLabel>
+              <Input id="ownerEmail" type="email" required inputMode="email" autoComplete="email" placeholder={copy.emailPlaceholder} aria-invalid={Boolean(errors.ownerEmail)} aria-describedby={errors.ownerEmail ? "ownerEmail-error" : undefined} {...form.register("ownerEmail")} />
               {errors.ownerEmail ? <FieldError id="ownerEmail-error">{errors.ownerEmail.message}</FieldError> : null}
             </Field>
             <div className={styles.deliveryPromise}>
               <Mail aria-hidden="true" />
-              <span><strong>Takoj po plačilu</strong><small>QR koda in neposredna povezava do dogodka.</small></span>
+              <span><strong>{copy.afterPayment}</strong><small>{copy.afterPaymentNote}</small></span>
             </div>
             <div className={styles.deliveryPromise}>
               <Download aria-hidden="true" />
-              <span><strong>Po zaključku dogodka</strong><small>24-urna povezava do ZIP-a vseh fotografij.</small></span>
+              <span><strong>{copy.afterEvent}</strong><small>{copy.afterEventNote}</small></span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <SectionHeading step="2" title="Podatki o dogodku" description="Vnesi osnovne podatke in določi, kdaj bo galerija aktivna." />
+          <SectionHeading step="2" title={copy.eventDetails} description={copy.eventDescription} />
           <CardContent className={styles.eventContent}>
             <div className={styles.fieldsGrid}>
               <Field className={styles.fullWidth}>
-                <FieldLabel htmlFor="eventName">Naziv dogodka<RequiredMark /></FieldLabel>
-                <Input id="eventName" required placeholder="npr. Poroka Ane in Marka" aria-invalid={Boolean(errors.eventName)} aria-describedby={errors.eventName ? "eventName-error" : undefined} {...form.register("eventName")} />
+                <FieldLabel htmlFor="eventName">{copy.eventName}<RequiredMark /></FieldLabel>
+                <Input id="eventName" required placeholder={copy.eventPlaceholder} aria-invalid={Boolean(errors.eventName)} aria-describedby={errors.eventName ? "eventName-error" : undefined} {...form.register("eventName")} />
                 {errors.eventName ? <FieldError id="eventName-error">{errors.eventName.message}</FieldError> : null}
               </Field>
               <Field className={styles.fullWidth}>
-                <FieldLabel htmlFor="eventLocation">Lokacija <span className={styles.optional}>(neobvezno)</span></FieldLabel>
-                <Input id="eventLocation" placeholder="npr. Vila Bled" autoComplete="off" aria-invalid={Boolean(errors.eventLocation)} {...form.register("eventLocation")} />
+                <FieldLabel htmlFor="eventLocation">{copy.location} <span className={styles.optional}>({copy.optional})</span></FieldLabel>
+                <Input id="eventLocation" placeholder={copy.locationPlaceholder} autoComplete="off" aria-invalid={Boolean(errors.eventLocation)} {...form.register("eventLocation")} />
                 {errors.eventLocation ? <FieldError>{errors.eventLocation.message}</FieldError> : null}
               </Field>
             </div>
 
             <div className={styles.timeline}>
               <div className={styles.dateTimeGroup}>
-                <div className={styles.dateTimeHeading}><span>Začetek</span><small>Europe/Ljubljana</small></div>
+                <div className={styles.dateTimeHeading}><span>{copy.start}</span><small>Europe/Ljubljana</small></div>
                 <div className={styles.dateTimeFields}>
-                  <Controller control={form.control} name="startDate" render={({ field }) => <DatePickerField id="startDate" label="Izberi datum začetka" value={field.value} onChange={(value) => {
+                  <Controller control={form.control} name="startDate" render={({ field }) => <DatePickerField id="startDate" label={copy.startDateLabel} value={field.value} onChange={(value) => {
                     field.onChange(value);
                     if (!form.getValues("endDate")) form.setValue("endDate", value, { shouldValidate: true });
-                  }} error={errors.startDate?.message} disabledBefore={new Date(new Date().setHours(0, 0, 0, 0))} />} />
+                  }} error={errors.startDate?.message} disabledBefore={new Date(new Date().setHours(0, 0, 0, 0))} locale={locale} dateLabel={copy.date} chooseDate={copy.chooseDate} />} />
                   <Field>
-                    <FieldLabel htmlFor="startTime">Čas<RequiredMark /></FieldLabel>
-                    <Input id="startTime" type="time" required aria-label="Čas začetka" aria-invalid={Boolean(errors.startTime)} {...form.register("startTime")} />
+                    <FieldLabel htmlFor="startTime">{copy.time}<RequiredMark /></FieldLabel>
+                    <Input id="startTime" type="time" required aria-label={copy.startTimeLabel} aria-invalid={Boolean(errors.startTime)} {...form.register("startTime")} />
                     {errors.startTime ? <FieldError>{errors.startTime.message}</FieldError> : null}
                   </Field>
                 </div>
               </div>
               <div className={styles.dateTimeGroup}>
-                <div className={styles.dateTimeHeading}><span>Konec</span><small>Največ 7 dni po začetku</small></div>
+                <div className={styles.dateTimeHeading}><span>{copy.end}</span><small>{copy.maxSevenDays}</small></div>
                 <div className={styles.dateTimeFields}>
-                  <Controller control={form.control} name="endDate" render={({ field }) => <DatePickerField id="endDate" label="Izberi datum konca" value={field.value} onChange={field.onChange} error={errors.endDate?.message} disabledBefore={dateFromValue(startDate)} />} />
+                  <Controller control={form.control} name="endDate" render={({ field }) => <DatePickerField id="endDate" label={copy.endDateLabel} value={field.value} onChange={field.onChange} error={errors.endDate?.message} disabledBefore={dateFromValue(startDate)} locale={locale} dateLabel={copy.date} chooseDate={copy.chooseDate} />} />
                   <Field>
-                    <FieldLabel htmlFor="endTime">Čas<RequiredMark /></FieldLabel>
-                    <Input id="endTime" type="time" required aria-label="Čas konca" aria-invalid={Boolean(errors.endTime)} {...form.register("endTime")} />
+                    <FieldLabel htmlFor="endTime">{copy.time}<RequiredMark /></FieldLabel>
+                    <Input id="endTime" type="time" required aria-label={copy.endTimeLabel} aria-invalid={Boolean(errors.endTime)} {...form.register("endTime")} />
                     {errors.endTime ? <FieldError>{errors.endTime.message}</FieldError> : null}
                   </Field>
                 </div>
@@ -213,63 +269,63 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
 
             <Controller control={form.control} name="commentsEnabled" render={({ field }) => <label className={styles.commentsOption} htmlFor="commentsEnabled">
               <Checkbox id="commentsEnabled" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong>Omogoči komentarje gostov</strong><small>Gostje bodo lahko komentirali fotografije v galeriji.</small></span>
+              <span><strong>{copy.comments}</strong><small>{copy.commentsNote}</small></span>
             </label>} />
           </CardContent>
         </Card>
       </div>
 
-      <aside className={styles.summary} aria-label="Povzetek naročila">
+      <aside className={styles.summary} aria-label={copy.summary}>
         <Card className={styles.summaryCard}>
           <CardHeader>
-            <CardTitle>Povzetek naročila</CardTitle>
-            <CardDescription>Enkratno plačilo, brez naročnine.</CardDescription>
+            <CardTitle>{copy.summary}</CardTitle>
+            <CardDescription>{copy.once}</CardDescription>
           </CardHeader>
           <CardContent className={styles.summaryContent}>
             <div className={styles.productRow}>
               <div className={styles.productIcon}><CalendarDays aria-hidden="true" /></div>
-              <div><strong>Eventaj Galerija</strong><span>1 dogodek · 180 dni hrambe</span></div>
+              <div><strong>Eventaj Galerija</strong><span>{copy.oneEvent}</span></div>
               <b>35 €</b>
             </div>
             <ul className={styles.includedList}>
-              <li><Check aria-hidden="true" /> Neomejeno gostov</li>
-              <li><Check aria-hidden="true" /> QR koda in foto galerija</li>
-              <li><Check aria-hidden="true" /> QR takoj po e-pošti</li>
-              {videoUploadsEnabled ? <li><Check aria-hidden="true" /> 20 videov do 60 sekund</li> : null}
-              <li><Check aria-hidden="true" /> ZIP po zaključku dogodka</li>
+              <li><Check aria-hidden="true" /> {copy.unlimitedGuests}</li>
+              <li><Check aria-hidden="true" /> {copy.qrGallery}</li>
+              <li><Check aria-hidden="true" /> {copy.qrEmail}</li>
+              {videoUploadsEnabled ? <li><Check aria-hidden="true" /> {copy.videos}</li> : null}
+              <li><Check aria-hidden="true" /> {copy.zip}</li>
             </ul>
             <Separator />
             <Controller control={form.control} name="aiBestPhotos" render={({ field }) => <label className={styles.addon} htmlFor="aiBestPhotos">
               <Checkbox id="aiBestPhotos" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong><Sparkles aria-hidden="true" /> AI Best Photos</strong><small>Samodejni izbor do 3.000 fotografij.</small></span>
+              <span><strong><Sparkles aria-hidden="true" /> AI Best Photos</strong><small>{copy.aiNote}</small></span>
               <b>+15 €</b>
             </label>} />
             <Controller control={form.control} name="faceCollections" render={({ field }) => <label className={styles.addon} htmlFor="faceCollections">
               <Checkbox id="faceCollections" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong><ScanFace aria-hidden="true" /> AI iskanje po obrazu</strong><small>Gostje s selfijem najdejo svoje fotografije.</small></span>
+              <span><strong><ScanFace aria-hidden="true" /> {copy.face}</strong><small>{copy.faceNote}</small></span>
               <b>+5 €</b>
             </label>} />
             {videoUploadsEnabled ? <Controller control={form.control} name="videoUnlimited" render={({ field }) => <label className={styles.addon} htmlFor="videoUnlimited">
               <Checkbox id="videoUnlimited" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong><Video aria-hidden="true" /> Neomejeno videov</strong><small>Do 60 sekund in 500 MB na video. Velja fair-use politika.</small></span>
+              <span><strong><Video aria-hidden="true" /> {copy.unlimitedVideos}</strong><small>{copy.videoNote}</small></span>
               <b>+15 €</b>
             </label>} /> : null}
             <Separator />
-            <div className={styles.total}><span>Skupaj</span><strong>{totalEuros} €</strong></div>
-            <span className={styles.taxNote}>Cena vključuje DDV.</span>
+            <div className={styles.total}><span>{copy.total}</span><strong>{totalEuros} €</strong></div>
+            <span className={styles.taxNote}>{copy.tax}</span>
             <Controller control={form.control} name="termsAccepted" render={({ field }) => <div>
               <label className={styles.legalConsent} htmlFor="termsAccepted">
                 <Checkbox id="termsAccepted" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} aria-invalid={Boolean(errors.termsAccepted)} />
-                <span>Strinjam se s <Link href="/pogoji-uporabe" target="_blank">Pogoji uporabe</Link> in potrjujem, da sem prebral/-a <Link href="/zasebnost" target="_blank">Politiko zasebnosti</Link>.</span>
+                <span>{copy.consentPrefix} <Link href="/pogoji-uporabe" target="_blank">{copy.terms}</Link> {copy.consentMiddle} <Link href="/zasebnost" target="_blank">{copy.privacy}</Link>.</span>
               </label>
               {errors.termsAccepted ? <FieldError>{errors.termsAccepted.message}</FieldError> : null}
             </div>} />
             {serverError ? <Alert role="alert"><TriangleAlert aria-hidden="true" /><span>{serverError}</span></Alert> : null}
             <Button className={styles.submit} type="submit" disabled={isSubmitting}>
               {isSubmitting ? <LoaderCircle className={styles.spinner} aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}
-              {isSubmitting ? "Odpiram varno plačilo …" : "Nadaljuj na plačilo"}
+              {isSubmitting ? copy.opening : copy.continue}
             </Button>
-            <div className={styles.secureNote}><ShieldCheck aria-hidden="true" /><span>Plačilo varno obdela Stripe. Kartičnih podatkov ne hranimo.</span></div>
+            <div className={styles.secureNote}><ShieldCheck aria-hidden="true" /><span>{copy.secure}</span></div>
           </CardContent>
         </Card>
       </aside>

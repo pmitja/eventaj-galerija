@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { EventUpload } from "@/components/event/event-upload";
 import { GuestIdentityGate } from "@/components/guest/guest-identity-gate";
@@ -15,6 +16,16 @@ import { storedFaceSearchResultSchema, type StoredFaceSearchResult } from "@/lib
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import { storedGalleryLikesSchema } from "@/lib/validation/media-comments";
 import styles from "./guest-gallery.module.css";
+import { useLocale } from "@/components/i18n/locale-provider";
+import { ENGLISH_SITE_URL, SITE_URL } from "@/lib/seo";
+import { intlLocale } from "@/lib/i18n/locale";
+import { usePathname } from "next/navigation";
+import { VoiceGuestbook } from "@/components/guest/voice-message-recorder";
+
+const VoiceMessageRecorder = dynamic(
+  () => import("@/components/guest/voice-message-recorder").then((module) => module.VoiceMessageRecorder),
+  { ssr: false },
+);
 
 const demoPhotos = demoEventPhotos.map((photo) => ({
   key: photo.id,
@@ -25,6 +36,7 @@ const demoPhotos = demoEventPhotos.map((photo) => ({
   comments: photo.comments,
   kind: "image" as const,
   playbackUrl: null,
+  downloadUrl: null,
 }));
 
 type LiveGalleryMedia = {
@@ -35,6 +47,7 @@ type LiveGalleryMedia = {
   commentCount: number;
   kind: "image" | "video";
   playbackUrl: string | null;
+  downloadUrl: string | null;
   comments?: never;
 };
 
@@ -47,6 +60,10 @@ function CameraIcon() {
   );
 }
 
+function MicrophoneIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6" /></svg>;
+}
+
 function HeartIcon({ filled = false }: { filled?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={filled ? styles.filledHeart : undefined}>
@@ -57,6 +74,10 @@ function HeartIcon({ filled = false }: { filled?: boolean }) {
 
 function CommentIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.7-.8L4 20l1.4-3.8A7.4 7.4 0 0 1 4 11.5a7.5 7.5 0 0 1 8-7.5 7.5 7.5 0 0 1 8 7.5Z" /></svg>;
+}
+
+function DownloadIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19v2h14v-2" /></svg>;
 }
 
 function copyWithLegacySelection(url: string) {
@@ -75,13 +96,22 @@ function copyWithLegacySelection(url: string) {
   }
 }
 
-const shareMessages: Record<Exclude<GalleryShareResult, "cancelled">, { message: string; tone: "success" | "error" }> = {
-  shared: { message: "Galerija je bila deljena.", tone: "success" },
-  copied: { message: "Povezava do galerije je kopirana.", tone: "success" },
-  error: { message: "Povezave ni bilo mogoče deliti. Kopiraj naslov iz brskalnika.", tone: "error" },
-};
+function shareMessages(locale: "sl" | "en"): Record<Exclude<GalleryShareResult, "cancelled">, { message: string; tone: "success" | "error" }> {
+  return locale === "en" ? {
+    shared: { message: "The gallery was shared.", tone: "success" },
+    copied: { message: "The gallery link was copied.", tone: "success" },
+    error: { message: "The link could not be shared. Copy the address from your browser.", tone: "error" },
+  } : {
+    shared: { message: "Galerija je bila deljena.", tone: "success" },
+    copied: { message: "Povezava do galerije je kopirana.", tone: "success" },
+    error: { message: "Povezave ni bilo mogoče deliti. Kopiraj naslov iz brskalnika.", tone: "error" },
+  };
+}
 
 export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: string }) {
+  const locale = useLocale();
+  const en = locale === "en";
+  const pathname = usePathname();
   const isDemoEvent = eventSlug === DEMO_EVENT_SLUG;
   const [guestIdentity, setGuestIdentity] = useState<StoredGuestIdentity | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
@@ -91,9 +121,10 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [livePhotos, setLivePhotos] = useState<LiveGalleryMedia[]>([]);
   const [faceSearchResult, setFaceSearchResult] = useState<StoredFaceSearchResult | null>(null);
   const [faceFilterActive, setFaceFilterActive] = useState(false);
-  const [eventInfo, setEventInfo] = useState({ name: "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null, videoUploadsEnabled: false });
+  const [eventInfo, setEventInfo] = useState({ name: en ? "Anna & Mark" : "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null, videoUploadsEnabled: false });
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
+  const [voiceMessagesRefreshKey, setVoiceMessagesRefreshKey] = useState(0);
   const allPhotos = isDemoEvent ? [...demoPhotos] : livePhotos;
   const faceMatchIds = new Set(faceSearchResult?.mediaIds ?? []);
   const faceSearchPhotos = faceSearchResult ? allPhotos.filter((photo) => photo.publicId && faceMatchIds.has(photo.publicId)) : [];
@@ -106,12 +137,13 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     const load = async () => {
       const response = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/media`, { cache: "no-store" });
       if (!response.ok || !active) return;
-      const body = await response.json() as { media: Array<{ publicId: string; imageUrl: string | null; thumbnailUrl: string; playbackUrl: string | null; kind: "image" | "video"; filename: string; commentCount: number }> };
+      const body = await response.json() as { media: Array<{ publicId: string; imageUrl: string | null; thumbnailUrl: string; playbackUrl: string | null; downloadUrl: string | null; kind: "image" | "video"; filename: string; commentCount: number }> };
       setLivePhotos(body.media.map((item) => ({
         key: item.publicId,
         publicId: item.publicId,
         src: item.imageUrl ?? item.thumbnailUrl,
         playbackUrl: item.playbackUrl,
+        downloadUrl: item.downloadUrl,
         kind: item.kind,
         alt: item.filename,
         commentCount: item.commentCount,
@@ -278,30 +310,31 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
       client: navigator,
       data: {
         title: `${eventInfo.name} | Eventaj Galerija`,
-        text: `Oglej si fotografije dogodka ${eventInfo.name}.`,
+        text: en ? `See the photos from ${eventInfo.name}.` : `Oglej si fotografije dogodka ${eventInfo.name}.`,
         url: shareUrl.toString(),
       },
       legacyCopy: copyWithLegacySelection,
     });
 
-    if (result !== "cancelled") setShareFeedback(shareMessages[result]);
+    if (result !== "cancelled") setShareFeedback(shareMessages(locale)[result]);
     setIsSharing(false);
   }
 
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link className={styles.brand} href="/" aria-label="Nazaj na predstavitveno stran Eventaj Galerije">
+        <Link className={styles.brand} href="/" aria-label={en ? "Back to the Eventaj Gallery website" : "Nazaj na predstavitveno stran Eventaj Galerije"}>
           eventaj<span>.</span>
         </Link>
         <div className={styles.headerActions}>
+        <a href={`${en ? SITE_URL : ENGLISH_SITE_URL}${pathname}`} aria-label={en ? "Slovenščina" : "English"}>{en ? "SL" : "EN"}</a>
         {!isDemoEvent ? <GuestIdentityGate eventSlug={eventSlug} onIdentity={setGuestIdentity} /> : null}
         <button
           className={styles.shareButton}
           type="button"
           onClick={handleShare}
           disabled={isSharing}
-          aria-label={isSharing ? "Odpiram možnosti deljenja" : "Deli galerijo"}
+          aria-label={isSharing ? (en ? "Opening sharing options" : "Odpiram možnosti deljenja") : (en ? "Share gallery" : "Deli galerijo")}
           aria-busy={isSharing}
           aria-describedby={shareFeedback ? "share-feedback" : undefined}
         >
@@ -324,33 +357,39 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
           {allPhotos[0] ? <Image src={allPhotos[0].src} alt="" fill priority sizes="100vw" unoptimized={allPhotos[0].src.startsWith("/api/")} /> : null}
         </div>
         <div className={styles.heroContent}>
-          <p className={styles.kicker}>{new Intl.DateTimeFormat("sl-SI", { dateStyle: "long" }).format(new Date(eventInfo.startsAt))}{eventInfo.location ? ` · ${eventInfo.location}` : ""}</p>
+          <p className={styles.kicker}>{new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long" }).format(new Date(eventInfo.startsAt))}{eventInfo.location ? ` · ${eventInfo.location}` : ""}</p>
           <h1>{eventInfo.name}</h1>
-          <p className={styles.welcome}>Dobrodošli v skupni galeriji. Dodajte utrinke, ki ste jih ujeli, in podoživite dogodek skupaj.</p>
+          <p className={styles.welcome}>{en ? "Welcome to the shared gallery. Add the moments you captured and relive the event together." : "Dobrodošli v skupni galeriji. Dodajte utrinke, ki ste jih ujeli, in podoživite dogodek skupaj."}</p>
           {isDemoEvent ? (
             <>
               <a className={styles.heroCta} href="#gallery-title">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                Razišči demo galerijo
+                {en ? "Explore the demo gallery" : "Razišči demo galerijo"}
               </a>
-              <p className={styles.uploadHint}>Brez prijave in brez obveznosti</p>
+              <p className={styles.uploadHint}>{en ? "No sign-in and no commitment" : "Brez prijave in brez obveznosti"}</p>
             </>
           ) : eventInfo.uploadsOpen ? (
             <>
               <a className={styles.heroCta} href="#dodaj">
-                <CameraIcon /> Dodaj fotografije
+                <CameraIcon /> {en ? "Add photos" : "Dodaj fotografije"}
               </a>
-              <p className={styles.uploadHint}>Brez aplikacije in brez prijave</p>
+              <a className={styles.heroSecondaryCta} href="#glasovno-vosicilo">
+                <MicrophoneIcon /> {en ? "Leave a voice message" : "Pusti glasovno voščilo"}
+              </a>
+              <p className={styles.uploadHint}>{en ? "No app and no sign-in" : "Brez aplikacije in brez prijave"}</p>
             </>
           ) : (
-            <p className={styles.uploadHint}>Nalaganje je zaključeno. Uživaj v skupnih spominih.</p>
+            <p className={styles.uploadHint}>{en ? "Uploads are closed. Enjoy the shared memories." : "Nalaganje je zaključeno. Uživaj v skupnih spominih."}</p>
           )}
         </div>
       </section>
 
       {eventInfo.uploadsOpen && !isDemoEvent ? (
         <div className={styles.uploadSection}>
-          {guestIdentity ? <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} videoUploadsEnabled={eventInfo.videoUploadsEnabled} /> : null}
+          {guestIdentity ? <>
+            <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} videoUploadsEnabled={eventInfo.videoUploadsEnabled} />
+            <VoiceMessageRecorder eventSlug={eventSlug} guestId={guestIdentity.guestId} onSubmitted={() => setVoiceMessagesRefreshKey((current) => current + 1)} />
+          </> : null}
         </div>
       ) : null}
 
@@ -361,29 +400,30 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
               <svg viewBox="0 0 24 24"><path d="m9 7 8 5-8 5V7Z" /><rect x="3" y="3" width="18" height="18" rx="4" /></svg>
             </span>
             <span>
-              <small>Doživi galerijo na velikem zaslonu</small>
-              <strong>Predvajaj demo Live Show</strong>
+              <small>{en ? "Experience the gallery on the big screen" : "Doživi galerijo na velikem zaslonu"}</small>
+              <strong>{en ? "Play the demo Live Show" : "Predvajaj demo Live Show"}</strong>
             </span>
             <svg className={styles.liveShowArrow} viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
           </a>
         ) : null}
+        {!isDemoEvent ? <VoiceGuestbook eventSlug={eventSlug} refreshKey={voiceMessagesRefreshKey} /> : null}
         <div className={styles.galleryIntro}>
           <div>
-            <p className={styles.sectionEyebrow}>Skupni spomini</p>
-            <h2 id="gallery-title">{faceFilterActive ? "Tvoje fotografije" : "Najlepši trenutki"}</h2>
+            <p className={styles.sectionEyebrow}>{en ? "Shared memories" : "Skupni spomini"}</p>
+            <h2 id="gallery-title">{faceFilterActive ? (en ? "Your photos" : "Tvoje fotografije") : (en ? "Favourite moments" : "Najlepši trenutki")}</h2>
           </div>
-          <span className={styles.count}>{photos.length} utrinkov</span>
+          <span className={styles.count}>{photos.length} {en ? (photos.length === 1 ? "moment" : "moments") : "utrinkov"}</span>
         </div>
 
         {guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion ? (
-          <div className={styles.galleryFilters} aria-label="Filtri galerije">
+          <div className={styles.galleryFilters} aria-label={en ? "Gallery filters" : "Filtri galerije"}>
             <button
               className={`${styles.galleryFilter} ${!faceFilterActive ? styles.galleryFilterActive : ""}`}
               type="button"
               onClick={() => { setFaceFilterActive(false); setVisiblePhotoCount(6); }}
               aria-pressed={!faceFilterActive}
             >
-              Vse fotografije
+              {en ? "All photos" : "Vse fotografije"}
             </button>
             <FaceSearch
               eventSlug={eventSlug}
@@ -402,11 +442,11 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <div className={styles.grid} data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => (
             <article className={styles.photoCard} key={photo.key}>
-              <button className={styles.photoButton} type="button" onClick={() => openPhoto(index)} aria-label={`Odpri ${photo.kind === "video" ? "video" : "fotografijo"}: ${photo.alt}`}>
+              <button className={styles.photoButton} type="button" onClick={() => openPhoto(index)} aria-label={`${en ? "Open" : "Odpri"} ${photo.kind === "video" ? "video" : (en ? "photo" : "fotografijo")}: ${photo.alt}`}>
                 <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized={photo.src.startsWith("/api/")} />
                 {photo.kind === "video" ? <span className={styles.videoBadge} aria-hidden="true">▶</span> : null}
               </button>
-              <button className={styles.likeButton} type="button" onClick={() => toggleLike(photo.key)} aria-label={liked.includes(photo.key) ? "Odstrani iz priljubljenih" : "Dodaj med priljubljene"} aria-pressed={liked.includes(photo.key)}>
+              <button className={styles.likeButton} type="button" onClick={() => toggleLike(photo.key)} aria-label={liked.includes(photo.key) ? (en ? "Remove from favourites" : "Odstrani iz priljubljenih") : (en ? "Add to favourites" : "Dodaj med priljubljene")} aria-pressed={liked.includes(photo.key)}>
                 <HeartIcon filled={liked.includes(photo.key)} />
               </button>
               {eventInfo.commentsEnabled && photo.publicId ? (
@@ -414,7 +454,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                   className={styles.commentBadge}
                   type="button"
                   onClick={() => openPhotoComments(index)}
-                  aria-label={`${photo.commentCount} ${photo.commentCount === 1 ? "komentar" : "komentarjev"} na fotografiji`}
+                  aria-label={`${photo.commentCount} ${en ? (photo.commentCount === 1 ? "comment" : "comments") : (photo.commentCount === 1 ? "komentar" : "komentarjev")} ${en ? "on the photo" : "na fotografiji"}`}
                 >
                   <CommentIcon /><span>{photo.commentCount}</span>
                 </button>
@@ -422,20 +462,20 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
             </article>
           ))}
         </div>
-        {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? "Teh fotografij ni več v javni galeriji. Osveži iskanje." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek."}</p> : null}
+        {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? (en ? "These photos are no longer in the public gallery. Refresh the search." : "Teh fotografij ni več v javni galeriji. Osveži iskanje.") : (en ? "No photos yet. Be the first to add a moment." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek.")}</p> : null}
         {visiblePhotoCount < photos.length ? (
-          <button className={styles.moreButton} type="button" onClick={() => setVisiblePhotoCount(photos.length)}>Prikaži več fotografij</button>
+          <button className={styles.moreButton} type="button" onClick={() => setVisiblePhotoCount(photos.length)}>{en ? "Show more photos" : "Prikaži več fotografij"}</button>
         ) : null}
-        <p className={styles.privacy}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" /></svg>Ta galerija je zasebna in dostopna samo gostom s povezavo.</p>
+        <p className={styles.privacy}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" /></svg>{en ? "This gallery is private and available only to guests with the link." : "Ta galerija je zasebna in dostopna samo gostom s povezavo."}</p>
       </section>
 
       {selectedPhoto !== null ? (
-        <div className={styles.lightbox} role="dialog" aria-modal="true" aria-label="Celozaslonski pregled fotografije" onClick={() => setSelectedPhoto(null)}>
+        <div className={styles.lightbox} role="dialog" aria-modal="true" aria-label={en ? "Full-screen photo view" : "Celozaslonski pregled fotografije"} onClick={() => setSelectedPhoto(null)}>
           <div className={`${styles.lightboxShell} ${commentsVisible ? styles.withComments : ""}`} onClick={(event) => event.stopPropagation()}>
             <div className={styles.lightboxStage}>
-              <Link className={styles.lightboxBrand} href="/" aria-label="Nazaj na predstavitveno stran Eventaj Galerije">eventaj<span>.</span></Link>
-              <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label="Zapri pregled">×</button>
-              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((selectedPhoto - 1 + photos.length) % photos.length)} aria-label="Prejšnja fotografija">
+              <Link className={styles.lightboxBrand} href="/" aria-label={en ? "Back to the Eventaj Gallery website" : "Nazaj na predstavitveno stran Eventaj Galerije"}>eventaj<span>.</span></Link>
+              <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label={en ? "Close view" : "Zapri pregled"}>×</button>
+              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((selectedPhoto - 1 + photos.length) % photos.length)} aria-label={en ? "Previous photo" : "Prejšnja fotografija"}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
               </button>
               <div className={styles.lightboxImage}>
@@ -453,17 +493,20 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                   <Image src={photos[selectedPhoto].src} alt={photos[selectedPhoto].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[selectedPhoto].src.startsWith("/api/")} />
                 )}
               </div>
-              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((selectedPhoto + 1) % photos.length)} aria-label="Naslednja fotografija">
+              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((selectedPhoto + 1) % photos.length)} aria-label={en ? "Next photo" : "Naslednja fotografija"}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
               </button>
               <span className={styles.lightboxCount}>{selectedPhoto + 1} / {photos.length}</span>
               <div className={styles.lightboxActions}>
-                <button type="button" onClick={() => toggleLike(photos[selectedPhoto].key)} aria-label={liked.includes(photos[selectedPhoto].key) ? "Odstrani iz priljubljenih" : "Dodaj med priljubljene"} aria-pressed={liked.includes(photos[selectedPhoto].key)}>
-                  <HeartIcon filled={liked.includes(photos[selectedPhoto].key)} /><span>{liked.includes(photos[selectedPhoto].key) ? "Všeč ti je" : "Všeč mi je"}</span>
+                <button type="button" onClick={() => toggleLike(photos[selectedPhoto].key)} aria-label={liked.includes(photos[selectedPhoto].key) ? (en ? "Remove from favourites" : "Odstrani iz priljubljenih") : (en ? "Add to favourites" : "Dodaj med priljubljene")} aria-pressed={liked.includes(photos[selectedPhoto].key)}>
+                  <HeartIcon filled={liked.includes(photos[selectedPhoto].key)} /><span>{liked.includes(photos[selectedPhoto].key) ? (en ? "Liked" : "Všeč ti je") : (en ? "Like" : "Všeč mi je")}</span>
                 </button>
-                {eventInfo.commentsEnabled ? <button type="button" onClick={() => setCommentsOpen((current) => !current)} aria-label="Komentarji" aria-expanded={commentsVisible}>
-                  <CommentIcon /><span>Komentarji</span>
+                {eventInfo.commentsEnabled ? <button type="button" onClick={() => setCommentsOpen((current) => !current)} aria-label={en ? "Comments" : "Komentarji"} aria-expanded={commentsVisible}>
+                  <CommentIcon /><span>{en ? "Comments" : "Komentarji"}</span>
                 </button> : null}
+                {photos[selectedPhoto].downloadUrl ? <a href={photos[selectedPhoto].downloadUrl!} aria-label={en ? "Download original photo" : "Prenesi izvirno fotografijo"}>
+                  <DownloadIcon /><span>{en ? "Download" : "Prenesi"}</span>
+                </a> : null}
               </div>
             </div>
             {commentsVisible && (guestIdentity || isDemoEvent) ? (
