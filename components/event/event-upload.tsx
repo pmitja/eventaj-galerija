@@ -12,6 +12,7 @@ import {
   CheckIcon,
   CloseIcon,
   ImageIcon,
+  MicrophoneIcon,
   PlusIcon,
   RetryIcon,
   UploadIcon,
@@ -90,7 +91,7 @@ async function responseError(response: Response, fallback: string, locale: Local
   return new Error(locale === "en" ? fallback : body?.detail || body?.title || fallback);
 }
 
-export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }: { eventSlug: string; guestId: string; videoUploadsEnabled?: boolean }) {
+export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, onRequestVoiceMessage }: { eventSlug: string; guestId: string; videoUploadsEnabled?: boolean; onRequestVoiceMessage?: () => void }) {
   const locale = useLocale();
   const en = locale === "en";
   const [items, setItems] = useState<UploadItem[]>([]);
@@ -379,6 +380,9 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
           {videoUploadsEnabled ? <button className={styles.cameraPicker} type="button" onClick={() => videoInputRef.current?.click()}>
             <span aria-hidden="true">▶</span> {en ? "Add video" : "Dodaj video"}
           </button> : null}
+          {onRequestVoiceMessage ? <button className={styles.cameraPicker} type="button" onClick={onRequestVoiceMessage}>
+            <MicrophoneIcon /> {en ? "Voice message" : "Glasovno voščilo"}
+          </button> : null}
         </div>
       ) : (
         <>
@@ -426,6 +430,9 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false }:
           </button>
           {videoUploadsEnabled ? <button className={styles.addMoreButton} type="button" onClick={() => videoInputRef.current?.click()} disabled={isUploading}>
             <span aria-hidden="true">▶</span> {en ? "Add video" : "Dodaj video"}
+          </button> : null}
+          {onRequestVoiceMessage ? <button className={styles.addMoreButton} type="button" onClick={onRequestVoiceMessage} disabled={isUploading}>
+            <MicrophoneIcon /> {en ? "Voice message" : "Glasovno voščilo"}
           </button> : null}
 
           <label className={styles.consentRow}>

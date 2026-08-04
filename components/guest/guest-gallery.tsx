@@ -130,6 +130,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [voiceMessagesRefreshKey, setVoiceMessagesRefreshKey] = useState(0);
   const [voiceMessageCount, setVoiceMessageCount] = useState(0);
   const [galleryTab, setGalleryTab] = useState<"photos" | "voice">("photos");
+  const [voiceRecorderOpen, setVoiceRecorderOpen] = useState(false);
   const allPhotos = isDemoEvent ? [...demoPhotos] : livePhotos;
   const faceMatchIds = new Set(faceSearchResult?.mediaIds ?? []);
   const faceSearchPhotos = faceSearchResult ? allPhotos.filter((photo) => photo.publicId && faceMatchIds.has(photo.publicId)) : [];
@@ -401,9 +402,6 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
               <a className={styles.heroCta} href="#dodaj">
                 <CameraIcon /> {en ? "Add photos" : "Dodaj fotografije"}
               </a>
-              <a className={styles.heroSecondaryCta} href="#glasovno-vosicilo">
-                <MicrophoneIcon /> {en ? "Leave a voice message" : "Pusti glasovno voščilo"}
-              </a>
               <p className={styles.uploadHint}>{en ? "No app and no sign-in" : "Brez aplikacije in brez prijave"}</p>
             </>
           ) : (
@@ -415,8 +413,20 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
       {eventInfo.uploadsOpen && !isDemoEvent ? (
         <div className={styles.uploadSection}>
           {guestIdentity ? <>
-            <EventUpload eventSlug={eventSlug} guestId={guestIdentity.guestId} videoUploadsEnabled={eventInfo.videoUploadsEnabled} />
-            <VoiceMessageRecorder eventSlug={eventSlug} guestId={guestIdentity.guestId} onSubmitted={() => setVoiceMessagesRefreshKey((current) => current + 1)} />
+            <EventUpload
+              eventSlug={eventSlug}
+              guestId={guestIdentity.guestId}
+              videoUploadsEnabled={eventInfo.videoUploadsEnabled}
+              onRequestVoiceMessage={() => setVoiceRecorderOpen(true)}
+            />
+            <VoiceMessageRecorder
+              eventSlug={eventSlug}
+              guestId={guestIdentity.guestId}
+              onSubmitted={() => setVoiceMessagesRefreshKey((current) => current + 1)}
+              hideEntryCard
+              open={voiceRecorderOpen}
+              onOpenChange={setVoiceRecorderOpen}
+            />
           </> : null}
         </div>
       ) : null}

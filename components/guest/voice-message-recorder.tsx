@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { privacyPath, termsPath } from "@/lib/i18n/routes";
 import { CURRENT_UPLOAD_CONSENT_VERSION } from "@/lib/domain/legal";
@@ -40,14 +40,26 @@ export function VoiceMessageRecorder({
   eventSlug,
   guestId,
   onSubmitted,
+  hideEntryCard,
+  open: openProp,
+  onOpenChange,
 }: {
   eventSlug: string;
   guestId: string;
   onSubmitted: () => void;
+  /** Renders only the dialog, for when the trigger lives somewhere else (the upload card). */
+  hideEntryCard?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const locale = useLocale();
   const en = locale === "en";
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = openProp ?? uncontrolledOpen;
+  const setOpen = useCallback((next: boolean) => {
+    if (openProp === undefined) setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  }, [onOpenChange, openProp]);
   const { mounted: dialogMounted, closing: dialogClosing } = useDialogTransition(open);
   const [step, setStep] = useState<RecorderStep>("intro");
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -62,6 +74,8 @@ export function VoiceMessageRecorder({
   const startedAtRef = useRef(0);
   const stopRequestedRef = useRef(false);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const recordingRef = useRef(recording);
+  useEffect(() => { recordingRef.current = recording; }, [recording]);
 
   function stopTracks() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -81,6 +95,7 @@ export function VoiceMessageRecorder({
 
   useEffect(() => {
     if (!open) return;
+    setStep((current) => (current === "recording" || current === "uploading" ? current : recordingRef.current ? "preview" : "intro"));
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     dialogRef.current?.focus();
@@ -92,7 +107,7 @@ export function VoiceMessageRecorder({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, step]);
+  }, [open, setOpen, step]);
 
   useEffect(() => {
     if (step !== "recording") return;
@@ -245,19 +260,7 @@ export function VoiceMessageRecorder({
     }
   }
 
-  return (
-    <section className={styles.entryCard} id="glasovno-vosicilo" aria-labelledby="voice-entry-title">
-      <span className={styles.entryIcon}><MicrophoneIcon /></span>
-      <div>
-        <p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p>
-        <h2 id="voice-entry-title">{en ? "Leave a voice message" : "Pusti glasovno voščilo"}</h2>
-        <span>{en ? "Record up to 2 minutes — no app needed." : "Posnemi do 2 minuti — brez aplikacije."}</span>
-      </div>
-      <button type="button" onClick={() => { setOpen(true); setStep(recording ? "preview" : "intro"); }}>
-        <MicrophoneIcon /> {en ? "Record message" : "Posnemi voščilo"}
-      </button>
-
-      {dialogMounted ? (
+  const dialog = dialogMounted ? (
         <div className={`${styles.backdrop} ${dialogClosing ? styles.closing : ""}`} onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="voice-dialog-title" tabIndex={-1}>
             <button className={styles.close} type="button" onClick={closeDialog} disabled={step === "uploading"} aria-label={en ? "Close" : "Zapri"}>×</button>
@@ -292,7 +295,22 @@ export function VoiceMessageRecorder({
             {step === "error" ? <div className={styles.status} role="alert"><span className={styles.errorIcon}>!</span><h3>{en ? "Something went wrong" : "Nekaj je šlo narobe"}</h3><p>{error}</p><div className={styles.previewActions}>{recording ? <button type="button" onClick={() => setStep("preview")}>{en ? "Back to preview" : "Nazaj na predogled"}</button> : null}<button type="button" onClick={() => { setError(null); setStep("intro"); }}>{en ? "Try again" : "Poskusi znova"}</button></div></div> : null}
           </div>
         </div>
-      ) : null}
+  ) : null;
+
+  if (hideEntryCard) return dialog;
+
+  return (
+    <section className={styles.entryCard} id="glasovno-vosicilo" aria-labelledby="voice-entry-title">
+      <span className={styles.entryIcon}><MicrophoneIcon /></span>
+      <div>
+        <p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p>
+        <h2 id="voice-entry-title">{en ? "Leave a voice message" : "Pusti glasovno voščilo"}</h2>
+        <span>{en ? "Record up to 2 minutes — no app needed." : "Posnemi do 2 minuti — brez aplikacije."}</span>
+      </div>
+      <button type="button" onClick={() => setOpen(true)}>
+        <MicrophoneIcon /> {en ? "Record message" : "Posnemi voščilo"}
+      </button>
+      {dialog}
     </section>
   );
 }
