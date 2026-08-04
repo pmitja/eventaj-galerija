@@ -11,6 +11,7 @@ import {
   VOICE_MESSAGE_MIN_DURATION_MS,
   type VoiceMessageMime,
 } from "@/lib/domain/voice-messages";
+import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import styles from "./voice-message-recorder.module.css";
 
 const MIME_CANDIDATES = ["audio/webm;codecs=opus", "audio/mp4", "audio/ogg;codecs=opus"];
@@ -47,6 +48,7 @@ export function VoiceMessageRecorder({
   const locale = useLocale();
   const en = locale === "en";
   const [open, setOpen] = useState(false);
+  const { mounted: dialogMounted, closing: dialogClosing } = useDialogTransition(open);
   const [step, setStep] = useState<RecorderStep>("intro");
   const [elapsedMs, setElapsedMs] = useState(0);
   const [recording, setRecording] = useState<{ blob: Blob; url: string; mime: VoiceMessageMime; durationMs: number } | null>(null);
@@ -255,8 +257,8 @@ export function VoiceMessageRecorder({
         <MicrophoneIcon /> {en ? "Record message" : "Posnemi voščilo"}
       </button>
 
-      {open ? (
-        <div className={styles.backdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
+      {dialogMounted ? (
+        <div className={`${styles.backdrop} ${dialogClosing ? styles.closing : ""}`} onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="voice-dialog-title" tabIndex={-1}>
             <button className={styles.close} type="button" onClick={closeDialog} disabled={step === "uploading"} aria-label={en ? "Close" : "Zapri"}>×</button>
             <span className={styles.dialogIcon}><MicrophoneIcon /></span>
@@ -295,11 +297,19 @@ export function VoiceMessageRecorder({
   );
 }
 
-export function VoiceGuestbook({ eventSlug, refreshKey }: { eventSlug: string; refreshKey: number }) {
+export function VoiceGuestbook({ eventSlug, refreshKey, embedded, onCountChange }: {
+  eventSlug: string;
+  refreshKey: number;
+  /** Drops the standalone card chrome and heading, for use inside the gallery tabs. */
+  embedded?: boolean;
+  onCountChange?: (count: number) => void;
+}) {
   const locale = useLocale();
   const en = locale === "en";
   const [messages, setMessages] = useState<Array<{ publicId: string; displayName: string | null; durationMs: number; playbackUrl: string }>>([]);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const countChange = useRef(onCountChange);
+  useEffect(() => { countChange.current = onCountChange; }, [onCountChange]);
 
   async function load() {
     try {
@@ -308,6 +318,7 @@ export function VoiceGuestbook({ eventSlug, refreshKey }: { eventSlug: string; r
       const body = await response.json() as { messages: typeof messages };
       setMessages(body.messages);
       setState("ready");
+      countChange.current?.(body.messages.length);
     } catch {
       setState("error");
     }
@@ -324,14 +335,18 @@ export function VoiceGuestbook({ eventSlug, refreshKey }: { eventSlug: string; r
         if (!active) return;
         setMessages(body.messages);
         setState("ready");
+        countChange.current?.(body.messages.length);
       })
       .catch(() => { if (active) setState("error"); });
     return () => { active = false; };
   }, [eventSlug, refreshKey]);
 
-  if (state === "loading") return <section className={styles.guestbook}><div className={styles.guestbookHeading}><p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p><h2>{en ? "Messages from the heart" : "Voščila iz srca"}</h2></div><div className={styles.skeleton} aria-label={en ? "Loading voice messages" : "Nalagam glasovna voščila"} /></section>;
-  if (state === "error") return <section className={styles.guestbook}><div className={styles.guestbookHeading}><p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p><h2>{en ? "Messages from the heart" : "Voščila iz srca"}</h2></div><div className={styles.guestbookError} role="alert"><span>{en ? "Voice messages could not be loaded." : "Glasovnih voščil ni bilo mogoče naložiti."}</span><button type="button" onClick={() => { setState("loading"); void load(); }}>{en ? "Try again" : "Poskusi znova"}</button></div></section>;
-  if (!messages.length) return null;
+  const shellClass = embedded ? styles.guestbookEmbedded : styles.guestbook;
+  const heading = embedded ? null : <div className={styles.guestbookHeading}><p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p><h2 id="voice-guestbook-title">{en ? "Messages from the heart" : "Voščila iz srca"}</h2>{state === "ready" && messages.length ? <span>{en ? `${messages.length} voice ${messages.length === 1 ? "message" : "messages"}` : `${messages.length} ${messages.length === 1 ? "glasovno voščilo" : "glasovnih voščil"}`}</span> : null}</div>;
 
-  return <section className={styles.guestbook} aria-labelledby="voice-guestbook-title"><div className={styles.guestbookHeading}><p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p><h2 id="voice-guestbook-title">{en ? "Messages from the heart" : "Voščila iz srca"}</h2><span>{en ? `${messages.length} voice ${messages.length === 1 ? "message" : "messages"}` : `${messages.length} ${messages.length === 1 ? "glasovno voščilo" : "glasovnih voščil"}`}</span></div><div className={styles.messageList}>{messages.map((message, index) => <article className={styles.message} key={message.publicId}><span className={styles.avatar}>{(message.displayName ?? (en ? "Guest" : "Gost")).slice(0, 1).toUpperCase()}</span><div><strong>{message.displayName ?? (en ? "Guest" : "Gost")}</strong><small>{en ? `Message ${messages.length - index} · ${formatDuration(message.durationMs)}` : `Voščilo ${messages.length - index} · ${formatDuration(message.durationMs)}`}</small><audio controls preload="none" src={message.playbackUrl}>{en ? "Your browser cannot play this message." : "Brskalnik ne more predvajati voščila."}</audio></div></article>)}</div></section>;
+  if (state === "loading") return <section className={shellClass}>{heading}<div className={styles.skeleton} aria-label={en ? "Loading voice messages" : "Nalagam glasovna voščila"} /></section>;
+  if (state === "error") return <section className={shellClass}>{heading}<div className={styles.guestbookError} role="alert"><span>{en ? "Voice messages could not be loaded." : "Glasovnih voščil ni bilo mogoče naložiti."}</span><button type="button" onClick={() => { setState("loading"); void load(); }}>{en ? "Try again" : "Poskusi znova"}</button></div></section>;
+  if (!messages.length) return embedded ? <section className={shellClass}><p className={styles.guestbookEmpty}>{en ? "No voice messages yet. Be the first to leave one." : "Glasovnih voščil še ni. Bodi prvi in pusti svojega."}</p></section> : null;
+
+  return <section className={shellClass} aria-labelledby={embedded ? undefined : "voice-guestbook-title"}>{heading}<div className={styles.messageList}>{messages.map((message, index) => <article className={styles.message} key={message.publicId}><span className={styles.avatar}>{(message.displayName ?? (en ? "Guest" : "Gost")).slice(0, 1).toUpperCase()}</span><div><strong>{message.displayName ?? (en ? "Guest" : "Gost")}</strong><small>{en ? `Message ${messages.length - index} · ${formatDuration(message.durationMs)}` : `Voščilo ${messages.length - index} · ${formatDuration(message.durationMs)}`}</small><audio controls preload="none" src={message.playbackUrl}>{en ? "Your browser cannot play this message." : "Brskalnik ne more predvajati voščila."}</audio></div></article>)}</div></section>;
 }

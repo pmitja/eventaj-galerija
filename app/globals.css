@@ -416,6 +416,18 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .use-case-related__grid b { position: absolute; right: 26px; bottom: 24px; color: var(--accent); }
 
 /* Motion */
+
+/* Shared dialog/drawer motion. Names are global so CSS modules can reference them. */
+@keyframes dialog-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialog-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes dialog-sheet-in { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dialog-sheet-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(28px); } }
+@keyframes dialog-pop-in { from { opacity: 0; transform: translateY(10px) scale(.965); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes dialog-pop-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(10px) scale(.965); } }
+@keyframes dialog-panel-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes dialog-panel-out { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(28px); } }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-10px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
 @keyframes hero-enter {
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }

@@ -35,10 +35,14 @@
 .panel button:focus-visible { outline: 3px solid #db2777; outline-offset: 3px; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+@media (min-width: 768px) {
+  .panel { animation: dialog-panel-in .26s cubic-bezier(.22,1,.36,1) both; }
+  .panel.closing { animation: dialog-panel-out .2s cubic-bezier(.4,0,1,1) both; }
+}
 @media (max-width: 767px) {
-  .panel { position: absolute; z-index: 5; right: 0; bottom: 0; left: 0; max-height: min(62dvh,620px); border-radius: 24px 24px 0 0; box-shadow: 0 -18px 55px rgba(14,7,10,.32); animation: sheetIn .24s cubic-bezier(.22,1,.36,1); }
+  .panel { position: absolute; z-index: 5; right: 0; bottom: 0; left: 0; max-height: min(62dvh,620px); border-radius: 24px 24px 0 0; box-shadow: 0 -18px 55px rgba(14,7,10,.32); animation: dialog-sheet-in .26s cubic-bezier(.22,1,.36,1) both; }
+  .panel.closing { animation: dialog-sheet-out .2s cubic-bezier(.4,0,1,1) both; }
   .handle { width: 42px; height: 4px; display: block; flex: none; margin: 9px auto -5px; border-radius: 99px; background: #d9c5ce; }
   .panel > header { min-height: 62px; padding-top: 10px; }
 }
-@keyframes sheetIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) { .panel, .loading span, .spinner { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .panel, .panel.closing, .loading span, .spinner { animation: none; } }

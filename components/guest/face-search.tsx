@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { FACE_SEARCH_MAX_FILE_BYTES } from "@/lib/domain/face-search";
 import type { StoredFaceSearchResult } from "@/lib/validation/face-search";
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
+import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import styles from "./face-search.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { intlLocale, type Locale } from "@/lib/i18n/locale";
@@ -51,6 +52,7 @@ export function FaceSearch({
   const en = locale === "en";
   const inputId = useId();
   const [open, setOpen] = useState(false);
+  const { mounted: dialogMounted, closing: dialogClosing } = useDialogTransition(open);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
@@ -253,8 +255,8 @@ export function FaceSearch({
         </div>
       ) : null}
 
-      {open ? (
-        <div className={styles.backdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
+      {dialogMounted ? (
+        <div className={`${styles.backdrop} ${dialogClosing ? styles.closing : ""}`} onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="face-search-title" aria-describedby="face-search-description">
             <div className={styles.handle} aria-hidden="true" />
             <button ref={closeRef} className={styles.closeButton} type="button" onClick={closeDialog} aria-label={en ? "Close face search" : "Zapri iskanje po obrazu"}><CloseIcon /></button>

@@ -4,8 +4,8 @@
 .identityButton > span:last-child { display: flex; flex-direction: column; font-size: 12px; font-weight: 800; line-height: 1.15; }
 .identityButton small { color: #7a4059; font-size: 9px; font-weight: 650; }
 .identityButton:focus-visible { outline: 3px solid #db2777; outline-offset: 3px; }
-.backdrop { position: fixed; z-index: 40; inset: 0; display: grid; align-items: end; padding: 16px; background: rgba(31,7,18,.58); backdrop-filter: blur(8px); }
-.dialog { width: min(100%,520px); max-height: calc(100dvh - 32px); overflow-y: auto; margin: 0 auto; padding: 12px 24px 24px; border: 1px solid rgba(255,255,255,.7); border-radius: 28px; background: #fff; color: #3f0d25; box-shadow: 0 24px 80px rgba(63,13,37,.3); animation: sheetIn .24s cubic-bezier(.22,1,.36,1); }
+.backdrop { position: fixed; z-index: 40; inset: 0; display: grid; align-items: end; padding: 16px; background: rgba(31,7,18,.58); backdrop-filter: blur(8px); animation: dialog-backdrop-in .2s ease both; }
+.dialog { width: min(100%,520px); max-height: calc(100dvh - 32px); overflow-y: auto; margin: 0 auto; padding: 12px 24px 24px; border: 1px solid rgba(255,255,255,.7); border-radius: 28px; background: #fff; color: #3f0d25; box-shadow: 0 24px 80px rgba(63,13,37,.3); animation: dialog-sheet-in .28s cubic-bezier(.22,1,.36,1) both; }
 .handle { width: 42px; height: 4px; margin: 0 auto 14px; border-radius: 9px; background: #e7cfda; }
 .mark { width: 62px; height: 62px; display: grid; place-items: center; margin-bottom: 18px; border-radius: 18px; background: #fce7f3; }
 .mark img { width: 62px; height: 62px; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(131,24,67,.12)); }
@@ -32,6 +32,7 @@
 .anonymousButton img { width: 24px; height: 24px; object-fit: contain; }
 .continueButton:focus-visible, .anonymousButton:focus-visible, .suggestions button:focus-visible { outline: 3px solid #db2777; outline-offset: 3px; }
 .privacy { display: block; margin-top: 14px; color: #856174; font-size: 10px; line-height: 1.5; text-align: center; }
-@keyframes sheetIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-@media (min-width: 640px) { .backdrop { align-items: center; }.dialog { padding: 18px 32px 30px; }.handle { display: none; } }
-@media (prefers-reduced-motion: reduce) { .dialog { animation: none; } }
+.backdrop.closing { animation: dialog-backdrop-out .2s ease both; pointer-events: none; }
+.backdrop.closing .dialog { animation: dialog-sheet-out .2s cubic-bezier(.4,0,1,1) both; }
+@media (min-width: 640px) { .backdrop { align-items: center; }.dialog { padding: 18px 32px 30px; animation-name: dialog-pop-in; }.backdrop.closing .dialog { animation-name: dialog-pop-out; }.handle { display: none; } }
+@media (prefers-reduced-motion: reduce) { .backdrop, .dialog, .backdrop.closing, .backdrop.closing .dialog { animation: none; } }

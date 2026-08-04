@@ -30,12 +30,15 @@ export function PhotoComments({
   guestIdentity,
   onClose,
   demoComments,
+  closing = false,
 }: {
   eventSlug: string;
   publicMediaId: string | null;
   guestIdentity?: StoredGuestIdentity;
   onClose: () => void;
   demoComments?: readonly MediaComment[];
+  /** True while the panel plays its leave animation. */
+  closing?: boolean;
 }) {
   const locale = useLocale();
   const en = locale === "en";
@@ -107,7 +110,7 @@ export function PhotoComments({
   }
 
   return (
-    <section className={styles.panel} aria-label={en ? "Photo comments" : "Komentarji fotografije"}>
+    <section className={`${styles.panel} ${closing ? styles.closing : ""}`} aria-label={en ? "Photo comments" : "Komentarji fotografije"}>
       <div className={styles.handle} aria-hidden="true" />
       <header>
         <div>

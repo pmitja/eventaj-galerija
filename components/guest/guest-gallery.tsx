@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { EventUpload } from "@/components/event/event-upload";
 import { GuestIdentityGate } from "@/components/guest/guest-identity-gate";
 import { PhotoComments } from "@/components/guest/photo-comments";
@@ -15,6 +15,7 @@ import { galleryLikesStorageKey, toggleMediaLike } from "@/lib/domain/media-comm
 import { storedFaceSearchResultSchema, type StoredFaceSearchResult } from "@/lib/validation/face-search";
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import { storedGalleryLikesSchema } from "@/lib/validation/media-comments";
+import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import styles from "./guest-gallery.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { ENGLISH_SITE_URL, SITE_URL } from "@/lib/seo";
@@ -26,6 +27,8 @@ const VoiceMessageRecorder = dynamic(
   () => import("@/components/guest/voice-message-recorder").then((module) => module.VoiceMessageRecorder),
   { ssr: false },
 );
+
+const PHOTO_PAGE_SIZE = 6;
 
 const demoPhotos = demoEventPhotos.map((photo) => ({
   key: photo.id,
@@ -117,7 +120,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [liked, setLiked] = useState<string[]>([]);
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [visiblePhotoCount, setVisiblePhotoCount] = useState(6);
+  const [visiblePhotoCount, setVisiblePhotoCount] = useState(PHOTO_PAGE_SIZE);
   const [livePhotos, setLivePhotos] = useState<LiveGalleryMedia[]>([]);
   const [faceSearchResult, setFaceSearchResult] = useState<StoredFaceSearchResult | null>(null);
   const [faceFilterActive, setFaceFilterActive] = useState(false);
@@ -125,11 +128,36 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const [voiceMessagesRefreshKey, setVoiceMessagesRefreshKey] = useState(0);
+  const [voiceMessageCount, setVoiceMessageCount] = useState(0);
+  const [galleryTab, setGalleryTab] = useState<"photos" | "voice">("photos");
   const allPhotos = isDemoEvent ? [...demoPhotos] : livePhotos;
   const faceMatchIds = new Set(faceSearchResult?.mediaIds ?? []);
   const faceSearchPhotos = faceSearchResult ? allPhotos.filter((photo) => photo.publicId && faceMatchIds.has(photo.publicId)) : [];
   const photos = faceFilterActive && faceSearchResult ? faceSearchPhotos : allPhotos;
   const commentsVisible = eventInfo.commentsEnabled && commentsOpen;
+  const faceTabEnabled = Boolean(guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion);
+  const voiceTabVisible = !isDemoEvent && voiceMessageCount > 0;
+  const voiceTabActive = voiceTabVisible && galleryTab === "voice";
+  const hasMorePhotos = visiblePhotoCount < photos.length;
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const showMorePhotos = useCallback(() => setVisiblePhotoCount((count) => count + PHOTO_PAGE_SIZE), []);
+  const { mounted: lightboxMounted, closing: lightboxClosing } = useDialogTransition(selectedPhoto !== null, 220);
+  const { mounted: commentsMounted, closing: commentsClosing } = useDialogTransition(commentsVisible);
+  // Remembered so the lightbox can keep rendering its photo while it animates out.
+  const [lastPhotoIndex, setLastPhotoIndex] = useState(0);
+  if (selectedPhoto !== null && selectedPhoto !== lastPhotoIndex) setLastPhotoIndex(selectedPhoto);
+  const lightboxIndex = Math.min(selectedPhoto ?? lastPhotoIndex, Math.max(photos.length - 1, 0));
+
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+    if (!sentinel || !hasMorePhotos || typeof IntersectionObserver === "undefined") return;
+    // Re-created after every batch so a sentinel that stays in view keeps loading.
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) showMorePhotos();
+    }, { rootMargin: "400px 0px" });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMorePhotos, showMorePhotos, visiblePhotoCount]);
 
   useEffect(() => {
     if (isDemoEvent) return;
@@ -295,7 +323,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     }
     setFaceSearchResult(null);
     setFaceFilterActive(false);
-    setVisiblePhotoCount(6);
+    setVisiblePhotoCount(PHOTO_PAGE_SIZE);
   }
 
   async function handleShare() {
@@ -406,39 +434,63 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
             <svg className={styles.liveShowArrow} viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
           </a>
         ) : null}
-        {!isDemoEvent ? <VoiceGuestbook eventSlug={eventSlug} refreshKey={voiceMessagesRefreshKey} /> : null}
         <div className={styles.galleryIntro}>
           <div>
-            <p className={styles.sectionEyebrow}>{en ? "Shared memories" : "Skupni spomini"}</p>
-            <h2 id="gallery-title">{faceFilterActive ? (en ? "Your photos" : "Tvoje fotografije") : (en ? "Favourite moments" : "Najlepši trenutki")}</h2>
+            <p className={styles.sectionEyebrow}>{voiceTabActive ? (en ? "Audio guestbook" : "Audio knjiga gostov") : (en ? "Shared memories" : "Skupni spomini")}</p>
+            <h2 id="gallery-title">{voiceTabActive ? (en ? "Messages from the heart" : "Voščila iz srca") : faceFilterActive ? (en ? "Your photos" : "Tvoje fotografije") : (en ? "Favourite moments" : "Najlepši trenutki")}</h2>
           </div>
-          <span className={styles.count}>{photos.length} {en ? (photos.length === 1 ? "moment" : "moments") : "utrinkov"}</span>
+          <span className={styles.count}>{voiceTabActive
+            ? (en ? `${voiceMessageCount} voice ${voiceMessageCount === 1 ? "message" : "messages"}` : `${voiceMessageCount} ${voiceMessageCount === 1 ? "glasovno voščilo" : "glasovnih voščil"}`)
+            : `${photos.length} ${en ? (photos.length === 1 ? "moment" : "moments") : "utrinkov"}`}</span>
         </div>
 
-        {guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion ? (
-          <div className={styles.galleryFilters} aria-label={en ? "Gallery filters" : "Filtri galerije"}>
+        {faceTabEnabled || voiceTabVisible ? (
+          <div className={styles.galleryFilters} role="tablist" aria-label={en ? "Gallery sections" : "Razdelki galerije"}>
             <button
-              className={`${styles.galleryFilter} ${!faceFilterActive ? styles.galleryFilterActive : ""}`}
+              className={`${styles.galleryFilter} ${!voiceTabActive && !faceFilterActive ? styles.galleryFilterActive : ""}`}
               type="button"
-              onClick={() => { setFaceFilterActive(false); setVisiblePhotoCount(6); }}
-              aria-pressed={!faceFilterActive}
+              role="tab"
+              aria-selected={!voiceTabActive && !faceFilterActive}
+              onClick={() => { setGalleryTab("photos"); setFaceFilterActive(false); setVisiblePhotoCount(PHOTO_PAGE_SIZE); }}
             >
               {en ? "All photos" : "Vse fotografije"}
             </button>
-            <FaceSearch
-              eventSlug={eventSlug}
-              guestIdentity={guestIdentity}
-              policyVersion={eventInfo.faceSearchPolicyVersion}
-              result={faceSearchResult}
-              matchCount={faceSearchPhotos.length}
-              active={faceFilterActive}
-              onActivate={() => { setFaceFilterActive(true); setVisiblePhotoCount(faceSearchResult?.mediaIds.length ?? 6); }}
-              onMatches={saveFaceSearchResult}
-              onForget={forgetFaceSearchResult}
-            />
+            {faceTabEnabled && guestIdentity && eventInfo.faceSearchPolicyVersion ? (
+              <FaceSearch
+                eventSlug={eventSlug}
+                guestIdentity={guestIdentity}
+                policyVersion={eventInfo.faceSearchPolicyVersion}
+                result={faceSearchResult}
+                matchCount={faceSearchPhotos.length}
+                active={!voiceTabActive && faceFilterActive}
+                onActivate={() => { setGalleryTab("photos"); setFaceFilterActive(true); setVisiblePhotoCount(faceSearchResult?.mediaIds.length ?? 6); }}
+                onMatches={saveFaceSearchResult}
+                onForget={forgetFaceSearchResult}
+              />
+            ) : null}
+            {voiceTabVisible ? (
+              <button
+                className={`${styles.galleryFilter} ${voiceTabActive ? styles.galleryFilterActive : ""}`}
+                type="button"
+                role="tab"
+                aria-selected={voiceTabActive}
+                onClick={() => setGalleryTab("voice")}
+              >
+                <MicrophoneIcon />
+                {en ? "Voice messages" : "Glasovna voščila"}
+                <span className={styles.filterCount}>{voiceMessageCount}</span>
+              </button>
+            ) : null}
           </div>
         ) : null}
 
+        {!isDemoEvent ? (
+          <div hidden={!voiceTabActive}>
+            <VoiceGuestbook eventSlug={eventSlug} refreshKey={voiceMessagesRefreshKey} embedded onCountChange={setVoiceMessageCount} />
+          </div>
+        ) : null}
+
+        {voiceTabActive ? null : <>
         <div className={styles.grid} data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => (
             <article className={styles.photoCard} key={photo.key}>
@@ -463,59 +515,64 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
           ))}
         </div>
         {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? (en ? "These photos are no longer in the public gallery. Refresh the search." : "Teh fotografij ni več v javni galeriji. Osveži iskanje.") : (en ? "No photos yet. Be the first to add a moment." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek.")}</p> : null}
-        {visiblePhotoCount < photos.length ? (
-          <button className={styles.moreButton} type="button" onClick={() => setVisiblePhotoCount(photos.length)}>{en ? "Show more photos" : "Prikaži več fotografij"}</button>
+        {hasMorePhotos ? (
+          <>
+            <div ref={loadMoreRef} className={styles.loadMoreSentinel} aria-hidden="true" />
+            <button className={styles.moreButton} type="button" onClick={showMorePhotos}>{en ? "Show more photos" : "Prikaži več fotografij"}</button>
+          </>
         ) : null}
+        </>}
         <p className={styles.privacy}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" /></svg>{en ? "This gallery is private and available only to guests with the link." : "Ta galerija je zasebna in dostopna samo gostom s povezavo."}</p>
       </section>
 
-      {selectedPhoto !== null ? (
-        <div className={styles.lightbox} role="dialog" aria-modal="true" aria-label={en ? "Full-screen photo view" : "Celozaslonski pregled fotografije"} onClick={() => setSelectedPhoto(null)}>
-          <div className={`${styles.lightboxShell} ${commentsVisible ? styles.withComments : ""}`} onClick={(event) => event.stopPropagation()}>
+      {lightboxMounted && photos.length ? (
+        <div className={`${styles.lightbox} ${lightboxClosing ? styles.closing : ""}`} role="dialog" aria-modal="true" aria-label={en ? "Full-screen photo view" : "Celozaslonski pregled fotografije"} onClick={() => setSelectedPhoto(null)}>
+          <div className={`${styles.lightboxShell} ${commentsMounted ? styles.withComments : ""}`} onClick={(event) => event.stopPropagation()}>
             <div className={styles.lightboxStage}>
               <Link className={styles.lightboxBrand} href="/" aria-label={en ? "Back to the Eventaj Gallery website" : "Nazaj na predstavitveno stran Eventaj Galerije"}>eventaj<span>.</span></Link>
               <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label={en ? "Close view" : "Zapri pregled"}>×</button>
-              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((selectedPhoto - 1 + photos.length) % photos.length)} aria-label={en ? "Previous photo" : "Prejšnja fotografija"}>
+              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((lightboxIndex - 1 + photos.length) % photos.length)} aria-label={en ? "Previous photo" : "Prejšnja fotografija"}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
               </button>
               <div className={styles.lightboxImage}>
-                {photos[selectedPhoto].kind === "video" && photos[selectedPhoto].playbackUrl ? (
+                {photos[lightboxIndex].kind === "video" && photos[lightboxIndex].playbackUrl ? (
                   <video
-                    key={photos[selectedPhoto].publicId}
-                    src={photos[selectedPhoto].playbackUrl ?? undefined}
-                    poster={photos[selectedPhoto].src}
+                    key={photos[lightboxIndex].publicId}
+                    src={photos[lightboxIndex].playbackUrl ?? undefined}
+                    poster={photos[lightboxIndex].src}
                     controls
                     autoPlay
                     playsInline
-                    aria-label={photos[selectedPhoto].alt}
+                    aria-label={photos[lightboxIndex].alt}
                   />
                 ) : (
-                  <Image src={photos[selectedPhoto].src} alt={photos[selectedPhoto].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[selectedPhoto].src.startsWith("/api/")} />
+                  <Image src={photos[lightboxIndex].src} alt={photos[lightboxIndex].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[lightboxIndex].src.startsWith("/api/")} />
                 )}
               </div>
-              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((selectedPhoto + 1) % photos.length)} aria-label={en ? "Next photo" : "Naslednja fotografija"}>
+              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((lightboxIndex + 1) % photos.length)} aria-label={en ? "Next photo" : "Naslednja fotografija"}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
               </button>
-              <span className={styles.lightboxCount}>{selectedPhoto + 1} / {photos.length}</span>
+              <span className={styles.lightboxCount}>{lightboxIndex + 1} / {photos.length}</span>
               <div className={styles.lightboxActions}>
-                <button type="button" onClick={() => toggleLike(photos[selectedPhoto].key)} aria-label={liked.includes(photos[selectedPhoto].key) ? (en ? "Remove from favourites" : "Odstrani iz priljubljenih") : (en ? "Add to favourites" : "Dodaj med priljubljene")} aria-pressed={liked.includes(photos[selectedPhoto].key)}>
-                  <HeartIcon filled={liked.includes(photos[selectedPhoto].key)} /><span>{liked.includes(photos[selectedPhoto].key) ? (en ? "Liked" : "Všeč ti je") : (en ? "Like" : "Všeč mi je")}</span>
+                <button type="button" onClick={() => toggleLike(photos[lightboxIndex].key)} aria-label={liked.includes(photos[lightboxIndex].key) ? (en ? "Remove from favourites" : "Odstrani iz priljubljenih") : (en ? "Add to favourites" : "Dodaj med priljubljene")} aria-pressed={liked.includes(photos[lightboxIndex].key)}>
+                  <HeartIcon filled={liked.includes(photos[lightboxIndex].key)} /><span>{liked.includes(photos[lightboxIndex].key) ? (en ? "Liked" : "Všeč ti je") : (en ? "Like" : "Všeč mi je")}</span>
                 </button>
                 {eventInfo.commentsEnabled ? <button type="button" onClick={() => setCommentsOpen((current) => !current)} aria-label={en ? "Comments" : "Komentarji"} aria-expanded={commentsVisible}>
                   <CommentIcon /><span>{en ? "Comments" : "Komentarji"}</span>
                 </button> : null}
-                {photos[selectedPhoto].downloadUrl ? <a href={photos[selectedPhoto].downloadUrl!} aria-label={en ? "Download original photo" : "Prenesi izvirno fotografijo"}>
+                {photos[lightboxIndex].downloadUrl ? <a href={photos[lightboxIndex].downloadUrl!} aria-label={en ? "Download original photo" : "Prenesi izvirno fotografijo"}>
                   <DownloadIcon /><span>{en ? "Download" : "Prenesi"}</span>
                 </a> : null}
               </div>
             </div>
-            {commentsVisible && (guestIdentity || isDemoEvent) ? (
+            {commentsMounted && (guestIdentity || isDemoEvent) ? (
               <PhotoComments
-                key={photos[selectedPhoto].key}
+                key={photos[lightboxIndex].key}
                 eventSlug={eventSlug}
-                publicMediaId={photos[selectedPhoto].publicId}
+                publicMediaId={photos[lightboxIndex].publicId}
                 guestIdentity={guestIdentity ?? undefined}
-                demoComments={isDemoEvent ? photos[selectedPhoto].comments : undefined}
+                demoComments={isDemoEvent ? photos[lightboxIndex].comments : undefined}
+                closing={commentsClosing}
                 onClose={() => setCommentsOpen(false)}
               />
             ) : null}

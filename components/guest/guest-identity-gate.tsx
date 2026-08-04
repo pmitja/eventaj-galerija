@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { storedGuestIdentitySchema, type StoredGuestIdentity } from "@/lib/validation/guest-identity";
+import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import styles from "./guest-identity-gate.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
 import type { Locale } from "@/lib/i18n/locale";
@@ -51,6 +52,7 @@ export function GuestIdentityGate({
   const en = locale === "en";
   const [identity, setIdentity] = useState<StoredGuestIdentity | null>(null);
   const [open, setOpen] = useState(false);
+  const { mounted: dialogMounted, closing: dialogClosing } = useDialogTransition(open);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [displayName, setDisplayName] = useState("");
@@ -168,8 +170,8 @@ export function GuestIdentityGate({
           <span>{identity.displayName ?? (en ? "Guest" : "Gost")}<small>{en ? "Change display" : "Spremeni prikaz"}</small></span>
         </button>
       ) : null}
-      {open ? (
-        <div className={styles.backdrop}>
+      {dialogMounted ? (
+        <div className={`${styles.backdrop} ${dialogClosing ? styles.closing : ""}`}>
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="guest-identity-title" aria-describedby="guest-identity-description">
             <div className={styles.handle} aria-hidden="true" />
             <span className={styles.mark} aria-hidden="true"><Image src="/icons/engagement/guest.png" alt="" width={62} height={62} priority unoptimized /></span>
