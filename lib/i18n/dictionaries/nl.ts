@@ -113,7 +113,7 @@ export const nl: Dictionary = {
   devices: {
     heading: "Werkt op elk apparaat",
     subtitle: "In elke browser · zonder app · heerlijk eenvoudig",
-    exampleUrl: "gallery.eventaj.si/nl/anna-and-mark",
+    exampleUrl: "guestmosaic.com/nl/anna-and-mark",
     desktopLabel: "Galerij op desktop",
     desktopAlt: "Evenementgalerij op een desktopcomputer",
     mobileLabel: "Mobiele galerij",

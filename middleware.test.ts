@@ -28,42 +28,49 @@ describe("canonical hostname middleware", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
-  it("canonicalizes the English www hostname without switching language", () => {
-    const request = new NextRequest("https://www.gallery.eventaj.si/naroci?ref=invite", {
-      headers: { host: "www.gallery.eventaj.si" },
+  it("canonicalizes the Guest Mosaic www hostname without switching language", () => {
+    const request = new NextRequest("https://www.guestmosaic.com/naroci?ref=invite", {
+      headers: { host: "www.guestmosaic.com" },
     });
 
     const response = middleware(request);
 
     expect(response.status).toBe(308);
-    expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/order?ref=invite");
+    expect(response.headers.get("location")).toBe("https://guestmosaic.com/order?ref=invite");
   });
 
-  it("redirects Slovenian public paths on the English domain", () => {
-    const response = middleware(new NextRequest("https://gallery.eventaj.si/za-dogodke/poroke"));
+  it("redirects the legacy international hostname to Guest Mosaic", () => {
+    const response = middleware(new NextRequest("https://gallery.eventaj.si/de/order?ref=old-qr"));
 
     expect(response.status).toBe(308);
-    expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/for-events/weddings");
+    expect(response.headers.get("location")).toBe("https://guestmosaic.com/de/order?ref=old-qr");
+  });
+
+  it("redirects Slovenian public paths on the international domain", () => {
+    const response = middleware(new NextRequest("https://guestmosaic.com/za-dogodke/poroke"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://guestmosaic.com/for-events/weddings");
   });
 
   it("internally rewrites English public paths to App Router routes", () => {
-    const response = middleware(new NextRequest("https://gallery.eventaj.si/terms-of-use"));
+    const response = middleware(new NextRequest("https://guestmosaic.com/terms-of-use"));
 
-    expect(response.headers.get("x-middleware-rewrite")).toBe("https://gallery.eventaj.si/pogoji-uporabe");
+    expect(response.headers.get("x-middleware-rewrite")).toBe("https://guestmosaic.com/pogoji-uporabe");
   });
 
   it("rewrites a prefixed language onto the Slovenian route tree", () => {
-    const response = middleware(new NextRequest("https://gallery.eventaj.si/de/terms-of-use"));
+    const response = middleware(new NextRequest("https://guestmosaic.com/de/terms-of-use"));
 
     expect(response.headers.get("location")).toBeNull();
-    expect(response.headers.get("x-middleware-rewrite")).toBe("https://gallery.eventaj.si/pogoji-uporabe");
+    expect(response.headers.get("x-middleware-rewrite")).toBe("https://guestmosaic.com/pogoji-uporabe");
   });
 
   it("redirects Slovenian and English paths to the active language prefix", () => {
-    const response = middleware(new NextRequest("https://gallery.eventaj.si/de/za-dogodke/poroke"));
+    const response = middleware(new NextRequest("https://guestmosaic.com/de/za-dogodke/poroke"));
 
     expect(response.status).toBe(308);
-    expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/de/for-events/weddings");
+    expect(response.headers.get("location")).toBe("https://guestmosaic.com/de/for-events/weddings");
   });
 
   it("ignores language prefixes on the Slovenian domain", () => {
@@ -74,7 +81,7 @@ describe("canonical hostname middleware", () => {
   });
 
   it("leaves API and admin routes untouched", () => {
-    const response = middleware(new NextRequest("https://gallery.eventaj.si/api/v1/events"));
+    const response = middleware(new NextRequest("https://guestmosaic.com/api/v1/events"));
 
     expect(response.headers.get("location")).toBeNull();
     expect(response.headers.get("x-middleware-rewrite")).toBeNull();

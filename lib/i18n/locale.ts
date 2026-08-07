@@ -11,7 +11,7 @@ export type PrefixedLocale = (typeof PREFIXED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "sl";
 export const DEFAULT_PUBLIC_APP_URL = "https://galerija.eventaj.si";
-export const DEFAULT_PUBLIC_APP_URL_EN = "https://gallery.eventaj.si";
+export const DEFAULT_PUBLIC_APP_URL_EN = "https://guestmosaic.com";
 
 const INTL_LOCALES = {
   sl: "sl-SI",
@@ -144,7 +144,7 @@ export function appUrlForLocale(
   return value.replace(/\/$/, "");
 }
 
-/** Canonical site root including any locale prefix, e.g. https://gallery.eventaj.si/de */
+/** Canonical site root including any locale prefix, e.g. https://guestmosaic.com/de */
 export function siteUrlForLocale(
   env: { PUBLIC_APP_URL: string; PUBLIC_APP_URL_EN: string },
   locale: Locale,

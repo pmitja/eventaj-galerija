@@ -1,6 +1,11 @@
 import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { describe, expect, it } from "vitest";
-import { writeZipArchive, writeZipToR2Multipart, type ZipSource } from "./exports";
+import {
+  emailConfigurationForLocale,
+  writeZipArchive,
+  writeZipToR2Multipart,
+  type ZipSource,
+} from "./exports";
 
 async function* sources(): AsyncGenerator<ZipSource> {
   const uploaded = new Date("2026-07-16T12:00:00Z");
@@ -95,4 +100,30 @@ describe("ZIP export worker", () => {
       .rejects.toThrow("R2_READ_FAILED");
     expect(aborted.value).toBe(true);
   });
+});
+
+describe("transactional email account selection", () => {
+  const env = {
+    RESEND_API_KEY: "re_eventaj",
+    RESEND_GUESTMOSAIC_API_KEY: "re_guestmosaic",
+    EMAIL_FROM: "Eventaj Galerija <galerija@eventaj.si>",
+    EMAIL_FROM_GUESTMOSAIC: "Guest Mosaic <hello@guestmosaic.com>",
+  };
+
+  it("keeps Slovenian delivery on the Eventaj account", () => {
+    expect(emailConfigurationForLocale(env, "sl")).toEqual({
+      apiKey: "re_eventaj",
+      from: "Eventaj Galerija <galerija@eventaj.si>",
+    });
+  });
+
+  it.each(["en", "de", "nl", "es", "it", "fr"] as const)(
+    "uses the Guest Mosaic account for %s delivery",
+    (locale) => {
+      expect(emailConfigurationForLocale(env, locale)).toEqual({
+        apiKey: "re_guestmosaic",
+        from: "Guest Mosaic <hello@guestmosaic.com>",
+      });
+    },
+  );
 });

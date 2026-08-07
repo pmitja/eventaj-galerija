@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/i18n/server", () => ({
   getRequestLocale: vi.fn(async () => "sl"),
-  getPublicAppUrls: () => ({ PUBLIC_APP_URL: "https://galerija.eventaj.si", PUBLIC_APP_URL_EN: "https://gallery.eventaj.si" }),
+  getPublicAppUrls: () => ({ PUBLIC_APP_URL: "https://galerija.eventaj.si", PUBLIC_APP_URL_EN: "https://guestmosaic.com" }),
 }));
 vi.mock("@/lib/cloudflare", () => ({ getCloudflareEnv: () => ({
   PUBLIC_APP_URL: "https://galerija.eventaj.si",
-  PUBLIC_APP_URL_EN: "https://gallery.eventaj.si",
+  PUBLIC_APP_URL_EN: "https://guestmosaic.com",
 }) }));
 import sitemap from "@/app/sitemap";
 import robots from "@/app/robots";

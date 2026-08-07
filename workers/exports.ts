@@ -17,7 +17,9 @@ interface Env {
   MEDIA: R2Bucket;
   EXPORT_QUEUE: Queue<ExportMessage>;
   RESEND_API_KEY: string;
+  RESEND_GUESTMOSAIC_API_KEY: string;
   EMAIL_FROM: string;
+  EMAIL_FROM_GUESTMOSAIC: string;
   PUBLIC_APP_URL: string;
   PUBLIC_APP_URL_EN: string;
 }
@@ -140,9 +142,25 @@ export async function writeZipToR2Multipart(
   }
 }
 
-function emailAdapter(env: Env): ResendEmailAdapter {
-  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) throw new Error("EMAIL_NOT_CONFIGURED");
-  return new ResendEmailAdapter(env.RESEND_API_KEY, env.EMAIL_FROM);
+type EmailConfigurationEnv = Pick<
+  Env,
+  "RESEND_API_KEY" | "RESEND_GUESTMOSAIC_API_KEY" | "EMAIL_FROM" | "EMAIL_FROM_GUESTMOSAIC"
+>;
+
+export function emailConfigurationForLocale(
+  env: EmailConfigurationEnv,
+  locale: Locale,
+): { apiKey: string; from: string } {
+  const configuration = locale === "sl"
+    ? { apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM }
+    : { apiKey: env.RESEND_GUESTMOSAIC_API_KEY, from: env.EMAIL_FROM_GUESTMOSAIC };
+  if (!configuration.apiKey || !configuration.from) throw new Error("EMAIL_NOT_CONFIGURED");
+  return configuration;
+}
+
+function emailAdapter(env: Env, locale: Locale): ResendEmailAdapter {
+  const configuration = emailConfigurationForLocale(env, locale);
+  return new ResendEmailAdapter(configuration.apiKey, configuration.from);
 }
 
 function appRoot(env: Env, locale: Locale): string {
@@ -167,7 +185,7 @@ async function sendQrDelivery(env: Env, deliveryId: string): Promise<void> {
   if (!row.slideshow_token) throw new Error("DELIVERY_SLIDESHOW_TOKEN_MISSING");
 
   const root = appRoot(env, row.locale);
-  await emailAdapter(env).send(qrDeliveryEmail({
+  await emailAdapter(env, row.locale).send(qrDeliveryEmail({
     deliveryId: row.id,
     recipientEmail: row.recipient_email,
     recipientName: row.owner_name,
@@ -203,7 +221,7 @@ async function sendArchiveDelivery(env: Env, deliveryId: string, token: string):
   }
   if (await hashDeliveryToken(token) !== row.download_token_hash) throw new Error("ARCHIVE_TOKEN_MISMATCH");
 
-  await emailAdapter(env).send(archiveDeliveryEmail({
+  await emailAdapter(env, row.locale).send(archiveDeliveryEmail({
     deliveryId: row.id,
     recipientEmail: row.recipient_email,
     recipientName: row.owner_name,

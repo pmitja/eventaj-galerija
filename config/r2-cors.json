@@ -5,7 +5,7 @@
         "origins": [
           "https://eventaj-galerija.eventaj.workers.dev",
           "https://galerija.eventaj.si",
-          "https://gallery.eventaj.si",
+          "https://guestmosaic.com",
           "http://localhost:3000",
           "http://127.0.0.1:3000"
         ],

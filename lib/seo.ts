@@ -2,7 +2,7 @@ import type { Locale } from "@/lib/i18n/locale";
 import { orderPath } from "@/lib/i18n/routes";
 
 export const SITE_URL = "https://galerija.eventaj.si";
-export const ENGLISH_SITE_URL = "https://gallery.eventaj.si";
+export const ENGLISH_SITE_URL = "https://guestmosaic.com";
 export const BRAND_URL = "https://eventaj.si";
 export const SITE_NAME = "Guest Mosaic";
 

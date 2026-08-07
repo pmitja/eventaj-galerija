@@ -12,7 +12,7 @@ import {
 
 const env = {
   PUBLIC_APP_URL: "https://galerija.eventaj.si/",
-  PUBLIC_APP_URL_EN: "https://gallery.eventaj.si/",
+  PUBLIC_APP_URL_EN: "https://guestmosaic.com/",
 };
 
 describe("domain locale", () => {
@@ -22,14 +22,14 @@ describe("domain locale", () => {
   });
 
   it("recognizes the configured English domain and local development host", () => {
-    expect(localeFromHostname("www.gallery.eventaj.si", env.PUBLIC_APP_URL_EN)).toBe("en");
+    expect(localeFromHostname("www.guestmosaic.com", env.PUBLIC_APP_URL_EN)).toBe("en");
     expect(localeFromHostname("en.localhost:3000", env.PUBLIC_APP_URL_EN)).toBe("en");
-    expect(localeFromRequest(new Request("https://gallery.eventaj.si/naroci"), env.PUBLIC_APP_URL_EN)).toBe("en");
+    expect(localeFromRequest(new Request("https://guestmosaic.com/naroci"), env.PUBLIC_APP_URL_EN)).toBe("en");
   });
 
   it("builds links only from configured trusted origins", () => {
     expect(appUrlForLocale(env, "sl")).toBe("https://galerija.eventaj.si");
-    expect(appUrlForLocale(env, "en")).toBe("https://gallery.eventaj.si");
+    expect(appUrlForLocale(env, "en")).toBe("https://guestmosaic.com");
   });
 });
 
@@ -53,17 +53,17 @@ describe("prefixed marketing locales", () => {
   });
 
   it("serves the additional languages from the English host only", () => {
-    expect(localeFromHostAndPath("gallery.eventaj.si", "/de/order", env.PUBLIC_APP_URL_EN)).toBe("de");
-    expect(localeFromHostAndPath("gallery.eventaj.si", "/order", env.PUBLIC_APP_URL_EN)).toBe("en");
+    expect(localeFromHostAndPath("guestmosaic.com", "/de/order", env.PUBLIC_APP_URL_EN)).toBe("de");
+    expect(localeFromHostAndPath("guestmosaic.com", "/order", env.PUBLIC_APP_URL_EN)).toBe("en");
     // A /de path on the Slovenian host is not a language, just an unknown page.
     expect(localeFromHostAndPath("galerija.eventaj.si", "/de/order", env.PUBLIC_APP_URL_EN)).toBe("sl");
-    expect(localeFromRequest(new Request("https://gallery.eventaj.si/it/order"), env.PUBLIC_APP_URL_EN)).toBe("it");
+    expect(localeFromRequest(new Request("https://guestmosaic.com/it/order"), env.PUBLIC_APP_URL_EN)).toBe("it");
   });
 
   it("keeps prefixed locales on the English origin but prefixes their canonical root", () => {
-    expect(appUrlForLocale(env, "de")).toBe("https://gallery.eventaj.si");
-    expect(siteUrlForLocale(env, "de")).toBe("https://gallery.eventaj.si/de");
-    expect(siteUrlForLocale(env, "en")).toBe("https://gallery.eventaj.si");
+    expect(appUrlForLocale(env, "de")).toBe("https://guestmosaic.com");
+    expect(siteUrlForLocale(env, "de")).toBe("https://guestmosaic.com/de");
+    expect(siteUrlForLocale(env, "en")).toBe("https://guestmosaic.com");
     expect(siteUrlForLocale(env, "sl")).toBe("https://galerija.eventaj.si");
   });
 });

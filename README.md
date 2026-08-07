@@ -87,13 +87,15 @@ Stream binding je potreben tudi na retention workerju, saj mora pred izbrisom
 dogodka fizično izbrisati vse videe.
 
 Pred prvim deploymentom e-poštne dostave in ZIP izvoza ustvari glavno in
-dead-letter vrsto, nastavi Resend skrivnost ter namesti consumer. Domena pošiljatelja
-iz `EMAIL_FROM` mora biti pred tem preverjena v Resend:
+dead-letter vrsto, nastavi Resend skrivnosti ter namesti consumer. Domači
+pošiljatelj iz `EMAIL_FROM` mora biti preverjen v Eventaj Resend računu,
+mednarodni iz `EMAIL_FROM_GUESTMOSAIC` pa v ločenem Guest Mosaic računu:
 
 ```bash
 pnpm wrangler queues create eventaj-gallery-exports
 pnpm wrangler queues create eventaj-gallery-exports-dlq
 pnpm wrangler secret put RESEND_API_KEY --config wrangler.exports.jsonc
+pnpm wrangler secret put RESEND_GUESTMOSAIC_API_KEY --config wrangler.exports.jsonc
 pnpm deploy:exports
 ```
 
@@ -157,7 +159,7 @@ pnpm r2:cors:list
 
 Bucket ostaja zaseben; `r2.dev` ni omogočen. Brskalnik nalaga neposredno prek 10-minutnega podpisanega `PUT` URL-ja, podpis pa je vezan tudi na deklarirani `Content-Type`.
 
-Vsak nov dogodek dobi glavno QR dostopno točko. QR sliki sta na `/qr/{publicCode}.svg` in `.png`, stabilna povezava `/t/{publicCode}` pa zabeleži obisk, ohrani attribution za upload sejo in preusmeri na trenutni dogodek. Slovenski kanonični izvor določa `PUBLIC_APP_URL`, angleškega pa `PUBLIC_APP_URL_EN`; checkout locale določi domeno QR-ja in transakcijske e-pošte.
+Vsak nov dogodek dobi glavno QR dostopno točko. QR sliki sta na `/qr/{publicCode}.svg` in `.png`, stabilna povezava `/t/{publicCode}` pa zabeleži obisk, ohrani attribution za upload sejo in preusmeri na trenutni dogodek. Slovenski kanonični izvor določa `PUBLIC_APP_URL`, mednarodnega pa zaradi povratne združljivosti poimenovani `PUBLIC_APP_URL_EN`; checkout locale določi domeno QR-ja, transakcijske e-pošte in pripadajoči Resend račun.
 
 Trenutna produkcijska aplikacija je na `https://galerija.eventaj.si`, ki je kot
 Cloudflare Custom Domain vezana na glavni Worker. Tudi
@@ -169,11 +171,11 @@ zanesljivega zunanjega protokola. Glavni Worker uporablja EU D1/R2 bindinge,
 retention Worker pa ni javno dostopen in se zažene vsak dan ob 02:17 UTC.
 Obstoječa stran `eventaj.si` na Vercelu ostaja nespremenjena.
 
-Angleška različica je na `https://gallery.eventaj.si` in uporablja isti Worker,
-bazo ter hrambo. Jezik se določi iz domene; javne marketinške, pravne in checkout
-poti imajo angleške segmente (na primer `/order`, `/for-events/weddings`,
-`/terms-of-use` in `/privacy`). `https://www.gallery.eventaj.si` se kanonizira
-na angleško domeno.
+Mednarodna različica je na `https://guestmosaic.com` in uporablja isti Worker,
+bazo ter hrambo. Angleščina je na korenu, nemščina, nizozemščina, španščina,
+italijanščina in francoščina pa uporabljajo jezikovno predpono.
+`https://www.guestmosaic.com` ter stara `https://gallery.eventaj.si` in njen
+`www` hostname se trajno preusmerijo na kanonično mednarodno domeno.
 
 ## Stripe Checkout
 

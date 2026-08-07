@@ -117,7 +117,7 @@ export const en = {
   devices: {
     heading: "Works on every device",
     subtitle: "Any browser · no app · beautifully simple",
-    exampleUrl: "gallery.eventaj.si/anna-and-mark",
+    exampleUrl: "guestmosaic.com/anna-and-mark",
     desktopLabel: "Desktop gallery",
     desktopAlt: "Event gallery on a desktop computer",
     mobileLabel: "Mobile gallery",

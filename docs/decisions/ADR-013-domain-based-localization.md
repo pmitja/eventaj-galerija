@@ -5,9 +5,9 @@ Status: sprejeto 2026-08-03
 ## Kontekst
 
 Eventaj Galerija mora ohraniti obstoječo slovensko izkušnjo na
-`galerija.eventaj.si` in isto funkcionalnost ponuditi v angleščini na drugi
-domeni. Podvajanje aplikacije, baze ali workerjev bi povečalo možnost odmikov v
-poslovnih pravilih, varnosti in popravkih.
+`galerija.eventaj.si`, mednarodno znamko Guest Mosaic pa ponuditi na
+`guestmosaic.com`. Podvajanje aplikacije, baze ali workerjev bi povečalo možnost
+odmikov v poslovnih pravilih, varnosti in popravkih.
 
 Jezik ni samo predstavitvena nastavitev. Asinhrona QR in arhivska e-pošta,
 Stripe povratne povezave ter QR kode morajo uporabiti isti jezik in domeno kot
@@ -28,13 +28,19 @@ prvotno naročilo, tudi ko se opravilo izvede pozneje brez HTTP zahteve.
   domene. Jezikovni preklopnik preslika tudi segment poti in slug namenske
   marketinške strani.
 - `PUBLIC_APP_URL` ostane kanonični slovenski izvor zaradi povratne
-  združljivosti. `PUBLIC_APP_URL_EN` je angleški izvor.
-- Podprta locale sta `sl` in `en`; neznani host varno uporabi `sl`.
+  združljivosti. `PUBLIC_APP_URL_EN` je zaradi povratne združljivosti ime
+  spremenljivke za mednarodni izvor `https://guestmosaic.com`; angleščina je na
+  korenu, `de`, `nl`, `es`, `it` in `fr` pa pod jezikovnimi predponami.
+- Stara `gallery.eventaj.si` in njen `www` hostname ostaneta vezana na Worker ter
+  se trajno preusmerita na isto pot na `guestmosaic.com`, da stare povezave in
+  QR kode ostanejo veljavne.
+- Neznani host varno uporabi `sl`.
 - Locale se ob checkoutu določi na strežniku in trajno shrani na
   `checkout_orders` ter provisioniranem `events`. Obstoječe vrstice dobijo
   `sl`.
 - Stripe, QR, e-pošta, ZIP povezave, datumi in SEO uporabljajo shranjeni oziroma
-  zahtevi pripadajoči locale.
+  zahtevi pripadajoči locale. Slovenska transakcijska e-pošta uporablja Eventaj
+  Resend račun, vsi drugi jeziki pa ločen Guest Mosaic Resend račun.
 - Administratorski vmesnik v prvem rezu ostane slovenski. Javni marketing,
   checkout, gostujoča galerija, projekcija in transakcijska e-pošta so
   dvojezični.

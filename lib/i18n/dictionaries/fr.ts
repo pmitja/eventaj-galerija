@@ -114,7 +114,7 @@ export const fr: Dictionary = {
   devices: {
     heading: "Fonctionne sur tous les appareils",
     subtitle: "Dans tous les navigateurs · sans application · merveilleusement simple",
-    exampleUrl: "gallery.eventaj.si/fr/anna-and-mark",
+    exampleUrl: "guestmosaic.com/fr/anna-and-mark",
     desktopLabel: "Galerie sur ordinateur",
     desktopAlt: "Galerie de l'événement sur un ordinateur de bureau",
     mobileLabel: "Galerie mobile",

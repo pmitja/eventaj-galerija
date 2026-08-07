@@ -5,10 +5,14 @@ import { localizedMarketingPath, slovenianRoutePath } from "@/lib/i18n/routes";
 
 const CANONICAL_ORIGINS: Readonly<Record<string, string>> = {
   "www.galerija.eventaj.si": "https://galerija.eventaj.si",
-  "www.gallery.eventaj.si": "https://gallery.eventaj.si",
+  "gallery.eventaj.si": "https://guestmosaic.com",
+  "www.gallery.eventaj.si": "https://guestmosaic.com",
+  "www.guestmosaic.com": "https://guestmosaic.com",
 };
 
 const ENGLISH_HOSTNAMES = new Set([
+  "guestmosaic.com",
+  "www.guestmosaic.com",
   "gallery.eventaj.si",
   "www.gallery.eventaj.si",
   "en.localhost",
