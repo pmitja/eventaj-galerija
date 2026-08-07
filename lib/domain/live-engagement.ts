@@ -1,5 +1,7 @@
 import type { EngagementSnapshot } from "@/lib/repositories/engagement";
 import { intlLocale, type Locale } from "@/lib/i18n/locale";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { plural } from "@/lib/i18n/plural";
 
 export type LiveOverlay =
   | {
@@ -17,7 +19,7 @@ export function formatPhotoCount(count: number, locale: Locale = "sl"): string {
 }
 
 export function overlaysForNewEvents(events: EngagementSnapshot["events"], locale: Locale = "sl"): LiveOverlay[] {
-  const en = locale === "en";
+  const t = getDictionary(locale).guest.live;
   const overlays: LiveOverlay[] = [];
   const uploads = new Map<string, { ids: string[]; displayName: string; count: number }>();
   for (const event of events) {
@@ -34,8 +36,8 @@ export function overlaysForNewEvents(events: EngagementSnapshot["events"], local
         id: event.id,
         kind: "milestone",
         icon: event.count >= 100 ? "on-fire" : "milestone",
-        title: en ? `${event.displayName} • ${formatPhotoCount(event.count, locale)} photo milestone` : `${event.displayName} • mejnik ${formatPhotoCount(event.count, locale)} fotografij`,
-        detail: event.count >= 100 ? (en ? "An outstanding contribution to the shared album." : "Izjemen prispevek k skupnemu albumu.") : (en ? "Thank you for every captured moment." : "Hvala za vse ujete trenutke."),
+        title: t.milestoneTitle.replace("{name}", event.displayName).replace("{count}", formatPhotoCount(event.count, locale)),
+        detail: event.count >= 100 ? t.milestoneOutstanding : t.milestoneThanks,
         durationMs: 5_000,
       });
     } else if (event.type === "leader_changed" && event.displayName) {
@@ -43,8 +45,8 @@ export function overlaysForNewEvents(events: EngagementSnapshot["events"], local
         id: event.id,
         kind: "milestone",
         icon: "first-place",
-        title: en ? "New leader" : "Novo prvo mesto",
-        detail: en ? `${event.displayName} leads with ${formatPhotoCount(event.count, locale)} photos.` : `${event.displayName} vodi z ${formatPhotoCount(event.count, locale)} fotografijami.`,
+        title: t.newLeader,
+        detail: t.newLeaderDetail.replace("{name}", event.displayName).replace("{count}", formatPhotoCount(event.count, locale)),
         durationMs: 5_000,
       });
     } else if (event.type === "photo_total_milestone") {
@@ -52,8 +54,8 @@ export function overlaysForNewEvents(events: EngagementSnapshot["events"], local
         id: event.id,
         kind: "global",
         icon: "global-milestone",
-        title: en ? `${formatPhotoCount(event.count, locale)} photos together` : `Skupaj že ${formatPhotoCount(event.count, locale)} fotografij`,
-        detail: en ? "The event album grows with every moment you add." : "Album dogodka raste z vsakim vašim utrinkom.",
+        title: t.totalPhotos.replace("{count}", formatPhotoCount(event.count, locale)),
+        detail: t.totalPhotosDetail,
         durationMs: 5_000,
       });
     } else if (event.type === "contributor_total_milestone") {
@@ -61,8 +63,8 @@ export function overlaysForNewEvents(events: EngagementSnapshot["events"], local
         id: event.id,
         kind: "global",
         icon: "community",
-        title: en ? `${formatPhotoCount(event.count, locale)} guests have contributed` : `Prispevalo je že ${formatPhotoCount(event.count, locale)} gostov`,
-        detail: en ? "Thank you for creating the event memories together." : "Hvala, ker soustvarjate spomine dogodka.",
+        title: t.totalGuests.replace("{count}", formatPhotoCount(event.count, locale)),
+        detail: t.totalGuestsDetail,
         durationMs: 5_000,
       });
     }
@@ -72,8 +74,8 @@ export function overlaysForNewEvents(events: EngagementSnapshot["events"], local
       id: `upload:${group.ids.join(":")}`,
       kind: "upload",
       icon: "camera",
-      title: en ? `${group.displayName} • ${formatPhotoCount(group.count, locale)} new ${group.count === 1 ? "photo" : "photos"}` : `${group.displayName} • ${formatPhotoCount(group.count, locale)} ${group.count === 1 ? "nova fotografija" : "novih fotografij"}`,
-      detail: en ? "Just added to the album." : "Pravkar sprejeto v album.",
+      title: plural(locale, group.count, t.uploadTitle).replace("{name}", group.displayName).replace("{count}", formatPhotoCount(group.count, locale)),
+      detail: t.uploadDetail,
       durationMs: 4_000,
     });
   }

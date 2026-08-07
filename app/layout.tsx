@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { JsonLd } from "@/components/seo/json-ld";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
-import { appUrlForLocale } from "@/lib/i18n/locale";
+import { appUrlForLocale, intlLocale, siteUrlForLocale } from "@/lib/i18n/locale";
+import { languageAlternates } from "@/lib/i18n/alternates";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
-import { ENGLISH_SITE_URL, SEO_COPY, SITE_NAME, SITE_URL, siteStructuredDataFor } from "@/lib/seo";
+import { EVENTAJ_MARK, SEO_COPY, SITE_NAME, siteStructuredDataFor } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,27 +17,35 @@ const inter = Inter({
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  const siteUrl = appUrlForLocale(getPublicAppUrls(), locale);
+  const env = getPublicAppUrls();
+  const siteUrl = appUrlForLocale(env, locale);
   const copy = SEO_COPY[locale];
   return {
     metadataBase: new URL(siteUrl),
     title: copy.title,
     description: copy.description,
     applicationName: SITE_NAME,
-    authors: [{ name: "Eventaj.si", url: "https://eventaj.si" }],
-    creator: "Eventaj.si",
-    publisher: "Eventaj.si",
+    authors: [{ name: SITE_NAME }],
+    creator: SITE_NAME,
+    publisher: SITE_NAME,
     category: "event photo sharing",
-    keywords: locale === "en"
-      ? ["QR gallery", "event photos", "wedding photo gallery", "photo sharing without an app", "live slideshow", "team building photos"]
-      : ["QR galerija", "fotografije z dogodka", "poročna galerija", "deljenje fotografij brez aplikacije", "live slideshow", "team building fotografije"],
+    keywords: getDictionary(locale).seo.keywords,
     referrer: "origin-when-cross-origin",
     robots: {
       index: true,
       follow: true,
       googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
     },
-    icons: { icon: "/logo.svg", shortcut: "/logo.svg" },
+    icons: locale === "sl"
+      ? { icon: EVENTAJ_MARK, shortcut: EVENTAJ_MARK }
+      : {
+          icon: [
+            { url: "/icons/guest-mosaic/icon-32.png", sizes: "32x32", type: "image/png" },
+            { url: "/icons/guest-mosaic/icon-192.png", sizes: "192x192", type: "image/png" },
+          ],
+          shortcut: "/icons/guest-mosaic/icon-32.png",
+          apple: { url: "/icons/guest-mosaic/icon-180.png", sizes: "180x180", type: "image/png" },
+        },
     manifest: "/manifest.webmanifest",
     openGraph: {
       title: copy.title,
@@ -48,17 +58,17 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: { card: "summary_large_image", title: copy.title, description: copy.description, images: ["/og-image.png"] },
     alternates: {
-      canonical: siteUrl,
-      languages: { "sl-SI": SITE_URL, "en-GB": ENGLISH_SITE_URL, "x-default": SITE_URL },
+      canonical: siteUrlForLocale(env, locale),
+      languages: languageAlternates(env, "/"),
     },
   };
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getRequestLocale();
-  const siteUrl = appUrlForLocale(getPublicAppUrls(), locale);
+  const siteUrl = siteUrlForLocale(getPublicAppUrls(), locale);
   return (
-    <html lang={locale}>
+    <html lang={intlLocale(locale)}>
       <body className={inter.variable}>
         <JsonLd data={siteStructuredDataFor(locale, siteUrl) as unknown as Record<string, unknown>} />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>

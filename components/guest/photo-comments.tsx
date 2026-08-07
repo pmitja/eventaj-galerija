@@ -5,6 +5,8 @@ import type { FormEvent } from "react";
 import type { StoredGuestIdentity } from "@/lib/validation/guest-identity";
 import styles from "./photo-comments.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { pluralCount } from "@/lib/i18n/plural";
 import { intlLocale, type Locale } from "@/lib/i18n/locale";
 
 export type MediaComment = {
@@ -41,7 +43,7 @@ export function PhotoComments({
   closing?: boolean;
 }) {
   const locale = useLocale();
-  const en = locale === "en";
+  const t = getDictionary(locale).guest.comments;
   const [comments, setComments] = useState<MediaComment[]>(demoComments ? [...demoComments] : []);
   const [loading, setLoading] = useState(Boolean(publicMediaId) && !demoComments);
   const [saving, setSaving] = useState(false);
@@ -56,16 +58,16 @@ export function PhotoComments({
         `/api/v1/events/${encodeURIComponent(eventSlug)}/media/${encodeURIComponent(publicMediaId)}/comments`,
         { cache: "no-store", signal },
       );
-      if (!response.ok) throw new Error(await responseMessage(response, en ? "Comments could not be loaded." : "Komentarjev ni bilo mogoče naložiti.", locale));
+      if (!response.ok) throw new Error(await responseMessage(response, t.loadError, locale));
       const payload = await response.json() as { comments: MediaComment[] };
       setComments(payload.comments);
     } catch (reason) {
       if (reason instanceof DOMException && reason.name === "AbortError") return;
-      setError(reason instanceof Error ? reason.message : en ? "Comments could not be loaded." : "Komentarjev ni bilo mogoče naložiti.");
+      setError(reason instanceof Error ? reason.message : t.loadError);
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-  }, [demoComments, en, eventSlug, locale, publicMediaId]);
+  }, [demoComments, eventSlug, locale, publicMediaId, t]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -97,38 +99,38 @@ export function PhotoComments({
           body: JSON.stringify({ guestId: guestIdentity.guestId, body: nextBody }),
         },
       );
-      if (!response.ok) throw new Error(await responseMessage(response, en ? "The comment could not be posted." : "Komentarja ni bilo mogoče objaviti.", locale));
+      if (!response.ok) throw new Error(await responseMessage(response, t.postError, locale));
       const payload = await response.json() as { comment: MediaComment };
       setComments((current) => [...current, payload.comment]);
       setBody("");
       inputRef.current?.focus();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : en ? "The comment could not be posted." : "Komentarja ni bilo mogoče objaviti.");
+      setError(reason instanceof Error ? reason.message : t.postError);
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <section className={`${styles.panel} ${closing ? styles.closing : ""}`} aria-label={en ? "Photo comments" : "Komentarji fotografije"}>
+    <section className={`${styles.panel} ${closing ? styles.closing : ""}`} aria-label={t.panelLabel}>
       <div className={styles.handle} aria-hidden="true" />
       <header>
         <div>
-          <h2>{en ? "Comments" : "Komentarji"}</h2>
-          <span>{comments.length} {en ? (comments.length === 1 ? "comment" : "comments") : (comments.length === 1 ? "komentar" : "komentarjev")}</span>
+          <h2>{t.title}</h2>
+          <span>{pluralCount(locale, comments.length, t.commentCount)}</span>
         </div>
-        <button type="button" onClick={onClose} aria-label={en ? "Close comments" : "Zapri komentarje"}>×</button>
+        <button type="button" onClick={onClose} aria-label={t.close}>×</button>
       </header>
 
       <div className={styles.list} aria-live="polite">
         {!publicMediaId ? (
-          <div className={styles.empty}><strong>{en ? "Preview photo" : "Predogledna fotografija"}</strong><p>{en ? "Comments are available on published event photos." : "Komentarji so na voljo pri objavljenih fotografijah dogodka."}</p></div>
+          <div className={styles.empty}><strong>{t.previewTitle}</strong><p>{t.previewText}</p></div>
         ) : loading ? (
-          <div className={styles.loading} aria-label={en ? "Loading comments" : "Nalagam komentarje"}><span /><span /><span /></div>
+          <div className={styles.loading} aria-label={t.loading}><span /><span /><span /></div>
         ) : error && comments.length === 0 ? (
-          <div className={styles.empty} role="alert"><strong>{en ? "Loading failed" : "Nalaganje ni uspelo"}</strong><p>{error}</p><button type="button" onClick={retry}>{en ? "Try again" : "Poskusi znova"}</button></div>
+          <div className={styles.empty} role="alert"><strong>{t.loadFailed}</strong><p>{error}</p><button type="button" onClick={retry}>{t.tryAgain}</button></div>
         ) : comments.length === 0 ? (
-          <div className={styles.empty}><strong>{en ? "No comments yet" : "Še ni komentarjev"}</strong><p>{en ? "Be the first to add something kind." : "Bodi prvi in dodaj nekaj lepega."}</p></div>
+          <div className={styles.empty}><strong>{t.emptyTitle}</strong><p>{t.emptyText}</p></div>
         ) : (
           <ol>
             {comments.map((comment) => (
@@ -142,22 +144,22 @@ export function PhotoComments({
       </div>
 
       {demoComments ? (
-        <p className={styles.demoNotice}>{en ? "Sample comments in the demo gallery" : "Vzorčni komentarji v demo galeriji"}</p>
+        <p className={styles.demoNotice}>{t.demoNotice}</p>
       ) : publicMediaId && guestIdentity ? (
         <form onSubmit={submit}>
-          <label htmlFor="photo-comment">{en ? "Add comment" : "Dodaj komentar"}</label>
+          <label htmlFor="photo-comment">{t.addLabel}</label>
           <div>
             <textarea
               ref={inputRef}
               id="photo-comment"
               value={body}
               onChange={(event) => { setBody(event.target.value); setError(null); }}
-              placeholder={guestIdentity.displayName ? (en ? `Comment as ${guestIdentity.displayName} …` : `Komentiraj kot ${guestIdentity.displayName} …`) : (en ? "Add a comment as guest …" : "Dodaj komentar kot gost …")}
+              placeholder={guestIdentity.displayName ? t.placeholderNamed.replace("{name}", guestIdentity.displayName) : t.placeholderAnonymous}
               maxLength={500}
               rows={1}
               disabled={saving}
             />
-            <button type="submit" disabled={!body.trim() || saving} aria-label={en ? "Post comment" : "Objavi komentar"}>
+            <button type="submit" disabled={!body.trim() || saving} aria-label={t.submit}>
               {saving ? <span className={styles.spinner} /> : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-4.5 14-3-5.5L5 12Z" /><path d="m11.5 13.5 3-3" /></svg>}
             </button>
           </div>

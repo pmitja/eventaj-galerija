@@ -52,6 +52,34 @@ describe("canonical hostname middleware", () => {
     expect(response.headers.get("x-middleware-rewrite")).toBe("https://gallery.eventaj.si/pogoji-uporabe");
   });
 
+  it("rewrites a prefixed language onto the Slovenian route tree", () => {
+    const response = middleware(new NextRequest("https://gallery.eventaj.si/de/terms-of-use"));
+
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-rewrite")).toBe("https://gallery.eventaj.si/pogoji-uporabe");
+  });
+
+  it("redirects Slovenian and English paths to the active language prefix", () => {
+    const response = middleware(new NextRequest("https://gallery.eventaj.si/de/za-dogodke/poroke"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://gallery.eventaj.si/de/for-events/weddings");
+  });
+
+  it("ignores language prefixes on the Slovenian domain", () => {
+    const response = middleware(new NextRequest("https://galerija.eventaj.si/de/order"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://galerija.eventaj.si/naroci");
+  });
+
+  it("leaves API and admin routes untouched", () => {
+    const response = middleware(new NextRequest("https://gallery.eventaj.si/api/v1/events"));
+
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-rewrite")).toBeNull();
+  });
+
   it("keeps English paths off the Slovenian domain", () => {
     const response = middleware(new NextRequest("https://galerija.eventaj.si/order/success?session_id=cs_1"));
 

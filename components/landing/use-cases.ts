@@ -1,3 +1,10 @@
+import type { Locale } from "@/lib/i18n/locale";
+import { eventUseCaseGroupsDe, eventUseCasesDe } from "./use-cases-de";
+import { eventUseCaseGroupsNl, eventUseCasesNl } from "./use-cases-nl";
+import { eventUseCaseGroupsEs, eventUseCasesEs } from "./use-cases-es";
+import { eventUseCaseGroupsIt, eventUseCasesIt } from "./use-cases-it";
+import { eventUseCaseGroupsFr, eventUseCasesFr } from "./use-cases-fr";
+
 export type EventUseCase = {
   slug: string;
   navTitle: string;
@@ -29,7 +36,7 @@ export const eventUseCases = [
     ],
     scenarios: ["civilni obred", "poročno slavje", "dekliščina ali fantovščina", "obletnica poroke"],
     faq: [
-      ["Ali Eventaj Galerija nadomesti poročnega fotografa?", "Ne. Profesionalni fotograf poskrbi za ključne posnetke, galerija pa zbere spontane trenutke iz perspektive gostov."],
+      ["Ali Guest Mosaic nadomesti poročnega fotografa?", "Ne. Profesionalni fotograf poskrbi za ključne posnetke, galerija pa zbere spontane trenutke iz perspektive gostov."],
       ["Kam lahko postaviva QR kodo?", "Na vabila, dobrodošlico, namizne kartice, meni ali zaslon. Največ fotografij praviloma zberete, če je koda vidna na več mestih."],
     ],
   },
@@ -62,7 +69,7 @@ export const eventUseCases = [
     eyebrow: "QR galerija za praznovanja",
     title: "Vsako praznovanje si zasluži skupen album.",
     description:
-      "Od družinskega srečanja do baby showerja: Eventaj Galerija zbere fotografije vseh povabljenih brez zapletenih map, aplikacij ali naknadnega pošiljanja.",
+      "Od družinskega srečanja do baby showerja: Guest Mosaic zbere fotografije vseh povabljenih brez zapletenih map, aplikacij ali naknadnega pošiljanja.",
     highlights: [
       "Deluje za majhna druženja in večja slavja",
       "Zasebna, neindeksirana povezava do galerije",
@@ -143,9 +150,9 @@ export const eventUseCases = [
 export const eventUseCaseGroups = ["Zasebni dogodki", "Poslovni dogodki"] as const;
 
 const eventUseCasesEn = [
-  { slug: "poroke", navTitle: "Weddings", navDescription: "Every spontaneous moment from your day.", group: "Private events", eyebrow: "QR gallery for weddings", title: "Every guest's wedding photos in one gallery.", description: "Guests scan a QR code and add the moments your photographer may have missed — with no app. After the wedding, download every memory in one place.", highlights: ["QR code for invitations, menus and table cards", "Simple uploads without guest registration", "Live slideshow throughout the celebration", "One ZIP with all photos after the event"], scenarios: ["civil ceremony", "wedding reception", "hen or stag party", "wedding anniversary"], faq: [["Does Eventaj Gallery replace a wedding photographer?", "No. A professional photographer captures the essential moments; the gallery collects spontaneous memories from your guests' perspective."], ["Where can we place the QR code?", "On invitations, welcome signs, table cards, menus or screens. You will usually collect more photos when the code is visible in several places."]] },
+  { slug: "poroke", navTitle: "Weddings", navDescription: "Every spontaneous moment from your day.", group: "Private events", eyebrow: "QR gallery for weddings", title: "Every guest's wedding photos in one gallery.", description: "Guests scan a QR code and add the moments your photographer may have missed — with no app. After the wedding, download every memory in one place.", highlights: ["QR code for invitations, menus and table cards", "Simple uploads without guest registration", "Live slideshow throughout the celebration", "One ZIP with all photos after the event"], scenarios: ["civil ceremony", "wedding reception", "hen or stag party", "wedding anniversary"], faq: [["Does Guest Mosaic replace a wedding photographer?", "No. A professional photographer captures the essential moments; the gallery collects spontaneous memories from your guests' perspective."], ["Where can we place the QR code?", "On invitations, welcome signs, table cards, menus or screens. You will usually collect more photos when the code is visible in several places."]] },
   { slug: "rojstni-dnevi", navTitle: "Birthdays", navDescription: "From the first candle to milestone celebrations.", group: "Private events", eyebrow: "QR gallery for birthdays", title: "Keep the whole celebration in everyone's memories.", description: "Give guests one QR code instead of chasing photos through group chats. Everyone adds their favourite moments and you receive the full story of the celebration.", highlights: ["One link for every generation", "No app, passwords or user accounts", "Comments and wishes alongside photos", "A gallery during and after the celebration"], scenarios: ["children's birthday", "18th birthday", "milestone birthday", "surprise party"], faq: [["Is it simple enough for older guests?", "Yes. A guest opens their camera, scans the QR code and selects photos directly in the browser."], ["Can guests add photos the next day?", "Yes. The QR code and link remain available while the gallery is active."]] },
-  { slug: "praznovanja", navTitle: "Celebrations", navDescription: "Anniversaries, baby showers and get-togethers.", group: "Private events", eyebrow: "QR gallery for celebrations", title: "Every celebration deserves a shared album.", description: "From a family reunion to a baby shower, Eventaj Gallery collects everyone's photos without complicated folders, apps or follow-up messages.", highlights: ["Works for intimate gatherings and large celebrations", "Private, non-indexed gallery link", "Control over each photo's visibility", "Every memory ready for one download"], scenarios: ["baby shower", "anniversary", "family reunion", "graduation"], faq: [["Which celebrations is the gallery suitable for?", "Almost any event where several guests take photos: anniversaries, family reunions, baby showers, graduations and other celebrations."], ["Is the gallery public?", "No. It is not indexed by default and is only available through an unpredictable link or QR code."]] },
+  { slug: "praznovanja", navTitle: "Celebrations", navDescription: "Anniversaries, baby showers and get-togethers.", group: "Private events", eyebrow: "QR gallery for celebrations", title: "Every celebration deserves a shared album.", description: "From a family reunion to a baby shower, Guest Mosaic collects everyone's photos without complicated folders, apps or follow-up messages.", highlights: ["Works for intimate gatherings and large celebrations", "Private, non-indexed gallery link", "Control over each photo's visibility", "Every memory ready for one download"], scenarios: ["baby shower", "anniversary", "family reunion", "graduation"], faq: [["Which celebrations is the gallery suitable for?", "Almost any event where several guests take photos: anniversaries, family reunions, baby showers, graduations and other celebrations."], ["Is the gallery public?", "No. It is not indexed by default and is only available through an unpredictable link or QR code."]] },
   { slug: "team-building", navTitle: "Team buildings", navDescription: "Your team's shared story, captured live.", group: "Corporate events", eyebrow: "QR gallery for team buildings", title: "Let your team capture the best moments of the day.", description: "Participants build the gallery together on their phones. Photos of activities, wins and behind-the-scenes moments are collected instantly for internal sharing.", highlights: ["Fast access for everyone through one QR code", "Live slideshow for the finale or evening social", "Admin control over visible photos", "ZIP for internal communication and archiving"], scenarios: ["sports activities", "workshops", "team trips", "company parties"], faq: [["Can we show the gallery on a screen during the event?", "Yes. Open the live slideshow on a computer connected to a TV or projector."], ["Who controls which photos are visible?", "The organiser can review the gallery and manage individual photo visibility in the admin portal."]] },
   { slug: "poslovni-dogodki", navTitle: "Corporate events", navDescription: "Meetings, launches and presentations.", group: "Corporate events", eyebrow: "QR gallery for corporate events", title: "Participant content collected without chasing channels.", description: "At a launch, opening or pop-up, participants submit photos through a QR code. The organiser gets an organised stream of genuine moments for recaps and internal use.", highlights: ["No app installation for visitors", "QR code on badges, tables or screens", "Visibility controls for an appropriate public display", "Central download after the event"], scenarios: ["product launch", "opening", "pop-up event", "business meeting"], faq: [["Can the QR code be added to existing event materials?", "Yes. Download it as SVG or PNG and add it to badges, posters, screens or printed materials."], ["Can we moderate content before it appears?", "Yes. The organiser manages gallery and individual photo visibility in the admin portal."]] },
   { slug: "konference-in-sejmi", navTitle: "Conferences and fairs", navDescription: "More perspectives on the programme, people and atmosphere.", group: "Corporate events", eyebrow: "QR gallery for conferences and fairs", title: "The event atmosphere through your participants' eyes.", description: "Place the QR code near the stage, at a stand or on badges. Visitors contribute photos of talks, networking and the venue to one controlled gallery.", highlights: ["One entry point for different parts of the event", "Live slideshow for the stage, lobby or stand", "Admin review and photo controls", "Organised archive for the event recap"], scenarios: ["conference", "trade fair", "congress", "networking event"], faq: [["Where is the QR code most effective at a conference?", "On badges, the programme, opening and closing slides, entrances and networking areas."], ["Does it work for a multi-day event?", "Yes. Set the event dates when ordering and use the same link throughout the programme."]] },
@@ -153,14 +160,34 @@ const eventUseCasesEn = [
 
 export const eventUseCaseGroupsEn = ["Private events", "Corporate events"] as const;
 
-export function eventUseCasesFor(locale: "sl" | "en"): readonly EventUseCase[] {
-  return locale === "en" ? eventUseCasesEn : eventUseCases;
+const USE_CASES_BY_LOCALE: Record<Locale, readonly EventUseCase[]> = {
+  sl: eventUseCases,
+  en: eventUseCasesEn,
+  de: eventUseCasesDe,
+  nl: eventUseCasesNl,
+  es: eventUseCasesEs,
+  it: eventUseCasesIt,
+  fr: eventUseCasesFr,
+};
+
+const USE_CASE_GROUPS_BY_LOCALE: Record<Locale, readonly string[]> = {
+  sl: eventUseCaseGroups,
+  en: eventUseCaseGroupsEn,
+  de: eventUseCaseGroupsDe,
+  nl: eventUseCaseGroupsNl,
+  es: eventUseCaseGroupsEs,
+  it: eventUseCaseGroupsIt,
+  fr: eventUseCaseGroupsFr,
+};
+
+export function eventUseCasesFor(locale: Locale): readonly EventUseCase[] {
+  return USE_CASES_BY_LOCALE[locale] ?? eventUseCasesEn;
 }
 
-export function eventUseCaseGroupsFor(locale: "sl" | "en"): readonly string[] {
-  return locale === "en" ? eventUseCaseGroupsEn : eventUseCaseGroups;
+export function eventUseCaseGroupsFor(locale: Locale): readonly string[] {
+  return USE_CASE_GROUPS_BY_LOCALE[locale] ?? eventUseCaseGroupsEn;
 }
 
-export function getEventUseCase(slug: string, locale: "sl" | "en" = "sl") {
+export function getEventUseCase(slug: string, locale: Locale = "sl") {
   return eventUseCasesFor(locale).find((item) => item.slug === slug);
 }

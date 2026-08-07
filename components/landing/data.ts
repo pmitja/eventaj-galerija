@@ -88,10 +88,24 @@ export const faqs = [
   ["Kaj vključuje AI Best Photos?", "Za 15 € na dogodek dodatek tehnično razvrsti kakovost in zazna dvojnike pri največ 3.000 fotografijah. Večje količine pripravimo po meri."],
 ] as const;
 
-export function landingData(locale: "sl" | "en") {
-  if (locale === "en") {
-    return { howSteps: howStepsEn, features: featuresEn, plans: plansEn, addOns: addOnsEn, faqs: faqsEn };
-  }
-  return { howSteps, features, plans, addOns, faqs };
+const LOCALE_DATA = {
+  sl: { howSteps, features, plans, addOns, faqs },
+  en: { howSteps: howStepsEn, features: featuresEn, plans: plansEn, addOns: addOnsEn, faqs: faqsEn },
+  de: { howSteps: howStepsDe, features: featuresDe, plans: plansDe, addOns: addOnsDe, faqs: faqsDe },
+  nl: { howSteps: howStepsNl, features: featuresNl, plans: plansNl, addOns: addOnsNl, faqs: faqsNl },
+  es: { howSteps: howStepsEs, features: featuresEs, plans: plansEs, addOns: addOnsEs, faqs: faqsEs },
+  it: { howSteps: howStepsIt, features: featuresIt, plans: plansIt, addOns: addOnsIt, faqs: faqsIt },
+  fr: { howSteps: howStepsFr, features: featuresFr, plans: plansFr, addOns: addOnsFr, faqs: faqsFr },
+} as const;
+
+export function landingData(locale: Locale) {
+  return LOCALE_DATA[locale] ?? LOCALE_DATA.en;
 }
+
+import type { Locale } from "@/lib/i18n/locale";
 import { addOnsEn, faqsEn, featuresEn, howStepsEn, plansEn } from "./data-en";
+import { addOnsDe, faqsDe, featuresDe, howStepsDe, plansDe } from "./data-de";
+import { addOnsNl, faqsNl, featuresNl, howStepsNl, plansNl } from "./data-nl";
+import { addOnsEs, faqsEs, featuresEs, howStepsEs, plansEs } from "./data-es";
+import { addOnsIt, faqsIt, featuresIt, howStepsIt, plansIt } from "./data-it";
+import { addOnsFr, faqsFr, featuresFr, howStepsFr, plansFr } from "./data-fr";

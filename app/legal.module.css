@@ -1,8 +1,9 @@
 .page { min-height: 100vh; background: #fffafc; color: #2b1820; }
 .header { border-bottom: 1px solid #eadde2; background: #fff; }
 .headerInner { width: min(100% - 32px, 860px); min-height: 72px; display: flex; align-items: center; justify-content: space-between; margin: 0 auto; }
-.brand { color: #321722; font-size: 22px; font-weight: 850; letter-spacing: -.05em; }
-.brand span { color: #c33268; }
+.brand { display: inline-flex; align-items: center; gap: 9px; color: #321722; font-size: 22px; font-weight: 850; letter-spacing: -.05em; }
+.brandWord span { color: #c33268; }
+.brandMark { width: 30px; height: 30px; flex: none; display: block; }
 .back { min-height: 44px; display: inline-flex; align-items: center; color: #7d294b; font-size: 14px; font-weight: 700; }
 .article { width: min(100% - 32px, 760px); margin: 0 auto; padding: 64px 0 88px; }
 .eyebrow { margin: 0 0 8px; color: #9a315a; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }

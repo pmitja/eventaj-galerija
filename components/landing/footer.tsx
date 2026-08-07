@@ -1,36 +1,56 @@
 import Link from "next/link";
 import { StickyCreateEventCta } from "./sticky-create-event-cta";
 import type { Locale } from "@/lib/i18n/locale";
-import { eventUseCasePath, orderPath, privacyPath, termsPath } from "@/lib/i18n/routes";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { eventUseCasePath, localizedMarketingPath, orderPath, privacyPath, termsPath } from "@/lib/i18n/routes";
+import { SITE_NAME } from "@/lib/seo";
 
 export function Footer({ locale = "sl" }: { locale?: Locale }) {
-  const en = locale === "en";
+  const t = getDictionary(locale);
+  const home = localizedMarketingPath("/", locale);
   return (
     <>
       <footer className="footer">
         <div className="footer-cta shell">
-          <h2>{en ? "Do not let your guests' memories disappear." : "Ne pustite, da spomini vaših gostov izginejo."}</h2>
-          <p>{en ? "Create your event gallery for a one-time €35 payment. No subscription." : "Ustvarite galerijo dogodka z enkratnim plačilom 35 €. Brez naročnine."}</p>
-          <Link className="button" href={orderPath(locale)}>{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
+          <h2>{t.footer.ctaHeading}</h2>
+          <p>{t.footer.ctaText}</p>
+          <Link className="button" href={orderPath(locale)}>{t.footer.ctaButton}</Link>
         </div>
         <div className="footer-links shell">
           <div className="footer-about">
             <div className="brand brand--footer">
-              <img className="brand-logo" src="/logo.svg" alt="Eventaj.si" width={44} height={44} />
-              <span>|</span> <b>{en ? "Gallery" : "Galerija"}</b>
+              <img className="brand-logo" src="/guest-mosaic-mark.webp" alt="" width={44} height={44} />
+              <b>{t.nav.brandWord}</b>
             </div>
-            <p>{en ? "A QR gallery for weddings, corporate events, team buildings and celebrations. Part of Eventaj.si." : "QR galerija za poroke, poslovne dogodke, team buildinge in praznovanja. Del ekipe Eventaj.si."}</p>
+            <p>{t.footer.about}</p>
           </div>
-          <div className="footer-column"><strong>{en ? "Product" : "Produkt"}</strong><Link href={`/#${en ? "how-it-works" : "kako-deluje"}`}>{en ? "How it works" : "Kako deluje"}</Link><Link className="desktop-only" href={`/#${en ? "features" : "funkcije"}`}>{en ? "Features" : "Funkcije"}</Link><Link href={`/#${en ? "pricing" : "cene"}`}>{en ? "Pricing" : "Cene"}</Link><Link className="desktop-only" href="/#faq">FAQ</Link></div>
-          <div className="footer-column desktop-only"><strong>{en ? "Events" : "Dogodki"}</strong><Link href={eventUseCasePath(locale, "poroke")}>{en ? "Weddings" : "Poroke"}</Link><Link href={eventUseCasePath(locale, "poslovni-dogodki")}>{en ? "Corporate events" : "Poslovni dogodki"}</Link><Link href={eventUseCasePath(locale, "team-building")}>{en ? "Team buildings" : "Team buildingi"}</Link><Link href={eventUseCasePath(locale, "praznovanja")}>{en ? "Celebrations" : "Praznovanja"}</Link></div>
-          <div className="footer-column"><strong>Eventaj.si</strong><a href="https://eventaj.si">{en ? "Main website" : "Glavna stran"}</a><Link href={`/#${en ? "how-it-works" : "kako-deluje"}`}>QR {en ? "gallery" : "galerija"}</Link><Link href="/#faq">{en ? "Help" : "Pomoč"}</Link><a href="mailto:info@eventaj.si">{en ? "Contact" : "Kontakt"}</a></div>
+          <div className="footer-column">
+            <strong>{t.footer.productColumn}</strong>
+            <Link href={`${home}#${t.anchors.howItWorks}`}>{t.nav.howItWorks}</Link>
+            <Link className="desktop-only" href={`${home}#${t.anchors.features}`}>{t.nav.features}</Link>
+            <Link href={`${home}#${t.anchors.pricing}`}>{t.nav.pricing}</Link>
+            <Link className="desktop-only" href={`${home}#${t.anchors.faq}`}>{t.nav.faq}</Link>
+          </div>
+          <div className="footer-column desktop-only">
+            <strong>{t.footer.eventsColumn}</strong>
+            <Link href={eventUseCasePath(locale, "poroke")}>{t.footer.weddings}</Link>
+            <Link href={eventUseCasePath(locale, "poslovni-dogodki")}>{t.footer.corporateEvents}</Link>
+            <Link href={eventUseCasePath(locale, "team-building")}>{t.footer.teamBuildings}</Link>
+            <Link href={eventUseCasePath(locale, "praznovanja")}>{t.footer.celebrations}</Link>
+          </div>
+          <div className="footer-column">
+            <strong>{SITE_NAME}</strong>
+            <Link href={`${home}#${t.anchors.howItWorks}`}>QR {t.footer.qrGallery}</Link>
+            <Link href={`${home}#${t.anchors.faq}`}>{t.footer.help}</Link>
+            <a href="mailto:info@eventaj.si">{t.footer.contact}</a>
+          </div>
         </div>
         <div className="copyright shell">
           <span className="copyright-brand">
-            <img className="brand-logo brand-logo--small" src="/logo.svg" alt="Eventaj.si" width={28} height={28} />
-            © 2026 Eventaj.si. {en ? "All rights reserved." : "Vse pravice pridržane."}
+            <img className="brand-logo brand-logo--small" src="/guest-mosaic-mark.webp" alt="" width={28} height={28} />
+            © 2026 {SITE_NAME}. {t.footer.rightsReserved}
           </span>
-          <span><Link href={termsPath(locale)}>{en ? "Terms of Use" : "Pogoji uporabe"}</Link> · <Link href={privacyPath(locale)}>{en ? "Privacy" : "Zasebnost"}</Link></span>
+          <span><Link href={termsPath(locale)}>{t.footer.terms}</Link> · <Link href={privacyPath(locale)}>{t.footer.privacy}</Link></span>
         </div>
       </footer>
       <StickyCreateEventCta locale={locale} />

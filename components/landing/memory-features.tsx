@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/locale";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { orderPath } from "@/lib/i18n/routes";
 
 function MicrophoneIcon() {
@@ -21,64 +22,62 @@ function DownloadIcon() {
 }
 
 export function MemoryFeatures({ locale = "sl" }: { locale?: Locale }) {
-  const en = locale === "en";
+  const t = getDictionary(locale);
   return (
     <section className="memory-features section-muted" id="spomini-v-glasu" aria-labelledby="memory-features-title">
       <div className="shell">
         <div className="section-heading">
-          <div className="section-pill">{en ? "More than photos" : "Več kot fotografije"}</div>
-          <h2 id="memory-features-title">{en ? "Keep every voice and every original" : "Shranite vsak glas in vsak original"}</h2>
-          <p>{en ? "Guests can record a personal message and download a favourite photo directly from the gallery." : "Gostje lahko posnamejo osebno voščilo in najljubšo fotografijo prenesejo neposredno iz galerije."}</p>
+          <div className="section-pill">{t.memories.pill}</div>
+          <h2 id="memory-features-title">{t.memories.heading}</h2>
+          <p>{t.memories.subtitle}</p>
         </div>
 
         <div className="memory-feature-grid">
           <article className="memory-feature-card">
             <div className="memory-feature-copy">
               <span className="memory-feature-icon" aria-hidden="true"><MicrophoneIcon /></span>
-              <h3>{en ? "Audio guestbook" : "Audio knjiga gostov"}</h3>
-              <p>{en ? "A laugh, a story or a heartfelt wish — recorded in the browser with no app or account." : "Smeh, zgodba ali iskreno voščilo — posneto v brskalniku brez aplikacije in uporabniškega računa."}</p>
+              <h3>{t.memories.voiceTitle}</h3>
+              <p>{t.memories.voiceText}</p>
               <ul>
-                <li>{en ? "Preview before sending" : "Predogled pred pošiljanjem"}</li>
-                <li>{en ? "Up to 2 minutes per message" : "Do 2 minuti na voščilo"}</li>
+                {t.memories.voicePoints.map((point) => <li key={point}>{point}</li>)}
               </ul>
             </div>
             <div className="voice-feature-visual" aria-hidden="true">
-              <span>{en ? "A memory in your voice" : "Spomin v tvojem glasu"}</span>
-              <strong>{en ? "Voice message" : "Glasovno voščilo"}</strong>
+              <span>{t.memories.voiceVisualEyebrow}</span>
+              <strong>{t.memories.voiceVisualTitle}</strong>
               <div className="voice-feature-wave">
                 {[10, 18, 28, 14, 34, 22, 40, 18, 30, 14, 24, 10].map((height, index) => <i key={index} style={{ height }} />)}
               </div>
               <b>0:24</b>
               <div className="voice-feature-record"><MicrophoneIcon /></div>
-              <small>{en ? "Tap to record your message" : "Tapni za snemanje voščila"}</small>
+              <small>{t.memories.voiceVisualHint}</small>
             </div>
           </article>
 
           <article className="memory-feature-card memory-feature-card--download">
             <div className="memory-feature-copy">
               <span className="memory-feature-icon" aria-hidden="true"><DownloadIcon /></span>
-              <h3>{en ? "Download any photo" : "Prenos posamezne fotografije"}</h3>
-              <p>{en ? "Open a favourite moment and save the original immediately — no waiting for the complete ZIP archive." : "Odprite najljubši utrinek in takoj shranite original — brez čakanja na celoten ZIP arhiv."}</p>
+              <h3>{t.memories.downloadTitle}</h3>
+              <p>{t.memories.downloadText}</p>
               <ul>
-                <li>{en ? "A download button on every photo" : "Gumb za prenos na vsaki fotografiji"}</li>
-                <li>{en ? "Secure access to the original" : "Varen dostop do originala"}</li>
+                {t.memories.downloadPoints.map((point) => <li key={point}>{point}</li>)}
               </ul>
             </div>
             <div className="download-feature-visual" aria-hidden="true">
               <Image src="/gallery/ana-marko/photo-4.jpg" alt="" fill sizes="(max-width: 900px) 100vw, 520px" />
               <div className="download-feature-bar">
                 <span>4 / 10</span>
-                <span className="download-feature-action"><DownloadIcon /> {en ? "Download" : "Prenesi"}</span>
+                <span className="download-feature-action"><DownloadIcon /> {t.memories.downloadAction}</span>
               </div>
             </div>
           </article>
         </div>
         <div className="memory-feature-cta">
           <div>
-            <strong>{en ? "Your guests create the memories. You keep every one." : "Gostje ustvarijo spomine. Vi ohranite prav vsakega."}</strong>
-            <span>{en ? "One event, unlimited guests, no subscription." : "En dogodek, neomejeno gostov, brez naročnine."}</span>
+            <strong>{t.memories.ctaHeading}</strong>
+            <span>{t.memories.ctaText}</span>
           </div>
-          <Link className="button" href={orderPath(locale)}>{en ? "Create your event for €35" : "Ustvari dogodek za 35 €"}</Link>
+          <Link className="button" href={orderPath(locale)}>{t.hero.ctaPrimary}</Link>
         </div>
       </div>
     </section>

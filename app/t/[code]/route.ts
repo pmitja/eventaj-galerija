@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { findActiveAccessPoint, recordAccessPointVisit } from "@/lib/repositories/access-points";
 import { publicAccessPointCodeSchema } from "@/lib/validation/access-points";
 import { problem } from "@/lib/http/problem";
+import { localeFromPathname, withLocalePrefix } from "@/lib/i18n/locale";
 
 function referrerHost(request: Request): string | null {
   const referrer = request.headers.get("referer");
@@ -24,7 +25,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ code
 
   getCloudflareContext().ctx.waitUntil(recordAccessPointVisit(point, referrerHost(request)));
 
-  const target = new URL(`/e/${encodeURIComponent(point.event_slug)}`, request.url);
+  // Keep the visitor in the language they arrived in: /de/t/<code> -> /de/e/<slug>.
+  const locale = localeFromPathname(new URL(request.url).pathname) ?? "en";
+  const target = new URL(withLocalePrefix(locale, `/e/${encodeURIComponent(point.event_slug)}`), request.url);
   const response = NextResponse.redirect(target, 302);
   response.headers.set("cache-control", "private, no-store");
   response.cookies.set("eventaj_access_point", point.public_code, {

@@ -6,7 +6,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, Check, Download, LoaderCircle, LockKeyhole, Mail, ScanFace, ShieldCheck, Sparkles, TriangleAlert, Video } from "lucide-react";
 import { format } from "date-fns";
-import { enGB, sl } from "date-fns/locale";
+import { de as deDate, enGB, es as esDate, fr as frDate, it as itDate, nl as nlDate, sl } from "date-fns/locale";
 import { Alert, Separator } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -17,7 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { checkoutFormSchemaFor, type CheckoutFormValues } from "@/lib/validation/checkout";
 import { useLocale } from "@/components/i18n/locale-provider";
+import type { Locale } from "@/lib/i18n/locale";
 import { privacyPath, termsPath } from "@/lib/i18n/routes";
+import { SITE_NAME } from "@/lib/seo";
 import styles from "./checkout.module.css";
 
 const CHECKOUT_COPY = {
@@ -67,6 +69,121 @@ const CHECKOUT_COPY = {
     privacy: "Privacy Policy", opening: "Opening secure payment …", continue: "Continue to payment",
     secure: "Payment is securely processed by Stripe. We do not store card details.",
   },
+  de: {
+    date: "Datum", chooseDate: "Datum wählen", required: "kennzeichnet ein Pflichtfeld",
+    paymentError: "Die Zahlung kann nicht gestartet werden.", deliveryTitle: "Wohin sollen wir den QR-Code senden?",
+    deliveryDescription: "An diese Adresse senden wir den QR-Code und nach dem Event ein ZIP mit allen Fotos. Eine Anmeldung ist nicht nötig.",
+    organisation: "Organisation", organisationPlaceholder: "z. B. Studio Nord", fullName: "Vor- und Nachname",
+    namePlaceholder: "z. B. Nina Neumann", email: "E-Mail", emailPlaceholder: "name@firma.de",
+    afterPayment: "Sofort nach der Zahlung", afterPaymentNote: "QR-Code und ein direkter Link zum Event.",
+    afterEvent: "Nach dem Event", afterEventNote: "Ein 24 Stunden gültiger Link zum ZIP mit allen Fotos.",
+    eventDetails: "Event-Daten", eventDescription: "Geben Sie die Eckdaten ein und legen Sie fest, wann die Galerie aktiv ist.",
+    eventName: "Name des Events", eventPlaceholder: "z. B. Hochzeit von Anna und Mark", location: "Ort", optional: "optional",
+    locationPlaceholder: "z. B. Schloss Bled", start: "Beginn", end: "Ende", maxSevenDays: "Höchstens 7 Tage nach dem Beginn",
+    time: "Uhrzeit", startDateLabel: "Startdatum wählen", endDateLabel: "Enddatum wählen",
+    startTimeLabel: "Startzeit", endTimeLabel: "Endzeit", comments: "Kommentare der Gäste erlauben",
+    commentsNote: "Ihre Gäste können Fotos in der Galerie kommentieren.", summary: "Bestellübersicht",
+    once: "Einmalige Zahlung, kein Abo.", oneEvent: "1 Event · 180 Tage Speicherung", unlimitedGuests: "Unbegrenzt Gäste",
+    qrGallery: "QR-Code und Fotogalerie", qrEmail: "QR-Code sofort per E-Mail", videos: "20 Videos bis zu 60 Sekunden",
+    zip: "ZIP nach dem Event", aiNote: "Automatische Auswahl für bis zu 3.000 Fotos.", face: "KI-Gesichtssuche",
+    faceNote: "Gäste finden ihre Fotos per Selfie.", unlimitedVideos: "Unbegrenzt Videos",
+    videoNote: "Bis zu 60 Sekunden und 500 MB pro Video. Es gilt die Fair-Use-Regel.", total: "Gesamt", tax: "Inkl. MwSt.",
+    consentPrefix: "Ich stimme den", terms: "Nutzungsbedingungen", consentMiddle: "zu und bestätige, dass ich die",
+    privacy: "Datenschutzerklärung", opening: "Sichere Zahlung wird geöffnet …", continue: "Weiter zur Zahlung",
+    secure: "Die Zahlung wird sicher von Stripe abgewickelt. Wir speichern keine Kartendaten.",
+  },
+  nl: {
+    date: "Datum", chooseDate: "Kies een datum", required: "geeft een verplicht veld aan",
+    paymentError: "De betaling kan niet worden gestart.", deliveryTitle: "Waar sturen we de QR-code naartoe?",
+    deliveryDescription: "Naar dit adres sturen we de QR-code en na afloop een ZIP met alle foto's. Inloggen is niet nodig.",
+    organisation: "Organisatie", organisationPlaceholder: "bijv. Studio Noord", fullName: "Volledige naam",
+    namePlaceholder: "bijv. Nina de Vries", email: "E-mail", emailPlaceholder: "naam@bedrijf.nl",
+    afterPayment: "Direct na de betaling", afterPaymentNote: "QR-code en een directe link naar het evenement.",
+    afterEvent: "Na het evenement", afterEventNote: "Een link van 24 uur naar een ZIP met alle foto's.",
+    eventDetails: "Evenementgegevens", eventDescription: "Vul de basisgegevens in en bepaal wanneer de galerij actief is.",
+    eventName: "Naam van het evenement", eventPlaceholder: "bijv. Bruiloft van Anna en Mark", location: "Locatie", optional: "optioneel",
+    locationPlaceholder: "bijv. Kasteel Bled", start: "Begin", end: "Einde", maxSevenDays: "Maximaal 7 dagen na het begin",
+    time: "Tijd", startDateLabel: "Kies de begindatum", endDateLabel: "Kies de einddatum",
+    startTimeLabel: "Begintijd", endTimeLabel: "Eindtijd", comments: "Reacties van gasten inschakelen",
+    commentsNote: "Gasten kunnen reageren op foto's in de galerij.", summary: "Overzicht van je bestelling",
+    once: "Eenmalige betaling, geen abonnement.", oneEvent: "1 evenement · 180 dagen bewaard", unlimitedGuests: "Onbeperkt gasten",
+    qrGallery: "QR-code en fotogalerij", qrEmail: "QR-code direct per e-mail", videos: "20 video's tot 60 seconden",
+    zip: "ZIP na het evenement", aiNote: "Automatische selectie voor maximaal 3.000 foto's.", face: "AI-gezichtszoeken",
+    faceNote: "Gasten vinden hun foto's met een selfie.", unlimitedVideos: "Onbeperkt video's",
+    videoNote: "Tot 60 seconden en 500 MB per video. Fair-usebeleid van toepassing.", total: "Totaal", tax: "Inclusief btw.",
+    consentPrefix: "Ik ga akkoord met de", terms: "Gebruiksvoorwaarden", consentMiddle: "en bevestig dat ik het",
+    privacy: "Privacybeleid", opening: "Beveiligde betaling wordt geopend …", continue: "Doorgaan naar betaling",
+    secure: "De betaling wordt veilig verwerkt door Stripe. Wij bewaren geen kaartgegevens.",
+  },
+  es: {
+    date: "Fecha", chooseDate: "Elige una fecha", required: "indica un campo obligatorio",
+    paymentError: "No se puede iniciar el pago.", deliveryTitle: "¿Dónde te enviamos el código QR?",
+    deliveryDescription: "A esta dirección enviaremos el código QR y, después del evento, un ZIP con todas las fotos. No hace falta registrarse.",
+    organisation: "Organización", organisationPlaceholder: "p. ej. Estudio Norte", fullName: "Nombre y apellidos",
+    namePlaceholder: "p. ej. Nina Navarro", email: "Correo electrónico", emailPlaceholder: "nombre@empresa.es",
+    afterPayment: "Justo después del pago", afterPaymentNote: "Código QR y enlace directo al evento.",
+    afterEvent: "Al terminar el evento", afterEventNote: "Un enlace de 24 horas a un ZIP con todas las fotos.",
+    eventDetails: "Datos del evento", eventDescription: "Introduce los datos básicos y decide cuándo estará activa la galería.",
+    eventName: "Nombre del evento", eventPlaceholder: "p. ej. Boda de Anna y Mark", location: "Lugar", optional: "opcional",
+    locationPlaceholder: "p. ej. Castillo de Bled", start: "Inicio", end: "Fin", maxSevenDays: "Como máximo 7 días después del inicio",
+    time: "Hora", startDateLabel: "Elige la fecha de inicio", endDateLabel: "Elige la fecha de fin",
+    startTimeLabel: "Hora de inicio", endTimeLabel: "Hora de fin", comments: "Permitir comentarios de los invitados",
+    commentsNote: "Tus invitados podrán comentar las fotos de la galería.", summary: "Resumen del pedido",
+    once: "Pago único, sin suscripción.", oneEvent: "1 evento · 180 días de conservación", unlimitedGuests: "Invitados ilimitados",
+    qrGallery: "Código QR y galería de fotos", qrEmail: "QR al instante por correo", videos: "20 vídeos de hasta 60 segundos",
+    zip: "ZIP al terminar el evento", aiNote: "Selección automática para hasta 3.000 fotos.", face: "Búsqueda facial con IA",
+    faceNote: "Los invitados encuentran sus fotos con un selfi.", unlimitedVideos: "Vídeos ilimitados",
+    videoNote: "Hasta 60 segundos y 500 MB por vídeo. Se aplica la política de uso razonable.", total: "Total", tax: "IVA incluido.",
+    consentPrefix: "Acepto las", terms: "Condiciones de uso", consentMiddle: "y confirmo que he leído la",
+    privacy: "Política de privacidad", opening: "Abriendo el pago seguro …", continue: "Continuar al pago",
+    secure: "Stripe procesa el pago de forma segura. No guardamos los datos de la tarjeta.",
+  },
+  it: {
+    date: "Data", chooseDate: "Scegli una data", required: "indica un campo obbligatorio",
+    paymentError: "Non è possibile avviare il pagamento.", deliveryTitle: "Dove inviamo il codice QR?",
+    deliveryDescription: "A questo indirizzo invieremo il codice QR e, dopo l'evento, uno ZIP con tutte le foto. Non serve registrarsi.",
+    organisation: "Organizzazione", organisationPlaceholder: "es. Studio Nord", fullName: "Nome e cognome",
+    namePlaceholder: "es. Nina Rossi", email: "E-mail", emailPlaceholder: "nome@azienda.it",
+    afterPayment: "Subito dopo il pagamento", afterPaymentNote: "Codice QR e link diretto all'evento.",
+    afterEvent: "Al termine dell'evento", afterEventNote: "Un link valido 24 ore allo ZIP con tutte le foto.",
+    eventDetails: "Dati dell'evento", eventDescription: "Inserisci i dati principali e scegli quando la galleria sarà attiva.",
+    eventName: "Nome dell'evento", eventPlaceholder: "es. Matrimonio di Anna e Mark", location: "Luogo", optional: "facoltativo",
+    locationPlaceholder: "es. Castello di Bled", start: "Inizio", end: "Fine", maxSevenDays: "Al massimo 7 giorni dopo l'inizio",
+    time: "Ora", startDateLabel: "Scegli la data di inizio", endDateLabel: "Scegli la data di fine",
+    startTimeLabel: "Ora di inizio", endTimeLabel: "Ora di fine", comments: "Abilita i commenti degli ospiti",
+    commentsNote: "I tuoi ospiti potranno commentare le foto nella galleria.", summary: "Riepilogo dell'ordine",
+    once: "Pagamento unico, senza abbonamento.", oneEvent: "1 evento · 180 giorni di conservazione", unlimitedGuests: "Ospiti illimitati",
+    qrGallery: "Codice QR e galleria fotografica", qrEmail: "QR subito via e-mail", videos: "20 video fino a 60 secondi",
+    zip: "ZIP al termine dell'evento", aiNote: "Selezione automatica fino a 3.000 foto.", face: "Ricerca dei volti con IA",
+    faceNote: "Gli ospiti trovano le loro foto con un selfie.", unlimitedVideos: "Video illimitati",
+    videoNote: "Fino a 60 secondi e 500 MB per video. Si applica la politica di fair use.", total: "Totale", tax: "IVA inclusa.",
+    consentPrefix: "Accetto le", terms: "Condizioni d'uso", consentMiddle: "e confermo di aver letto l'",
+    privacy: "Informativa sulla privacy", opening: "Apertura del pagamento sicuro …", continue: "Continua al pagamento",
+    secure: "Il pagamento è gestito in modo sicuro da Stripe. Non conserviamo i dati della carta.",
+  },
+  fr: {
+    date: "Date", chooseDate: "Choisir une date", required: "indique un champ obligatoire",
+    paymentError: "Le paiement ne peut pas être lancé.", deliveryTitle: "Où devons-nous envoyer le QR code ?",
+    deliveryDescription: "Nous enverrons le QR code à cette adresse, puis un ZIP de toutes les photos après l'événement. Aucune inscription n'est nécessaire.",
+    organisation: "Organisation", organisationPlaceholder: "p. ex. Studio Nord", fullName: "Nom et prénom",
+    namePlaceholder: "p. ex. Nina Dupont", email: "E-mail", emailPlaceholder: "nom@entreprise.fr",
+    afterPayment: "Juste après le paiement", afterPaymentNote: "QR code et lien direct vers l'événement.",
+    afterEvent: "Après l'événement", afterEventNote: "Un lien valable 24 heures vers un ZIP de toutes les photos.",
+    eventDetails: "Informations sur l'événement", eventDescription: "Renseignez les informations principales et choisissez quand la galerie sera active.",
+    eventName: "Nom de l'événement", eventPlaceholder: "p. ex. Mariage d'Anna et Mark", location: "Lieu", optional: "facultatif",
+    locationPlaceholder: "p. ex. Château de Bled", start: "Début", end: "Fin", maxSevenDays: "Au maximum 7 jours après le début",
+    time: "Heure", startDateLabel: "Choisir la date de début", endDateLabel: "Choisir la date de fin",
+    startTimeLabel: "Heure de début", endTimeLabel: "Heure de fin", comments: "Activer les commentaires des invités",
+    commentsNote: "Vos invités pourront commenter les photos de la galerie.", summary: "Récapitulatif de la commande",
+    once: "Paiement unique, sans abonnement.", oneEvent: "1 événement · 180 jours de conservation", unlimitedGuests: "Invités illimités",
+    qrGallery: "QR code et galerie photo", qrEmail: "QR code aussitôt par e-mail", videos: "20 vidéos jusqu'à 60 secondes",
+    zip: "ZIP après l'événement", aiNote: "Sélection automatique jusqu'à 3 000 photos.", face: "Recherche de visage par IA",
+    faceNote: "Vos invités retrouvent leurs photos avec un selfie.", unlimitedVideos: "Vidéos illimitées",
+    videoNote: "Jusqu'à 60 secondes et 500 Mo par vidéo. Politique d'usage raisonnable applicable.", total: "Total", tax: "TVA incluse.",
+    consentPrefix: "J'accepte les", terms: "Conditions d'utilisation", consentMiddle: "et je confirme avoir lu la",
+    privacy: "Politique de confidentialité", opening: "Ouverture du paiement sécurisé …", continue: "Continuer vers le paiement",
+    secure: "Le paiement est traité en toute sécurité par Stripe. Nous ne conservons aucune donnée bancaire.",
+  },
 } as const;
 
 function dateFromValue(value: string) {
@@ -81,6 +198,8 @@ function valueFromDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+const DATE_FNS_LOCALES = { sl, en: enGB, de: deDate, nl: nlDate, es: esDate, it: itDate, fr: frDate };
+
 function DatePickerField({ id, label, value, onChange, error, disabledBefore, locale, dateLabel, chooseDate }: {
   id: string;
   label: string;
@@ -88,19 +207,20 @@ function DatePickerField({ id, label, value, onChange, error, disabledBefore, lo
   onChange: (value: string) => void;
   error?: string;
   disabledBefore?: Date;
-  locale: "sl" | "en";
+  locale: Locale;
   dateLabel: string;
   chooseDate: string;
 }) {
   const [open, setOpen] = useState(false);
   const selected = dateFromValue(value);
+  const dateLocale = DATE_FNS_LOCALES[locale] ?? enGB;
   return <Field>
     <FieldLabel htmlFor={id}>{dateLabel}<RequiredMark /></FieldLabel>
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button id={id} type="button" variant="outline" className={styles.dateButton} aria-label={label} aria-required="true" aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined}>
           <CalendarDays aria-hidden="true" />
-          <span>{selected ? format(selected, "d MMM yyyy", { locale: locale === "en" ? enGB : sl }) : chooseDate}</span>
+          <span>{selected ? format(selected, "d MMM yyyy", { locale: dateLocale }) : chooseDate}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start">
@@ -115,7 +235,7 @@ function DatePickerField({ id, label, value, onChange, error, disabledBefore, lo
           }}
           disabled={disabledBefore ? { before: disabledBefore } : undefined}
           autoFocus
-          locale={locale === "en" ? enGB : sl}
+          locale={dateLocale}
         />
       </PopoverContent>
     </Popover>
@@ -285,7 +405,7 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
           <CardContent className={styles.summaryContent}>
             <div className={styles.productRow}>
               <div className={styles.productIcon}><CalendarDays aria-hidden="true" /></div>
-              <div><strong>Eventaj Galerija</strong><span>{copy.oneEvent}</span></div>
+              <div><strong>{SITE_NAME}</strong><span>{copy.oneEvent}</span></div>
               <b>35 €</b>
             </div>
             <ul className={styles.includedList}>

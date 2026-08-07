@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { isStickyCtaVisible } from "./sticky-create-event-cta-state";
 import type { Locale } from "@/lib/i18n/locale";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { orderPath } from "@/lib/i18n/routes";
 
 const HERO_CTA_SELECTOR = '[data-sticky-cta-trigger="create-event"]';
@@ -51,7 +52,7 @@ export function StickyCreateEventCta({ locale = "sl" }: { locale?: Locale }) {
       aria-hidden={!visible}
     >
       <Link className="button" href={orderPath(locale)} tabIndex={visible ? undefined : -1}>
-        {locale === "en" ? "Create event — €35" : "Ustvari dogodek — 35 €"}
+        {getDictionary(locale).useCasePage.ctaCreate}
       </Link>
     </div>
   );

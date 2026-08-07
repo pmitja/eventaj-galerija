@@ -12,7 +12,7 @@ import { appUrlForLocale } from "@/lib/i18n/locale";
 
 export async function LandingPage() {
   const locale = await getRequestLocale();
-  const alternateOrigin = appUrlForLocale(getPublicAppUrls(), locale === "en" ? "sl" : "en");
+  const alternateOrigin = appUrlForLocale(getPublicAppUrls(), locale === "sl" ? "en" : "sl");
   return (
     <LoginModalProvider>
       <main className="landing-page">

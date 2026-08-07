@@ -15,6 +15,9 @@ import {
 import type { EngagementSnapshot } from "@/lib/repositories/engagement";
 import styles from "./slideshow-display.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { localizedMarketingPath } from "@/lib/i18n/routes";
+import { guestBrandMark } from "@/lib/seo";
 
 export type SlideshowSlide = {
   publicId: string;
@@ -62,7 +65,9 @@ export function SlideshowDisplay({
   backHref,
 }: SlideshowDisplayProps) {
   const locale = useLocale();
-  const en = locale === "en";
+  const t = getDictionary(locale).guest.live;
+  const homeHref = localizedMarketingPath("/", locale);
+  const brandMarkSrc = guestBrandMark(locale);
   const demoMode = Boolean(initialSlides);
   const [eventName, setEventName] = useState(initialEventName);
   const [slides, setSlides] = useState<SlideshowSlide[]>(initialSlides ?? []);
@@ -81,7 +86,7 @@ export function SlideshowDisplay({
     if (!token) return;
     try {
       const response = await fetch(`/api/v1/display/${encodeURIComponent(token)}/media`, { cache: "no-store" });
-      if (!response.ok) throw new Error(response.status === 404 ? (en ? "The display link is no longer valid." : "Povezava do projekcije ni več veljavna.") : (en ? "The display could not be refreshed." : "Projekcije ni bilo mogoče osvežiti."));
+      if (!response.ok) throw new Error(response.status === 404 ? t.linkInvalid : t.refreshError);
       const body = await response.json() as {
         event: { name: string };
         media: SlideshowSlide[];
@@ -136,11 +141,11 @@ export function SlideshowDisplay({
       setCurrentIndex((current) => body.media.length ? Math.min(current, body.media.length - 1) : 0);
       setError(null);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : en ? "The display could not be refreshed." : "Projekcije ni bilo mogoče osvežiti.");
+      setError(reason instanceof Error ? reason.message : t.refreshError);
     } finally {
       setLoading(false);
     }
-  }, [en, locale, token]);
+  }, [locale, t, token]);
 
   useEffect(() => {
     if (demoMode) return;
@@ -197,19 +202,19 @@ export function SlideshowDisplay({
         </div>
       ) : (
         <section className={styles.emptyState}>
-          <Link className={styles.brand} href="/" aria-label={en ? "Back to the Eventaj Gallery website" : "Nazaj na predstavitveno stran Eventaj Galerije"}>eventaj<i>.</i></Link>
-          <p>{loading ? (en ? "Preparing the display …" : "Pripravljamo projekcijo …") : error ? (en ? "Link unavailable" : "Povezava ni na voljo") : (en ? "Live" : "V živo")}</p>
+          <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={34} height={34} /> : null}<span className={styles.brandWord}>Guest<i> Mosaic</i></span></Link>
+          <p>{loading ? t.preparing : error ? t.linkUnavailable : t.live}</p>
           <h1>{eventName}</h1>
-          <small>{error ?? (en ? "Photos will appear automatically as soon as they are added." : "Fotografije se bodo prikazale samodejno, ko bodo dodane.")}</small>
-          {error ? <button type="button" onClick={() => void refresh()}>{en ? "Try again" : "Poskusi znova"}</button> : <span className={styles.pulse} aria-hidden="true" />}
+          <small>{error ?? t.waitingHint}</small>
+          {error ? <button type="button" onClick={() => void refresh()}>{t.tryAgain}</button> : <span className={styles.pulse} aria-hidden="true" />}
         </section>
       )}
 
       <header className={styles.topBar}>
-        <Link className={styles.brand} href="/" aria-label={en ? "Back to the Eventaj Gallery website" : "Nazaj na predstavitveno stran Eventaj Galerije"}>eventaj<i>.</i></Link>
+        <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={34} height={34} /> : null}<span className={styles.brandWord}>Guest<i> Mosaic</i></span></Link>
         <div className={styles.topBarActions}>
-          {backHref ? <a className={styles.backLink} href={backHref}>{en ? "Back to gallery" : "Nazaj v galerijo"}</a> : null}
-          <span><Image className={styles.liveIndicator} src="/icons/engagement/live-indicator.png" alt="" width={24} height={24} aria-hidden="true" /> {demoMode ? (en ? "Live demo" : "Demo v živo") : (en ? "Live" : "V živo")}</span>
+          {backHref ? <a className={styles.backLink} href={backHref}>{t.backToGallery}</a> : null}
+          <span><Image className={styles.liveIndicator} src="/icons/engagement/live-indicator.png" alt="" width={24} height={24} aria-hidden="true" /> {demoMode ? t.liveDemo : t.live}</span>
         </div>
       </header>
 
@@ -217,14 +222,14 @@ export function SlideshowDisplay({
         <section
           className={`${styles.liveOverlay} ${styles.leaderboardOverlay}`}
           style={{ "--overlay-duration": `${currentOverlay.durationMs}ms` } as CSSProperties}
-          aria-label={en ? "Photographer leaderboard" : "Lestvica fotografov"}
+          aria-label={t.leaderboardLabel}
         >
-          <div className={styles.overlayLabel}><OverlayIcon name="leaderboard" /> {en ? "Live" : "V živo"}</div>
-          <h2>{en ? "Top photographers" : "Top fotografi"}</h2>
+          <div className={styles.overlayLabel}><OverlayIcon name="leaderboard" /> {t.live}</div>
+          <h2>{t.topPhotographers}</h2>
           <ol>
             {currentOverlay.leaderboard.slice(0, 3).map((entry, index) => (
               <li key={entry.guestId}>
-                <span>{index + 1}</span><strong>{entry.displayName}</strong><b>{entry.count} <small>{en ? "photos" : "fotografij"}</small></b>
+                <span>{index + 1}</span><strong>{entry.displayName}</strong><b>{entry.count} <small>{t.photos}</small></b>
               </li>
             ))}
           </ol>
@@ -240,13 +245,13 @@ export function SlideshowDisplay({
             <strong>{currentOverlay.title}</strong>
             <small>{currentOverlay.detail}</small>
             {currentOverlay.kind === "upload" ? (
-              <span className={styles.aiAccepted}><Image src="/icons/engagement/ai-accepted.png" alt="" width={18} height={18} aria-hidden="true" /> {en ? "AI selected" : "AI izbrano"}</span>
+              <span className={styles.aiAccepted}><Image src="/icons/engagement/ai-accepted.png" alt="" width={18} height={18} aria-hidden="true" /> {t.aiSelected}</span>
             ) : null}
           </span>
         </aside>
       ) : null}
 
-      <section className={styles.commentStream} aria-label={en ? "Live comments" : "Komentarji v živo"} aria-live="polite">
+      <section className={styles.commentStream} aria-label={t.liveComments} aria-live="polite">
         {[...floatingComments].reverse().map((comment) => (
           <article
             className={styles.commentBubble}
@@ -271,7 +276,7 @@ export function SlideshowDisplay({
       </section>
 
       {currentSlide?.comments.length ? (
-        <section className={styles.slideComments} aria-label={en ? "Current photo comments" : "Komentarji trenutne fotografije"}>
+        <section className={styles.slideComments} aria-label={t.currentPhotoComments}>
           {currentSlide.comments.map((comment) => (
             <article className={`${styles.commentBubble} ${styles.slideCommentBubble}`} key={`${currentSlide.publicId}:${comment.id}`}>
               <span className={styles.commentThumb} aria-hidden="true">
@@ -289,11 +294,11 @@ export function SlideshowDisplay({
       {currentSlide ? (
         <footer className={styles.controls}>
           <div><strong>{eventName}</strong><span>{currentIndex + 1} / {slides.length}</span></div>
-          <nav aria-label={en ? "Display controls" : "Upravljanje projekcije"}>
-            <button type="button" onClick={() => move(-1)} aria-label={en ? "Previous photo" : "Prejšnja fotografija"}><ControlIcon name="previous" /></button>
-            <button type="button" onClick={() => setPaused((current) => !current)} aria-label={paused ? (en ? "Resume autoplay" : "Nadaljuj samodejno predvajanje") : (en ? "Pause autoplay" : "Začasno ustavi predvajanje")}><ControlIcon name={paused ? "play" : "pause"} /></button>
-            <button type="button" onClick={() => move(1)} aria-label={en ? "Next photo" : "Naslednja fotografija"}><ControlIcon name="next" /></button>
-            <button type="button" onClick={enterFullscreen} aria-label={en ? "Full screen" : "Celozaslonski način"}><ControlIcon name="fullscreen" /></button>
+          <nav aria-label={t.controls}>
+            <button type="button" onClick={() => move(-1)} aria-label={t.previousPhoto}><ControlIcon name="previous" /></button>
+            <button type="button" onClick={() => setPaused((current) => !current)} aria-label={paused ? t.resume : t.pause}><ControlIcon name={paused ? "play" : "pause"} /></button>
+            <button type="button" onClick={() => move(1)} aria-label={t.nextPhoto}><ControlIcon name="next" /></button>
+            <button type="button" onClick={enterFullscreen} aria-label={t.fullscreen}><ControlIcon name="fullscreen" /></button>
           </nav>
         </footer>
       ) : null}

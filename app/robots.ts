@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { PRIVATE_ROBOTS_PATHS } from "@/lib/seo";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
-import { appUrlForLocale } from "@/lib/i18n/locale";
+import { PREFIXED_LOCALES, appUrlForLocale, localePathPrefix } from "@/lib/i18n/locale";
 import { orderPath } from "@/lib/i18n/routes";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +9,19 @@ export const dynamic = "force-dynamic";
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const locale = await getRequestLocale();
   const siteUrl = appUrlForLocale(getPublicAppUrls(), locale);
+  // The English domain also serves the path-prefixed languages, so their
+  // marketing routes have to be crawlable too.
+  const localesOnHost = locale === "sl" ? (["sl"] as const) : (["en", ...PREFIXED_LOCALES] as const);
   const publicRules = {
-    allow: ["/", locale === "en" ? "/for-events/" : "/za-dogodke/", orderPath(locale), "/llms.txt", "/llms-full.txt"],
+    allow: [
+      "/",
+      "/llms.txt",
+      "/llms-full.txt",
+      ...localesOnHost.flatMap((item) => [
+        `${localePathPrefix(item)}${item === "sl" ? "/za-dogodke/" : "/for-events/"}`,
+        orderPath(item),
+      ]),
+    ],
     disallow: [...PRIVATE_ROBOTS_PATHS],
   };
   return {

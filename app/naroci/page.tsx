@@ -4,36 +4,56 @@ import { ArrowLeft, Check, CreditCard, Images } from "lucide-react";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { getRequestLocale } from "@/lib/i18n/server";
-import { orderPath } from "@/lib/i18n/routes";
+import { localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
+import { getPublicAppUrls } from "@/lib/i18n/server";
+import { canonicalUrl, languageAlternates } from "@/lib/i18n/alternates";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { SITE_NAME, guestBrandMark } from "@/lib/seo";
 import styles from "@/components/checkout/checkout.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  const title = locale === "en" ? "Order an event QR gallery | Eventaj Gallery" : "Naroči QR galerijo za dogodek | Eventaj Galerija";
-  const description = locale === "en"
-    ? "Create a QR gallery for €35 per event. No subscription, no guest app and unlimited guests."
-    : "Ustvari QR galerijo za 35 EUR na dogodek. Brez naročnine, brez aplikacije za goste in z neomejenim številom gostov.";
+  const env = getPublicAppUrls();
+  const t = getDictionary(locale).order;
   const url = orderPath(locale);
-  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url } };
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+    alternates: {
+      canonical: canonicalUrl(env, locale, url),
+      languages: languageAlternates(env, url),
+    },
+    openGraph: { title: t.metaTitle, description: t.metaDescription, url },
+  };
 }
 
 export const dynamic = "force-dynamic";
 
 export default async function OrderPage() {
   const locale = await getRequestLocale();
-  const en = locale === "en";
+  const t = getDictionary(locale).order;
   const videoUploadsEnabled = String(getCloudflareEnv().VIDEO_UPLOAD_ENABLED) === "true";
+  const home = localizedMarketingPath("/", locale);
+  const brandMarkSrc = guestBrandMark(locale);
   return <main className={styles.page}><div className={styles.shell}>
-    <Link className={styles.back} href="/"><ArrowLeft aria-hidden="true" /> {en ? "Back" : "Nazaj"}</Link>
+    <div className={styles.topBar}>
+      <Link className={styles.back} href={home}><ArrowLeft aria-hidden="true" /> {t.back}</Link>
+      {brandMarkSrc ? (
+        <Link className={styles.brand} href={home}>
+          <img className={styles.brandMark} src={brandMarkSrc} alt="" width={30} height={30} />
+          <span>{SITE_NAME}</span>
+        </Link>
+      ) : null}
+    </div>
     <header className={styles.heading}>
-      <p className={styles.eyebrow}>{en ? "NEW EVENT" : "NOV DOGODEK"}</p>
-      <h1>{en ? "Order your gallery" : "Naroči svojo galerijo"}</h1>
-      <span>{en ? "Enter your event details and pay securely with Stripe. You will receive the QR code by email — no account or sign-in required." : "Vnesi podatke o dogodku in varno plačaj na Stripe. QR prejmeš po e-pošti — brez računa in brez prijave."}</span>
+      <p className={styles.eyebrow}>{t.eyebrow}</p>
+      <h1>{t.title}</h1>
+      <span>{t.intro}</span>
     </header>
-    <ol className={styles.steps} aria-label={en ? "Order steps" : "Potek naročila"}>
-      <li className={styles.active} aria-current="step"><span><Check aria-hidden="true" /></span><small>{en ? "Event details" : "Podatki o dogodku"}</small></li>
-      <li><span><CreditCard aria-hidden="true" /></span><small>{en ? "Secure payment" : "Varno plačilo"}</small></li>
-      <li><span><Images aria-hidden="true" /></span><small>{en ? "QR by email" : "QR po e-pošti"}</small></li>
+    <ol className={styles.steps} aria-label={t.stepsLabel}>
+      <li className={styles.active} aria-current="step"><span><Check aria-hidden="true" /></span><small>{t.stepDetails}</small></li>
+      <li><span><CreditCard aria-hidden="true" /></span><small>{t.stepPayment}</small></li>
+      <li><span><Images aria-hidden="true" /></span><small>{t.stepQr}</small></li>
     </ol>
     <CheckoutForm videoUploadsEnabled={videoUploadsEnabled} />
   </div></main>;

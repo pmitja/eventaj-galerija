@@ -1,4 +1,4 @@
-import type { Locale } from "./locale";
+import { localePathPrefix, stripLocalePrefix, withLocalePrefix, type Locale } from "./locale";
 
 const USE_CASE_SLUGS = {
   "poroke": "weddings",
@@ -11,64 +11,98 @@ const USE_CASE_SLUGS = {
 
 type SlovenianUseCaseSlug = keyof typeof USE_CASE_SLUGS;
 
+/**
+ * Slovenian owns its own translated slugs; every other locale reuses the
+ * English slugs under its path prefix. Translating slugs per language would
+ * multiply the redirect surface for very little SEO gain.
+ */
+function localized(locale: Locale, slovenian: string, english: string): string {
+  return locale === "sl" ? slovenian : withLocalePrefix(locale, english);
+}
+
 export function orderPath(locale: Locale): string {
-  return locale === "en" ? "/order" : "/naroci";
+  return localized(locale, "/naroci", "/order");
 }
 
 export function checkoutSuccessPath(locale: Locale): string {
-  return locale === "en" ? "/order/success" : "/nakup/uspesen";
+  return localized(locale, "/nakup/uspesen", "/order/success");
 }
 
 export function termsPath(locale: Locale): string {
-  return locale === "en" ? "/terms-of-use" : "/pogoji-uporabe";
+  return localized(locale, "/pogoji-uporabe", "/terms-of-use");
 }
 
 export function privacyPath(locale: Locale): string {
-  return locale === "en" ? "/privacy" : "/zasebnost";
+  return localized(locale, "/zasebnost", "/privacy");
 }
 
 export function downloadPath(locale: Locale, token: string): string {
-  return `${locale === "en" ? "/downloads" : "/prenosi"}/${encodeURIComponent(token)}`;
+  const encoded = encodeURIComponent(token);
+  return localized(locale, `/prenosi/${encoded}`, `/downloads/${encoded}`);
 }
 
 export function demoEventPath(locale: Locale): string {
-  return locale === "en" ? "/e/anna-and-mark" : "/e/ana-in-marko";
+  return localized(locale, "/e/ana-in-marko", "/e/anna-and-mark");
 }
 
 export function eventUseCasePath(locale: Locale, slovenianSlug: string): string {
-  const prefix = locale === "en" ? "/for-events" : "/za-dogodke";
-  const slug = locale === "en"
-    ? USE_CASE_SLUGS[slovenianSlug as SlovenianUseCaseSlug] ?? slovenianSlug
-    : slovenianSlug;
-  return `${prefix}/${slug}`;
+  const englishSlug = USE_CASE_SLUGS[slovenianSlug as SlovenianUseCaseSlug] ?? slovenianSlug;
+  return localized(locale, `/za-dogodke/${slovenianSlug}`, `/for-events/${englishSlug}`);
 }
 
-export function localizedMarketingPath(pathname: string, targetLocale: Locale): string {
-  const path = pathname.replace(/\/$/, "") || "/";
-  const reverseSlug = Object.entries(USE_CASE_SLUGS)
-    .find(([, englishSlug]) => path === `/for-events/${englishSlug}`)?.[0];
+/** Maps the Slovenian internal path of a marketing route to its localized public path. */
+const SLOVENIAN_ROUTE_BUILDERS: Readonly<Record<string, (locale: Locale) => string>> = {
+  "/naroci": orderPath,
+  "/nakup/uspesen": checkoutSuccessPath,
+  "/pogoji-uporabe": termsPath,
+  "/zasebnost": privacyPath,
+  "/e/ana-in-marko": demoEventPath,
+};
 
-  if (path.startsWith("/za-dogodke/")) {
-    return eventUseCasePath(targetLocale, path.slice("/za-dogodke/".length));
+/** Reduces any localized marketing path back to its Slovenian internal path. */
+export function slovenianRoutePath(pathname: string): string {
+  const path = stripLocalePrefix(pathname).replace(/\/$/, "") || "/";
+
+  if (path.startsWith("/za-dogodke/")) return path;
+  if (path.startsWith("/for-events/")) {
+    const englishSlug = path.slice("/for-events/".length);
+    const slovenianSlug = Object.entries(USE_CASE_SLUGS)
+      .find(([, english]) => english === englishSlug)?.[0];
+    return slovenianSlug ? `/za-dogodke/${slovenianSlug}` : path;
   }
-  if (reverseSlug) return eventUseCasePath(targetLocale, reverseSlug);
+  if (path.startsWith("/downloads/")) return `/prenosi/${path.slice("/downloads/".length)}`;
+  if (path.startsWith("/prenosi/")) return path;
 
-  const known: Record<string, (locale: Locale) => string> = {
-    "/naroci": orderPath,
-    "/order": orderPath,
-    "/nakup/uspesen": checkoutSuccessPath,
-    "/order/success": checkoutSuccessPath,
-    "/pogoji-uporabe": termsPath,
-    "/terms-of-use": termsPath,
-    "/zasebnost": privacyPath,
-    "/privacy": privacyPath,
-    "/e/ana-in-marko": demoEventPath,
-    "/e/anna-and-mark": demoEventPath,
+  const englishToSlovenian: Readonly<Record<string, string>> = {
+    "/order": "/naroci",
+    "/order/success": "/nakup/uspesen",
+    "/terms-of-use": "/pogoji-uporabe",
+    "/privacy": "/zasebnost",
+    "/e/anna-and-mark": "/e/ana-in-marko",
   };
 
-  return known[path]?.(targetLocale) ?? pathname;
+  return englishToSlovenian[path] ?? path;
 }
 
+/** Destination for a language switch: same page, other language. */
+export function localizedMarketingPath(pathname: string, targetLocale: Locale): string {
+  const slovenianPath = slovenianRoutePath(pathname);
+
+  if (slovenianPath.startsWith("/za-dogodke/")) {
+    return eventUseCasePath(targetLocale, slovenianPath.slice("/za-dogodke/".length));
+  }
+  if (slovenianPath.startsWith("/prenosi/")) {
+    return downloadPath(targetLocale, decodeURIComponent(slovenianPath.slice("/prenosi/".length)));
+  }
+
+  const builder = SLOVENIAN_ROUTE_BUILDERS[slovenianPath];
+  if (builder) return builder(targetLocale);
+
+  // Unknown page (including "/"): keep the path, swap only the locale prefix.
+  return withLocalePrefix(targetLocale, stripLocalePrefix(pathname));
+}
+
+/** Public English path -> internal Slovenian path, used by the middleware rewrite. */
 export const englishRewriteEntries = [
   ["/order", "/naroci"],
   ["/order/success", "/nakup/uspesen"],
@@ -80,3 +114,7 @@ export const englishRewriteEntries = [
     `/za-dogodke/${slovenian}`,
   ]),
 ] as const;
+
+export const useCaseSlugPairs = Object.entries(USE_CASE_SLUGS) as ReadonlyArray<[SlovenianUseCaseSlug, string]>;
+
+export { localePathPrefix };

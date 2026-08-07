@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { pluralCount } from "@/lib/i18n/plural";
 import { privacyPath, termsPath } from "@/lib/i18n/routes";
 import { CURRENT_UPLOAD_CONSENT_VERSION } from "@/lib/domain/legal";
 import {
@@ -53,7 +55,7 @@ export function VoiceMessageRecorder({
   onOpenChange?: (open: boolean) => void;
 }) {
   const locale = useLocale();
-  const en = locale === "en";
+  const t = getDictionary(locale).guest.voice;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = openProp ?? uncontrolledOpen;
   const setOpen = useCallback((next: boolean) => {
@@ -137,13 +139,13 @@ export function VoiceMessageRecorder({
   async function startRecording() {
     setError(null);
     if (!("MediaRecorder" in window) || !navigator.mediaDevices?.getUserMedia) {
-      setError(en ? "Voice recording is not supported by this browser." : "Ta brskalnik ne podpira snemanja glasu.");
+      setError(t.unsupported);
       setStep("error");
       return;
     }
     const selectedMime = MIME_CANDIDATES.find((mime) => MediaRecorder.isTypeSupported(mime));
     if (!selectedMime) {
-      setError(en ? "This browser does not support a compatible audio format." : "Brskalnik ne podpira združljivega zvočnega formata.");
+      setError(t.noFormat);
       setStep("error");
       return;
     }
@@ -162,7 +164,7 @@ export function VoiceMessageRecorder({
       };
       recorder.onerror = () => {
         stopTracks();
-        setError(en ? "Recording stopped unexpectedly. Please try again." : "Snemanje se je nepričakovano ustavilo. Poskusi znova.");
+        setError(t.stoppedUnexpectedly);
         setStep("error");
       };
       recorder.onstop = () => {
@@ -171,12 +173,12 @@ export function VoiceMessageRecorder({
         const mime = baseMime(recorder.mimeType || selectedMime);
         const blob = new Blob(chunksRef.current, { type: mime });
         if (durationMs < VOICE_MESSAGE_MIN_DURATION_MS || blob.size === 0) {
-          setError(en ? "The recording is too short. Record at least one second." : "Posnetek je prekratek. Posnemi vsaj eno sekundo.");
+          setError(t.tooShort);
           setStep("error");
           return;
         }
         if (blob.size > VOICE_MESSAGE_MAX_BYTES) {
-          setError(en ? "The recording is too large. Try a shorter message." : "Posnetek je prevelik. Poskusi s krajšim voščilom.");
+          setError(t.tooLarge);
           setStep("error");
           return;
         }
@@ -193,8 +195,8 @@ export function VoiceMessageRecorder({
       stopTracks();
       const denied = recordingError instanceof DOMException && recordingError.name === "NotAllowedError";
       setError(denied
-        ? (en ? "Microphone access was denied. Allow it in your browser settings and try again." : "Dostop do mikrofona je zavrnjen. Dovoli ga v nastavitvah brskalnika in poskusi znova.")
-        : (en ? "The microphone is currently unavailable." : "Mikrofon trenutno ni na voljo."));
+        ? t.micDenied
+        : t.micUnavailable);
       setStep("error");
     }
   }
@@ -222,7 +224,7 @@ export function VoiceMessageRecorder({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ guestId }),
       });
-      if (!sessionResponse.ok) throw await responseError(sessionResponse, en ? "Uploads are currently unavailable." : "Nalaganje trenutno ni na voljo.");
+      if (!sessionResponse.ok) throw await responseError(sessionResponse, t.unavailable);
       const { token } = await sessionResponse.json() as { token: string };
       const prepared = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/voice-messages`, {
         method: "POST",
@@ -236,7 +238,7 @@ export function VoiceMessageRecorder({
           consentVersion: CURRENT_UPLOAD_CONSENT_VERSION,
         }),
       });
-      if (!prepared.ok) throw await responseError(prepared, en ? "The voice message could not be prepared." : "Glasovnega voščila ni bilo mogoče pripraviti.");
+      if (!prepared.ok) throw await responseError(prepared, t.prepareFailed);
       const { messageId, uploadUrl } = await prepared.json() as { messageId: string; uploadUrl: string };
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -245,17 +247,17 @@ export function VoiceMessageRecorder({
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) setProgress(Math.min(96, Math.round((event.loaded / event.total) * 100)));
         };
-        xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(en ? "The upload failed." : "Prenos ni uspel."));
-        xhr.onerror = () => reject(new Error(en ? "Network error." : "Omrežna napaka."));
+        xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(t.transferFailed));
+        xhr.onerror = () => reject(new Error(t.networkError));
         xhr.send(recording.blob);
       });
       const completed = await fetch(`/api/v1/upload-sessions/${encodeURIComponent(token)}/voice-messages/${encodeURIComponent(messageId)}/complete`, { method: "POST" });
-      if (!completed.ok) throw await responseError(completed, en ? "The upload could not be completed." : "Zaključevanje prenosa ni uspelo.");
+      if (!completed.ok) throw await responseError(completed, t.completeFailed);
       setProgress(100);
       setStep("success");
       onSubmitted();
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : (en ? "The upload failed." : "Nalaganje ni uspelo."));
+      setError(uploadError instanceof Error ? uploadError.message : t.transferFailed);
       setStep("error");
     }
   }
@@ -263,36 +265,36 @@ export function VoiceMessageRecorder({
   const dialog = dialogMounted ? (
         <div className={`${styles.backdrop} ${dialogClosing ? styles.closing : ""}`} onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="voice-dialog-title" tabIndex={-1}>
-            <button className={styles.close} type="button" onClick={closeDialog} disabled={step === "uploading"} aria-label={en ? "Close" : "Zapri"}>×</button>
+            <button className={styles.close} type="button" onClick={closeDialog} disabled={step === "uploading"} aria-label={t.close}>×</button>
             <span className={styles.dialogIcon}><MicrophoneIcon /></span>
-            <p className={styles.eyebrow}>{en ? "A memory in your voice" : "Spomin v tvojem glasu"}</p>
-            <h2 id="voice-dialog-title">{en ? "Voice message" : "Glasovno voščilo"}</h2>
+            <p className={styles.eyebrow}>{t.eyebrow}</p>
+            <h2 id="voice-dialog-title">{t.title}</h2>
 
             {step === "intro" ? <>
-              <p>{en ? "Find a quieter spot, then tap the button. Your browser will ask for microphone access." : "Poišči mirnejši kotiček in pritisni gumb. Brskalnik bo prosil za dostop do mikrofona."}</p>
-              <button className={styles.recordButton} type="button" onClick={() => void startRecording()}><MicrophoneIcon /><span>{en ? "Start recording" : "Začni snemanje"}</span></button>
-              <small>{en ? "Maximum length: 2 minutes" : "Najdaljši posnetek: 2 minuti"}</small>
+              <p>{t.introText}</p>
+              <button className={styles.recordButton} type="button" onClick={() => void startRecording()}><MicrophoneIcon /><span>{t.startRecording}</span></button>
+              <small>{t.maxLength}</small>
             </> : null}
 
             {step === "recording" ? <>
               <div className={styles.waveform} aria-hidden="true">{Array.from({ length: 22 }, (_, index) => <i key={index} />)}</div>
               <strong className={styles.timer}>{formatDuration(elapsedMs)}</strong>
-              <span className={styles.recordingLabel}>{en ? "Recording …" : "Snemanje …"}</span>
-              <button className={styles.stopButton} type="button" onClick={stopRecording} aria-label={en ? "Stop recording" : "Končaj snemanje"}><i /></button>
+              <span className={styles.recordingLabel}>{t.recording}</span>
+              <button className={styles.stopButton} type="button" onClick={stopRecording} aria-label={t.stopRecording}><i /></button>
             </> : null}
 
             {step === "preview" && recording ? <>
-              <p>{en ? "Listen before sending it." : "Pred pošiljanjem poslušaj posnetek."}</p>
-              <audio className={styles.audioPreview} src={recording.url} controls preload="metadata">{en ? "Your browser cannot play this recording." : "Brskalnik ne more predvajati posnetka."}</audio>
+              <p>{t.listenFirst}</p>
+              <audio className={styles.audioPreview} src={recording.url} controls preload="metadata">{t.cannotPlayRecording}</audio>
               <span className={styles.duration}>{formatDuration(recording.durationMs)}</span>
-              <label className={styles.choice}><input type="checkbox" checked={allowPublishing} onChange={(event) => setAllowPublishing(event.target.checked)} /><span><strong>{en ? "Show it in the audio guestbook" : "Prikaži v audio knjigi gostov"}</strong><small>{en ? "Other guests with the gallery link can listen." : "Poslušajo ga lahko drugi gostje s povezavo do galerije."}</small></span></label>
-              <label className={styles.choice}><input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} /><span><strong>{en ? "I may share this recording" : "Posnetek smem deliti"}</strong><small>{en ? <>I accept the <Link href={termsPath(locale)} target="_blank">terms</Link> and <Link href={privacyPath(locale)} target="_blank">privacy policy</Link>.</> : <>Sprejemam <Link href={termsPath(locale)} target="_blank">pogoje</Link> in <Link href={privacyPath(locale)} target="_blank">politiko zasebnosti</Link>.</>}</small></span></label>
-              <div className={styles.previewActions}><button type="button" onClick={recordAgain}>{en ? "Record again" : "Posnemi znova"}</button><button type="button" onClick={() => void uploadRecording()} disabled={!termsAccepted}>{en ? "Send message" : "Pošlji voščilo"}</button></div>
+              <label className={styles.choice}><input type="checkbox" checked={allowPublishing} onChange={(event) => setAllowPublishing(event.target.checked)} /><span><strong>{t.publishLabel}</strong><small>{t.publishHint}</small></span></label>
+              <label className={styles.choice}><input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} /><span><strong>{t.termsLabel}</strong><small>{t.consentPrefix} <Link href={termsPath(locale)} target="_blank">{t.termsWord}</Link> {t.consentMiddle} <Link href={privacyPath(locale)} target="_blank">{t.privacyWord}</Link>.</small></span></label>
+              <div className={styles.previewActions}><button type="button" onClick={recordAgain}>{t.recordAgain}</button><button type="button" onClick={() => void uploadRecording()} disabled={!termsAccepted}>{t.sendMessage}</button></div>
             </> : null}
 
-            {step === "uploading" ? <div className={styles.status} aria-live="polite"><span className={styles.spinner} /><h3>{en ? "Sending your message …" : "Pošiljam tvoje voščilo …"}</h3><div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><i style={{ width: `${progress}%` }} /></div><p>{progress} %</p></div> : null}
-            {step === "success" ? <div className={styles.status} aria-live="polite"><span className={styles.success}>✓</span><h3>{en ? "Your message was sent!" : "Voščilo je poslano!"}</h3><p>{allowPublishing ? (en ? "It is now available in the audio guestbook." : "Zdaj je na voljo v audio knjigi gostov.") : (en ? "It was stored privately for the organiser." : "Zasebno je shranjeno za organizatorja.")}</p><button type="button" onClick={closeDialog}>{en ? "Done" : "Končano"}</button></div> : null}
-            {step === "error" ? <div className={styles.status} role="alert"><span className={styles.errorIcon}>!</span><h3>{en ? "Something went wrong" : "Nekaj je šlo narobe"}</h3><p>{error}</p><div className={styles.previewActions}>{recording ? <button type="button" onClick={() => setStep("preview")}>{en ? "Back to preview" : "Nazaj na predogled"}</button> : null}<button type="button" onClick={() => { setError(null); setStep("intro"); }}>{en ? "Try again" : "Poskusi znova"}</button></div></div> : null}
+            {step === "uploading" ? <div className={styles.status} aria-live="polite"><span className={styles.spinner} /><h3>{t.sending}</h3><div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><i style={{ width: `${progress}%` }} /></div><p>{progress} %</p></div> : null}
+            {step === "success" ? <div className={styles.status} aria-live="polite"><span className={styles.success}>✓</span><h3>{t.sent}</h3><p>{allowPublishing ? t.sentPublic : t.sentPrivate}</p><button type="button" onClick={closeDialog}>{t.done}</button></div> : null}
+            {step === "error" ? <div className={styles.status} role="alert"><span className={styles.errorIcon}>!</span><h3>{t.errorTitle}</h3><p>{error}</p><div className={styles.previewActions}>{recording ? <button type="button" onClick={() => setStep("preview")}>{t.backToPreview}</button> : null}<button type="button" onClick={() => { setError(null); setStep("intro"); }}>{t.tryAgain}</button></div></div> : null}
           </div>
         </div>
   ) : null;
@@ -303,12 +305,12 @@ export function VoiceMessageRecorder({
     <section className={styles.entryCard} id="glasovno-vosicilo" aria-labelledby="voice-entry-title">
       <span className={styles.entryIcon}><MicrophoneIcon /></span>
       <div>
-        <p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p>
-        <h2 id="voice-entry-title">{en ? "Leave a voice message" : "Pusti glasovno voščilo"}</h2>
-        <span>{en ? "Record up to 2 minutes — no app needed." : "Posnemi do 2 minuti — brez aplikacije."}</span>
+        <p>{t.entryEyebrow}</p>
+        <h2 id="voice-entry-title">{t.entryTitle}</h2>
+        <span>{t.entryHint}</span>
       </div>
       <button type="button" onClick={() => setOpen(true)}>
-        <MicrophoneIcon /> {en ? "Record message" : "Posnemi voščilo"}
+        <MicrophoneIcon /> {t.entryCta}
       </button>
       {dialog}
     </section>
@@ -323,7 +325,7 @@ export function VoiceGuestbook({ eventSlug, refreshKey, embedded, onCountChange 
   onCountChange?: (count: number) => void;
 }) {
   const locale = useLocale();
-  const en = locale === "en";
+  const t = getDictionary(locale).guest.voice;
   const [messages, setMessages] = useState<Array<{ publicId: string; displayName: string | null; durationMs: number; playbackUrl: string }>>([]);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const countChange = useRef(onCountChange);
@@ -360,11 +362,11 @@ export function VoiceGuestbook({ eventSlug, refreshKey, embedded, onCountChange 
   }, [eventSlug, refreshKey]);
 
   const shellClass = embedded ? styles.guestbookEmbedded : styles.guestbook;
-  const heading = embedded ? null : <div className={styles.guestbookHeading}><p>{en ? "Audio guestbook" : "Audio knjiga gostov"}</p><h2 id="voice-guestbook-title">{en ? "Messages from the heart" : "Voščila iz srca"}</h2>{state === "ready" && messages.length ? <span>{en ? `${messages.length} voice ${messages.length === 1 ? "message" : "messages"}` : `${messages.length} ${messages.length === 1 ? "glasovno voščilo" : "glasovnih voščil"}`}</span> : null}</div>;
+  const heading = embedded ? null : <div className={styles.guestbookHeading}><p>{t.entryEyebrow}</p><h2 id="voice-guestbook-title">{t.guestbookHeading}</h2>{state === "ready" && messages.length ? <span>{pluralCount(locale, messages.length, t.messageCount)}</span> : null}</div>;
 
-  if (state === "loading") return <section className={shellClass}>{heading}<div className={styles.skeleton} aria-label={en ? "Loading voice messages" : "Nalagam glasovna voščila"} /></section>;
-  if (state === "error") return <section className={shellClass}>{heading}<div className={styles.guestbookError} role="alert"><span>{en ? "Voice messages could not be loaded." : "Glasovnih voščil ni bilo mogoče naložiti."}</span><button type="button" onClick={() => { setState("loading"); void load(); }}>{en ? "Try again" : "Poskusi znova"}</button></div></section>;
-  if (!messages.length) return embedded ? <section className={shellClass}><p className={styles.guestbookEmpty}>{en ? "No voice messages yet. Be the first to leave one." : "Glasovnih voščil še ni. Bodi prvi in pusti svojega."}</p></section> : null;
+  if (state === "loading") return <section className={shellClass}>{heading}<div className={styles.skeleton} aria-label={t.loadingList} /></section>;
+  if (state === "error") return <section className={shellClass}>{heading}<div className={styles.guestbookError} role="alert"><span>{t.loadError}</span><button type="button" onClick={() => { setState("loading"); void load(); }}>{t.tryAgain}</button></div></section>;
+  if (!messages.length) return embedded ? <section className={shellClass}><p className={styles.guestbookEmpty}>{t.emptyList}</p></section> : null;
 
-  return <section className={shellClass} aria-labelledby={embedded ? undefined : "voice-guestbook-title"}>{heading}<div className={styles.messageList}>{messages.map((message, index) => <article className={styles.message} key={message.publicId}><span className={styles.avatar}>{(message.displayName ?? (en ? "Guest" : "Gost")).slice(0, 1).toUpperCase()}</span><div><strong>{message.displayName ?? (en ? "Guest" : "Gost")}</strong><small>{en ? `Message ${messages.length - index} · ${formatDuration(message.durationMs)}` : `Voščilo ${messages.length - index} · ${formatDuration(message.durationMs)}`}</small><audio controls preload="none" src={message.playbackUrl}>{en ? "Your browser cannot play this message." : "Brskalnik ne more predvajati voščila."}</audio></div></article>)}</div></section>;
+  return <section className={shellClass} aria-labelledby={embedded ? undefined : "voice-guestbook-title"}>{heading}<div className={styles.messageList}>{messages.map((message, index) => <article className={styles.message} key={message.publicId}><span className={styles.avatar}>{(message.displayName ?? t.guest).slice(0, 1).toUpperCase()}</span><div><strong>{message.displayName ?? t.guest}</strong><small>{`${t.messageLabel.replace("{number}", String(messages.length - index))} · ${formatDuration(message.durationMs)}`}</small><audio controls preload="none" src={message.playbackUrl}>{t.cannotPlayMessage}</audio></div></article>)}</div></section>;
 }

@@ -3,9 +3,11 @@
 .frame::after { position: absolute; inset: 0; background: linear-gradient(180deg,rgba(9,6,9,.3),transparent 28%,transparent 65%,rgba(9,6,9,.72)); content: ""; pointer-events: none; }
 .frame img { object-fit: contain; background: #090609; }
 .topBar { position: absolute; z-index: 2; top: 0; right: 0; left: 0; display: flex; align-items: center; justify-content: space-between; padding: clamp(18px,2.6vw,38px); background: linear-gradient(180deg,rgba(9,6,9,.7),transparent); }
-.brand { font-size: clamp(19px,1.7vw,28px); font-style: normal; font-weight: 850; letter-spacing: -.06em; }
+.brand { display: inline-flex; align-items: center; gap: clamp(8px,.7vw,12px); font-size: clamp(19px,1.7vw,28px); font-style: normal; font-weight: 850; letter-spacing: -.06em; }
 .brand, .brand:hover { color: #fff; }
 .brand i { color: #ea4f87; font-style: normal; }
+.brandWord { display: inline; }
+.brandMark { width: clamp(28px,2.4vw,40px); height: auto; flex: none; display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
 .topBarActions { display: flex; align-items: center; gap: 12px; }
 .topBarActions > span { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.8); font-size: 12px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
 .backLink { min-height: 44px; display: inline-flex; align-items: center; padding: 0 15px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(9,6,9,.36); color: rgba(255,255,255,.86); font-size: 12px; font-weight: 750; backdrop-filter: blur(12px); transition: background .2s ease, border-color .2s ease; }

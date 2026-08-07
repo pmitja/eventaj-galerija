@@ -1,5 +1,6 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import type { Locale } from "@/lib/i18n/locale";
+import { SITE_NAME } from "@/lib/seo";
 
 type StripeCheckoutSession = {
   id: string;
@@ -47,7 +48,7 @@ export async function createStripeCheckout(input: {
     cancel_url: input.cancelUrl,
     "metadata[orderId]": input.orderId,
     "line_items[0][price_data][currency]": "eur",
-    "line_items[0][price_data][product_data][name]": "Eventaj Galerija · dogodek",
+    "line_items[0][price_data][product_data][name]": `${SITE_NAME} · dogodek`,
     "line_items[0][price_data][unit_amount]": "3500",
     "line_items[0][quantity]": "1",
     "payment_intent_data[metadata][orderId]": input.orderId,
@@ -67,7 +68,7 @@ export async function createStripeCheckout(input: {
     lineItemIndex += 1;
   };
   if (input.locale === "en") {
-    body.set("line_items[0][price_data][product_data][name]", "Eventaj Gallery · event");
+    body.set("line_items[0][price_data][product_data][name]", `${SITE_NAME} · event`);
   }
   if (input.aiBestPhotos) addLineItem(input.locale === "en" ? "AI Best Photos · up to 3,000 photos" : "AI Best Photos · do 3.000 fotografij", "1500");
   if (input.faceCollections) addLineItem(input.locale === "en" ? "AI face search" : "AI iskanje po obrazu", "500");

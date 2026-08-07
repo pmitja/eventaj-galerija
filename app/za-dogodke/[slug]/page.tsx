@@ -5,7 +5,9 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { eventUseCases, getEventUseCase } from "@/components/landing/use-cases";
 import { absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
-import { appUrlForLocale, openGraphLocale } from "@/lib/i18n/locale";
+import { appUrlForLocale, intlLocale, openGraphLocale } from "@/lib/i18n/locale";
+import { canonicalUrl, languageAlternates } from "@/lib/i18n/alternates";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { eventUseCasePath } from "@/lib/i18n/routes";
 
 type PageProps = {
@@ -21,14 +23,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const useCase = getEventUseCase((await params).slug, locale);
   if (!useCase) return {};
 
-  const title = locale === "en" ? `${useCase.navTitle} – QR photo gallery | Eventaj` : `${useCase.navTitle} – QR galerija za fotografije | Eventaj`;
+  const env = getPublicAppUrls();
+  const title = `${useCase.navTitle} – ${getDictionary(locale).seo.useCaseTitleSuffix} | ${SITE_NAME}`;
   const description = useCase.description;
 
   const routePath = eventUseCasePath(locale, useCase.slug);
   return {
     title,
     description,
-    alternates: { canonical: routePath },
+    alternates: {
+      canonical: canonicalUrl(env, locale, routePath),
+      languages: languageAlternates(env, routePath),
+    },
     openGraph: {
       title,
       description,
@@ -62,9 +68,9 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
         "@type": "WebPage",
         "@id": `${pageUrl}#webpage`,
         url: pageUrl,
-        name: locale === "en" ? `${useCase.navTitle} – QR photo gallery` : `${useCase.navTitle} – QR galerija za fotografije`,
+        name: `${useCase.navTitle} – ${getDictionary(locale).seo.useCaseTitleSuffix}`,
         description: useCase.description,
-        inLanguage: locale === "en" ? "en-GB" : "sl-SI",
+        inLanguage: intlLocale(locale),
         isPartOf: { "@id": `${siteUrl}/#website` },
         about: { "@id": `${siteUrl}/#application` },
       },
@@ -74,7 +80,7 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
           {
             "@type": "ListItem",
             position: 1,
-            name: "Eventaj Galerija",
+            name: SITE_NAME,
             item: siteUrl,
           },
           {
@@ -91,7 +97,7 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
   return (
     <>
       <JsonLd data={structuredData} />
-      <UseCasePage useCase={useCase} locale={locale} alternateOrigin={appUrlForLocale(env, locale === "en" ? "sl" : "en")} />
+      <UseCasePage useCase={useCase} locale={locale} alternateOrigin={appUrlForLocale(env, locale === "sl" ? "en" : "sl")} />
     </>
   );
 }

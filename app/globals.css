@@ -45,7 +45,13 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 
 /* Header */
 .site-header { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--soft-line); background: rgba(255,255,255,.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+/* French, German and Spanish labels run far longer than the Slovenian originals.
+   Measured at full type size the French bar needs ~1420px of track, so the header
+   gets a wider shell than the body and every control is kept on one line. */
+.site-header .shell { width: min(100%, 1480px); }
 .header-inner { height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+/* Top-level bar controls only — links inside the dropdown panels must still wrap. */
+.desktop-nav > a, .nav-dropdown__trigger, .header-actions .button, .login-link { white-space: nowrap; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 19px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
 .brand:hover { color: var(--ink); }
 .brand span { color: #cbd5e1; font-weight: 400; }
@@ -69,6 +75,15 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .desktop-nav .nav-dropdown__group a:hover, .desktop-nav .nav-dropdown__group a:focus-visible { background: var(--surface-muted); }
 .nav-dropdown__group a span { font-size: 14.5px; font-weight: 700; }
 .nav-dropdown__group a small { color: var(--muted); font-size: 12.5px; font-weight: 400; line-height: 1.4; }
+/* Language menu: a single narrow column, unlike the wide two-column event menu. */
+.language-switcher .nav-dropdown__trigger { gap: 4px; padding: 10px 12px; font-weight: 600; }
+.language-switcher__panel { left: auto; right: 0; width: max-content; min-width: 180px; grid-template-columns: 1fr; gap: 0; padding: 8px; transform: translate(0, -8px); }
+.language-switcher__panel.nav-dropdown__panel--open { transform: translate(0, 0); }
+.language-switcher__panel .nav-dropdown__group { gap: 2px; padding: 0; }
+.language-switcher__panel a { display: block; padding: 10px 12px; border-radius: 10px; color: var(--ink); transition: background .18s ease; }
+.language-switcher__panel a:hover, .language-switcher__panel a:focus-visible { background: var(--surface-muted); }
+.language-switcher__panel a[aria-current="true"] { background: var(--surface-muted); font-weight: 700; }
+.language-switcher__panel a span { font-size: 14.5px; font-weight: inherit; }
 .header-actions { display: flex; align-items: center; gap: 10px; }
 .login-link { padding: 10px 16px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; }
 .login-link:hover { color: var(--ink); }
@@ -493,18 +508,41 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   transform: translateX(0);
 }
 
-@media (min-width: 768px) and (max-width: 1080px) {
+/* Below the width the longest language needs at full size, the bar steps down a
+   size rather than wrapping. */
+@media (min-width: 768px) and (max-width: 1460px) {
   .desktop-nav { gap: 14px; }
   .desktop-nav a, .nav-dropdown__trigger { font-size: 13.5px; }
-  .login-link { display: none; }
+  /* Drops the login link but never the language switcher, which shares the class. */
+  .login-link:not(.nav-dropdown__trigger) { display: none; }
   .header-inner { gap: 16px; }
-  .nav-dropdown__panel { left: 40%; }
+  .brand { gap: 8px; font-size: 17.5px; }
+  .brand-logo { height: 34px; }
+  .header-actions { gap: 8px; }
+  .header-actions .button--small { padding: 11px 15px; font-size: 13.5px; }
+  .language-switcher .nav-dropdown__trigger { padding: 10px 8px; }
+  .desktop-nav .nav-dropdown__panel { left: 40%; }
+}
+
+@media (min-width: 768px) and (max-width: 1080px) {
   .use-case-hero__inner { grid-template-columns: 1fr 400px; gap: 36px; }
   .use-case-hero__visual { min-height: 390px; }
 }
 
-@media (min-width: 768px) and (max-width: 900px) {
-  .desktop-nav, .login-link, .header-actions .desktop-only { display: none !important; }
+/* The demo button carries the longest translated label, so it is the first
+   control to drop once the bar runs out of room. The hero keeps a demo CTA. */
+@media (max-width: 1340px) {
+  .header-actions .button--secondary.desktop-only { display: none !important; }
+}
+
+/* Seven languages cannot share one bar below this width; the mobile nav carries
+   the full menu instead. */
+@media (min-width: 768px) and (max-width: 1200px) {
+  /* The primary CTA stays in the bar; only the nav, the login link and the
+     secondary demo button move into the menu. */
+  .desktop-nav,
+  .login-link:not(.nav-dropdown__trigger),
+  .header-actions .button--secondary.desktop-only { display: none !important; }
   .menu-button { width: 44px; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 0; border: 0; background: transparent; }
   .menu-button span { width: 20px; height: 2px; border-radius: 2px; background: var(--ink); transition: transform .18s ease, opacity .18s ease; }
   .menu-button--open span:first-child { transform: translateY(7px) rotate(45deg); }

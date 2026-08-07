@@ -18,9 +18,12 @@ import { storedGalleryLikesSchema } from "@/lib/validation/media-comments";
 import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import styles from "./guest-gallery.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
-import { ENGLISH_SITE_URL, SITE_URL } from "@/lib/seo";
-import { intlLocale } from "@/lib/i18n/locale";
+import { ENGLISH_SITE_URL, SITE_NAME, SITE_URL, guestBrandMark } from "@/lib/seo";
+import { LOCALE_LABELS, LOCALE_SHORT_LABELS, intlLocale, type Locale } from "@/lib/i18n/locale";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { pluralCount } from "@/lib/i18n/plural";
 import { usePathname } from "next/navigation";
+import { localizedMarketingPath } from "@/lib/i18n/routes";
 import { VoiceGuestbook } from "@/components/guest/voice-message-recorder";
 
 const VoiceMessageRecorder = dynamic(
@@ -99,21 +102,56 @@ function copyWithLegacySelection(url: string) {
   }
 }
 
-function shareMessages(locale: "sl" | "en"): Record<Exclude<GalleryShareResult, "cancelled">, { message: string; tone: "success" | "error" }> {
-  return locale === "en" ? {
-    shared: { message: "The gallery was shared.", tone: "success" },
-    copied: { message: "The gallery link was copied.", tone: "success" },
-    error: { message: "The link could not be shared. Copy the address from your browser.", tone: "error" },
-  } : {
+type ShareMessages = Record<Exclude<GalleryShareResult, "cancelled">, { message: string; tone: "success" | "error" }>;
+
+const SHARE_MESSAGES: Record<Locale, ShareMessages> = {
+  sl: {
     shared: { message: "Galerija je bila deljena.", tone: "success" },
     copied: { message: "Povezava do galerije je kopirana.", tone: "success" },
     error: { message: "Povezave ni bilo mogoče deliti. Kopiraj naslov iz brskalnika.", tone: "error" },
-  };
+  },
+  en: {
+    shared: { message: "The gallery was shared.", tone: "success" },
+    copied: { message: "The gallery link was copied.", tone: "success" },
+    error: { message: "The link could not be shared. Copy the address from your browser.", tone: "error" },
+  },
+  de: {
+    shared: { message: "Die Galerie wurde geteilt.", tone: "success" },
+    copied: { message: "Der Link zur Galerie wurde kopiert.", tone: "success" },
+    error: { message: "Der Link konnte nicht geteilt werden. Kopiere die Adresse aus dem Browser.", tone: "error" },
+  },
+  nl: {
+    shared: { message: "De galerij is gedeeld.", tone: "success" },
+    copied: { message: "De link naar de galerij is gekopieerd.", tone: "success" },
+    error: { message: "De link kon niet worden gedeeld. Kopieer het adres uit je browser.", tone: "error" },
+  },
+  es: {
+    shared: { message: "Se ha compartido la galería.", tone: "success" },
+    copied: { message: "Se ha copiado el enlace de la galería.", tone: "success" },
+    error: { message: "No se ha podido compartir el enlace. Copia la dirección desde el navegador.", tone: "error" },
+  },
+  it: {
+    shared: { message: "La galleria è stata condivisa.", tone: "success" },
+    copied: { message: "Il link alla galleria è stato copiato.", tone: "success" },
+    error: { message: "Non è stato possibile condividere il link. Copia l'indirizzo dal browser.", tone: "error" },
+  },
+  fr: {
+    shared: { message: "La galerie a été partagée.", tone: "success" },
+    copied: { message: "Le lien vers la galerie a été copié.", tone: "success" },
+    error: { message: "Le lien n'a pas pu être partagé. Copiez l'adresse depuis votre navigateur.", tone: "error" },
+  },
+};
+
+function shareMessages(locale: Locale): ShareMessages {
+  return SHARE_MESSAGES[locale] ?? SHARE_MESSAGES.en;
 }
 
 export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: string }) {
   const locale = useLocale();
-  const en = locale === "en";
+  const t = getDictionary(locale).guest.gallery;
+  const alternateLocale: Locale = locale === "sl" ? "en" : "sl";
+  const homeHref = localizedMarketingPath("/", locale);
+  const brandMarkSrc = guestBrandMark(locale);
   const pathname = usePathname();
   const isDemoEvent = eventSlug === DEMO_EVENT_SLUG;
   const [guestIdentity, setGuestIdentity] = useState<StoredGuestIdentity | null>(null);
@@ -124,7 +162,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [livePhotos, setLivePhotos] = useState<LiveGalleryMedia[]>([]);
   const [faceSearchResult, setFaceSearchResult] = useState<StoredFaceSearchResult | null>(null);
   const [faceFilterActive, setFaceFilterActive] = useState(false);
-  const [eventInfo, setEventInfo] = useState({ name: en ? "Anna & Mark" : "Ana & Marko", location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null, videoUploadsEnabled: false });
+  const [eventInfo, setEventInfo] = useState({ name: t.demoEventName, location: "Vila Bled", startsAt: "2026-07-12T12:00:00.000Z", commentsEnabled: true, uploadsOpen: true, faceSearchEnabled: false, faceSearchPolicyVersion: null as string | null, videoUploadsEnabled: false });
   const [isSharing, setIsSharing] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const [voiceMessagesRefreshKey, setVoiceMessagesRefreshKey] = useState(0);
@@ -338,8 +376,8 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     const result = await shareGallery({
       client: navigator,
       data: {
-        title: `${eventInfo.name} | Eventaj Galerija`,
-        text: en ? `See the photos from ${eventInfo.name}.` : `Oglej si fotografije dogodka ${eventInfo.name}.`,
+        title: `${eventInfo.name} | ${SITE_NAME}`,
+        text: t.shareText.replace("{event}", eventInfo.name),
         url: shareUrl.toString(),
       },
       legacyCopy: copyWithLegacySelection,
@@ -352,18 +390,19 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link className={styles.brand} href="/" aria-label={en ? "Back to the Eventaj Gallery website" : "Nazaj na predstavitveno stran Eventaj Galerije"}>
-          eventaj<span>.</span>
+        <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>
+          {brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={30} height={30} /> : null}
+          <span className={styles.brandWord}>Guest<span> Mosaic</span></span>
         </Link>
         <div className={styles.headerActions}>
-        <a href={`${en ? SITE_URL : ENGLISH_SITE_URL}${pathname}`} aria-label={en ? "Slovenščina" : "English"}>{en ? "SL" : "EN"}</a>
+        <a href={`${locale === "sl" ? ENGLISH_SITE_URL : SITE_URL}${pathname}`} aria-label={LOCALE_LABELS[alternateLocale]}>{LOCALE_SHORT_LABELS[alternateLocale]}</a>
         {!isDemoEvent ? <GuestIdentityGate eventSlug={eventSlug} onIdentity={setGuestIdentity} /> : null}
         <button
           className={styles.shareButton}
           type="button"
           onClick={handleShare}
           disabled={isSharing}
-          aria-label={isSharing ? (en ? "Opening sharing options" : "Odpiram možnosti deljenja") : (en ? "Share gallery" : "Deli galerijo")}
+          aria-label={isSharing ? t.sharing : t.share}
           aria-busy={isSharing}
           aria-describedby={shareFeedback ? "share-feedback" : undefined}
         >
@@ -388,24 +427,24 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <div className={styles.heroContent}>
           <p className={styles.kicker}>{new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long" }).format(new Date(eventInfo.startsAt))}{eventInfo.location ? ` · ${eventInfo.location}` : ""}</p>
           <h1>{eventInfo.name}</h1>
-          <p className={styles.welcome}>{en ? "Welcome to the shared gallery. Add the moments you captured and relive the event together." : "Dobrodošli v skupni galeriji. Dodajte utrinke, ki ste jih ujeli, in podoživite dogodek skupaj."}</p>
+          <p className={styles.welcome}>{t.welcome}</p>
           {isDemoEvent ? (
             <>
               <a className={styles.heroCta} href="#gallery-title">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                {en ? "Explore the demo gallery" : "Razišči demo galerijo"}
+                {t.exploreDemo}
               </a>
-              <p className={styles.uploadHint}>{en ? "No sign-in and no commitment" : "Brez prijave in brez obveznosti"}</p>
+              <p className={styles.uploadHint}>{t.demoHint}</p>
             </>
           ) : eventInfo.uploadsOpen ? (
             <>
               <a className={styles.heroCta} href="#dodaj">
-                <CameraIcon /> {en ? "Add photos" : "Dodaj fotografije"}
+                <CameraIcon /> {t.addPhotos}
               </a>
-              <p className={styles.uploadHint}>{en ? "No app and no sign-in" : "Brez aplikacije in brez prijave"}</p>
+              <p className={styles.uploadHint}>{t.addPhotosHint}</p>
             </>
           ) : (
-            <p className={styles.uploadHint}>{en ? "Uploads are closed. Enjoy the shared memories." : "Nalaganje je zaključeno. Uživaj v skupnih spominih."}</p>
+            <p className={styles.uploadHint}>{t.uploadsClosed}</p>
           )}
         </div>
       </section>
@@ -433,29 +472,29 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
 
       <section className={styles.gallerySection} aria-labelledby="gallery-title">
         {isDemoEvent ? (
-          <a className={styles.liveShowCta} href="/demo/live-show">
+          <a className={styles.liveShowCta} href={localizedMarketingPath("/demo/live-show", locale)}>
             <span className={styles.liveShowIcon} aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="m9 7 8 5-8 5V7Z" /><rect x="3" y="3" width="18" height="18" rx="4" /></svg>
             </span>
             <span>
-              <small>{en ? "Experience the gallery on the big screen" : "Doživi galerijo na velikem zaslonu"}</small>
-              <strong>{en ? "Play the demo Live Show" : "Predvajaj demo Live Show"}</strong>
+              <small>{t.liveShowHint}</small>
+              <strong>{t.liveShowCta}</strong>
             </span>
             <svg className={styles.liveShowArrow} viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
           </a>
         ) : null}
         <div className={styles.galleryIntro}>
           <div>
-            <p className={styles.sectionEyebrow}>{voiceTabActive ? (en ? "Audio guestbook" : "Audio knjiga gostov") : (en ? "Shared memories" : "Skupni spomini")}</p>
-            <h2 id="gallery-title">{voiceTabActive ? (en ? "Messages from the heart" : "Voščila iz srca") : faceFilterActive ? (en ? "Your photos" : "Tvoje fotografije") : (en ? "Favourite moments" : "Najlepši trenutki")}</h2>
+            <p className={styles.sectionEyebrow}>{voiceTabActive ? t.voiceEyebrow : t.photosEyebrow}</p>
+            <h2 id="gallery-title">{voiceTabActive ? t.voiceHeading : faceFilterActive ? t.myPhotosHeading : t.photosHeading}</h2>
           </div>
           <span className={styles.count}>{voiceTabActive
-            ? (en ? `${voiceMessageCount} voice ${voiceMessageCount === 1 ? "message" : "messages"}` : `${voiceMessageCount} ${voiceMessageCount === 1 ? "glasovno voščilo" : "glasovnih voščil"}`)
-            : `${photos.length} ${en ? (photos.length === 1 ? "moment" : "moments") : "utrinkov"}`}</span>
+            ? pluralCount(locale, voiceMessageCount, t.voiceCount)
+            : pluralCount(locale, photos.length, t.momentCount)}</span>
         </div>
 
         {faceTabEnabled || voiceTabVisible ? (
-          <div className={styles.galleryFilters} role="tablist" aria-label={en ? "Gallery sections" : "Razdelki galerije"}>
+          <div className={styles.galleryFilters} role="tablist" aria-label={t.sectionsLabel}>
             <button
               className={`${styles.galleryFilter} ${!voiceTabActive && !faceFilterActive ? styles.galleryFilterActive : ""}`}
               type="button"
@@ -463,7 +502,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
               aria-selected={!voiceTabActive && !faceFilterActive}
               onClick={() => { setGalleryTab("photos"); setFaceFilterActive(false); setVisiblePhotoCount(PHOTO_PAGE_SIZE); }}
             >
-              {en ? "All photos" : "Vse fotografije"}
+              {t.allPhotos}
             </button>
             {faceTabEnabled && guestIdentity && eventInfo.faceSearchPolicyVersion ? (
               <FaceSearch
@@ -487,7 +526,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                 onClick={() => setGalleryTab("voice")}
               >
                 <MicrophoneIcon />
-                {en ? "Voice messages" : "Glasovna voščila"}
+                {t.voiceMessages}
                 <span className={styles.filterCount}>{voiceMessageCount}</span>
               </button>
             ) : null}
@@ -504,11 +543,11 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <div className={styles.grid} data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => (
             <article className={styles.photoCard} key={photo.key}>
-              <button className={styles.photoButton} type="button" onClick={() => openPhoto(index)} aria-label={`${en ? "Open" : "Odpri"} ${photo.kind === "video" ? "video" : (en ? "photo" : "fotografijo")}: ${photo.alt}`}>
+              <button className={styles.photoButton} type="button" onClick={() => openPhoto(index)} aria-label={`${photo.kind === "video" ? t.openVideo : t.openPhoto}: ${photo.alt}`}>
                 <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized={photo.src.startsWith("/api/")} />
                 {photo.kind === "video" ? <span className={styles.videoBadge} aria-hidden="true">▶</span> : null}
               </button>
-              <button className={styles.likeButton} type="button" onClick={() => toggleLike(photo.key)} aria-label={liked.includes(photo.key) ? (en ? "Remove from favourites" : "Odstrani iz priljubljenih") : (en ? "Add to favourites" : "Dodaj med priljubljene")} aria-pressed={liked.includes(photo.key)}>
+              <button className={styles.likeButton} type="button" onClick={() => toggleLike(photo.key)} aria-label={liked.includes(photo.key) ? t.removeFavourite : t.addFavourite} aria-pressed={liked.includes(photo.key)}>
                 <HeartIcon filled={liked.includes(photo.key)} />
               </button>
               {eventInfo.commentsEnabled && photo.publicId ? (
@@ -516,7 +555,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                   className={styles.commentBadge}
                   type="button"
                   onClick={() => openPhotoComments(index)}
-                  aria-label={`${photo.commentCount} ${en ? (photo.commentCount === 1 ? "comment" : "comments") : (photo.commentCount === 1 ? "komentar" : "komentarjev")} ${en ? "on the photo" : "na fotografiji"}`}
+                  aria-label={`${pluralCount(locale, photo.commentCount, t.commentCount)} ${t.onThePhoto}`}
                 >
                   <CommentIcon /><span>{photo.commentCount}</span>
                 </button>
@@ -524,24 +563,24 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
             </article>
           ))}
         </div>
-        {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? (en ? "These photos are no longer in the public gallery. Refresh the search." : "Teh fotografij ni več v javni galeriji. Osveži iskanje.") : (en ? "No photos yet. Be the first to add a moment." : "Fotografij še ni. Bodi prvi in dodaj svoj utrinek.")}</p> : null}
+        {photos.length === 0 ? <p className={styles.emptyGallery}>{faceFilterActive ? t.emptyFaceSearch : t.emptyGallery}</p> : null}
         {hasMorePhotos ? (
           <>
             <div ref={loadMoreRef} className={styles.loadMoreSentinel} aria-hidden="true" />
-            <button className={styles.moreButton} type="button" onClick={showMorePhotos}>{en ? "Show more photos" : "Prikaži več fotografij"}</button>
+            <button className={styles.moreButton} type="button" onClick={showMorePhotos}>{t.showMore}</button>
           </>
         ) : null}
         </>}
-        <p className={styles.privacy}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" /></svg>{en ? "This gallery is private and available only to guests with the link." : "Ta galerija je zasebna in dostopna samo gostom s povezavo."}</p>
+        <p className={styles.privacy}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" /></svg>{t.privacy}</p>
       </section>
 
       {lightboxMounted && photos.length ? (
-        <div className={`${styles.lightbox} ${lightboxClosing ? styles.closing : ""}`} role="dialog" aria-modal="true" aria-label={en ? "Full-screen photo view" : "Celozaslonski pregled fotografije"} onClick={() => setSelectedPhoto(null)}>
+        <div className={`${styles.lightbox} ${lightboxClosing ? styles.closing : ""}`} role="dialog" aria-modal="true" aria-label={t.lightboxLabel} onClick={() => setSelectedPhoto(null)}>
           <div className={`${styles.lightboxShell} ${commentsMounted ? styles.withComments : ""}`} onClick={(event) => event.stopPropagation()}>
             <div className={styles.lightboxStage}>
-              <Link className={styles.lightboxBrand} href="/" aria-label={en ? "Back to the Eventaj Gallery website" : "Nazaj na predstavitveno stran Eventaj Galerije"}>eventaj<span>.</span></Link>
-              <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label={en ? "Close view" : "Zapri pregled"}>×</button>
-              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((lightboxIndex - 1 + photos.length) % photos.length)} aria-label={en ? "Previous photo" : "Prejšnja fotografija"}>
+              <Link className={styles.lightboxBrand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={28} height={28} /> : null}<span className={styles.brandWord}>Guest<span> Mosaic</span></span></Link>
+              <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label={t.closeView}>×</button>
+              <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((lightboxIndex - 1 + photos.length) % photos.length)} aria-label={t.previousPhoto}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
               </button>
               <div className={styles.lightboxImage}>
@@ -559,19 +598,19 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                   <Image src={photos[lightboxIndex].src} alt={photos[lightboxIndex].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[lightboxIndex].src.startsWith("/api/")} />
                 )}
               </div>
-              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((lightboxIndex + 1) % photos.length)} aria-label={en ? "Next photo" : "Naslednja fotografija"}>
+              <button className={`${styles.lightboxNav} ${styles.next}`} type="button" onClick={() => movePhoto((lightboxIndex + 1) % photos.length)} aria-label={t.nextPhoto}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
               </button>
               <span className={styles.lightboxCount}>{lightboxIndex + 1} / {photos.length}</span>
               <div className={styles.lightboxActions}>
-                <button type="button" onClick={() => toggleLike(photos[lightboxIndex].key)} aria-label={liked.includes(photos[lightboxIndex].key) ? (en ? "Remove from favourites" : "Odstrani iz priljubljenih") : (en ? "Add to favourites" : "Dodaj med priljubljene")} aria-pressed={liked.includes(photos[lightboxIndex].key)}>
-                  <HeartIcon filled={liked.includes(photos[lightboxIndex].key)} /><span>{liked.includes(photos[lightboxIndex].key) ? (en ? "Liked" : "Všeč ti je") : (en ? "Like" : "Všeč mi je")}</span>
+                <button type="button" onClick={() => toggleLike(photos[lightboxIndex].key)} aria-label={liked.includes(photos[lightboxIndex].key) ? t.removeFavourite : t.addFavourite} aria-pressed={liked.includes(photos[lightboxIndex].key)}>
+                  <HeartIcon filled={liked.includes(photos[lightboxIndex].key)} /><span>{liked.includes(photos[lightboxIndex].key) ? t.liked : t.like}</span>
                 </button>
-                {eventInfo.commentsEnabled ? <button type="button" onClick={() => setCommentsOpen((current) => !current)} aria-label={en ? "Comments" : "Komentarji"} aria-expanded={commentsVisible}>
-                  <CommentIcon /><span>{en ? "Comments" : "Komentarji"}</span>
+                {eventInfo.commentsEnabled ? <button type="button" onClick={() => setCommentsOpen((current) => !current)} aria-label={t.comments} aria-expanded={commentsVisible}>
+                  <CommentIcon /><span>{t.comments}</span>
                 </button> : null}
-                {photos[lightboxIndex].downloadUrl ? <a href={photos[lightboxIndex].downloadUrl!} aria-label={en ? "Download original photo" : "Prenesi izvirno fotografijo"}>
-                  <DownloadIcon /><span>{en ? "Download" : "Prenesi"}</span>
+                {photos[lightboxIndex].downloadUrl ? <a href={photos[lightboxIndex].downloadUrl!} aria-label={t.downloadOriginal}>
+                  <DownloadIcon /><span>{t.download}</span>
                 </a> : null}
               </div>
             </div>

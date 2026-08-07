@@ -1,5 +1,9 @@
 .page { min-height: 100vh; padding: 28px 24px 80px; overflow-x: clip; background: radial-gradient(circle at 50% 0, #fff 0, #fff8fb 42%, #fff 100%); color: #3f0d25; }
 .shell { width: min(1120px, 100%); margin-inline: auto; }
+.topBar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; color: #3f0d25; font-size: 18px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
+.brand:hover { color: #3f0d25; }
+.brandMark { width: 30px; height: 30px; flex: none; display: block; }
 .back { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; color: #7f3155; font-size: 14px; font-weight: 750; }
 .back:hover { color: #3f0d25; }
 .back svg { width: 18px; height: 18px; }

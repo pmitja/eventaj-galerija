@@ -8,18 +8,20 @@ import { Header } from "./header-hero";
 import { Showcase } from "./showcase-sections";
 import { eventUseCasesFor, type EventUseCase } from "./use-cases";
 import type { Locale } from "@/lib/i18n/locale";
-import { eventUseCasePath, orderPath } from "@/lib/i18n/routes";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { eventUseCasePath, localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
+import { SITE_NAME } from "@/lib/seo";
 
 export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
-  const en = locale === "en";
+  const t = getDictionary(locale);
   const eventUseCases = eventUseCasesFor(locale);
   return (
-    <section className="section-muted event-use-cases" id={en ? "for-events" : "za-dogodke"}>
+    <section className="section-muted event-use-cases" id={t.anchors.forEvents}>
       <div className="shell">
         <div className="section-heading">
-          <span className="section-pill">{en ? "For every occasion" : "Za vsako priložnost"}</span>
-          <h2>{en ? "Not only for weddings. For every event." : "Ni samo za poroke. Je za vsak dogodek."}</h2>
-          <p>{en ? "One simple QR gallery, ready for the way your guests or participants come together." : "Ena preprosta QR galerija, prilagojena načinu, kako se zberejo vaši gostje ali udeleženci."}</p>
+          <span className="section-pill">{t.useCases.pill}</span>
+          <h2>{t.useCases.heading}</h2>
+          <p>{t.useCases.subtitle}</p>
         </div>
         <div className="event-use-cases__grid">
           {eventUseCases.map((item) => (
@@ -27,7 +29,7 @@ export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
               <span>{item.group}</span>
               <strong>{item.navTitle}</strong>
               <p>{item.navDescription}</p>
-              <b aria-hidden="true">{en ? "Read more" : "Preberi več"} →</b>
+              <b aria-hidden="true">{t.useCases.readMore} →</b>
             </Link>
           ))}
         </div>
@@ -37,7 +39,8 @@ export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
 }
 
 export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCase: EventUseCase; locale?: Locale; alternateOrigin?: string }) {
-  const en = locale === "en";
+  const t = getDictionary(locale);
+  const home = localizedMarketingPath("/", locale);
   const eventUseCases = eventUseCasesFor(locale);
   const related = eventUseCases
     .filter((item) => item.group === useCase.group && item.slug !== useCase.slug)
@@ -47,29 +50,27 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
     <LoginModalProvider>
     <main className="landing-page use-case-page" id="top">
       <AnimationController />
-      <Header howItWorksHref={`#${en ? "how-it-works" : "kako-deluje"}`} locale={locale} alternateOrigin={alternateOrigin} />
+      <Header howItWorksHref={`#${t.anchors.howItWorks}`} locale={locale} alternateOrigin={alternateOrigin} />
       <section className="use-case-hero">
         <div className="use-case-hero__inner shell">
           <div className="use-case-hero__copy">
-            <Link className="use-case-breadcrumb" href="/">Eventaj Galerija <span aria-hidden="true">/</span> {useCase.navTitle}</Link>
+            <Link className="use-case-breadcrumb" href={home}>{SITE_NAME} <span aria-hidden="true">/</span> {useCase.navTitle}</Link>
             <div className="eyebrow"><span />{useCase.eyebrow}</div>
             <h1>{useCase.title}</h1>
             <p>{useCase.description}</p>
             <div className="hero-buttons">
-              <Link className="button" href={orderPath(locale)} data-sticky-cta-trigger="create-event">{en ? "Create event — €35" : "Ustvari dogodek — 35 €"}</Link>
-              <Link className="button button--secondary" href={`#${en ? "how-it-works" : "kako-deluje"}`}>{en ? "How it works" : "Kako deluje"}</Link>
+              <Link className="button" href={orderPath(locale)} data-sticky-cta-trigger="create-event">{t.useCasePage.ctaCreate}</Link>
+              <Link className="button button--secondary" href={`#${t.anchors.howItWorks}`}>{t.nav.howItWorks}</Link>
             </div>
             <div className="use-case-trust">
-              <span>{en ? "No app" : "Brez aplikacije"}</span>
-              <span>{en ? "No subscription" : "Brez naročnine"}</span>
-              <span>{en ? "Unlimited guests" : "Neomejeno gostov"}</span>
+              {t.useCasePage.trust.map((item) => <span key={item}>{item}</span>)}
             </div>
           </div>
           <div className="use-case-hero__visual">
             <div className="use-case-app-desktop">
               <Image
                 src="/marketing/screenshots/gallery-desktop-frame.png"
-                alt={en ? "Eventaj Gallery with all event photos on a computer" : "Eventaj Galerija z vsemi fotografijami dogodka na računalniku"}
+                alt={t.useCasePage.desktopAlt}
                 fill
                 sizes="(max-width: 767px) 330px, 520px"
                 priority
@@ -78,7 +79,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
             <div className="use-case-app-mobile">
               <Image
                 src="/marketing/screenshots/gallery-mobile.png"
-                alt={en ? "Mobile gallery opened by a guest through a QR code" : "Mobilna galerija, ki jo gost odpre prek QR kode"}
+                alt={t.useCasePage.mobileAlt}
                 fill
                 sizes="(max-width: 767px) 108px, 150px"
               />
@@ -86,8 +87,8 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
             <div className="use-case-app-note">
               <span>QR</span>
               <div>
-                <strong>{en ? "Guests upload" : "Gostje dodajo"}</strong>
-                <small>{en ? "without an app or sign-in" : "brez aplikacije in prijave"}</small>
+                <strong>{t.useCasePage.guestsUpload}</strong>
+                <small>{t.useCasePage.guestsUploadNote}</small>
               </div>
             </div>
           </div>
@@ -99,9 +100,9 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
       <section className="section use-case-benefits">
         <div className="shell">
           <div className="section-heading">
-            <span className="section-pill">{en ? "Made for your event" : "Narejeno za vaš dogodek"}</span>
-            <h2>{en ? "Less coordination. More shared memories." : "Manj usklajevanja. Več skupnih spominov."}</h2>
-            <p>{en ? "A simple journey for the organiser and every guest with a phone." : "Enostaven tok za organizatorja in za vsakega gosta s telefonom."}</p>
+            <span className="section-pill">{t.useCasePage.benefitsPill}</span>
+            <h2>{t.useCasePage.benefitsHeading}</h2>
+            <p>{t.useCasePage.benefitsSubtitle}</p>
           </div>
           <div className="use-case-benefit-grid">
             {useCase.highlights.map((highlight, index) => (
@@ -117,9 +118,9 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
       <section className="section-muted use-case-scenarios">
         <div className="shell use-case-scenarios__inner">
           <div>
-            <span className="section-pill">{en ? "Flexible" : "Prilagodljivo"}</span>
-            <h2>{en ? "One gallery, many occasions." : "Ena galerija, različne priložnosti."}</h2>
-            <p>{en ? "Use the same simple QR journey for the whole event or one part of it." : "Isti preprost QR tok lahko uporabite za celoten dogodek ali njegov posamezni del."}</p>
+            <span className="section-pill">{t.useCasePage.flexiblePill}</span>
+            <h2>{t.useCasePage.flexibleHeading}</h2>
+            <p>{t.useCasePage.flexibleSubtitle}</p>
           </div>
           <ul>
             {useCase.scenarios.map((scenario) => <li key={scenario}>{scenario}</li>)}
@@ -127,14 +128,14 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
         </div>
       </section>
 
-      <Slideshow priceHref={`/#${en ? "pricing" : "cene"}`} locale={locale} />
+      <Slideshow priceHref={`${home}#${t.anchors.pricing}`} locale={locale} />
       <Showcase locale={locale} />
 
       <section className="section use-case-faq">
         <div className="faq-shell">
           <div className="section-heading">
-            <span className="section-pill">{en ? "Frequently asked questions" : "Pogosta vprašanja"}</span>
-            <h2>{en ? "Before you create a gallery" : "Preden ustvarite galerijo"}</h2>
+            <span className="section-pill">{t.useCasePage.faqPill}</span>
+            <h2>{t.useCasePage.faqHeading}</h2>
           </div>
           <div className="faq-list">
             {useCase.faq.map(([question, answer]) => (
@@ -151,8 +152,8 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
         <section className="section-bottom use-case-related">
           <div className="shell">
             <div className="use-case-related__heading">
-              <h2>{en ? "Explore more" : "Oglejte si še"}</h2>
-              <Link href={`/#${en ? "for-events" : "za-dogodke"}`}>{en ? "All event types" : "Vse vrste dogodkov"}</Link>
+              <h2>{t.useCasePage.exploreMore}</h2>
+              <Link href={`${home}#${t.anchors.forEvents}`}>{t.useCasePage.allEventTypes}</Link>
             </div>
             <div className="use-case-related__grid">
               {related.map((item) => (

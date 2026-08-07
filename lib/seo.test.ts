@@ -49,7 +49,7 @@ describe("public SEO discovery", () => {
     const full = await fullResponse.text();
 
     expect(conciseResponse.headers.get("content-type")).toContain("text/plain");
-    expect(concise).toContain(`# Eventaj Galerija`);
+    expect(concise).toContain(`# Guest Mosaic`);
     expect(concise).toContain(`${SITE_URL}/llms-full.txt`);
     expect(full).toContain("Cena: 35 EUR");
     expect(full).toContain("trenutno nima objavljenih preverjenih ocen strank");

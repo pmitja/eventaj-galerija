@@ -7,10 +7,12 @@ import { checkoutSessionIdSchema } from "@/lib/validation/checkout";
 import styles from "@/components/checkout/checkout.module.css";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { checkoutSuccessPath, orderPath } from "@/lib/i18n/routes";
+import { withLocalePrefix } from "@/lib/i18n/locale";
+import { SITE_NAME } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Order status | Eventaj Gallery" : "Status naročila | Eventaj Galerija", robots: { index: false, follow: false, nocache: true } };
+  return { title: locale === "en" ? `Order status | ${SITE_NAME}` : `Status naročila | ${SITE_NAME}`, robots: { index: false, follow: false, nocache: true } };
 }
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {
@@ -23,8 +25,8 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   }
   const ready = Boolean(eventId);
   const links = eventId ? await findDeliveryLinks(eventId) : null;
-  const galleryUrl = links ? `/t/${encodeURIComponent(links.publicCode)}` : null;
-  const liveshowUrl = links?.slideshowToken ? `/display/${encodeURIComponent(links.slideshowToken)}` : null;
+  const galleryUrl = links ? withLocalePrefix(locale, `/t/${encodeURIComponent(links.publicCode)}`) : null;
+  const liveshowUrl = links?.slideshowToken ? withLocalePrefix(locale, `/display/${encodeURIComponent(links.slideshowToken)}`) : null;
 
   return <main className={styles.page}><div className={styles.shell}>
     <header className={styles.heading}>

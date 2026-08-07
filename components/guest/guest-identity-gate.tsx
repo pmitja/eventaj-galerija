@@ -6,6 +6,7 @@ import { storedGuestIdentitySchema, type StoredGuestIdentity } from "@/lib/valid
 import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import styles from "./guest-identity-gate.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/locale";
 
 type IdentityResponse = {
@@ -49,7 +50,7 @@ export function GuestIdentityGate({
   onIdentity: (identity: StoredGuestIdentity) => void;
 }) {
   const locale = useLocale();
-  const en = locale === "en";
+  const t = getDictionary(locale).guest.identity;
   const [identity, setIdentity] = useState<StoredGuestIdentity | null>(null);
   const [open, setOpen] = useState(false);
   const { mounted: dialogMounted, closing: dialogClosing } = useDialogTransition(open);
@@ -142,7 +143,7 @@ export function GuestIdentityGate({
     try {
       localStorage.setItem(storageKey(eventSlug), JSON.stringify(result.identity));
     } catch {
-      setError(en ? "Your browser does not allow local storage. Enable it and try again." : "Brskalnik ne dovoli lokalnega shranjevanja. Omogoči ga in poskusi znova.");
+      setError(t.storageError);
       setSaving(false);
       return;
     }
@@ -167,7 +168,7 @@ export function GuestIdentityGate({
       {!loading && identity ? (
         <button className={styles.identityButton} type="button" onClick={startEditing}>
           <span aria-hidden="true"><Image src="/icons/engagement/guest.png" alt="" width={34} height={34} unoptimized /></span>
-          <span>{identity.displayName ?? (en ? "Guest" : "Gost")}<small>{en ? "Change display" : "Spremeni prikaz"}</small></span>
+          <span>{identity.displayName ?? t.guest}<small>{t.changeDisplay}</small></span>
         </button>
       ) : null}
       {dialogMounted ? (
@@ -175,11 +176,11 @@ export function GuestIdentityGate({
           <div ref={dialogRef} className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="guest-identity-title" aria-describedby="guest-identity-description">
             <div className={styles.handle} aria-hidden="true" />
             <span className={styles.mark} aria-hidden="true"><Image src="/icons/engagement/guest.png" alt="" width={62} height={62} priority unoptimized /></span>
-            <p className={styles.eyebrow}>{en ? "No registration" : "Brez registracije"}</p>
-            <h2 id="guest-identity-title">{en ? "How should we display you?" : "Kako naj te prikažemo?"}</h2>
-            <p id="guest-identity-description">{en ? "Your name or nickname is only used for this event. We do not need your email, phone number or a password." : "Ime ali vzdevek se uporablja samo pri tem dogodku. Ne potrebujemo e-pošte, telefona ali gesla."}</p>
+            <p className={styles.eyebrow}>{t.eyebrow}</p>
+            <h2 id="guest-identity-title">{t.title}</h2>
+            <p id="guest-identity-description">{t.description}</p>
             <form onSubmit={(event) => { event.preventDefault(); if (displayName.trim()) void save(displayName.trim()); }}>
-              <label htmlFor="guest-display-name">{en ? "Name or nickname" : "Ime ali vzdevek"}</label>
+              <label htmlFor="guest-display-name">{t.nameLabel}</label>
               <input
                 ref={inputRef}
                 id="guest-display-name"
@@ -187,14 +188,14 @@ export function GuestIdentityGate({
                 onChange={(event) => { setDisplayName(event.target.value); setError(null); setSuggestions([]); }}
                 maxLength={40}
                 autoComplete="nickname"
-                placeholder={en ? "e.g. Barbara" : "npr. Barbara"}
+                placeholder={t.namePlaceholder}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "guest-identity-error" : undefined}
               />
               {error ? <p id="guest-identity-error" className={styles.error} role="alert">{error}</p> : null}
               {suggestions.length ? (
-                <div className={styles.suggestions} aria-label={en ? "Display name suggestions" : "Predlogi prikaznega imena"}>
-                  <span>{en ? "Choose one or enter your own:" : "Izberi ali vpiši svoje:"}</span>
+                <div className={styles.suggestions} aria-label={t.suggestionsLabel}>
+                  <span>{t.suggestionsHint}</span>
                   <div>{suggestions.map((suggestion) => (
                     <button key={suggestion} type="button" onClick={() => { setDisplayName(suggestion); setError(null); setSuggestions([]); inputRef.current?.focus(); }}>{suggestion}</button>
                   ))}</div>
@@ -202,17 +203,17 @@ export function GuestIdentityGate({
               ) : null}
               <label className={styles.liveChoice}>
                 <input type="checkbox" checked={showOnLiveScreen} onChange={(event) => setShowOnLiveScreen(event.target.checked)} />
-                <span><strong>{en ? "Show my name on the live screen" : "Prikaži moje ime na live zaslonu"}</strong><small>{en ? "For achievements and the event leaderboard." : "Ob dosežkih in na lestvici dogodka."}</small></span>
+                <span><strong>{t.showOnScreen}</strong><small>{t.showOnScreenNote}</small></span>
               </label>
               <button className={styles.continueButton} type="submit" disabled={!displayName.trim() || saving}>
-                {saving ? (en ? "Saving …" : "Shranjujem …") : (en ? "Continue" : "Nadaljuj")}
+                {saving ? t.saving : t.continue}
               </button>
               <button className={styles.anonymousButton} type="button" disabled={saving} onClick={() => void save(null)}>
                 <Image src="/icons/engagement/anonymous-guest.png" alt="" width={24} height={24} aria-hidden="true" unoptimized />
-                {en ? "Continue as guest (anonymous)" : "Nadaljuj kot gost (anonimno)"}
+                {t.continueAnonymous}
               </button>
             </form>
-            <small className={styles.privacy}>{en ? "This is not a user account. Your identity is stored only in this browser for this event." : "To ni uporabniški račun. Identiteta ostane shranjena le v tem brskalniku za ta dogodek."}</small>
+            <small className={styles.privacy}>{t.privacy}</small>
           </div>
         </div>
       ) : null}
