@@ -1,17 +1,34 @@
 "use client";
 
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import {
+  LOCALE_LABELS,
+  PREFIXED_LOCALES,
+  type Locale,
+} from "@/lib/i18n/locale";
+import {
+  demoEventPath,
+  eventUseCasePath,
+  localizedMarketingPath,
+  orderPath,
+} from "@/lib/i18n/routes";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { LanguageSwitcher } from "./language-switcher";
 import { eventUseCaseGroupsFor, eventUseCasesFor } from "./use-cases";
 import { VisualPlaceholder } from "./visual-placeholder";
-import { LOCALE_LABELS, PREFIXED_LOCALES, type Locale } from "@/lib/i18n/locale";
-import { getDictionary } from "@/lib/i18n/dictionaries";
-import { LanguageSwitcher } from "./language-switcher";
-import { demoEventPath, eventUseCasePath, localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
 
-export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { howItWorksHref?: string; locale?: Locale; alternateOrigin?: string } = {}) {
+export function Header({
+  howItWorksHref,
+  locale = "sl",
+  alternateOrigin,
+}: {
+  howItWorksHref?: string;
+  locale?: Locale;
+  alternateOrigin?: string;
+} = {}) {
   const pathname = usePathname();
   const t = getDictionary(locale);
   const home = localizedMarketingPath("/", locale);
@@ -25,7 +42,8 @@ export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { how
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
-      if (!eventsMenuRef.current?.contains(event.target as Node)) setEventsOpen(false);
+      if (!eventsMenuRef.current?.contains(event.target as Node))
+        setEventsOpen(false);
     }
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -48,21 +66,47 @@ export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { how
 
   // Slovenian is the only language on the other domain, so it needs an absolute
   // URL; the rest are path-prefixed siblings of the current page.
-  const mobileLanguageLinks = (locale === "sl"
-    ? (["en"] as Locale[])
-    : ([...(["en", ...PREFIXED_LOCALES] as Locale[]), ...(alternateOrigin ? (["sl"] as Locale[]) : [])])
+  const mobileLanguageLinks = (
+    locale === "sl"
+      ? (["en"] as Locale[])
+      : [
+          ...(["en", ...PREFIXED_LOCALES] as Locale[]),
+          ...(alternateOrigin ? (["sl"] as Locale[]) : []),
+        ]
   ).map((target) => ({
     target,
-    href: target === "sl" || locale === "sl"
-      ? `${alternateOrigin ?? ""}${localizedMarketingPath(pathname, target)}`
-      : localizedMarketingPath(pathname, target),
+    href:
+      target === "sl" || locale === "sl"
+        ? `${alternateOrigin ?? ""}${localizedMarketingPath(pathname, target)}`
+        : localizedMarketingPath(pathname, target),
   }));
 
   return (
     <header className="site-header">
       <div className="header-inner shell">
-        <Link className="brand" href={`${home}#top`} aria-label={t.nav.brandLabel}>
-          <img className="brand-logo" src="/guest-mosaic-mark.webp" alt="" width={40} height={40} />
+        <Link
+          className="brand"
+          href={`${home}#top`}
+          aria-label={t.nav.brandLabel}
+        >
+          {locale !== "sl" && (
+            <Image
+              className="brand-logo"
+              src="/guest-mosaic-mark.webp"
+              alt=""
+              width={40}
+              height={40}
+            />
+          )}
+          {locale === "sl" && (
+            <Image
+              className="brand-logo"
+              src="/logo.svg"
+              alt=""
+              width={40}
+              height={40}
+            />
+          )}
           <b>{t.nav.brandWord}</b>
         </Link>
         <nav className="desktop-nav" aria-label={t.nav.mainNavigation}>
@@ -82,7 +126,9 @@ export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { how
               onClick={() => setEventsOpen((open) => !open)}
             >
               {t.nav.events}
-              <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4" /></svg>
+              <svg aria-hidden="true" viewBox="0 0 16 16">
+                <path d="m4 6 4 4 4-4" />
+              </svg>
             </button>
             <div
               id="event-use-cases-menu"
@@ -91,12 +137,18 @@ export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { how
               {eventUseCaseGroups.map((group) => (
                 <div className="nav-dropdown__group" key={group}>
                   <strong>{group}</strong>
-                  {eventUseCases.filter((item) => item.group === group).map((item) => (
-                    <Link href={eventUseCasePath(locale, item.slug)} key={item.slug} onClick={() => setEventsOpen(false)}>
-                      <span>{item.navTitle}</span>
-                      <small>{item.navDescription}</small>
-                    </Link>
-                  ))}
+                  {eventUseCases
+                    .filter((item) => item.group === group)
+                    .map((item) => (
+                      <Link
+                        href={eventUseCasePath(locale, item.slug)}
+                        key={item.slug}
+                        onClick={() => setEventsOpen(false)}
+                      >
+                        <span>{item.navTitle}</span>
+                        <small>{item.navDescription}</small>
+                      </Link>
+                    ))}
                 </div>
               ))}
             </div>
@@ -106,15 +158,27 @@ export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { how
           <Link href={`${home}#${t.anchors.faq}`}>{t.nav.faq}</Link>
         </nav>
         <div className="header-actions">
-          <LanguageSwitcher
-            locale={locale}
-            pathname={pathname}
-            alternateOrigin={alternateOrigin}
-            label={t.nav.language}
-            menuLabel={t.nav.chooseLanguage}
-          />
-          <Link className="button button--small button--secondary desktop-only" href={demoEventPath(locale)}>{t.nav.demoEvent}</Link>
-          <Link className="button button--small desktop-only" href={orderPath(locale)}>{t.nav.createEvent}</Link>
+          {locale !== "sl" && (
+            <LanguageSwitcher
+              locale={locale}
+              pathname={pathname}
+              alternateOrigin={alternateOrigin}
+              label={t.nav.language}
+              menuLabel={t.nav.chooseLanguage}
+            />
+          )}
+          <Link
+            className="button button--small button--secondary desktop-only"
+            href={demoEventPath(locale)}
+          >
+            {t.nav.demoEvent}
+          </Link>
+          <Link
+            className="button button--small desktop-only"
+            href={orderPath(locale)}
+          >
+            {t.nav.createEvent}
+          </Link>
           <button
             className={`menu-button ${menuOpen ? "menu-button--open" : ""}`}
             type="button"
@@ -123,36 +187,74 @@ export function Header({ howItWorksHref, locale = "sl", alternateOrigin }: { how
             aria-controls="mobile-navigation"
             onClick={() => setMenuOpen((open) => !open)}
           >
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </button>
         </div>
       </div>
-      <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`} aria-label={t.nav.mobileNavigation} aria-hidden={!menuOpen}>
-        <Link href={howHref} onClick={closeMenu}>{t.nav.howItWorks}</Link>
+      <nav
+        id="mobile-navigation"
+        className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`}
+        aria-label={t.nav.mobileNavigation}
+        aria-hidden={!menuOpen}
+      >
+        <Link href={howHref} onClick={closeMenu}>
+          {t.nav.howItWorks}
+        </Link>
         <details className="mobile-nav__events">
-          <summary>{t.nav.events} <span aria-hidden="true">+</span></summary>
+          <summary>
+            {t.nav.events} <span aria-hidden="true">+</span>
+          </summary>
           <div>
             {eventUseCases.map((item) => (
-              <Link href={eventUseCasePath(locale, item.slug)} key={item.slug} onClick={closeMenu}>{item.navTitle}</Link>
+              <Link
+                href={eventUseCasePath(locale, item.slug)}
+                key={item.slug}
+                onClick={closeMenu}
+              >
+                {item.navTitle}
+              </Link>
             ))}
           </div>
         </details>
-        <Link href={`${home}#${t.anchors.features}`} onClick={closeMenu}>{t.nav.features}</Link>
-        <Link href={`${home}#${t.anchors.pricing}`} onClick={closeMenu}>{t.nav.pricing}</Link>
-        <Link href={`${home}#${t.anchors.faq}`} onClick={closeMenu}>{t.nav.faq}</Link>
+        <Link href={`${home}#${t.anchors.features}`} onClick={closeMenu}>
+          {t.nav.features}
+        </Link>
+        <Link href={`${home}#${t.anchors.pricing}`} onClick={closeMenu}>
+          {t.nav.pricing}
+        </Link>
+        <Link href={`${home}#${t.anchors.faq}`} onClick={closeMenu}>
+          {t.nav.faq}
+        </Link>
         <details className="mobile-nav__events">
-          <summary>{t.nav.language} <span aria-hidden="true">+</span></summary>
+          <summary>
+            {t.nav.language} <span aria-hidden="true">+</span>
+          </summary>
           <div>
             {mobileLanguageLinks.map(({ target, href }) => (
-              <a key={target} href={href} hrefLang={target} aria-current={target === locale ? "true" : undefined}>
+              <a
+                key={target}
+                href={href}
+                hrefLang={target}
+                aria-current={target === locale ? "true" : undefined}
+              >
                 {LOCALE_LABELS[target]}
               </a>
             ))}
           </div>
         </details>
         <div className="mobile-nav__actions">
-          <Link className="button button--secondary" href={demoEventPath(locale)} onClick={closeMenu}>{t.hero.ctaSecondary}</Link>
-          <Link className="button" href={orderPath(locale)} onClick={closeMenu}>{t.hero.ctaPrimary}</Link>
+          <Link
+            className="button button--secondary"
+            href={demoEventPath(locale)}
+            onClick={closeMenu}
+          >
+            {t.hero.ctaSecondary}
+          </Link>
+          <Link className="button" href={orderPath(locale)} onClick={closeMenu}>
+            {t.hero.ctaPrimary}
+          </Link>
         </div>
       </nav>
     </header>
@@ -190,15 +292,31 @@ export function Hero({ locale = "sl" }: { locale?: Locale }) {
   return (
     <section className="hero" id="top">
       <div className="hero-copy shell">
-        <div className="eyebrow"><span />{t.hero.eyebrow}</div>
+        <div className="eyebrow">
+          <span />
+          {t.hero.eyebrow}
+        </div>
         <h1>{t.hero.title}</h1>
         <p>{t.hero.subtitle}</p>
         <div className="hero-buttons">
-          <Link className="button" href={orderPath(locale)} data-sticky-cta-trigger="create-event">{t.hero.ctaPrimary}</Link>
-          <Link className="button button--secondary" href={demoEventPath(locale)}>{t.hero.ctaSecondary}</Link>
+          <Link
+            className="button"
+            href={orderPath(locale)}
+            data-sticky-cta-trigger="create-event"
+          >
+            {t.hero.ctaPrimary}
+          </Link>
+          <Link
+            className="button button--secondary"
+            href={demoEventPath(locale)}
+          >
+            {t.hero.ctaSecondary}
+          </Link>
         </div>
         <div className="hero-trust" aria-label={t.hero.trustLabel}>
-          {t.hero.trust.map((item) => <span key={item}>{item}</span>)}
+          {t.hero.trust.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
         </div>
       </div>
       <div className="hero-stage shell">
@@ -206,7 +324,12 @@ export function Hero({ locale = "sl" }: { locale?: Locale }) {
           const label = `${t.hero.guestPhotoAlt} ${index + 1}`;
           return (
             <div className={`hero-card ${className}`} key={className}>
-              <VisualPlaceholder label={label} imageSrc={`/gallery/ana-marko/photo-${photo}.jpg`} imageAlt={label} priority />
+              <VisualPlaceholder
+                label={label}
+                imageSrc={`/gallery/ana-marko/photo-${photo}.jpg`}
+                imageAlt={label}
+                priority
+              />
             </div>
           );
         })}
@@ -224,7 +347,13 @@ export function QuickSteps({ locale = "sl" }: { locale?: Locale }) {
       <div className="quick-steps-inner shell">
         {steps.map(([title, text], index) => (
           <div className="quick-step-wrap" key={title}>
-            <div className="quick-step"><span>{index + 1}</span><div><strong>{title}</strong><small>{text}</small></div></div>
+            <div className="quick-step">
+              <span>{index + 1}</span>
+              <div>
+                <strong>{title}</strong>
+                <small>{text}</small>
+              </div>
+            </div>
             {index < 2 ? <b className="step-arrow">→</b> : null}
           </div>
         ))}
