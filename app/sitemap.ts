@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
-import { eventUseCases } from "@/components/landing/use-cases";
+import { eventUseCasesFor } from "@/components/landing/use-cases";
 import { absoluteUrl, SEO_LAST_UPDATED } from "@/lib/seo";
+import { LEGAL_LAST_UPDATED } from "@/lib/i18n/legal";
+import { languageAlternates } from "@/lib/i18n/alternates";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { PREFIXED_LOCALES, appUrlForLocale, localePathPrefix, type Locale } from "@/lib/i18n/locale";
-import { eventUseCasePath, orderPath } from "@/lib/i18n/routes";
+import { eventUseCasePath, orderPath, privacyPath, termsPath } from "@/lib/i18n/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -21,25 +23,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return localesForHost(requestLocale).flatMap((locale) => {
     const siteUrl = appUrlForLocale(env, locale);
+
+    /**
+     * Every entry declares the full hreflang set. A locale whose URLs live on
+     * the other domain is still announced here, which is how Google ties the
+     * two sitemaps together.
+     */
+    const entry = (
+      path: string,
+      lastModified: string,
+      changeFrequency: "weekly" | "monthly",
+      priority: number,
+    ) => ({
+      // No trailing slash on a bare root: `loc` has to match the page's own
+      // canonical and its self-referencing hreflang byte for byte.
+      url: path === "/" ? siteUrl : absoluteUrl(path, siteUrl),
+      lastModified,
+      changeFrequency,
+      priority,
+      alternates: { languages: languageAlternates(env, path || "/") },
+    });
+
     return [
-      {
-        url: absoluteUrl(localePathPrefix(locale) || "/", siteUrl),
-        lastModified: SEO_LAST_UPDATED,
-        changeFrequency: "weekly" as const,
-        priority: 1,
-      },
-      {
-        url: absoluteUrl(orderPath(locale), siteUrl),
-        lastModified: SEO_LAST_UPDATED,
-        changeFrequency: "monthly" as const,
-        priority: 0.8,
-      },
-      ...eventUseCases.map(({ slug }) => ({
-        url: absoluteUrl(eventUseCasePath(locale, slug), siteUrl),
-        lastModified: SEO_LAST_UPDATED,
-        changeFrequency: "monthly" as const,
-        priority: 0.8,
-      })),
+      entry(localePathPrefix(locale) || "/", SEO_LAST_UPDATED, "weekly", 1),
+      entry(orderPath(locale), SEO_LAST_UPDATED, "monthly", 0.8),
+      ...eventUseCasesFor(locale).map(({ slug }) =>
+        entry(eventUseCasePath(locale, slug), SEO_LAST_UPDATED, "monthly", 0.8),
+      ),
+      entry(termsPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
+      entry(privacyPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
     ];
   });
 }

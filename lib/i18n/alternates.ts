@@ -1,5 +1,4 @@
 import {
-  DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
   appUrlForLocale,
   intlLocale,
@@ -8,9 +7,15 @@ import {
 import { localizedMarketingPath } from "./routes";
 
 /**
- * hreflang map for a marketing page. Keys are BCP-47 tags plus `x-default`,
- * which points at the Slovenian original — search engines use it when no
- * language matches the visitor.
+ * Language a visitor gets when none of the hreflang tags match their own.
+ * English rather than the Slovenian original: the product is sold in seven
+ * languages and Slovenian is the least useful fallback for the other six
+ * markets.
+ */
+const X_DEFAULT_LOCALE: Locale = "en";
+
+/**
+ * hreflang map for a marketing page. Keys are BCP-47 tags plus `x-default`.
  */
 export function languageAlternates(
   env: { PUBLIC_APP_URL: string; PUBLIC_APP_URL_EN: string },
@@ -22,7 +27,7 @@ export function languageAlternates(
     alternates[intlLocale(locale)] = absoluteFor(env, locale, pathname);
   }
 
-  alternates["x-default"] = absoluteFor(env, DEFAULT_LOCALE, pathname);
+  alternates["x-default"] = absoluteFor(env, X_DEFAULT_LOCALE, pathname);
   return alternates;
 }
 

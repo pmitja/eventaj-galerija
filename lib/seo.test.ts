@@ -1,34 +1,74 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/i18n/server", () => ({
-  getRequestLocale: vi.fn(async () => "sl"),
-  getPublicAppUrls: () => ({ PUBLIC_APP_URL: "https://galerija.eventaj.si", PUBLIC_APP_URL_EN: "https://guestmosaic.com" }),
-}));
-vi.mock("@/lib/cloudflare", () => ({ getCloudflareEnv: () => ({
+const APP_URLS = {
   PUBLIC_APP_URL: "https://galerija.eventaj.si",
   PUBLIC_APP_URL_EN: "https://guestmosaic.com",
-}) }));
+};
+
+vi.mock("@/lib/i18n/server", () => ({
+  getRequestLocale: vi.fn(async () => "sl"),
+  getPublicAppUrls: () => APP_URLS,
+}));
+vi.mock("@/lib/cloudflare", () => ({ getCloudflareEnv: () => APP_URLS }));
 import sitemap from "@/app/sitemap";
 import robots from "@/app/robots";
 import { GET as getLlmsTxt } from "@/app/llms.txt/route";
 import { GET as getLlmsFullTxt } from "@/app/llms-full.txt/route";
 import { eventUseCases } from "@/components/landing/use-cases";
-import { SITE_URL, siteStructuredData } from "@/lib/seo";
+import { languageAlternates } from "@/lib/i18n/alternates";
+import { getRequestLocale } from "@/lib/i18n/server";
+import type { Locale } from "@/lib/i18n/locale";
+import { ENGLISH_SITE_URL, SITE_URL, siteStructuredData } from "@/lib/seo";
+
+const mockedLocale = vi.mocked(getRequestLocale);
+
+async function withLocale<T>(locale: Locale, run: () => Promise<T>): Promise<T> {
+  mockedLocale.mockResolvedValueOnce(locale);
+  return run();
+}
+
+/** Marketing pages plus the two legal documents. */
+const PAGES_PER_LOCALE = eventUseCases.length + 4;
 
 describe("public SEO discovery", () => {
   it("lists only canonical marketing pages in the sitemap", async () => {
     const entries = await sitemap();
     const urls = entries.map((entry) => entry.url);
 
-    expect(urls).toHaveLength(eventUseCases.length + 2);
-    expect(urls).toContain(`${SITE_URL}/`);
+    expect(urls).toHaveLength(PAGES_PER_LOCALE);
+    expect(urls).toContain(SITE_URL);
     expect(urls).toContain(`${SITE_URL}/naroci`);
+    expect(urls).toContain(`${SITE_URL}/pogoji-uporabe`);
+    expect(urls).toContain(`${SITE_URL}/zasebnost`);
     expect(urls).not.toContain(`${SITE_URL}/admin`);
     expect(urls).not.toContain(`${SITE_URL}/e/ana-in-marko`);
 
     for (const useCase of eventUseCases) {
       expect(urls).toContain(`${SITE_URL}/za-dogodke/${useCase.slug}`);
     }
+  });
+
+  it("covers every language the English domain serves and declares their hreflang", async () => {
+    const entries = await withLocale("en", sitemap);
+    const urls = entries.map((entry) => entry.url);
+
+    // en + de, nl, es, it, fr
+    expect(urls).toHaveLength(PAGES_PER_LOCALE * 6);
+    expect(urls).toContain(ENGLISH_SITE_URL);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/de`);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/fr/order`);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/es/privacy`);
+
+    const german = entries.find((entry) => entry.url === `${ENGLISH_SITE_URL}/de/terms-of-use`);
+    expect(german?.alternates?.languages).toMatchObject({
+      "sl-SI": `${SITE_URL}/pogoji-uporabe`,
+      "de-DE": `${ENGLISH_SITE_URL}/de/terms-of-use`,
+      "x-default": `${ENGLISH_SITE_URL}/terms-of-use`,
+    });
+  });
+
+  it("points x-default at English rather than the Slovenian original", () => {
+    expect(languageAlternates(APP_URLS, "/")["x-default"]).toBe(ENGLISH_SITE_URL);
   });
 
   it("allows public discovery and keeps private application paths out of crawlers", async () => {
@@ -38,17 +78,17 @@ describe("public SEO discovery", () => {
 
     expect(config.sitemap).toBe(`${SITE_URL}/sitemap.xml`);
     expect(openAiRule?.allow).toContain("/za-dogodke/");
+    expect(openAiRule?.allow).toContain("/zasebnost");
     expect(openAiRule?.disallow).toContain("/admin/");
     expect(openAiRule?.disallow).toContain("/e/");
   });
 
   it("publishes concise and full AI-readable product facts", async () => {
-    const conciseResponse = getLlmsTxt();
-    const fullResponse = getLlmsFullTxt();
-    const concise = await conciseResponse.text();
+    const concise = await (await getLlmsTxt()).text();
+    const fullResponse = await getLlmsFullTxt();
     const full = await fullResponse.text();
 
-    expect(conciseResponse.headers.get("content-type")).toContain("text/plain");
+    expect(fullResponse.headers.get("content-type")).toContain("text/plain");
     expect(concise).toContain(`# Guest Mosaic`);
     expect(concise).toContain(`${SITE_URL}/llms-full.txt`);
     expect(full).toContain("Cena: 35 EUR");
@@ -57,6 +97,20 @@ describe("public SEO discovery", () => {
     for (const useCase of eventUseCases) {
       expect(concise).toContain(`${SITE_URL}/za-dogodke/${useCase.slug}`);
     }
+  });
+
+  it("serves the AI files in the request language, with that language's URLs", async () => {
+    const german = await withLocale("de", async () => (await getLlmsTxt()).text());
+    const french = await withLocale("fr", async () => (await getLlmsFullTxt()).text());
+
+    expect(german).toContain(`${ENGLISH_SITE_URL}/de/order`);
+    expect(german).toContain(`${ENGLISH_SITE_URL}/de/for-events/weddings`);
+    expect(german).toContain("## Eventarten");
+    expect(german).not.toContain(SITE_URL);
+
+    expect(french).toContain(`${ENGLISH_SITE_URL}/fr/for-events/weddings`);
+    expect(french).toContain("Prix : 35 EUR par événement.");
+    expect(french).not.toContain(SITE_URL);
   });
 
   it("does not claim ratings or reviews in structured data", () => {
