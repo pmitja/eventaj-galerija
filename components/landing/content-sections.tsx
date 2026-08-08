@@ -1,6 +1,7 @@
 import { landingData } from "./data";
 import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
 import { QrMark, VisualPlaceholder } from "./visual-placeholder";
 
 function SectionHeading({ title, desktopSubtitle, mobileSubtitle }: { title: string; desktopSubtitle: string; mobileSubtitle?: string }) {
@@ -118,7 +119,7 @@ export function Slideshow({ priceHref, locale = "sl" }: { priceHref?: string; lo
           <a className="dark-cta desktop-only" href={href}>{t.slideshow.cta} →</a>
         </div>
         <div className="slideshow-visual-wrap">
-          <VisualPlaceholder label={t.slideshow.visualLabel} imageSrc="/marketing/screenshots/liveshow-desktop.png" imageAlt={t.slideshow.visualAlt} className="slideshow-visual" />
+          <VisualPlaceholder label={t.slideshow.visualLabel} imageSrc={localizedMarketingScreenshot(locale, "/marketing/screenshots/liveshow-desktop.png")} imageAlt={t.slideshow.visualAlt} className="slideshow-visual" />
           <div className="qr-callout"><QrMark /><small>{t.slideshow.qrCallout}</small></div>
         </div>
         <a className="dark-cta mobile-only" href={href}>{t.slideshow.cta} →</a>
@@ -136,8 +137,8 @@ export function Devices({ locale = "sl" }: { locale?: Locale }) {
         <p>{t.devices.subtitle}</p>
         <div className="browser-mock">
           <div className="browser-bar"><span /><span /><span /><small>{t.devices.exampleUrl}</small></div>
-          <VisualPlaceholder label={t.devices.desktopLabel} imageSrc="/marketing/screenshots/gallery-desktop-frame.png" imageAlt={t.devices.desktopAlt} className="browser-visual" />
-          <div className="device-phone"><VisualPlaceholder label={t.devices.mobileLabel} imageSrc="/marketing/screenshots/gallery-mobile.png" imageAlt={t.devices.mobileAlt} /></div>
+          <VisualPlaceholder label={t.devices.desktopLabel} imageSrc={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-desktop-frame.png")} imageAlt={t.devices.desktopAlt} className="browser-visual" />
+          <div className="device-phone"><VisualPlaceholder label={t.devices.mobileLabel} imageSrc={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-mobile.png")} imageAlt={t.devices.mobileAlt} /></div>
         </div>
       </div>
     </section>

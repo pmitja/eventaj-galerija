@@ -6,6 +6,7 @@ import {
   PREFIXED_LOCALES,
   type Locale,
 } from "@/lib/i18n/locale";
+import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
 import {
   demoEventPath,
   eventUseCasePath,
@@ -267,7 +268,7 @@ function PhoneGallery({ locale }: { locale: Locale }) {
       <div className="phone-screen">
         <Image
           className="phone-shot"
-          src="/marketing/screenshots/gallery-mobile.png"
+          src={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-mobile.png")}
           alt={getDictionary(locale).hero.phoneAlt}
           fill
           sizes="300px"

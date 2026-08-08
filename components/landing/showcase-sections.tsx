@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Locale } from "@/lib/i18n/locale";
+import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
 
 type ShowcaseRow = {
   pill: string;
@@ -121,7 +122,7 @@ export function Showcase({ locale = "sl" }: { locale?: Locale }) {
             </div>
             <div className={`showcase-visual-wrap ${row.tint ? "showcase-visual-wrap--tint" : ""}`}>
               <div className="showcase-visual">
-                <Image src={row.imageSrc} alt={row.imageAlt} fill sizes="(max-width: 900px) 100vw, 620px" />
+                <Image src={localizedMarketingScreenshot(locale, row.imageSrc)} alt={row.imageAlt} fill sizes="(max-width: 900px) 100vw, 620px" />
               </div>
             </div>
           </article>

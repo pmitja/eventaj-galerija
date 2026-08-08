@@ -11,6 +11,7 @@ import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { eventUseCasePath, localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
 import { SITE_NAME } from "@/lib/seo";
+import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
 
 export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
   const t = getDictionary(locale);
@@ -69,7 +70,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
           <div className="use-case-hero__visual">
             <div className="use-case-app-desktop">
               <Image
-                src="/marketing/screenshots/gallery-desktop-frame.png"
+                src={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-desktop-frame.png")}
                 alt={t.useCasePage.desktopAlt}
                 fill
                 sizes="(max-width: 767px) 330px, 520px"
@@ -78,7 +79,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
             </div>
             <div className="use-case-app-mobile">
               <Image
-                src="/marketing/screenshots/gallery-mobile.png"
+                src={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-mobile.png")}
                 alt={t.useCasePage.mobileAlt}
                 fill
                 sizes="(max-width: 767px) 108px, 150px"

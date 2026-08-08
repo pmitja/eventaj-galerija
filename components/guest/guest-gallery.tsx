@@ -9,7 +9,7 @@ import { GuestIdentityGate } from "@/components/guest/guest-identity-gate";
 import { PhotoComments } from "@/components/guest/photo-comments";
 import { FaceSearch } from "@/components/guest/face-search";
 import { shareGallery, type GalleryShareResult } from "@/lib/client/share-gallery";
-import { DEMO_EVENT_SLUG, demoEventPhotos } from "@/lib/demo/event";
+import { DEMO_EVENT_SLUG, demoEventPhotosFor } from "@/lib/demo/event";
 import { faceSearchResultStorageKey, isFaceSearchLocalResultCurrent } from "@/lib/domain/face-search";
 import { galleryLikesStorageKey, toggleMediaLike } from "@/lib/domain/media-comments";
 import { storedFaceSearchResultSchema, type StoredFaceSearchResult } from "@/lib/validation/face-search";
@@ -32,18 +32,6 @@ const VoiceMessageRecorder = dynamic(
 );
 
 const PHOTO_PAGE_SIZE = 6;
-
-const demoPhotos = demoEventPhotos.map((photo) => ({
-  key: photo.id,
-  publicId: photo.id,
-  src: photo.src,
-  alt: photo.alt,
-  commentCount: photo.comments.length,
-  comments: photo.comments,
-  kind: "image" as const,
-  playbackUrl: null,
-  downloadUrl: null,
-}));
 
 type LiveGalleryMedia = {
   key: string;
@@ -148,6 +136,17 @@ function shareMessages(locale: Locale): ShareMessages {
 
 export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: string }) {
   const locale = useLocale();
+  const demoPhotos = demoEventPhotosFor(locale).map((photo) => ({
+    key: photo.id,
+    publicId: photo.id,
+    src: photo.src,
+    alt: photo.alt,
+    commentCount: photo.comments.length,
+    comments: photo.comments,
+    kind: "image" as const,
+    playbackUrl: null,
+    downloadUrl: null,
+  }));
   const t = getDictionary(locale).guest.gallery;
   const alternateLocale: Locale = locale === "sl" ? "en" : "sl";
   const homeHref = localizedMarketingPath("/", locale);
@@ -179,7 +178,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const voiceTabActive = voiceTabVisible && galleryTab === "voice";
   const hasMorePhotos = visiblePhotoCount < photos.length;
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const showMorePhotos = useCallback(() => setVisiblePhotoCount((count) => count + PHOTO_PAGE_SIZE), []);
+  const showMorePhotos = useCallback(() => setVisiblePhotoCount((count) => count + PHOTO_PAGE_SIZE), [setVisiblePhotoCount]);
   const { mounted: lightboxMounted, closing: lightboxClosing } = useDialogTransition(selectedPhoto !== null, 220);
   const { mounted: commentsMounted, closing: commentsClosing } = useDialogTransition(commentsVisible);
   // Remembered so the lightbox can keep rendering its photo while it animates out.
