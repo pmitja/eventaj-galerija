@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { isEventDurationAllowed } from "@/lib/domain/events";
 
 export const packageCodeSchema = z.enum(["basic", "advanced", "premium"]);
 
@@ -16,8 +15,6 @@ export const createEventSchema = z.object({
 }).superRefine((value, context) => {
   if (new Date(value.endsAt) <= new Date(value.startsAt)) {
     context.addIssue({ code: "custom", path: ["endsAt"], message: "Konec dogodka mora biti po začetku." });
-  } else if (!isEventDurationAllowed(value.startsAt, value.endsAt)) {
-    context.addIssue({ code: "custom", path: ["endsAt"], message: "Dogodek lahko traja največ 7 dni." });
   }
 });
 

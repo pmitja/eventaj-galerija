@@ -179,9 +179,12 @@ italijanščina in francoščina pa uporabljajo jezikovno predpono.
 
 ## Stripe Checkout
 
-Produkcijski skrivnosti nastavi z `wrangler secret put STRIPE_SECRET_KEY` in
-`wrangler secret put STRIPE_WEBHOOK_SECRET`. Stripe webhook cilj je
-`/api/webhooks/stripe`; posluša `checkout.session.completed`,
+Produkcijski Eventaj skrivnosti nastavi z `wrangler secret put STRIPE_SECRET_KEY`
+in `wrangler secret put STRIPE_WEBHOOK_SECRET`, mednarodni Guest Mosaic račun pa
+z `wrangler secret put STRIPE_GUESTMOSAIC_SECRET_KEY` in
+`wrangler secret put STRIPE_GUESTMOSAIC_WEBHOOK_SECRET`. Oba Stripe računa
+uporabljata webhook cilj `/api/webhooks/stripe` na svoji kanonični domeni;
+posluša `checkout.session.completed`,
 `checkout.session.async_payment_succeeded` in `checkout.session.expired`.
 Provisioning stranke, aktivnega dogodka in glavne QR kode je idempotenten ter ne
 ustvari uporabniškega računa. Kartični podatki vedno ostanejo na gostovanem

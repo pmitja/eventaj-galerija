@@ -76,6 +76,7 @@ flowchart LR
 - [ADR-012: dostava dogodka brez uporabniškega računa](decisions/ADR-012-email-only-event-delivery.md)
 - [ADR-013: domensko določena lokalizacija ene aplikacije](decisions/ADR-013-domain-based-localization.md)
 - [ADR-014: glasovna voščila in neposredni prenosi originalov](decisions/ADR-014-voice-messages-and-direct-downloads.md)
+- [ADR-015: trajanje dogodka brez sedemdnevne omejitve](decisions/ADR-015-event-duration-without-seven-day-limit.md)
 
 ## Pred začetkom kode
 

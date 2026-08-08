@@ -33,7 +33,7 @@ const CHECKOUT_COPY = {
     afterEvent: "Po zaključku dogodka", afterEventNote: "24-urna povezava do ZIP-a vseh fotografij.",
     eventDetails: "Podatki o dogodku", eventDescription: "Vnesi osnovne podatke in določi, kdaj bo galerija aktivna.",
     eventName: "Naziv dogodka", eventPlaceholder: "npr. Poroka Ane in Marka", location: "Lokacija", optional: "neobvezno",
-    locationPlaceholder: "npr. Vila Bled", start: "Začetek", end: "Konec", maxSevenDays: "Največ 7 dni po začetku",
+    locationPlaceholder: "npr. Vila Bled", start: "Začetek", end: "Konec",
     time: "Čas", startDateLabel: "Izberi datum začetka", endDateLabel: "Izberi datum konca",
     startTimeLabel: "Čas začetka", endTimeLabel: "Čas konca", comments: "Omogoči komentarje gostov",
     commentsNote: "Gostje bodo lahko komentirali fotografije v galeriji.", summary: "Povzetek naročila",
@@ -56,7 +56,7 @@ const CHECKOUT_COPY = {
     afterEvent: "After the event", afterEventNote: "A 24-hour link to a ZIP of all photos.",
     eventDetails: "Event details", eventDescription: "Enter the event details and choose when the gallery will be active.",
     eventName: "Event name", eventPlaceholder: "e.g. Anna and Mark's wedding", location: "Location", optional: "optional",
-    locationPlaceholder: "e.g. Bled Castle", start: "Start", end: "End", maxSevenDays: "No more than 7 days after the start",
+    locationPlaceholder: "e.g. Bled Castle", start: "Start", end: "End",
     time: "Time", startDateLabel: "Choose the start date", endDateLabel: "Choose the end date",
     startTimeLabel: "Start time", endTimeLabel: "End time", comments: "Enable guest comments",
     commentsNote: "Guests will be able to comment on photos in the gallery.", summary: "Order summary",
@@ -79,7 +79,7 @@ const CHECKOUT_COPY = {
     afterEvent: "Nach dem Event", afterEventNote: "Ein 24 Stunden gültiger Link zum ZIP mit allen Fotos.",
     eventDetails: "Event-Daten", eventDescription: "Geben Sie die Eckdaten ein und legen Sie fest, wann die Galerie aktiv ist.",
     eventName: "Name des Events", eventPlaceholder: "z. B. Hochzeit von Anna und Mark", location: "Ort", optional: "optional",
-    locationPlaceholder: "z. B. Schloss Bled", start: "Beginn", end: "Ende", maxSevenDays: "Höchstens 7 Tage nach dem Beginn",
+    locationPlaceholder: "z. B. Schloss Bled", start: "Beginn", end: "Ende",
     time: "Uhrzeit", startDateLabel: "Startdatum wählen", endDateLabel: "Enddatum wählen",
     startTimeLabel: "Startzeit", endTimeLabel: "Endzeit", comments: "Kommentare der Gäste erlauben",
     commentsNote: "Ihre Gäste können Fotos in der Galerie kommentieren.", summary: "Bestellübersicht",
@@ -102,7 +102,7 @@ const CHECKOUT_COPY = {
     afterEvent: "Na het evenement", afterEventNote: "Een link van 24 uur naar een ZIP met alle foto's.",
     eventDetails: "Evenementgegevens", eventDescription: "Vul de basisgegevens in en bepaal wanneer de galerij actief is.",
     eventName: "Naam van het evenement", eventPlaceholder: "bijv. Bruiloft van Anna en Mark", location: "Locatie", optional: "optioneel",
-    locationPlaceholder: "bijv. Kasteel Bled", start: "Begin", end: "Einde", maxSevenDays: "Maximaal 7 dagen na het begin",
+    locationPlaceholder: "bijv. Kasteel Bled", start: "Begin", end: "Einde",
     time: "Tijd", startDateLabel: "Kies de begindatum", endDateLabel: "Kies de einddatum",
     startTimeLabel: "Begintijd", endTimeLabel: "Eindtijd", comments: "Reacties van gasten inschakelen",
     commentsNote: "Gasten kunnen reageren op foto's in de galerij.", summary: "Overzicht van je bestelling",
@@ -125,7 +125,7 @@ const CHECKOUT_COPY = {
     afterEvent: "Al terminar el evento", afterEventNote: "Un enlace de 24 horas a un ZIP con todas las fotos.",
     eventDetails: "Datos del evento", eventDescription: "Introduce los datos básicos y decide cuándo estará activa la galería.",
     eventName: "Nombre del evento", eventPlaceholder: "p. ej. Boda de Anna y Mark", location: "Lugar", optional: "opcional",
-    locationPlaceholder: "p. ej. Castillo de Bled", start: "Inicio", end: "Fin", maxSevenDays: "Como máximo 7 días después del inicio",
+    locationPlaceholder: "p. ej. Castillo de Bled", start: "Inicio", end: "Fin",
     time: "Hora", startDateLabel: "Elige la fecha de inicio", endDateLabel: "Elige la fecha de fin",
     startTimeLabel: "Hora de inicio", endTimeLabel: "Hora de fin", comments: "Permitir comentarios de los invitados",
     commentsNote: "Tus invitados podrán comentar las fotos de la galería.", summary: "Resumen del pedido",
@@ -148,7 +148,7 @@ const CHECKOUT_COPY = {
     afterEvent: "Al termine dell'evento", afterEventNote: "Un link valido 24 ore allo ZIP con tutte le foto.",
     eventDetails: "Dati dell'evento", eventDescription: "Inserisci i dati principali e scegli quando la galleria sarà attiva.",
     eventName: "Nome dell'evento", eventPlaceholder: "es. Matrimonio di Anna e Mark", location: "Luogo", optional: "facoltativo",
-    locationPlaceholder: "es. Castello di Bled", start: "Inizio", end: "Fine", maxSevenDays: "Al massimo 7 giorni dopo l'inizio",
+    locationPlaceholder: "es. Castello di Bled", start: "Inizio", end: "Fine",
     time: "Ora", startDateLabel: "Scegli la data di inizio", endDateLabel: "Scegli la data di fine",
     startTimeLabel: "Ora di inizio", endTimeLabel: "Ora di fine", comments: "Abilita i commenti degli ospiti",
     commentsNote: "I tuoi ospiti potranno commentare le foto nella galleria.", summary: "Riepilogo dell'ordine",
@@ -171,7 +171,7 @@ const CHECKOUT_COPY = {
     afterEvent: "Après l'événement", afterEventNote: "Un lien valable 24 heures vers un ZIP de toutes les photos.",
     eventDetails: "Informations sur l'événement", eventDescription: "Renseignez les informations principales et choisissez quand la galerie sera active.",
     eventName: "Nom de l'événement", eventPlaceholder: "p. ex. Mariage d'Anna et Mark", location: "Lieu", optional: "facultatif",
-    locationPlaceholder: "p. ex. Château de Bled", start: "Début", end: "Fin", maxSevenDays: "Au maximum 7 jours après le début",
+    locationPlaceholder: "p. ex. Château de Bled", start: "Début", end: "Fin",
     time: "Heure", startDateLabel: "Choisir la date de début", endDateLabel: "Choisir la date de fin",
     startTimeLabel: "Heure de début", endTimeLabel: "Heure de fin", comments: "Activer les commentaires des invités",
     commentsNote: "Vos invités pourront commenter les photos de la galerie.", summary: "Récapitulatif de la commande",
@@ -376,7 +376,7 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
                 </div>
               </div>
               <div className={styles.dateTimeGroup}>
-                <div className={styles.dateTimeHeading}><span>{copy.end}</span><small>{copy.maxSevenDays}</small></div>
+                <div className={styles.dateTimeHeading}><span>{copy.end}</span></div>
                 <div className={styles.dateTimeFields}>
                   <Controller control={form.control} name="endDate" render={({ field }) => <DatePickerField id="endDate" label={copy.endDateLabel} value={field.value} onChange={field.onChange} error={errors.endDate?.message} disabledBefore={dateFromValue(startDate)} locale={locale} dateLabel={copy.date} chooseDate={copy.chooseDate} />} />
                   <Field>

@@ -1,15 +1,18 @@
 import { expireCheckout, fulfillCheckout } from "@/lib/repositories/checkout";
 import { verifyStripeWebhook } from "@/lib/billing/stripe";
+import { getCloudflareEnv } from "@/lib/cloudflare";
+import { localeFromRequest } from "@/lib/i18n/locale";
 
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
   if (!signature) return new Response("Missing signature", { status: 400 });
   const rawBody = await request.text();
+  const locale = localeFromRequest(request, getCloudflareEnv().PUBLIC_APP_URL_EN);
   try {
-    const event = await verifyStripeWebhook(rawBody, signature);
+    const event = await verifyStripeWebhook(rawBody, signature, locale);
     if (["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type)) {
       try {
-        await fulfillCheckout(event.data.object.id);
+        await fulfillCheckout(event.data.object.id, locale);
       } catch (error) {
         if (!(error instanceof Error && ["CHECKOUT_PROVISIONING_IN_PROGRESS", "CHECKOUT_NOT_PAID"].includes(error.message))) throw error;
       }

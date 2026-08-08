@@ -7,4 +7,6 @@ interface CloudflareEnv {
   R2_SECRET_ACCESS_KEY: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
+  STRIPE_GUESTMOSAIC_SECRET_KEY: string;
+  STRIPE_GUESTMOSAIC_WEBHOOK_SECRET: string;
 }

@@ -48,7 +48,7 @@ export function NewEventForm() {
           <label className={styles.fieldWide}><span>Naziv dogodka</span><input name="name" required minLength={2} placeholder="npr. Poroka Ane & Marka" /></label>
           <label><span>Datum začetka</span><input name="startDate" type="date" required /></label>
           <label><span>Čas začetka</span><input name="startTime" type="time" required defaultValue="16:00" /></label>
-          <label><span>Datum konca (največ 7 dni po začetku)</span><input name="endDate" type="date" required /></label>
+          <label><span>Datum konca</span><input name="endDate" type="date" required /></label>
           <label><span>Čas konca</span><input name="endTime" type="time" required defaultValue="23:59" /></label>
           <label className={styles.fieldWide}><span>Lokacija</span><input name="location" placeholder="npr. Vila Bled" /></label>
           <label><span>Časovni pas</span><input value="Europe/Ljubljana" readOnly /></label>

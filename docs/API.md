@@ -18,8 +18,8 @@
 | POST | `/api/webhooks/stripe` | preveri Stripe podpis ter idempotentno provisionira plačan dogodek | Stripe podpis |
 
 Javni nakup zahteva kontaktno ime, e-pošto in podatke dogodka. Geslo, uporabnik in
-organizacijska seja niso del toka. `endsAt` mora biti po `startsAt`, razlika med
-njima pa ne sme presegati 7 dni. Javni `GET /prenosi/{token}` preveri hashiran,
+organizacijska seja niso del toka. `endsAt` mora biti po `startsAt`; največja
+dolžina dogodka ni omejena. Javni `GET /prenosi/{token}` preveri hashiran,
 časovno omejen token ter preusmeri na kratkotrajen podpisan R2 prenos.
 
 ## Javni event API

@@ -1,15 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createEventRecord, isEventDurationAllowed, retentionDate } from "./events";
-
-describe("event duration", () => {
-  it("allows an event lasting exactly seven days", () => {
-    expect(isEventDurationAllowed("2026-08-01T14:00:00.000Z", "2026-08-08T14:00:00.000Z")).toBe(true);
-  });
-
-  it("rejects an event lasting longer than seven days", () => {
-    expect(isEventDurationAllowed("2026-08-01T14:00:00.000Z", "2026-08-08T14:00:00.001Z")).toBe(false);
-  });
-});
+import { createEventRecord, retentionDate } from "./events";
 
 describe("event retention", () => {
   it("expires exactly 180 days after event end", () => {

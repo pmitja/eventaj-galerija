@@ -16,17 +16,25 @@ type StripeCheckoutSession = {
 
 type StripeEvent = { id: string; type: string; data: { object: StripeCheckoutSession } };
 
-function stripeSecret(): string {
-  const secret = getCloudflareEnv().STRIPE_SECRET_KEY;
+function stripeSecret(locale: Locale): string {
+  const env = getCloudflareEnv();
+  const secret = locale === "sl" ? env.STRIPE_SECRET_KEY : env.STRIPE_GUESTMOSAIC_SECRET_KEY;
   if (!secret) throw new Error("STRIPE_NOT_CONFIGURED");
   return secret;
 }
 
-async function stripeRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+function stripeWebhookSecret(locale: Locale): string {
+  const env = getCloudflareEnv();
+  const secret = locale === "sl" ? env.STRIPE_WEBHOOK_SECRET : env.STRIPE_GUESTMOSAIC_WEBHOOK_SECRET;
+  if (!secret) throw new Error("STRIPE_NOT_CONFIGURED");
+  return secret;
+}
+
+async function stripeRequest<T>(path: string, locale: Locale, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`https://api.stripe.com/v1${path}`, {
     ...init,
     headers: {
-      authorization: `Basic ${btoa(`${stripeSecret()}:`)}`,
+      authorization: `Basic ${btoa(`${stripeSecret(locale)}:`)}`,
       ...(init.body ? { "content-type": "application/x-www-form-urlencoded" } : {}),
       ...init.headers,
     },
@@ -73,13 +81,13 @@ export async function createStripeCheckout(input: {
   if (input.aiBestPhotos) addLineItem(input.locale === "en" ? "AI Best Photos · up to 3,000 photos" : "AI Best Photos · do 3.000 fotografij", "1500");
   if (input.faceCollections) addLineItem(input.locale === "en" ? "AI face search" : "AI iskanje po obrazu", "500");
   if (input.videoUnlimited) addLineItem(input.locale === "en" ? "Unlimited videos · up to 60 seconds" : "Neomejeno videoposnetkov · do 60 sekund", "1500");
-  const session = await stripeRequest<StripeCheckoutSession>("/checkout/sessions", { method: "POST", body });
+  const session = await stripeRequest<StripeCheckoutSession>("/checkout/sessions", input.locale, { method: "POST", body });
   if (!session.url || session.amount_total !== input.amountCents) throw new Error("STRIPE_INVALID_CHECKOUT");
   return session;
 }
 
-export async function retrieveStripeCheckout(sessionId: string): Promise<StripeCheckoutSession> {
-  return stripeRequest<StripeCheckoutSession>(`/checkout/sessions/${encodeURIComponent(sessionId)}`);
+export async function retrieveStripeCheckout(sessionId: string, locale: Locale): Promise<StripeCheckoutSession> {
+  return stripeRequest<StripeCheckoutSession>(`/checkout/sessions/${encodeURIComponent(sessionId)}`, locale);
 }
 
 function parseStripeSignature(header: string): { timestamp: number; signatures: string[] } | null {
@@ -100,11 +108,11 @@ function constantTimeTextEqual(left: string, right: string): boolean {
   return mismatch === 0;
 }
 
-export async function verifyStripeWebhook(rawBody: string, signatureHeader: string): Promise<StripeEvent> {
+export async function verifyStripeWebhook(rawBody: string, signatureHeader: string, locale: Locale): Promise<StripeEvent> {
   const parsed = parseStripeSignature(signatureHeader);
   if (!parsed || Math.abs(Math.floor(Date.now() / 1000) - parsed.timestamp) > 300) throw new Error("INVALID_STRIPE_SIGNATURE");
   const key = await crypto.subtle.importKey(
-    "raw", new TextEncoder().encode(getCloudflareEnv().STRIPE_WEBHOOK_SECRET),
+    "raw", new TextEncoder().encode(stripeWebhookSecret(locale)),
     { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
   );
   const expected = hex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${parsed.timestamp}.${rawBody}`)));

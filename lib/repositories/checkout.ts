@@ -120,9 +120,9 @@ export async function expireCheckout(sessionId: string): Promise<void> {
   ).bind(new Date().toISOString(), sessionId).run();
 }
 
-export async function fulfillCheckout(sessionId: string): Promise<CheckoutOrder> {
+export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"): Promise<CheckoutOrder> {
   const env = getCloudflareEnv();
-  const session = await retrieveStripeCheckout(sessionId);
+  const session = await retrieveStripeCheckout(sessionId, locale);
   const orderId = session.metadata.orderId;
   const order = await env.DB.prepare("SELECT * FROM checkout_orders WHERE id = ? AND stripe_checkout_session_id = ?")
     .bind(orderId, sessionId).first<CheckoutOrder>();

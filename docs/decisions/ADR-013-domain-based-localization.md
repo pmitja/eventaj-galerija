@@ -38,6 +38,10 @@ prvotno naročilo, tudi ko se opravilo izvede pozneje brez HTTP zahteve.
 - Locale se ob checkoutu določi na strežniku in trajno shrani na
   `checkout_orders` ter provisioniranem `events`. Obstoječe vrstice dobijo
   `sl`.
+- Slovenski checkout uporablja Eventaj Stripe račun, vsi drugi jeziki pa ločen
+  Guest Mosaic Stripe račun. Oba računa kličeta isti webhook endpoint na svoji
+  kanonični domeni; hostname določi podpisni ključ in račun za ponovno
+  pridobitev Checkout Session.
 - Stripe, QR, e-pošta, ZIP povezave, datumi in SEO uporabljajo shranjeni oziroma
   zahtevi pripadajoči locale. Slovenska transakcijska e-pošta uporablja Eventaj
   Resend račun, vsi drugi jeziki pa ločen Guest Mosaic Resend račun.

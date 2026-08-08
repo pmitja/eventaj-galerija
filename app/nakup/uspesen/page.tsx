@@ -21,7 +21,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   const parsed = checkoutSessionIdSchema.safeParse((await searchParams).session_id);
   let eventId: string | null = null;
   if (parsed.success) {
-    try { eventId = (await fulfillCheckout(parsed.data)).provisioned_event_id; } catch { eventId = null; }
+    try { eventId = (await fulfillCheckout(parsed.data, locale)).provisioned_event_id; } catch { eventId = null; }
   }
   const ready = Boolean(eventId);
   const links = eventId ? await findDeliveryLinks(eventId) : null;

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { isEventDurationAllowed } from "@/lib/domain/events";
 import type { Locale } from "@/lib/i18n/locale";
 
 export function checkoutFormSchemaFor(locale: Locale) {
@@ -26,8 +25,6 @@ export function checkoutFormSchemaFor(locale: Locale) {
     const endsAt = Date.parse(`${value.endDate}T${value.endTime}`);
     if (Number.isFinite(startsAt) && Number.isFinite(endsAt) && endsAt <= startsAt) {
       context.addIssue({ code: "custom", path: ["endDate"], message: en ? "The event must end after it starts" : "Konec dogodka mora biti po začetku" });
-    } else if (Number.isFinite(startsAt) && Number.isFinite(endsAt) && !isEventDurationAllowed(startsAt, endsAt)) {
-      context.addIssue({ code: "custom", path: ["endDate"], message: en ? "An event can last no more than 7 days" : "Dogodek lahko traja največ 7 dni" });
     }
   });
 }
@@ -53,8 +50,6 @@ export const createCheckoutSchema = z.object({
 }).superRefine((value, context) => {
   if (Date.parse(value.endsAt) <= Date.parse(value.startsAt)) {
     context.addIssue({ code: "custom", path: ["endsAt"], message: "Konec mora biti po začetku" });
-  } else if (!isEventDurationAllowed(value.startsAt, value.endsAt)) {
-    context.addIssue({ code: "custom", path: ["endsAt"], message: "Dogodek lahko traja največ 7 dni" });
   }
 });
 

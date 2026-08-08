@@ -27,10 +27,9 @@ describe("checkout validation", () => {
     expect(createCheckoutSchema.safeParse({ ...valid, endsAt: "2026-08-01T12:00:00.000Z" }).success).toBe(false);
   });
 
-  it("rejects checkout events longer than seven days", () => {
+  it("accepts checkout events longer than seven days", () => {
     const apiResult = createCheckoutSchema.safeParse({ ...valid, endsAt: "2026-08-08T14:00:00.001Z" });
-    expect(apiResult.success).toBe(false);
-    if (!apiResult.success) expect(apiResult.error.issues[0]?.message).toBe("Dogodek lahko traja največ 7 dni");
+    expect(apiResult.success).toBe(true);
 
     expect(checkoutFormSchema.safeParse({
       organizationName: "Studio Sever",
@@ -47,7 +46,7 @@ describe("checkout validation", () => {
       faceCollections: false,
       videoUnlimited: false,
       termsAccepted: true,
-    }).success).toBe(false);
+    }).success).toBe(true);
   });
 
   it("accepts a public purchase without account credentials", () => {

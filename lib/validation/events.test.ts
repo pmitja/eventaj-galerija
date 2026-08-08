@@ -31,18 +31,11 @@ describe("createEventSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("allows at most seven days", () => {
+  it("allows events longer than seven days", () => {
     expect(createEventSchema.safeParse({
       ...validEvent,
       startsAt: "2026-07-19T10:00:00+02:00",
-      endsAt: "2026-07-26T10:00:00+02:00",
+      endsAt: "2026-08-19T10:00:00+02:00",
     }).success).toBe(true);
-    const result = createEventSchema.safeParse({
-      ...validEvent,
-      startsAt: "2026-07-19T10:00:00+02:00",
-      endsAt: "2026-07-26T10:00:01+02:00",
-    });
-    expect(result.success).toBe(false);
-    if (!result.success) expect(result.error.issues[0]?.message).toBe("Dogodek lahko traja največ 7 dni.");
   });
 });
