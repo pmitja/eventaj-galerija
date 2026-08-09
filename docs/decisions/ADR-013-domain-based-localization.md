@@ -27,6 +27,16 @@ prvotno naročilo, tudi ko se opravilo izvede pozneje brez HTTP zahteve.
 - Zahteva na poti napačnega jezika se trajno preusmeri na lokalizirano pot iste
   domene. Jezikovni preklopnik preslika tudi segment poti in slug namenske
   marketinške strani.
+- Nove SEO rešitvene strani uporabljajo stabilen interni ID strani in izrecen
+  zemljevid lokaliziranih javnih poti. Tako ima lahko ista vsebinska stran v
+  vsakem aktivnem trgu naraven slug (npr. angleški, nemški in nizozemski), ne da
+  bi canonical, hreflang, sitemap ali jezikovni preklopnik ugibali ekvivalenco.
+  Hreflang vsebuje samo dejansko objavljene in vsebinsko enakovredne različice;
+  manjkajoč prevod se ne preslika na domačo stran ali drug jezik.
+- Obstoječi URL-ji tipov dogodkov ostanejo nespremenjeni. Njihova morebitna
+  poznejša lokalizacija zahteva ločeno migracijo z enostopenjskimi 301
+  preusmeritvami ter sočasno posodobitev internih povezav, canonicalov,
+  hreflanga in sitemapa.
 - `PUBLIC_APP_URL` ostane kanonični slovenski izvor zaradi povratne
   združljivosti. `PUBLIC_APP_URL_EN` je zaradi povratne združljivosti ime
   spremenljivke za mednarodni izvor `https://guestmosaic.com`; angleščina je na
@@ -45,17 +55,20 @@ prvotno naročilo, tudi ko se opravilo izvede pozneje brez HTTP zahteve.
 - Stripe, QR, e-pošta, ZIP povezave, datumi in SEO uporabljajo shranjeni oziroma
   zahtevi pripadajoči locale. Slovenska transakcijska e-pošta uporablja Eventaj
   Resend račun, vsi drugi jeziki pa ločen Guest Mosaic Resend račun.
-- Administratorski vmesnik v prvem rezu ostane slovenski. Javni marketing,
-  checkout, gostujoča galerija, projekcija in transakcijska e-pošta so
-  dvojezični.
+- Administratorski vmesnik v prvem rezu ostane slovenski. Angleška struktura in
+  dejstva ponudbe so vir resnice za mednarodni marketing, vendar je besedilo za
+  vsak trg izvirno prilagojeno in ni dobesedni prevod. Nova lokalizirana SEO
+  stran se objavi šele, ko ima njen kritični tok (marketing, naročilo, plačilo,
+  uspeh, e-pošta, galerija in napake) enakovredno lokalizacijo.
 - Uporabniško vneseni naziv, lokacija, komentar in sporočilo se ne prevajajo
   samodejno.
 
 ## Posledice
 
 Poslovna logika, podatki in mediji ostanejo enotni. Vsaka nova javna funkcija
-mora dodati oba prevoda ter teste za obe domeni. Piškotki so namenoma omejeni na
-posamezno domeno, zato se anonimna gostujoča seja med domenama ne prenaša.
+mora dodati prevode za trge, v katerih je objavljena, ter teste za obe domeni in
+aktivne jezikovne predpone. Piškotki so namenoma omejeni na posamezno domeno,
+zato se anonimna gostujoča seja med domenama ne prenaša.
 
 Migracija je aditivna in povratno združljiva: starejša aplikacija dodatni polji
 ignorira, novi aplikaciji pa privzeta vrednost `sl` ohrani dosedanje vedenje.

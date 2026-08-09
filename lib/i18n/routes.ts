@@ -11,6 +11,42 @@ const USE_CASE_SLUGS = {
 
 type SlovenianUseCaseSlug = keyof typeof USE_CASE_SLUGS;
 
+export const SOLUTION_PAGE_PATHS = {
+  "wedding-qr": {
+    en: "/wedding-qr-code-for-photos",
+    de: "/de/hochzeitsfotos-per-qr-code",
+    nl: "/nl/trouwfotos-verzamelen-qr-code",
+  },
+  "no-app-sharing": {
+    en: "/share-event-photos-without-an-app",
+    de: "/de/eventfotos-ohne-app-teilen",
+    nl: "/nl/fotos-delen-zonder-app",
+  },
+  "event-qr-gallery": {
+    en: "/event-photo-sharing-qr-code",
+    de: "/de/qr-fotogalerie-events",
+    nl: "/nl/qr-fotogalerij-evenement",
+  },
+} as const;
+
+export type SolutionPageId = keyof typeof SOLUTION_PAGE_PATHS;
+export type SolutionPageLocale = keyof (typeof SOLUTION_PAGE_PATHS)[SolutionPageId];
+export const SOLUTION_PAGE_LOCALES: readonly SolutionPageLocale[] = ["en", "de", "nl"];
+
+export function solutionPagePath(locale: Locale, id: SolutionPageId): string | null {
+  if (!SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)) return null;
+  const paths = SOLUTION_PAGE_PATHS[id];
+  return paths?.[locale as SolutionPageLocale] ?? null;
+}
+
+export function solutionPageIdFromPath(pathname: string): SolutionPageId | null {
+  const normalized = pathname.replace(/\/$/, "") || "/";
+  for (const [id, paths] of Object.entries(SOLUTION_PAGE_PATHS)) {
+    if (Object.values(paths).includes(normalized as never)) return id as SolutionPageId;
+  }
+  return null;
+}
+
 /**
  * Slovenian owns its own translated slugs; every other locale reuses the
  * English slugs under its path prefix. Translating slugs per language would
@@ -61,6 +97,9 @@ const SLOVENIAN_ROUTE_BUILDERS: Readonly<Record<string, (locale: Locale) => stri
 
 /** Reduces any localized marketing path back to its Slovenian internal path. */
 export function slovenianRoutePath(pathname: string): string {
+  const solutionId = solutionPageIdFromPath(pathname);
+  if (solutionId) return `/solutions/${solutionId}`;
+
   const path = stripLocalePrefix(pathname).replace(/\/$/, "") || "/";
 
   if (path.startsWith("/za-dogodke/")) return path;
@@ -86,6 +125,11 @@ export function slovenianRoutePath(pathname: string): string {
 
 /** Destination for a language switch: same page, other language. */
 export function localizedMarketingPath(pathname: string, targetLocale: Locale): string {
+  const solutionId = solutionPageIdFromPath(pathname);
+  if (solutionId) {
+    return solutionPagePath(targetLocale, solutionId) ?? (localePathPrefix(targetLocale) || "/");
+  }
+
   const slovenianPath = slovenianRoutePath(pathname);
 
   if (slovenianPath.startsWith("/za-dogodke/")) {

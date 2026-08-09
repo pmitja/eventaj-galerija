@@ -17,7 +17,7 @@ import styles from "./slideshow-display.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localizedMarketingPath } from "@/lib/i18n/routes";
-import { guestBrandMark } from "@/lib/seo";
+import { brandWordParts, guestBrandMark } from "@/lib/seo";
 
 export type SlideshowSlide = {
   publicId: string;
@@ -68,6 +68,7 @@ export function SlideshowDisplay({
   const t = getDictionary(locale).guest.live;
   const homeHref = localizedMarketingPath("/", locale);
   const brandMarkSrc = guestBrandMark(locale);
+  const [brandLead, brandTail] = brandWordParts(locale);
   const demoMode = Boolean(initialSlides);
   const [eventName, setEventName] = useState(initialEventName);
   const [slides, setSlides] = useState<SlideshowSlide[]>(initialSlides ?? []);
@@ -202,7 +203,7 @@ export function SlideshowDisplay({
         </div>
       ) : (
         <section className={styles.emptyState}>
-          <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={34} height={34} /> : null}<span className={styles.brandWord}>Guest<i> Mosaic</i></span></Link>
+          <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={34} height={34} /> : null}<span className={styles.brandWord}>{brandLead}<i>{brandTail}</i></span></Link>
           <p>{loading ? t.preparing : error ? t.linkUnavailable : t.live}</p>
           <h1>{eventName}</h1>
           <small>{error ?? t.waitingHint}</small>
@@ -211,7 +212,7 @@ export function SlideshowDisplay({
       )}
 
       <header className={styles.topBar}>
-        <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={34} height={34} /> : null}<span className={styles.brandWord}>Guest<i> Mosaic</i></span></Link>
+        <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={34} height={34} /> : null}<span className={styles.brandWord}>{brandLead}<i>{brandTail}</i></span></Link>
         <div className={styles.topBarActions}>
           {backHref ? <a className={styles.backLink} href={backHref}>{t.backToGallery}</a> : null}
           <span><Image className={styles.liveIndicator} src="/icons/engagement/live-indicator.png" alt="" width={24} height={24} aria-hidden="true" /> {demoMode ? t.liveDemo : t.live}</span>

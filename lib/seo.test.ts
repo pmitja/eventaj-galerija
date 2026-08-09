@@ -53,11 +53,25 @@ describe("public SEO discovery", () => {
     const urls = entries.map((entry) => entry.url);
 
     // en + de, nl, es, it, fr
-    expect(urls).toHaveLength(PAGES_PER_LOCALE * 6);
+    // The base route set exists in six international locales. The three pilot
+    // solution pages exist only in EN, DE and NL.
+    expect(urls).toHaveLength(PAGES_PER_LOCALE * 6 + 9);
     expect(urls).toContain(ENGLISH_SITE_URL);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/de`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/fr/order`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/es/privacy`);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/de/hochzeitsfotos-per-qr-code`);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/nl/trouwfotos-verzamelen-qr-code`);
+    expect(urls).not.toContain(`${ENGLISH_SITE_URL}/fr/wedding-qr-code-for-photos`);
+
+    const wedding = entries.find((entry) => entry.url === `${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`);
+    expect(wedding?.alternates?.languages).toEqual({
+      "en-GB": `${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`,
+      "de-DE": `${ENGLISH_SITE_URL}/de/hochzeitsfotos-per-qr-code`,
+      "nl-NL": `${ENGLISH_SITE_URL}/nl/trouwfotos-verzamelen-qr-code`,
+      "x-default": `${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`,
+    });
 
     const german = entries.find((entry) => entry.url === `${ENGLISH_SITE_URL}/de/terms-of-use`);
     expect(german?.alternates?.languages).toMatchObject({

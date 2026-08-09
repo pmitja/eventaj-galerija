@@ -21,7 +21,7 @@ export function Pricing({ locale = "sl" }: { locale?: Locale }) {
               {"featured" in plan ? <span className="popular">{t.pricing.popular}</span> : null}
               <div className="price-card-summary">
                 <h3>{plan.name}</h3>
-                <div className="price"><strong>{plan.price}</strong><span>/ {t.pricing.perEvent}</span></div>
+                <div className="price"><strong>{plan.price}</strong><span className="price-unit">/ {t.pricing.perEvent}</span></div>
                 <p>{plan.description}</p>
                 <Link className={"featured" in plan ? "button plan-button" : "plan-button"} href={orderPath(locale)}>{t.pricing.cta}</Link>
                 <small className="price-reassurance">{t.pricing.reassurance}</small>
@@ -34,7 +34,13 @@ export function Pricing({ locale = "sl" }: { locale?: Locale }) {
         </div>
         <div className="addons">
           <strong>{t.pricing.addOnsLabel}</strong>
-          <div>{addOns.map(([name, price]) => <span key={name}>{name} <b>{price}</b></span>)}</div>
+          <div>{addOns.map((addOn) => (
+            <span className="addon" key={addOn.name}>
+              <span className="addon-name">{addOn.name}</span>
+              <small className="addon-note">{addOn.note}</small>
+              <b className="addon-price">{addOn.price}</b>
+            </span>
+          ))}</div>
         </div>
       </div>
     </section>

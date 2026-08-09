@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { landingData } from "./data";
 import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
+import { orderPath } from "@/lib/i18n/routes";
 import { QrMark, VisualPlaceholder } from "./visual-placeholder";
 
 function SectionHeading({ title, desktopSubtitle, mobileSubtitle }: { title: string; desktopSubtitle: string; mobileSubtitle?: string }) {
@@ -17,28 +19,44 @@ function SectionHeading({ title, desktopSubtitle, mobileSubtitle }: { title: str
 export function HowItWorks({ locale = "sl" }: { locale?: Locale }) {
   const { howSteps } = landingData(locale);
   const t = getDictionary(locale);
+  /** One product screenshot per step, in step order. */
+  const stepVisuals = [
+    { src: "/marketing/screenshots/gallery-desktop-frame.png", alt: t.devices.desktopAlt },
+    { src: "/marketing/screenshots/email-qr.png", alt: t.howItWorks.qrEmailAlt },
+    { src: "/marketing/screenshots/gallery-mobile.png", alt: t.devices.mobileAlt },
+    { src: "/marketing/screenshots/liveshow-desktop.png", alt: t.slideshow.visualAlt },
+  ];
   return (
     <section className="how section-muted" id={t.anchors.howItWorks}>
       <div className="shell">
         <SectionHeading title={t.howItWorks.heading} desktopSubtitle={t.howItWorks.subtitle} />
-        <div className="how-list">
+        <div className="how-bento">
           {howSteps.map((step, index) => (
-            <article className={`how-card how-card--${index + 1}`} key={step.n}>
+            <article
+              className={`how-card how-card--${index < 2 ? "lead" : "compact"}${index === 2 ? " how-card--phone" : ""}`}
+              key={step.n}
+            >
               <div className="how-copy">
                 <span className="how-number">{step.n}</span>
                 <h3 className="desktop-only">{step.title}</h3>
                 <h3 className="mobile-only">{"mobileTitle" in step ? step.mobileTitle : step.title}</h3>
                 <p className="desktop-only">{step.description}</p>
                 <p className="mobile-only">{step.mobileDescription}</p>
-                {index === 2 ? (
-                  <div className="how-checks desktop-only">
-                    {t.howItWorks.checks.map((check) => <span key={check}>✓ &nbsp;{check}</span>)}
-                  </div>
-                ) : null}
               </div>
-              <VisualPlaceholder label={step.imageAlt} imageSrc={step.imageSrc} imageAlt={step.imageAlt} className="how-visual" />
+              <VisualPlaceholder
+                label={stepVisuals[index].alt}
+                imageSrc={localizedMarketingScreenshot(locale, stepVisuals[index].src)}
+                imageAlt={stepVisuals[index].alt}
+                className="how-visual"
+              />
             </article>
           ))}
+          <article className="how-card how-card--cta">
+            <div className="how-checks">
+              {t.howItWorks.checks.map((check) => <span key={check}>✓ &nbsp;{check}</span>)}
+            </div>
+            <Link className="button" href={orderPath(locale)}>{t.hero.ctaPrimary}</Link>
+          </article>
         </div>
       </div>
     </section>
@@ -57,7 +75,7 @@ export function Features({ locale = "sl" }: { locale?: Locale }) {
           <p className="desktop-only">{t.features.subtitleDesktop}</p>
           <p className="mobile-only">{t.features.subtitleMobile}</p>
         </div>
-        <div className="feature-grid">
+        <div className="feature-grid" role="region" aria-label={t.features.headingDesktop} tabIndex={0}>
           {features.map((feature) => (
             <article className="feature-card" key={feature.title}>
               <span className="feature-glyph" aria-hidden="true">
@@ -131,7 +149,7 @@ export function Slideshow({ priceHref, locale = "sl" }: { priceHref?: string; lo
 export function Devices({ locale = "sl" }: { locale?: Locale }) {
   const t = getDictionary(locale);
   return (
-    <section className="devices section-muted desktop-only">
+    <section className="devices section-muted">
       <div className="shell">
         <h2>{t.devices.heading}</h2>
         <p>{t.devices.subtitle}</p>

@@ -23,12 +23,14 @@ export function LanguageSwitcher({
   alternateOrigin,
   label,
   menuLabel,
+  locales = MENU_LOCALES,
 }: {
   locale: Locale;
   pathname: string;
   alternateOrigin?: string;
   label: string;
   menuLabel: string;
+  locales?: readonly Locale[];
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -84,7 +86,7 @@ export function LanguageSwitcher({
         aria-label={menuLabel}
       >
         <div className="nav-dropdown__group">
-          {MENU_LOCALES.map((target) => (
+          {locales.map((target) => (
             <a
               key={target}
               href={localizedMarketingPath(pathname, target)}

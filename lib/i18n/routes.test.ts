@@ -5,6 +5,8 @@ import {
   localizedMarketingPath,
   orderPath,
   privacyPath,
+  solutionPageIdFromPath,
+  solutionPagePath,
   slovenianRoutePath,
   termsPath,
 } from "./routes";
@@ -47,5 +49,17 @@ describe("localized public routes", () => {
     expect(slovenianRoutePath("/es/downloads/abc")).toBe("/prenosi/abc");
     expect(slovenianRoutePath("/naroci")).toBe("/naroci");
     expect(slovenianRoutePath("/de/unknown")).toBe("/unknown");
+  });
+
+  it("maps native solution-page slugs through a stable page id", () => {
+    expect(solutionPagePath("en", "wedding-qr")).toBe("/wedding-qr-code-for-photos");
+    expect(solutionPagePath("de", "wedding-qr")).toBe("/de/hochzeitsfotos-per-qr-code");
+    expect(solutionPagePath("nl", "wedding-qr")).toBe("/nl/trouwfotos-verzamelen-qr-code");
+    expect(solutionPagePath("fr", "wedding-qr")).toBeNull();
+    expect(solutionPageIdFromPath("/de/hochzeitsfotos-per-qr-code")).toBe("wedding-qr");
+    expect(localizedMarketingPath("/nl/trouwfotos-verzamelen-qr-code", "de"))
+      .toBe("/de/hochzeitsfotos-per-qr-code");
+    expect(slovenianRoutePath("/event-photo-sharing-qr-code"))
+      .toBe("/solutions/event-qr-gallery");
   });
 });

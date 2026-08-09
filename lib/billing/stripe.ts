@@ -79,7 +79,7 @@ export async function createStripeCheckout(input: {
     body.set("line_items[0][price_data][product_data][name]", `${SITE_NAME} · event`);
   }
   if (input.aiBestPhotos) addLineItem(input.locale === "en" ? "AI Best Photos · up to 3,000 photos" : "AI Best Photos · do 3.000 fotografij", "1500");
-  if (input.faceCollections) addLineItem(input.locale === "en" ? "AI face search" : "AI iskanje po obrazu", "500");
+  if (input.faceCollections) addLineItem(input.locale === "en" ? "Photo search by face" : "Iskanje fotografij po obrazu", "500");
   if (input.videoUnlimited) addLineItem(input.locale === "en" ? "Unlimited videos · up to 60 seconds" : "Neomejeno videoposnetkov · do 60 sekund", "1500");
   const session = await stripeRequest<StripeCheckoutSession>("/checkout/sessions", input.locale, { method: "POST", body });
   if (!session.url || session.amount_total !== input.amountCents) throw new Error("STRIPE_INVALID_CHECKOUT");

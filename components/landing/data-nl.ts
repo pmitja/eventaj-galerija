@@ -1,37 +1,40 @@
 export const howStepsNl = [
-  { n: "1", title: "Maak je evenement en reken af", description: "Vul de gegevens van je organisatie en je evenement in en rond de beveiligde betaling af.", mobileDescription: "Vul de evenementgegevens in en rond je aankoop af.", imageSrc: "/gallery/ana-marko/photo-1.jpg", imageAlt: "Foto van een bruiloft" },
-  { n: "2", title: "Download de QR-code voor je gasten", mobileTitle: "Bereid de QR-code voor", description: "Download de QR-code van je evenement als SVG of PNG en zet hem op je gedrukte of digitale materialen.", mobileDescription: "Download de QR-code als SVG of PNG voor je evenementmaterialen.", imageSrc: "/gallery/ana-marko/photo-3.jpg", imageAlt: "Gasten op een evenement" },
-  { n: "3", title: "Gasten scannen en uploaden — zonder inloggen", mobileTitle: "Gasten uploaden — zonder inloggen", description: "De galerij werkt in de browser van de telefoon. Gasten openen de link en voegen foto's, korte video's of een spraakbericht toe, zonder app of account.", mobileDescription: "Gasten scannen de QR-code en voegen foto's, video's of een spraakbericht toe, zonder app of inloggen.", imageSrc: "/gallery/ana-marko/photo-6.jpg", imageAlt: "Gast met een telefoon op een evenement" },
-  { n: "4", title: "Bekijk en download jullie gedeelde herinneringen", mobileTitle: "Beleef jullie gedeelde herinneringen", description: "Foto's en video's komen samen in één galerij. De organisator kan de inhoud beheren, een slideshow starten en een ZIP downloaden.", mobileDescription: "Beheer foto's en video's, start een slideshow of download een ZIP.", imageSrc: "/gallery/ana-marko/photo-9.jpg", imageAlt: "Gedeelde herinneringen aan het evenement" },
+  { n: "1", title: "Maak je evenement", description: "Na het invullen van de basisgegevens en het afronden van de aankoop is de beheeromgeving meteen klaar.", mobileDescription: "Gegevens invullen, aankoop afronden, beheeromgeving meteen klaar.", imageSrc: "/gallery/ana-marko/photo-1.jpg", imageAlt: "Foto van een bruiloft" },
+  { n: "2", title: "Bereid de QR-code voor", description: "De QR-code is beschikbaar als SVG en PNG. Op verzoek maken we ook een printsjabloon.", mobileDescription: "QR-code als SVG en PNG; printsjabloon op verzoek.", imageSrc: "/gallery/ana-marko/photo-3.jpg", imageAlt: "Gasten op een evenement" },
+  { n: "3", title: "Gasten scannen en voegen content toe", mobileTitle: "Gasten voegen content toe", description: "Foto's, korte video's en spraakberichten voegen ze direct in de browser toe. Zonder app en zonder account.", mobileDescription: "Foto's, video's en spraakberichten direct in de browser. Zonder app en zonder account.", imageSrc: "/gallery/ana-marko/photo-6.jpg", imageAlt: "Gast met een telefoon op een evenement" },
+  { n: "4", title: "Alles op één plek", description: "Foto's en video's komen samen in één gedeelde galerij. De organisator beheert de content, start de Live Slideshow en downloadt foto's als ZIP.", mobileDescription: "Content in één gedeelde galerij, Live Slideshow en ZIP-download.", imageSrc: "/gallery/ana-marko/photo-9.jpg", imageAlt: "Gedeelde herinneringen aan het evenement" },
 ] as const;
 
 export const featuresNl = [
-  { glyph: "▣", icon: "/marketing/icons/digitalni-album.png", title: "Digitaal album", description: "De foto's van je gasten in één elegante gedeelde galerij.", mobile: "Gastfoto's in één gedeelde galerij." },
-  { glyph: "▷", icon: "/marketing/icons/video-posnetki.svg", title: "Korte video's", description: "20 video's van maximaal 60 seconden zitten bij je evenementgalerij inbegrepen.", mobile: "20 video's tot 60 seconden." },
-  { glyph: "⤓", icon: "/marketing/icons/prenos-zip.png", title: "ZIP-download", description: "De organisator kan de foto's uit de galerij als ZIP-bestand downloaden.", mobile: "Download galerijfoto's als ZIP." },
-  { glyph: "◎", icon: "/marketing/icons/brez-aplikacije.png", title: "Geen app", description: "Gasten doen mee in hun browser — zonder installatie of inloggen.", mobile: "Alles gebeurt in de browser, zonder inloggen." },
-  { glyph: "▦", icon: "/marketing/icons/qr-koda.png", title: "Printbare QR-code", mobileTitle: "QR-code", description: "Download de QR-code van het evenement als SVG of PNG en zet hem op je materialen.", mobile: "QR-code als SVG of PNG." },
-  { glyph: "▶", icon: "/marketing/icons/live-slideshow.png", title: "Live slideshow", description: "Foto's verschijnen live op een beamer of tv-scherm.", mobile: "Foto's op een beamer of tv." },
-  { glyph: "✎", icon: "/marketing/icons/komentarji.png", title: "Reacties", description: "Gasten kunnen berichten en wensen bij foto's plaatsen.", mobile: "Berichten en wensen naast de foto's." },
-  { glyph: "◉", icon: "/marketing/icons/ai-iskanje-po-obrazu.png", title: "AI-gezichtszoeken", mobileTitle: "Gezichtszoeken", description: "Met een selfie vinden gasten binnen enkele seconden al hun foto's van het evenement.", mobile: "Gasten vinden hun foto's met een selfie." },
-  { glyph: "✦", icon: "/marketing/icons/ai-best-photos.png", title: "AI Best Photos", description: "AI beoordeelt de technische kwaliteit en markeert onscherpe en dubbele foto's.", mobile: "AI markeert de beste, onscherpe en dubbele foto's." },
+  { glyph: "▣", icon: "/marketing/icons/digitalni-album.png", title: "Digitaal album", description: "De foto's van je gasten in één overzichtelijke gedeelde galerij.", mobile: "Gastfoto's in één gedeelde galerij." },
+  { glyph: "▷", icon: "/marketing/icons/video-posnetki.svg", title: "Korte video's", description: "Inbegrepen zijn maximaal 20 video's van hoogstens 60 seconden.", mobile: "Tot 20 video's van hoogstens 60 seconden." },
+  { glyph: "⤓", icon: "/marketing/icons/prenos-zip.png", title: "ZIP-download", description: "Alle foto's kan de organisator ook in één ZIP-bestand downloaden.", mobile: "Alle foto's in één ZIP-bestand." },
+  { glyph: "◎", icon: "/marketing/icons/brez-aplikacije.png", title: "Geen app", description: "Alles verloopt rechtstreeks in de browser. Zonder app en zonder account.", mobile: "Alles in de browser, zonder app of account." },
+  { glyph: "▦", icon: "/marketing/icons/qr-koda.png", title: "QR-code", description: "De QR-code van het evenement is beschikbaar in de formaten SVG en PNG.", mobile: "QR-code in de formaten SVG en PNG." },
+  { glyph: "▶", icon: "/marketing/icons/live-slideshow.png", title: "Live Slideshow", description: "Nieuw toegevoegde foto's verschijnen doorlopend op een beamer of tv-scherm.", mobile: "Nieuwe foto's doorlopend op beamer of tv." },
+  { glyph: "✎", icon: "/marketing/icons/komentarji.png", title: "Reacties", description: "Gasten kunnen bij de foto's berichten, felicitaties en reacties achterlaten.", mobile: "Berichten, felicitaties en reacties bij de foto's." },
+  { glyph: "◉", icon: "/marketing/icons/ai-iskanje-po-obrazu.png", title: "Foto's zoeken op gezicht", mobileTitle: "Zoeken op gezicht", description: "Met een selfie vindt een gast in enkele seconden de foto's waarop die staat.", mobile: "Een selfie vindt in seconden de foto's van een gast." },
+  { glyph: "✦", icon: "/marketing/icons/ai-best-photos.png", title: "AI Best Photos", description: "AI beoordeelt foto's technisch en helpt onscherpe en dubbele opnames te herkennen.", mobile: "AI beoordeelt foto's technisch en markeert onscherpe en dubbele." },
 ] as const;
 
 export const plansNl = [{
   id: "event", name: "Evenementgalerij", price: "€ 35", description: "Alles wat je nodig hebt voor één evenement",
-  features: ["QR-galerij zonder app", "Onbeperkt gasten", "Foto's uploaden en reacties", "Audiogastenboek en originele downloads", "20 video's tot 60 seconden", "Beheerportaal en QR-downloads", "Live slideshow en ZIP-export", "Galerij 180 dagen bewaard"],
+  features: ["QR-galerij zonder app", "Onbeperkt aantal gasten", "Foto's en reacties", "Audiogastenboek", "Originele foto's downloaden", "Tot 20 video's van maximaal 60 seconden", "Evenementbeheer en QR-code downloaden", "Live Slideshow", "ZIP-export van foto's", "Galerij 180 dagen beschikbaar"],
   featured: true,
 }] as const;
 
-export const addOnsNl = [["AI Best Photos · tot 3.000 foto's", "+€ 15"], ["Onbeperkt video's · fair use", "+€ 15"]] as const;
+export const addOnsNl = [
+  { name: "AI Best Photos", note: "tot 3.000 foto's", price: "+€ 15" },
+  { name: "Onbeperkt video's", note: "met fair use, tot 1.000 video's", price: "+€ 15" },
+] as const;
 
 export const faqsNl = [
-  ["Moeten gasten een app installeren?", "Nee. Gasten scannen de QR-code en de galerij opent in hun browser. Ze kunnen foto's toevoegen zonder app of registratie."],
-  ["Hoe krijg ik de QR-code?", "Je ontvangt de QR-code van je evenement per e-mail en kunt hem downloaden als SVG of PNG."],
-  ["Kan ik de foto's van gasten downloaden?", "Ja. Een losse foto download je rechtstreeks uit de galerij, en in het beheerportaal kun je een ZIP-export van alle foto's klaarzetten."],
-  ["Hoe werkt het audiogastenboek?", "Een gast tikt op de optie voor een spraakbericht, geeft toegang tot de microfoon en neemt maximaal twee minuten op. Voor het versturen kan hij terugluisteren en zo nodig opnieuw opnemen. Een app of account is niet nodig."],
-  ["Hoe lang blijft de galerij beschikbaar?", "De galerij wordt na het evenement 180 dagen bewaard."],
-  ["Kunnen gasten video's uploaden?", "Ja. Het pakket bevat tot 20 video's per evenement. Elke video mag maximaal 60 seconden duren en 500 MB groot zijn. Onbeperkt video's is beschikbaar als uitbreiding van € 15 met fair use."],
-  ["Zijn de foto's privé?", "De galerij wordt niet openbaar geïndexeerd en is bereikbaar via een niet te raden link of QR-code. De organisator bepaalt de zichtbaarheid van de galerij en van losse foto's."],
+  ["Moeten gasten een app installeren?", "Nee. Gasten scannen de QR-code en de galerij opent direct in de browser. Een app of registratie is niet nodig."],
+  ["Hoe krijg ik de QR-code?", "De QR-code van je evenement download je in het beheerportaal als SVG en PNG. Op verzoek maken we ook een drukklaar sjabloon."],
+  ["Kan ik de foto's van gasten downloaden?", "Ja. Een losse foto download je rechtstreeks uit de galerij. Na afloop van het evenement komt een ZIP met alle foto's per e-mail binnen, en je kunt er ook zelf een klaarzetten in het beheerportaal."],
+  ["Hoe werkt het audiogastenboek?", "Een gast kiest in de galerij de optie voor een spraakbericht, geeft toegang tot de microfoon en neemt maximaal twee minuten op. Voor het versturen kan de opname worden teruggeluisterd en zo nodig opnieuw gemaakt. Een app of account is niet nodig."],
+  ["Hoe lang blijft de galerij beschikbaar?", "De galerij is na het evenement 180 dagen beschikbaar."],
+  ["Kunnen gasten video's uploaden?", "Ja, tot 20 video's per evenement. Eén video duurt maximaal 60 seconden en is maximaal 500 MB. Video's staan in de galerij, maar niet in de Live Slideshow. De uitbreiding van € 15 haalt de limiet weg (fair use, tot 1.000 per evenement)."],
+  ["Zijn de foto's privé?", "De evenementgalerij wordt niet openbaar geïndexeerd en is alleen bereikbaar via een niet te raden link of de QR-code. Ze is niet met een wachtwoord beveiligd, dus deel de link alleen met je gasten. De organisator kan de hele galerij of een losse foto altijd verbergen."],
   ["Wat houdt AI Best Photos in?", "Voor € 15 per evenement classificeert de uitbreiding de technische kwaliteit en detecteert duplicaten voor maximaal 3.000 foto's."],
 ] as const;

@@ -18,7 +18,7 @@ import { storedGalleryLikesSchema } from "@/lib/validation/media-comments";
 import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import styles from "./guest-gallery.module.css";
 import { useLocale } from "@/components/i18n/locale-provider";
-import { ENGLISH_SITE_URL, SITE_NAME, SITE_URL, guestBrandMark } from "@/lib/seo";
+import { ENGLISH_SITE_URL, SITE_NAME, SITE_URL, brandWordParts, guestBrandMark } from "@/lib/seo";
 import { LOCALE_LABELS, LOCALE_SHORT_LABELS, intlLocale, type Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { pluralCount } from "@/lib/i18n/plural";
@@ -151,6 +151,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const alternateLocale: Locale = locale === "sl" ? "en" : "sl";
   const homeHref = localizedMarketingPath("/", locale);
   const brandMarkSrc = guestBrandMark(locale);
+  const [brandLead, brandTail] = brandWordParts(locale);
   const pathname = usePathname();
   const isDemoEvent = eventSlug === DEMO_EVENT_SLUG;
   const [guestIdentity, setGuestIdentity] = useState<StoredGuestIdentity | null>(null);
@@ -391,7 +392,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
       <header className={styles.header}>
         <Link className={styles.brand} href={homeHref} aria-label={t.backToSite}>
           {brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={30} height={30} /> : null}
-          <span className={styles.brandWord}>Guest<span> Mosaic</span></span>
+          <span className={styles.brandWord}>{brandLead}<span>{brandTail}</span></span>
         </Link>
         <div className={styles.headerActions}>
         <a href={`${locale === "sl" ? ENGLISH_SITE_URL : SITE_URL}${pathname}`} aria-label={LOCALE_LABELS[alternateLocale]}>{LOCALE_SHORT_LABELS[alternateLocale]}</a>
@@ -577,7 +578,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <div className={`${styles.lightbox} ${lightboxClosing ? styles.closing : ""}`} role="dialog" aria-modal="true" aria-label={t.lightboxLabel} onClick={() => setSelectedPhoto(null)}>
           <div className={`${styles.lightboxShell} ${commentsMounted ? styles.withComments : ""}`} onClick={(event) => event.stopPropagation()}>
             <div className={styles.lightboxStage}>
-              <Link className={styles.lightboxBrand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={28} height={28} /> : null}<span className={styles.brandWord}>Guest<span> Mosaic</span></span></Link>
+              <Link className={styles.lightboxBrand} href={homeHref} aria-label={t.backToSite}>{brandMarkSrc ? <img className={styles.brandMark} src={brandMarkSrc} alt="" width={28} height={28} /> : null}<span className={styles.brandWord}>{brandLead}<span>{brandTail}</span></span></Link>
               <button className={styles.closeButton} type="button" onClick={() => setSelectedPhoto(null)} aria-label={t.closeView}>×</button>
               <button className={`${styles.lightboxNav} ${styles.previous}`} type="button" onClick={() => movePhoto((lightboxIndex - 1 + photos.length) % photos.length)} aria-label={t.previousPhoto}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>

@@ -24,6 +24,14 @@ export function brandMark(locale: Locale): string {
 export function guestBrandMark(locale: Locale): string | null {
   return locale === "sl" ? null : GUEST_MOSAIC_MARK;
 }
+
+/**
+ * The wordmark split into the two halves the brand styling colours separately.
+ * Slovenian carries the Eventaj name, every other language Guest Mosaic.
+ */
+export function brandWordParts(locale: Locale): [string, string] {
+  return locale === "sl" ? ["Galerija", " Eventaj"] : ["Guest", " Mosaic"];
+}
 export const SITE_LANGUAGE = "sl-SI";
 export const SEO_LAST_UPDATED = "2026-08-04";
 
@@ -43,7 +51,7 @@ export const SEO_COPY = {
       "Skupna zasebna galerija",
       "Live slideshow",
       "Komentarji in všečki",
-      "Audio knjiga gostov z glasovnimi voščili",
+      "Glasovna knjiga gostov z osebnimi voščili",
       "Neposreden prenos originalne fotografije",
       "ZIP izvoz fotografij",
       "180-dnevna hramba galerije",

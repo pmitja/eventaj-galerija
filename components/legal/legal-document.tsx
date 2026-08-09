@@ -4,7 +4,7 @@ import styles from "@/app/legal.module.css";
 import type { Locale } from "@/lib/i18n/locale";
 import { getLegalCopy, type LegalDocument } from "@/lib/i18n/legal";
 import { localizedMarketingPath, privacyPath } from "@/lib/i18n/routes";
-import { guestBrandMark } from "@/lib/seo";
+import { brandWordParts, guestBrandMark } from "@/lib/seo";
 
 const SUPPORT_EMAIL = "info@eventaj.si";
 
@@ -43,6 +43,7 @@ export function LegalDocumentPage({
   const copy = getLegalCopy(locale);
   const home = localizedMarketingPath("/", locale);
   const brandMarkSrc = guestBrandMark(locale);
+  const [brandLead, brandTail] = brandWordParts(locale);
 
   return (
     <main className={styles.page}>
@@ -52,7 +53,7 @@ export function LegalDocumentPage({
             {brandMarkSrc ? (
               <img className={styles.brandMark} src={brandMarkSrc} alt="" width={30} height={30} />
             ) : null}
-            <span className={styles.brandWord}>Guest<span> Mosaic</span></span>
+            <span className={styles.brandWord}>{brandLead}<span>{brandTail}</span></span>
           </Link>
           <Link className={styles.back} href={home}>{copy.back}</Link>
         </div>

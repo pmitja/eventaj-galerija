@@ -5,6 +5,11 @@ import {
   type Locale,
 } from "./locale";
 import { localizedMarketingPath } from "./routes";
+import {
+  SOLUTION_PAGE_LOCALES,
+  solutionPagePath,
+  type SolutionPageId,
+} from "./routes";
 
 /**
  * Language a visitor gets when none of the hreflang tags match their own.
@@ -28,6 +33,23 @@ export function languageAlternates(
   }
 
   alternates["x-default"] = absoluteFor(env, X_DEFAULT_LOCALE, pathname);
+  return alternates;
+}
+
+/** hreflang map for a solution page that currently exists only in pilot markets. */
+export function solutionLanguageAlternates(
+  env: { PUBLIC_APP_URL: string; PUBLIC_APP_URL_EN: string },
+  id: SolutionPageId,
+): Record<string, string> {
+  const alternates: Record<string, string> = {};
+
+  for (const locale of SOLUTION_PAGE_LOCALES) {
+    const path = solutionPagePath(locale, id);
+    if (path) alternates[intlLocale(locale)] = `${appUrlForLocale(env, locale)}${path}`;
+  }
+
+  const englishPath = solutionPagePath("en", id);
+  if (englishPath) alternates["x-default"] = `${appUrlForLocale(env, "en")}${englishPath}`;
   return alternates;
 }
 

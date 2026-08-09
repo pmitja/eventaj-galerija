@@ -8,4 +8,9 @@ describe("localized marketing screenshots", () => {
     expect(localizedMarketingScreenshot("sl", source)).toBe(source);
     expect(localizedMarketingScreenshot("de", source)).toBe("/marketing/screenshots/de/gallery-mobile.png");
   });
+
+  it("uses the full localized identity capture", () => {
+    expect(localizedMarketingScreenshot("en", "/marketing/screenshots/identity-gate.png"))
+      .toBe("/marketing/screenshots/en/identity-gate-full.png");
+  });
 });

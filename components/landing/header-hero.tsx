@@ -25,10 +25,12 @@ export function Header({
   howItWorksHref,
   locale = "sl",
   alternateOrigin,
+  languageLocales,
 }: {
   howItWorksHref?: string;
   locale?: Locale;
   alternateOrigin?: string;
+  languageLocales?: readonly Locale[];
 } = {}) {
   const pathname = usePathname();
   const t = getDictionary(locale);
@@ -71,7 +73,7 @@ export function Header({
     locale === "sl"
       ? (["en"] as Locale[])
       : [
-          ...(["en", ...PREFIXED_LOCALES] as Locale[]),
+          ...(languageLocales ?? (["en", ...PREFIXED_LOCALES] as Locale[])),
           ...(alternateOrigin ? (["sl"] as Locale[]) : []),
         ]
   ).map((target) => ({
@@ -166,6 +168,7 @@ export function Header({
               alternateOrigin={alternateOrigin}
               label={t.nav.language}
               menuLabel={t.nav.chooseLanguage}
+              locales={languageLocales}
             />
           )}
           <Link
@@ -267,7 +270,7 @@ function PhoneGallery({ locale }: { locale: Locale }) {
     <div className="phone">
       <div className="phone-screen">
         <Image
-          className="phone-shot"
+          className={`phone-shot${locale === "sl" ? "" : " phone-shot--trim-scrollbar"}`}
           src={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-mobile.png")}
           alt={getDictionary(locale).hero.phoneAlt}
           fill

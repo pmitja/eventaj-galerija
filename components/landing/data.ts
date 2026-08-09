@@ -1,90 +1,91 @@
 export const howSteps = [
   {
     n: "1",
-    title: "Ustvarite in plačajte dogodek",
+    title: "Ustvari dogodek",
     description:
-      "Vnesite podatke organizacije in dogodka ter varno zaključite nakup. Nato se prijavite v administracijo svoje galerije.",
-    mobileDescription: "Vnesite podatke dogodka, zaključite nakup in se prijavite v administracijo.",
+      "Po vnosu osnovnih podatkov in zaključenem nakupu je dostop do administracije pripravljen takoj.",
+    mobileDescription: "Po vnosu podatkov in nakupu je administracija pripravljena takoj.",
     imageSrc: "/gallery/ana-marko/photo-1.jpg",
     imageAlt: "Fotografija poročnega dogodka",
   },
   {
     n: "2",
-    title: "Prenesite QR kodo za goste",
-    mobileTitle: "Pripravite QR kodo",
+    title: "Pripravi QR kodo",
     description:
-      "QR kodo dogodka prenesete kot SVG ali PNG. Po dogovoru vam lahko ročno pripravimo tudi predlogo za tisk.",
-    mobileDescription: "Prenesite QR kodo kot SVG ali PNG; predlogo za tisk lahko po dogovoru pripravimo ročno.",
+      "QR koda je na voljo v formatih SVG in PNG. Po dogovoru lahko pripravimo tudi predlogo za tisk.",
+    mobileDescription: "QR koda v formatih SVG in PNG; predlogo za tisk pripravimo po dogovoru.",
     imageSrc: "/gallery/ana-marko/photo-3.jpg",
     imageAlt: "Gostje na dogodku",
   },
   {
     n: "3",
-    title: "Gostje skenirajo in naložijo — brez prijave",
-    mobileTitle: "Gostje naložijo — brez prijave",
+    title: "Gostje skenirajo in dodajo vsebino",
+    mobileTitle: "Gostje dodajo vsebino",
     description:
-      "Galerija deluje v brskalniku na telefonu. Gostje odprejo povezavo ter dodajo fotografije, kratke videe ali glasovno voščilo brez aplikacije in uporabniškega računa.",
-    mobileDescription: "Gostje skenirajo QR ter dodajo fotografije, videe ali glasovno voščilo brez aplikacije in prijave.",
+      "Fotografije, kratke videe in glasovna voščila dodajo neposredno v brskalniku. Brez aplikacije in brez uporabniškega računa.",
+    mobileDescription: "Fotografije, videe in voščila dodajo v brskalniku. Brez aplikacije in računa.",
     imageSrc: "/gallery/ana-marko/photo-6.jpg",
     imageAlt: "Gost uporablja telefon na dogodku",
   },
   {
     n: "4",
-    title: "Preglejte in prenesite skupne spomine",
-    mobileTitle: "Podoživite skupne spomine",
+    title: "Vse vsebine na enem mestu",
+    mobileTitle: "Vse na enem mestu",
     description:
-      "Fotografije in videi so zbrani v eni galeriji. Organizator upravlja vse vsebine, fotografije prikaže kot slideshow in jih prenese v ZIP.",
-    mobileDescription: "Upravljajte fotografije in videe, zaženite foto slideshow ali prenesite fotografije v ZIP.",
+      "Fotografije in videi so zbrani v skupni galeriji. Organizator lahko upravlja vsebine, zažene Live Slideshow in fotografije prenese v ZIP datoteki.",
+    mobileDescription: "Vsebine v skupni galeriji, Live Slideshow in prenos fotografij v ZIP.",
     imageSrc: "/gallery/ana-marko/photo-9.jpg",
     imageAlt: "Skupni spomini z dogodka",
   },
 ] as const;
 
 export const features = [
-  { glyph: "▣", icon: "/marketing/icons/digitalni-album.png", title: "Digitalni album", description: "Fotografije gostov v elegantni skupni galeriji.", mobile: "Fotografije gostov v skupni galeriji." },
-  { glyph: "▷", icon: "/marketing/icons/video-posnetki.svg", title: "Kratki videi", description: "20 videov do 60 sekund je vključenih v galerijo dogodka.", mobile: "20 videov do 60 sekund v galeriji." },
-  { glyph: "⤓", icon: "/marketing/icons/prenos-zip.png", title: "Prenos v ZIP", description: "Organizator lahko fotografije iz galerije prenese v ZIP datoteki.", mobile: "Prenos fotografij iz galerije v ZIP." },
-  { glyph: "◎", icon: "/marketing/icons/brez-aplikacije.png", title: "Brez aplikacije", description: "Gostje sodelujejo v brskalniku — brez namestitve in prijave.", mobile: "Vse poteka v brskalniku, brez prijave." },
-  { glyph: "▦", icon: "/marketing/icons/qr-koda.png", title: "QR koda za tisk", mobileTitle: "QR koda", description: "Prenesite QR kodo dogodka v SVG ali PNG obliki; predlogo lahko pripravimo ročno.", mobile: "QR koda v SVG ali PNG obliki." },
-  { glyph: "▶", icon: "/marketing/icons/live-slideshow.png", title: "Live slideshow", description: "Fotografije se sproti prikazujejo na projektorju ali TV zaslonu.", mobile: "Fotografije na projektorju ali TV." },
-  { glyph: "✎", icon: "/marketing/icons/komentarji.png", title: "Komentarji", description: "Gostje lahko fotografijam dodajo sporočila in voščila.", mobile: "Sporočila in voščila ob fotografijah." },
-  { glyph: "◉", icon: "/marketing/icons/ai-iskanje-po-obrazu.png", title: "AI iskanje po obrazu", mobileTitle: "Iskanje po obrazu", description: "Gostje s selfijem v nekaj sekundah najdejo vse svoje fotografije z dogodka.", mobile: "Gostje s selfijem najdejo svoje fotografije." },
-  { glyph: "✦", icon: "/marketing/icons/ai-best-photos.png", title: "AI Best Photos", description: "Umetna inteligenca oceni kakovost posnetkov ter označi zamegljene in podvojene fotografije.", mobile: "AI označi najboljše, zamegljene in podvojene." },
+  { glyph: "▣", icon: "/marketing/icons/digitalni-album.png", title: "Digitalni album", description: "Fotografije gostov v pregledni skupni galeriji.", mobile: "Fotografije gostov v skupni galeriji." },
+  { glyph: "▷", icon: "/marketing/icons/video-posnetki.svg", title: "Kratki videi", description: "Vključenih je do 20 videov, dolgih največ 60 sekund.", mobile: "Do 20 videov, dolgih največ 60 sekund." },
+  { glyph: "⤓", icon: "/marketing/icons/prenos-zip.png", title: "Prenos v ZIP", description: "Vse fotografije lahko organizator prenese tudi v eni ZIP datoteki.", mobile: "Vse fotografije tudi v eni ZIP datoteki." },
+  { glyph: "◎", icon: "/marketing/icons/brez-aplikacije.png", title: "Brez aplikacije", description: "Vse poteka neposredno v brskalniku. Brez aplikacije in brez uporabniškega računa.", mobile: "Vse v brskalniku, brez aplikacije in računa." },
+  { glyph: "▦", icon: "/marketing/icons/qr-koda.png", title: "QR koda", description: "QR koda dogodka je na voljo v formatih SVG in PNG.", mobile: "QR koda v formatih SVG in PNG." },
+  { glyph: "▶", icon: "/marketing/icons/live-slideshow.png", title: "Live Slideshow", description: "Novo dodane fotografije se sproti prikazujejo na projektorju ali TV-zaslonu.", mobile: "Nove fotografije sproti na projektorju ali TV-zaslonu." },
+  { glyph: "✎", icon: "/marketing/icons/komentarji.png", title: "Komentarji", description: "Gostje lahko ob fotografijah pustijo sporočila, čestitke in odzive.", mobile: "Sporočila, čestitke in odzivi ob fotografijah." },
+  { glyph: "◉", icon: "/marketing/icons/ai-iskanje-po-obrazu.png", title: "Iskanje fotografij po obrazu", mobileTitle: "Iskanje po obrazu", description: "Selfi pomaga gostu v nekaj sekundah najti fotografije, na katerih se pojavi.", mobile: "Selfi v nekaj sekundah najde fotografije gosta." },
+  { glyph: "✦", icon: "/marketing/icons/ai-best-photos.png", title: "AI Best Photos", description: "AI tehnično oceni fotografije ter pomaga prepoznati zamegljene in podvojene posnetke.", mobile: "AI tehnično oceni fotografije ter prepozna zamegljene in podvojene." },
 ] as const;
 
 export const plans = [
   {
     id: "event",
     name: "Galerija dogodka",
-    price: "35 €",
+    price: "35 €",
     description: "Vse bistvene funkcije za en dogodek",
     features: [
       "QR galerija brez aplikacije",
       "Neomejeno število gostov",
-      "Nalaganje fotografij in komentarji",
-      "Audio knjiga gostov in prenos originalov",
-      "20 videov do 60 sekund",
-      "Administracijski portal in QR prenosi",
-      "Live slideshow in ZIP izvoz",
-      "180-dnevna hramba galerije",
+      "Fotografije in komentarji",
+      "Glasovna knjiga gostov",
+      "Prenos originalnih fotografij",
+      "Do 20 videov, dolgih največ 60 sekund",
+      "Administracija dogodka in prenos QR kode",
+      "Live Slideshow",
+      "ZIP izvoz fotografij",
+      "Galerija na voljo 180 dni",
     ],
     featured: true,
   },
 ] as const;
 
 export const addOns = [
-  ["AI Best Photos · do 3.000 fotografij", "+15 €"],
-  ["Neomejeno videov · fair-use", "+15 €"],
+  { name: "AI Best Photos", note: "do 3.000 fotografij", price: "+15 €" },
+  { name: "Neomejeno videov", note: "po pravilih razumne uporabe, do 1.000 videov", price: "+15 €" },
 ] as const;
 
 export const faqs = [
-  ["Ali morajo gostje namestiti aplikacijo?", "Ne. Gostje skenirajo QR kodo in galerija se odpre v brskalniku. Fotografije lahko dodajo brez aplikacije in brez registracije."],
-  ["Kako dobim QR kodo?", "QR kodo dogodka lahko v administraciji prenesete kot SVG ali PNG. Po dogovoru vam lahko ročno pripravimo tudi predlogo za tisk."],
-  ["Ali lahko prenesem fotografije gostov?", "Da. Posamezno fotografijo lahko prenesete neposredno v galeriji, v administracijskem portalu pa pripravite tudi ZIP izvoz vseh fotografij."],
-  ["Kako deluje audio knjiga gostov?", "Gost tapne možnost za glasovno voščilo, dovoli mikrofon ter posname do dve minuti. Posnetek lahko pred pošiljanjem posluša in po potrebi posname znova. Aplikacija ali račun nista potrebna."],
-  ["Kako dolgo je galerija na voljo?", "Galerija je po dogodku shranjena 180 dni."],
-  ["Ali lahko gostje naložijo videe?", "Da. Paket vključuje do 20 videov na dogodek. Posamezen video je lahko dolg največ 60 sekund in velik največ 500 MB. Videi so prikazani v galeriji, ne pa v Live Slideshowu. Neomejeno število videov je na voljo kot dodatek za 15 € po fair-use politiki."],
-  ["So fotografije zasebne?", "Galerija ni javno indeksirana in je dostopna prek nepredvidljive povezave oziroma QR kode. Organizator lahko upravlja vidnost galerije in posameznih fotografij."],
+  ["Ali morajo gostje namestiti aplikacijo?", "Ne. Gostje skenirajo QR kodo, galerija pa se odpre neposredno v brskalniku. Aplikacija in registracija nista potrebni."],
+  ["Kako dobim QR kodo?", "QR kodo dogodka je mogoče v administraciji prenesti v formatih SVG in PNG. Po dogovoru lahko pripravimo tudi predlogo za tisk."],
+  ["Ali lahko prenesem fotografije gostov?", "Da. Posamezno fotografijo prenesete neposredno v galeriji. Po zaključku dogodka ZIP z vsemi fotografijami prejmete na e-pošto, pripravite pa ga lahko tudi sami v administracijskem portalu."],
+  ["Kako deluje glasovna knjiga gostov?", "Gost v galeriji izbere glasovno voščilo, dovoli mikrofon in posname do dve minuti. Posnetek lahko pred oddajo posluša in ga po potrebi ponovi. Aplikacija in račun nista potrebna."],
+  ["Kako dolgo je galerija na voljo?", "Galerija je na voljo 180 dni po dogodku."],
+  ["Ali lahko gostje naložijo videe?", "Da, do 20 videov na dogodek. Posamezen video traja največ 60 sekund in meri največ 500 MB. Videi so vidni v galeriji, ne pa v Live Slideshowu. Dodatek za 15 € odpravi omejitev števila videov (razumna uporaba do 1.000 na dogodek)."],
+  ["So fotografije zasebne?", "Galerija dogodka ni javno indeksirana in je dostopna samo prek nepredvidljive povezave oziroma QR kode. Ni zaščitena z geslom, zato povezavo delite le z gosti. Organizator lahko kadar koli skrije celotno galerijo ali posamezno fotografijo."],
   ["Kaj vključuje AI Best Photos?", "Za 15 € na dogodek dodatek tehnično razvrsti kakovost in zazna dvojnike pri največ 3.000 fotografijah. Večje količine pripravimo po meri."],
 ] as const;
 

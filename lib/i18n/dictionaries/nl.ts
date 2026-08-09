@@ -10,9 +10,9 @@ export const nl: Dictionary = {
   },
   useCases: {
     pill: "Voor elke gelegenheid",
-    heading: "Niet alleen voor bruiloften. Voor elk evenement.",
+    heading: "Voor evenementen van elke soort.",
     subtitle:
-      "Eén eenvoudige QR-galerij, afgestemd op de manier waarop je gasten of deelnemers samenkomen.",
+      "Eén QR-galerij voor privéfeesten, zakelijke evenementen en alles daartussen.",
     readMore: "Lees meer",
   },
   useCasePage: {
@@ -53,24 +53,25 @@ export const nl: Dictionary = {
   },
   hero: {
     eyebrow: "Één QR-code · geen app",
-    title: "Alle herinneringen van je gasten. Op één plek.",
+    title: "Alle herinneringen aan het evenement. Op één plek.",
     subtitle:
-      "Verzamel foto's, korte video's en persoonlijke spraakberichten in één prachtige evenementgalerij — zonder app en zonder registratie van je gasten.",
+      "Foto's, korte video's en spraakberichten van je gasten, verzameld in één elegante galerij. Zonder app en zonder registratie.",
     ctaPrimary: "Maak je evenement voor € 35",
     ctaSecondary: "Probeer het demo-evenement",
     trustLabel: "Voordelen",
-    trust: ["Eenmalige betaling", "Onbeperkt gasten", "Galerij 180 dagen beschikbaar"],
+    trust: ["Eenmalige betaling", "Onbeperkt gasten", "Galerij 180 dagen"],
     guestPhotoAlt: "Foto van een gast",
     phoneAlt: "De evenementgalerij van Anna en Mark op een telefoon",
   },
   quickSteps: [
-    ["Maak je evenement", "en ontvang je galerij"],
-    ["Gasten scannen de QR-code", "en voegen foto's, video of spraak toe"],
-    ["Geniet van de herinneringen", "elk moment op één plek"],
+    ["Maak je evenement", "Galerij en QR-code zijn meteen klaar."],
+    ["Gasten scannen de QR-code", "Ze voegen foto's, video's en spraakberichten toe."],
+    ["Alles blijft op één plek", "Herinneringen aan het evenement in één galerij."],
   ],
   howItWorks: {
     heading: "Hoe werkt het?",
-    subtitle: "Moeiteloos — voor jou en je gasten.",
+    subtitle: "Eenvoudig voor organisator en gasten.",
+    qrEmailAlt: "E-mail met de QR-code van het evenement",
     checks: [
       "Foto's en video's rechtstreeks uit de browser",
       "Berichten en wensen bij de foto's",
@@ -78,21 +79,22 @@ export const nl: Dictionary = {
     ],
   },
   features: {
-    headingDesktop: "Alles voor een onvergetelijk evenement",
-    headingMobile: "Alles voor je evenement",
+    headingDesktop: "Alles wat je nodig hebt voor gedeelde herinneringen",
+    headingMobile: "Alles voor gedeelde herinneringen",
     subtitleDesktop:
-      "Foto's, korte video's, spraakberichten, een QR-code en een live scherm — allemaal op één plek.",
+      "Foto's, korte video's, spraakberichten en functies die de content van je gasten op één plek samenbrengen.",
     subtitleMobile: "Foto's, video's en spraakberichten op één plek.",
   },
   ai: {
     pill: "Kunstmatige intelligentie",
-    headingDesktop: "Bekijk je beste foto's sneller",
+    headingDesktop: "Bekijk foto's sneller",
     headingMobile: "Bekijk foto's sneller",
-    subtitle: "Een uitbreiding voor technische kwaliteitsbeoordeling en duplicaatdetectie.",
+    subtitle:
+      "Een uitbreiding die foto's op technische kwaliteit sorteert en onscherpe en dubbele opnames herkent.",
     cardTitle: "AI Best Photos",
     cardDesktop:
-      "Beoordeelt de technische kwaliteit en herkent onscherpe en dubbele foto's, zodat de organisator ze makkelijker kan doornemen.",
-    cardMobile: "Beoordeelt de technische kwaliteit en herkent onscherpe en dubbele foto's.",
+      "AI beoordeelt foto's technisch en helpt onscherpe en dubbele opnames te herkennen.",
+    cardMobile: "AI beoordeelt foto's technisch en herkent onscherpe en dubbele opnames.",
     tagBest: "Beste",
     tagBlurry: "Onscherp",
     tagDuplicates: "Duplicaten",
@@ -103,16 +105,17 @@ export const nl: Dictionary = {
     pill: "Live op je evenement",
     heading: "Live Slideshow op het grote scherm",
     descriptionDesktop:
-      "Nieuwe uploads verschijnen live op een beamer of tv — met vloeiende animaties en een QR-code die gasten uitnodigt om mee te doen.",
-    descriptionMobile: "Nieuwe uploads verschijnen live op een beamer of tv — met een QR-code voor gasten.",
-    cta: "Bekijk de prijs",
+      "Nieuwe uploads verschijnen live op een beamer of tv-scherm. Een QR-code op het scherm nodigt gasten uit om mee te doen.",
+    descriptionMobile:
+      "Nieuwe uploads verschijnen live op een beamer of tv-scherm. Een QR-code nodigt gasten uit om mee te doen.",
+    cta: "Bekijk wat inbegrepen is",
     visualLabel: "Live slideshow van het evenement op een groot scherm",
     visualAlt: "Live slideshow van het evenement met wensen van gasten op een groot scherm",
     qrCallout: "Voeg je foto's toe",
   },
   devices: {
-    heading: "Werkt op elk apparaat",
-    subtitle: "In elke browser · zonder app · heerlijk eenvoudig",
+    heading: "Werkt direct in de browser",
+    subtitle: "Geen app. Geen registratie. Eenvoudig op telefoon en computer.",
     exampleUrl: "guestmosaic.com/nl/anna-and-mark",
     desktopLabel: "Galerij op desktop",
     desktopAlt: "Evenementgalerij op een desktopcomputer",
@@ -132,26 +135,26 @@ export const nl: Dictionary = {
   },
   faq: {
     heading: "Veelgestelde vragen",
-    subtitle: "Alles wat je moet weten vóór je eerste evenement.",
+    subtitle: "Het belangrijkste vóór je eerste evenement.",
   },
   memories: {
-    pill: "Meer dan foto's",
-    heading: "Bewaar elke stem en elk origineel",
+    pill: "Spraakberichten",
+    heading: "Meer dan foto's. Ook stemmen die blijven.",
     subtitle:
       "Gasten kunnen een persoonlijk bericht opnemen en een favoriete foto rechtstreeks uit de galerij downloaden.",
     voiceTitle: "Audiogastenboek",
     voiceText:
-      "Een lach, een verhaal of een gemeende wens — opgenomen in de browser, zonder app of account.",
-    voicePoints: ["Terugluisteren voor het versturen", "Tot 2 minuten per bericht"],
+      "Gasten nemen rechtstreeks in de browser een persoonlijk bericht van maximaal twee minuten op. Voor het versturen kunnen ze het terugluisteren en zo nodig opnieuw opnemen.",
+    voicePoints: ["Zonder app of account", "Gast kiest of het openbaar is"],
     voiceVisualEyebrow: "Een herinnering in jouw stem",
     voiceVisualTitle: "Spraakbericht",
     voiceVisualHint: "Tik om je bericht op te nemen",
     downloadTitle: "Download elke foto",
     downloadText:
-      "Open een favoriet moment en bewaar het origineel meteen — zonder te wachten op het volledige ZIP-archief.",
+      "Elke foto kan rechtstreeks uit de galerij in originele kwaliteit worden gedownload.",
     downloadPoints: ["Een downloadknop bij elke foto", "Veilige toegang tot het origineel"],
     downloadAction: "Downloaden",
-    ctaHeading: "Je gasten maken de herinneringen. Jij bewaart ze allemaal.",
+    ctaHeading: "Je gasten maken de herinneringen. Ze blijven allemaal op één plek bewaard.",
     ctaText: "Eén evenement, onbeperkt gasten, geen abonnement.",
   },
   seo: {
@@ -335,7 +338,7 @@ export const nl: Dictionary = {
       refresh: "Vernieuwen",
       forget: "Vergeten",
       close: "Gezichtszoeken sluiten",
-      eyebrow: "AI-zoeken",
+      eyebrow: "Zoeken op gezicht",
       title: "Vind mij op de foto's",
       description:
         "Voeg een duidelijke selfie toe. We vergelijken die alleen met foto's van dit evenement. De selfie zelf verwijderen we; de gezichtsreferentie bewaren we veilig tot het einde van het evenement, zodat je de zoekopdracht kunt vernieuwen zonder nieuwe selfie.",
@@ -384,7 +387,7 @@ export const nl: Dictionary = {
       emptyFaceSearch: "Deze foto's staan niet meer in de openbare galerij. Vernieuw de zoekopdracht.",
       emptyGallery: "Nog geen foto's. Voeg als eerste een moment toe.",
       showMore: "Meer foto's tonen",
-      privacy: "Deze galerij is privé en alleen toegankelijk voor gasten met de link.",
+      privacy: "Deze galerij wordt niet openbaar geïndexeerd en is alleen bereikbaar via de link of QR-code van het evenement.",
       lightboxLabel: "Schermvullende weergave van de foto",
       closeView: "Weergave sluiten",
       previousPhoto: "Vorige foto",
@@ -430,8 +433,8 @@ export const nl: Dictionary = {
     stepQr: "QR-code per e-mail",
   },
   footer: {
-    ctaHeading: "Laat de herinneringen van je gasten niet verloren gaan.",
-    ctaText: "Maak je evenementgalerij voor een eenmalige betaling van € 35. Zonder abonnement.",
+    ctaHeading: "De herinneringen aan je evenement verdienen één plek.",
+    ctaText: "Maak je QR-galerij voor € 35. Eenmalige betaling, geen abonnement.",
     ctaButton: "Maak je evenement voor € 35",
     about:
       "Een QR-galerij voor bruiloften, zakelijke evenementen, teambuildings en feesten.",

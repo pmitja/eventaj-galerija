@@ -10,9 +10,9 @@ export const de: Dictionary = {
   },
   useCases: {
     pill: "Für jeden Anlass",
-    heading: "Nicht nur für Hochzeiten. Für jeden Anlass.",
+    heading: "Für Events aller Art.",
     subtitle:
-      "Eine einfache QR-Galerie, passend dazu, wie Ihre Gäste oder Teilnehmenden zusammenkommen.",
+      "Eine QR-Galerie für private Feiern, Firmenevents und alles dazwischen.",
     readMore: "Mehr erfahren",
   },
   useCasePage: {
@@ -53,24 +53,25 @@ export const de: Dictionary = {
   },
   hero: {
     eyebrow: "Ein QR-Code · keine App",
-    title: "Alle Erinnerungen Ihrer Gäste. An einem Ort.",
+    title: "Alle Erinnerungen vom Event. An einem Ort.",
     subtitle:
-      "Sammeln Sie Fotos, kurze Videos und persönliche Sprachnachrichten in einer wunderschönen Event-Galerie — ganz ohne App und ohne Anmeldung Ihrer Gäste.",
+      "Fotos, kurze Videos und Sprachnachrichten Ihrer Gäste, gesammelt in einer eleganten Galerie. Ohne App und ohne Anmeldung.",
     ctaPrimary: "Event für 35 € erstellen",
     ctaSecondary: "Demo-Event ausprobieren",
     trustLabel: "Ihre Vorteile",
-    trust: ["Einmalzahlung", "Unbegrenzt Gäste", "Galerie für 180 Tage"],
+    trust: ["Einmalzahlung", "Unbegrenzt Gäste", "Galerie 180 Tage"],
     guestPhotoAlt: "Gästefoto",
     phoneAlt: "Event-Galerie von Anna und Mark auf dem Smartphone",
   },
   quickSteps: [
-    ["Event erstellen", "und Galerie erhalten"],
-    ["Gäste scannen den QR-Code", "und fügen Fotos, Videos oder Sprachnachrichten hinzu"],
-    ["Erinnerungen genießen", "jeder Moment an einem Ort"],
+    ["Event erstellen", "Galerie und QR-Code sind sofort bereit."],
+    ["Gäste scannen den QR-Code", "Sie fügen Fotos, Videos und Sprachnachrichten hinzu."],
+    ["Alles bleibt an einem Ort", "Die Erinnerungen an das Event in einer Galerie."],
   ],
   howItWorks: {
     heading: "Wie funktioniert es?",
-    subtitle: "Unkompliziert — für Sie und Ihre Gäste.",
+    subtitle: "Einfach für Veranstalter und Gäste.",
+    qrEmailAlt: "E-Mail mit dem QR-Code des Events",
     checks: [
       "Fotos und Videos direkt aus dem Browser",
       "Nachrichten und Glückwünsche zu den Fotos",
@@ -78,21 +79,22 @@ export const de: Dictionary = {
     ],
   },
   features: {
-    headingDesktop: "Alles für einen unvergesslichen Anlass",
-    headingMobile: "Alles für Ihr Event",
+    headingDesktop: "Alles, was Sie für gemeinsame Erinnerungen brauchen",
+    headingMobile: "Alles für gemeinsame Erinnerungen",
     subtitleDesktop:
-      "Fotos, kurze Videos, Sprachnachrichten, ein QR-Code und die Live-Anzeige — alles an einem Ort.",
+      "Fotos, kurze Videos, Sprachnachrichten und Funktionen, die die Inhalte Ihrer Gäste an einem Ort zusammenführen.",
     subtitleMobile: "Fotos, Videos und Sprachnachrichten an einem Ort.",
   },
   ai: {
     pill: "Künstliche Intelligenz",
-    headingDesktop: "Die besten Fotos schneller durchsehen",
+    headingDesktop: "Fotos schneller durchsehen",
     headingMobile: "Fotos schneller durchsehen",
-    subtitle: "Eine Erweiterung zur Bewertung der technischen Qualität und zur Erkennung von Duplikaten.",
+    subtitle:
+      "Eine Erweiterung, die Fotos nach technischer Qualität sortiert und unscharfe sowie doppelte Aufnahmen erkennt.",
     cardTitle: "AI Best Photos",
     cardDesktop:
-      "Bewertet die technische Qualität und erkennt unscharfe sowie doppelte Fotos, damit die Durchsicht leichter fällt.",
-    cardMobile: "Bewertet die technische Qualität und erkennt unscharfe und doppelte Fotos.",
+      "Die KI bewertet Fotos technisch und hilft, unscharfe und doppelte Aufnahmen zu erkennen.",
+    cardMobile: "Die KI bewertet Fotos technisch und erkennt unscharfe und doppelte Aufnahmen.",
     tagBest: "Beste",
     tagBlurry: "Unscharf",
     tagDuplicates: "Duplikate",
@@ -103,16 +105,17 @@ export const de: Dictionary = {
     pill: "Live auf Ihrem Event",
     heading: "Live-Slideshow auf der großen Leinwand",
     descriptionDesktop:
-      "Neue Uploads erscheinen live auf Beamer oder TV — mit sanften Animationen und einem QR-Code, der Ihre Gäste zum Mitmachen einlädt.",
-    descriptionMobile: "Neue Uploads erscheinen live auf Beamer oder TV — mit QR-Code für die Gäste.",
-    cta: "Preis ansehen",
+      "Neue Uploads erscheinen live auf Beamer oder TV-Bildschirm. Ein QR-Code auf dem Bildschirm lädt Ihre Gäste zum Mitmachen ein.",
+    descriptionMobile:
+      "Neue Uploads erscheinen live auf Beamer oder TV-Bildschirm. Ein QR-Code lädt die Gäste zum Mitmachen ein.",
+    cta: "Sehen, was enthalten ist",
     visualLabel: "Live-Slideshow des Events auf großem Bildschirm",
     visualAlt: "Live-Slideshow des Events mit Glückwünschen der Gäste auf großem Bildschirm",
     qrCallout: "Fotos hinzufügen",
   },
   devices: {
-    heading: "Funktioniert auf jedem Gerät",
-    subtitle: "In jedem Browser · ohne App · wunderbar einfach",
+    heading: "Läuft direkt im Browser",
+    subtitle: "Keine App. Keine Registrierung. Einfach auf Smartphone und Computer.",
     exampleUrl: "guestmosaic.com/de/anna-and-mark",
     desktopLabel: "Galerie am Desktop",
     desktopAlt: "Event-Galerie auf einem Desktop-Computer",
@@ -132,26 +135,26 @@ export const de: Dictionary = {
   },
   faq: {
     heading: "Häufige Fragen",
-    subtitle: "Alles, was Sie vor Ihrem ersten Event wissen sollten.",
+    subtitle: "Das Wichtigste vor Ihrem ersten Event.",
   },
   memories: {
-    pill: "Mehr als Fotos",
-    heading: "Bewahren Sie jede Stimme und jedes Original",
+    pill: "Sprachnachrichten",
+    heading: "Mehr als Fotos. Auch Stimmen, die bleiben.",
     subtitle:
       "Ihre Gäste können eine persönliche Nachricht aufnehmen und ein Lieblingsfoto direkt aus der Galerie herunterladen.",
     voiceTitle: "Audio-Gästebuch",
     voiceText:
-      "Ein Lachen, eine Geschichte oder ein herzlicher Wunsch — aufgenommen im Browser, ohne App und ohne Konto.",
-    voicePoints: ["Vorhören vor dem Senden", "Bis zu 2 Minuten pro Nachricht"],
+      "Ihre Gäste nehmen direkt im Browser ein persönliches Grußwort von bis zu zwei Minuten auf. Vor dem Senden können sie es anhören und bei Bedarf neu aufnehmen.",
+    voicePoints: ["Ohne App und ohne Konto", "Gast entscheidet, ob es öffentlich ist"],
     voiceVisualEyebrow: "Eine Erinnerung mit deiner Stimme",
     voiceVisualTitle: "Sprachnachricht",
     voiceVisualHint: "Zum Aufnehmen tippen",
     downloadTitle: "Jedes Foto herunterladen",
     downloadText:
-      "Öffnen Sie einen Lieblingsmoment und speichern Sie das Original sofort — ohne auf das komplette ZIP-Archiv zu warten.",
+      "Jedes Foto lässt sich direkt aus der Galerie in Originalqualität herunterladen.",
     downloadPoints: ["Ein Download-Button auf jedem Foto", "Sicherer Zugriff auf das Original"],
     downloadAction: "Herunterladen",
-    ctaHeading: "Ihre Gäste schaffen die Erinnerungen. Sie bewahren jede einzelne.",
+    ctaHeading: "Ihre Gäste schaffen die Erinnerungen. Alle bleiben an einem Ort gesammelt.",
     ctaText: "Ein Event, unbegrenzt Gäste, kein Abo.",
   },
   seo: {
@@ -335,7 +338,7 @@ export const de: Dictionary = {
       refresh: "Aktualisieren",
       forget: "Vergessen",
       close: "Gesichtssuche schließen",
-      eyebrow: "KI-Suche",
+      eyebrow: "Suche per Gesicht",
       title: "Finde mich auf den Fotos",
       description:
         "Füge ein klares Selfie hinzu. Wir vergleichen es nur mit Fotos dieses Events. Das Selfie-Bild löschen wir, die Gesichtsreferenz bewahren wir sicher bis zum Ende des Events auf, damit du die Suche ohne neues Selfie aktualisieren kannst.",
@@ -384,7 +387,7 @@ export const de: Dictionary = {
       emptyFaceSearch: "Diese Fotos sind nicht mehr in der öffentlichen Galerie. Aktualisiere die Suche.",
       emptyGallery: "Noch keine Fotos. Füge als Erste:r einen Moment hinzu.",
       showMore: "Mehr Fotos anzeigen",
-      privacy: "Diese Galerie ist privat und nur für Gäste mit dem Link zugänglich.",
+      privacy: "Diese Galerie wird nicht öffentlich indexiert und ist nur über den Event-Link oder den QR-Code erreichbar.",
       lightboxLabel: "Vollbildansicht des Fotos",
       closeView: "Ansicht schließen",
       previousPhoto: "Vorheriges Foto",
@@ -430,8 +433,8 @@ export const de: Dictionary = {
     stepQr: "QR-Code per E-Mail",
   },
   footer: {
-    ctaHeading: "Lassen Sie die Erinnerungen Ihrer Gäste nicht verloren gehen.",
-    ctaText: "Erstellen Sie Ihre Event-Galerie für einmalig 35 €. Ohne Abo.",
+    ctaHeading: "Die Erinnerungen an Ihr Event verdienen einen Ort.",
+    ctaText: "Erstellen Sie Ihre QR-Galerie für 35 €. Einmalzahlung, kein Abo.",
     ctaButton: "Event für 35 € erstellen",
     about:
       "Eine QR-Galerie für Hochzeiten, Firmenevents, Teambuildings und Feiern.",

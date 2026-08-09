@@ -10,8 +10,10 @@ type VisualPlaceholderProps = {
 };
 
 export function VisualPlaceholder({ label, className = "", circle = false, imageSrc, imageAlt, priority = false }: VisualPlaceholderProps) {
+  const trimsCapturedScrollbar = /^\/marketing\/screenshots\/(?:de|en|es|fr|it|nl)\//.test(imageSrc ?? "");
+
   return (
-    <div className={`visual-placeholder ${circle ? "visual-placeholder--circle" : ""} ${className}`} aria-label={label}>
+    <div className={`visual-placeholder ${circle ? "visual-placeholder--circle" : ""} ${trimsCapturedScrollbar ? "visual-placeholder--trim-scrollbar" : ""} ${className}`} aria-label={label}>
       {imageSrc ? (
         <Image src={imageSrc} alt={imageAlt ?? label} fill sizes="(max-width: 768px) 50vw, 420px" priority={priority} />
       ) : (

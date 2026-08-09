@@ -1,7 +1,13 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { localeFromPathname, type Locale } from "@/lib/i18n/locale";
-import { localizedMarketingPath, slovenianRoutePath } from "@/lib/i18n/routes";
+import {
+  localizedMarketingPath,
+  slovenianRoutePath,
+  solutionPageIdFromPath,
+  solutionPagePath,
+  type SolutionPageId,
+} from "@/lib/i18n/routes";
 
 const CANONICAL_ORIGINS: Readonly<Record<string, string>> = {
   "www.galerija.eventaj.si": "https://galerija.eventaj.si",
@@ -45,6 +51,25 @@ export function middleware(request: NextRequest) {
   requestHeaders.set("x-locale", locale);
 
   if (isInternalPath(currentPath)) {
+    if (!canonicalOrigin) return NextResponse.next({ request: { headers: requestHeaders } });
+    return NextResponse.redirect(
+      new URL(`${currentPath}${request.nextUrl.search}`, canonicalOrigin),
+      308,
+    );
+  }
+
+  // The legacy internal route is never canonical.
+  if (currentPath.startsWith("/solutions/")) {
+    const id = currentPath.slice("/solutions/".length) as SolutionPageId;
+    const publicPath = solutionPagePath(locale, id);
+    if (publicPath) return NextResponse.redirect(new URL(publicPath, request.url), 308);
+  }
+
+
+  // SEO solution pages are physical App Router routes. Avoid rewriting them to
+  // one shared pathname, because the route cache must remain locale-specific.
+  const solutionId = solutionPageIdFromPath(currentPath);
+  if (solutionId && solutionPagePath(locale, solutionId) === currentPath) {
     if (!canonicalOrigin) return NextResponse.next({ request: { headers: requestHeaders } });
     return NextResponse.redirect(
       new URL(`${currentPath}${request.nextUrl.search}`, canonicalOrigin),

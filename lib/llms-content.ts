@@ -65,7 +65,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     contactDescription: "Podpora in poslovna vprašanja.",
     important: "Pomembno",
     importantPoints: [
-      "Osnovni dogodek vključuje 20 videov do 60 sekund; dodatek za neomejeno število videov stane 15 EUR in velja fair-use. Videi so samo v galeriji, ne v projekciji.",
+      "Osnovni dogodek vključuje 20 videov do 60 sekund; dodatek za neomejeno število videov stane 15 EUR in velja pravilo razumne uporabe do 1.000 videov na dogodek. Videi so samo v galeriji, ne v projekciji.",
       `${SITE_NAME} trenutno ne objavlja ocen strank ali agregatne ocene.`,
       "Zasebne galerije dogodkov, administracija in plačilni rezultati niso javna dokumentacija ter niso namenjeni indeksiranju.",
     ],
@@ -127,7 +127,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     contactDescription: "Support and business enquiries.",
     important: "Important",
     importantPoints: [
-      "The basic event includes 20 videos of up to 60 seconds; the unlimited-video add-on costs EUR 15 and is subject to fair use. Videos appear only in the gallery, never in the live display.",
+      "The basic event includes 20 videos of up to 60 seconds; the unlimited-video add-on costs EUR 15 and is subject to fair use of up to 1,000 videos per event. Videos appear only in the gallery, never in the live display.",
       `${SITE_NAME} does not currently publish customer ratings or an aggregate score.`,
       "Private event galleries, the admin area and payment results are not public documentation and are not meant to be indexed.",
     ],
@@ -189,7 +189,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     contactDescription: "Support und Geschäftsanfragen.",
     important: "Wichtig",
     importantPoints: [
-      "Das Basis-Event umfasst 20 Videos von bis zu 60 Sekunden; die Option für unbegrenzte Videos kostet 15 EUR und unterliegt Fair Use. Videos erscheinen nur in der Galerie, nicht in der Live-Projektion.",
+      "Das Basis-Event umfasst 20 Videos von bis zu 60 Sekunden; die Option für unbegrenzte Videos kostet 15 EUR und unterliegt einer Fair-Use-Grenze von 1.000 Videos pro Event. Videos erscheinen nur in der Galerie, nicht in der Live-Projektion.",
       `${SITE_NAME} veröffentlicht derzeit keine Kundenbewertungen und keine Gesamtnote.`,
       "Private Eventgalerien, der Adminbereich und Zahlungsergebnisse sind keine öffentliche Dokumentation und nicht zur Indexierung bestimmt.",
     ],
@@ -251,7 +251,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     contactDescription: "Ondersteuning en zakelijke vragen.",
     important: "Belangrijk",
     importantPoints: [
-      "Het basisevenement bevat 20 video's van maximaal 60 seconden; de optie voor onbeperkt video's kost EUR 15 en kent een fair-use grens. Video's verschijnen alleen in de galerij, niet in de live weergave.",
+      "Het basisevenement bevat 20 video's van maximaal 60 seconden; de optie voor onbeperkt video's kost EUR 15 en kent een fair-usegrens van 1.000 video's per evenement. Video's verschijnen alleen in de galerij, niet in de live weergave.",
       `${SITE_NAME} publiceert momenteel geen klantbeoordelingen of gemiddelde score.`,
       "Privégalerijen van evenementen, het beheergedeelte en betaalresultaten zijn geen openbare documentatie en zijn niet bedoeld om geïndexeerd te worden.",
     ],
@@ -313,7 +313,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     contactDescription: "Soporte y consultas comerciales.",
     important: "Importante",
     importantPoints: [
-      "El evento básico incluye 20 vídeos de hasta 60 segundos; el complemento de vídeos ilimitados cuesta 15 EUR y está sujeto a un uso razonable. Los vídeos aparecen solo en la galería, nunca en la proyección en directo.",
+      "El evento básico incluye 20 vídeos de hasta 60 segundos; el complemento de vídeos ilimitados cuesta 15 EUR y está sujeto a un uso razonable de hasta 1.000 vídeos por evento. Los vídeos aparecen solo en la galería, nunca en la proyección en directo.",
       `${SITE_NAME} no publica actualmente valoraciones de clientes ni una puntuación agregada.`,
       "Las galerías privadas de eventos, el área de administración y los resultados de pago no son documentación pública y no están destinados a ser indexados.",
     ],
@@ -375,7 +375,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     contactDescription: "Assistenza e richieste commerciali.",
     important: "Importante",
     importantPoints: [
-      "L'evento base include 20 video fino a 60 secondi; l'opzione video illimitati costa 15 EUR ed è soggetta a un uso corretto. I video compaiono solo nella galleria, mai nella proiezione dal vivo.",
+      "L'evento base include 20 video fino a 60 secondi; l'opzione video illimitati costa 15 EUR ed è soggetta a un uso corretto fino a 1.000 video per evento. I video compaiono solo nella galleria, mai nella proiezione dal vivo.",
       `${SITE_NAME} al momento non pubblica recensioni dei clienti né un punteggio aggregato.`,
       "Le gallerie private degli eventi, l'area di amministrazione e gli esiti dei pagamenti non sono documentazione pubblica e non sono destinati all'indicizzazione.",
     ],
@@ -437,7 +437,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     contactDescription: "Assistance et questions commerciales.",
     important: "Important",
     importantPoints: [
-      "L'événement de base comprend 20 vidéos de 60 secondes maximum ; l'option vidéos illimitées coûte 15 EUR et est soumise à un usage raisonnable. Les vidéos n'apparaissent que dans la galerie, jamais dans la projection en direct.",
+      "L'événement de base comprend 20 vidéos de 60 secondes maximum ; l'option vidéos illimitées coûte 15 EUR et est soumise à un usage raisonnable plafonné à 1 000 vidéos par événement. Les vidéos n'apparaissent que dans la galerie, jamais dans la projection en direct.",
       `${SITE_NAME} ne publie actuellement ni avis clients ni note globale.`,
       "Les galeries privées d'événements, l'espace d'administration et les résultats de paiement ne constituent pas une documentation publique et ne sont pas destinés à être indexés.",
     ],

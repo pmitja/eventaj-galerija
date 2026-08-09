@@ -6,13 +6,12 @@ const REVEAL_SELECTORS = [
   ".quick-steps-inner",
   ".section-heading",
   ".how-card",
-  ".feature-grid",
+  ".feature-card",
   ".memory-feature-grid",
   ".ai-grid",
   ".slideshow-copy",
   ".slideshow-visual-wrap",
   ".showcase-copy",
-  ".showcase-visual-wrap",
   ".devices .shell",
   ".event-use-cases__grid",
   ".pricing-grid",
@@ -38,6 +37,14 @@ export function AnimationController() {
 
     root.dataset.motionReady = "true";
 
+    /*
+     * No negative bottom rootMargin: the last elements on the page (the footer
+     * links and the copyright line) can never scroll above it, so any margin
+     * that clips the viewport bottom leaves them permanently at opacity 0.
+     * The threshold alone is what holds a reveal back until it is properly in
+     * view — and it is measured against the element, so it costs the bottom of
+     * the page nothing.
+     */
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -46,7 +53,7 @@ export function AnimationController() {
           observer.unobserve(entry.target);
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      { threshold: 0.12 },
     );
 
     const frame = window.requestAnimationFrame(() => {

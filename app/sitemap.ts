@@ -2,10 +2,19 @@ import type { MetadataRoute } from "next";
 import { eventUseCasesFor } from "@/components/landing/use-cases";
 import { absoluteUrl, SEO_LAST_UPDATED } from "@/lib/seo";
 import { LEGAL_LAST_UPDATED } from "@/lib/i18n/legal";
-import { languageAlternates } from "@/lib/i18n/alternates";
+import { languageAlternates, solutionLanguageAlternates } from "@/lib/i18n/alternates";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { PREFIXED_LOCALES, appUrlForLocale, localePathPrefix, type Locale } from "@/lib/i18n/locale";
-import { eventUseCasePath, orderPath, privacyPath, termsPath } from "@/lib/i18n/routes";
+import {
+  SOLUTION_PAGE_LOCALES,
+  SOLUTION_PAGE_PATHS,
+  eventUseCasePath,
+  orderPath,
+  privacyPath,
+  solutionPagePath,
+  termsPath,
+  type SolutionPageLocale,
+} from "@/lib/i18n/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: string,
       changeFrequency: "weekly" | "monthly",
       priority: number,
+      languages = languageAlternates(env, path || "/"),
     ) => ({
       // No trailing slash on a bare root: `loc` has to match the page's own
       // canonical and its self-referencing hreflang byte for byte.
@@ -41,8 +51,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified,
       changeFrequency,
       priority,
-      alternates: { languages: languageAlternates(env, path || "/") },
+      alternates: { languages },
     });
+
+    const solutionEntries = SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)
+      ? Object.keys(SOLUTION_PAGE_PATHS).flatMap((id) => {
+          const path = solutionPagePath(locale, id as keyof typeof SOLUTION_PAGE_PATHS);
+          return path
+            ? [entry(path, SEO_LAST_UPDATED, "monthly", 0.9, solutionLanguageAlternates(env, id as keyof typeof SOLUTION_PAGE_PATHS))]
+            : [];
+        })
+      : [];
 
     return [
       entry(localePathPrefix(locale) || "/", SEO_LAST_UPDATED, "weekly", 1),
@@ -50,6 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...eventUseCasesFor(locale).map(({ slug }) =>
         entry(eventUseCasePath(locale, slug), SEO_LAST_UPDATED, "monthly", 0.8),
       ),
+      ...solutionEntries,
       entry(termsPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
       entry(privacyPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
     ];

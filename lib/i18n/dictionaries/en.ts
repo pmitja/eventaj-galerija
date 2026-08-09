@@ -15,9 +15,9 @@ export const en = {
   },
   useCases: {
     pill: "For every occasion",
-    heading: "Not only for weddings. For every event.",
+    heading: "For events of every kind.",
     subtitle:
-      "One simple QR gallery, ready for the way your guests or participants come together.",
+      "One QR gallery for private celebrations, corporate events and everything in between.",
     readMore: "Read more",
   },
   useCasePage: {
@@ -57,24 +57,25 @@ export const en = {
   },
   hero: {
     eyebrow: "One QR code · no app",
-    title: "Every memory from your guests. In one place.",
+    title: "Every memory from the event. In one place.",
     subtitle:
-      "Collect photos, short videos and heartfelt voice messages in one beautiful event gallery — with no app or guest registration.",
+      "Photos, short videos and voice messages from your guests, gathered in one elegant gallery. No app and no sign-up.",
     ctaPrimary: "Create your event for €35",
     ctaSecondary: "Try the demo event",
     trustLabel: "Purchase benefits",
-    trust: ["One-time payment", "Unlimited guests", "Gallery for 180 days"],
+    trust: ["One-time payment", "Unlimited guests", "180-day gallery"],
     guestPhotoAlt: "Guest photo",
     phoneAlt: "Anna and Mark's event gallery on a phone",
   },
   quickSteps: [
-    ["Create your event", "and receive your gallery"],
-    ["Guests scan the QR", "and add photos, video or voice"],
-    ["Enjoy the memories", "every moment in one place"],
+    ["Create your event", "Your gallery and QR code are ready right away."],
+    ["Guests scan the QR code", "They add photos, videos and voice messages."],
+    ["Everything stays in one place", "Event memories gathered in one gallery."],
   ] as [string, string][],
   howItWorks: {
     heading: "How does it work?",
-    subtitle: "Effortless for you and your guests.",
+    subtitle: "Simple for organisers and guests.",
+    qrEmailAlt: "Email containing an event QR code",
     checks: [
       "Photos and videos straight from the browser",
       "Messages and wishes alongside photos",
@@ -82,21 +83,22 @@ export const en = {
     ],
   },
   features: {
-    headingDesktop: "Everything you need for a memorable event",
-    headingMobile: "Everything for your event",
+    headingDesktop: "Everything you need for shared memories",
+    headingMobile: "Everything for shared memories",
     subtitleDesktop:
-      "Photos, short videos, voice messages, a QR code and a live display — all in one place.",
+      "Photos, short videos, voice messages and the features that bring your guests' content together in one place.",
     subtitleMobile: "Photos, videos and voice messages in one place.",
   },
   ai: {
     pill: "Artificial intelligence",
-    headingDesktop: "Review your best photos faster",
+    headingDesktop: "Review photos faster",
     headingMobile: "Review photos faster",
-    subtitle: "An add-on for technical quality classification and duplicate detection.",
+    subtitle:
+      "An add-on that helps sort photos by technical quality and spots blurry and duplicate shots.",
     cardTitle: "AI Best Photos",
     cardDesktop:
-      "Assesses technical quality and detects blurry and duplicate photos so the organiser can review them more easily.",
-    cardMobile: "Assesses technical quality and detects blurry and duplicate photos.",
+      "AI assesses photos technically and helps you identify blurry and duplicate shots.",
+    cardMobile: "AI assesses photos technically and identifies blurry and duplicate shots.",
     tagBest: "Best",
     tagBlurry: "Blurry",
     tagDuplicates: "Duplicates",
@@ -107,16 +109,17 @@ export const en = {
     pill: "Live at your event",
     heading: "Live Slideshow on the big screen",
     descriptionDesktop:
-      "New uploads appear live on a projector or TV — with smooth animation and a QR code that invites guests to join in.",
-    descriptionMobile: "New uploads appear live on a projector or TV — with a QR code for guests.",
-    cta: "See pricing",
+      "New uploads appear live on a projector or TV screen. A QR code on the screen invites guests to join in.",
+    descriptionMobile:
+      "New uploads appear live on a projector or TV screen. A QR code invites guests to join in.",
+    cta: "See what's included",
     visualLabel: "Event live slideshow on a large screen",
     visualAlt: "Event live slideshow with guest wishes on a large screen",
     qrCallout: "Add your photos",
   },
   devices: {
-    heading: "Works on every device",
-    subtitle: "Any browser · no app · beautifully simple",
+    heading: "Works right in the browser",
+    subtitle: "No app. No sign-up. Simple on phone and computer.",
     exampleUrl: "guestmosaic.com/anna-and-mark",
     desktopLabel: "Desktop gallery",
     desktopAlt: "Event gallery on a desktop computer",
@@ -136,26 +139,26 @@ export const en = {
   },
   faq: {
     heading: "Frequently asked questions",
-    subtitle: "Everything you need to know before your first event.",
+    subtitle: "The essentials before your first event.",
   },
   memories: {
-    pill: "More than photos",
-    heading: "Keep every voice and every original",
+    pill: "Voice messages",
+    heading: "More than photos. The voices that stay.",
     subtitle:
       "Guests can record a personal message and download a favourite photo directly from the gallery.",
     voiceTitle: "Audio guestbook",
     voiceText:
-      "A laugh, a story or a heartfelt wish — recorded in the browser with no app or account.",
-    voicePoints: ["Preview before sending", "Up to 2 minutes per message"],
+      "Guests record a personal message of up to two minutes right in the browser. They can listen back before sending and record again if they want.",
+    voicePoints: ["No app, no sign-up", "Guests choose if it is public"],
     voiceVisualEyebrow: "A memory in your voice",
     voiceVisualTitle: "Voice message",
     voiceVisualHint: "Tap to record your message",
     downloadTitle: "Download any photo",
     downloadText:
-      "Open a favourite moment and save the original immediately — no waiting for the complete ZIP archive.",
+      "Every photo can be downloaded straight from the gallery in its original quality.",
     downloadPoints: ["A download button on every photo", "Secure access to the original"],
     downloadAction: "Download",
-    ctaHeading: "Your guests create the memories. You keep every one.",
+    ctaHeading: "Your guests create the memories. They all stay together in one place.",
     ctaText: "One event, unlimited guests, no subscription.",
   },
   seo: {
@@ -339,7 +342,7 @@ export const en = {
       refresh: "Refresh",
       forget: "Forget",
       close: "Close face search",
-      eyebrow: "AI search",
+      eyebrow: "Search by face",
       title: "Find me in the photos",
       description:
         "Add a clear selfie. We compare it only with photos from this event. We delete the selfie image and securely keep the face reference until the event ends so you can refresh the search without another selfie.",
@@ -388,7 +391,7 @@ export const en = {
       emptyFaceSearch: "These photos are no longer in the public gallery. Refresh the search.",
       emptyGallery: "No photos yet. Be the first to add a moment.",
       showMore: "Show more photos",
-      privacy: "This gallery is private and available only to guests with the link.",
+      privacy: "This gallery is not publicly indexed and is reachable only through the event link or QR code.",
       lightboxLabel: "Full-screen photo view",
       closeView: "Close view",
       previousPhoto: "Previous photo",
@@ -434,8 +437,8 @@ export const en = {
     stepQr: "QR by email",
   },
   footer: {
-    ctaHeading: "Do not let your guests' memories disappear.",
-    ctaText: "Create your event gallery for a one-time €35 payment. No subscription.",
+    ctaHeading: "Your event memories deserve one place.",
+    ctaText: "Create your QR gallery for €35. One-time payment, no subscription.",
     ctaButton: "Create your event for €35",
     about:
       "A QR gallery for weddings, corporate events, team buildings and celebrations.",
