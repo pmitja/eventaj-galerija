@@ -426,7 +426,7 @@ export const de: Dictionary = {
     eyebrow: "NEUES EVENT",
     title: "Galerie bestellen",
     intro:
-      "Geben Sie die Daten Ihres Events ein und zahlen Sie sicher über Stripe. Den QR-Code erhalten Sie per E-Mail — ohne Konto und ohne Anmeldung.",
+      "Geben Sie die Daten Ihres Events ein und schließen Sie die Zahlung sicher über Stripe ab. Den QR-Code erhalten Sie per E-Mail; ein Benutzerkonto oder eine Anmeldung benötigen Sie nicht.",
     stepsLabel: "Schritte der Bestellung",
     stepDetails: "Event-Daten",
     stepPayment: "Sichere Zahlung",

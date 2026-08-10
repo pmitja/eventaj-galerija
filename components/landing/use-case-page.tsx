@@ -101,7 +101,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
       <section className="section use-case-benefits">
         <div className="shell">
           <div className="section-heading">
-            <span className="section-pill">{t.useCasePage.benefitsPill}</span>
+            <span className="section-pill">{useCase.benefitsPill ?? t.useCasePage.benefitsPill}</span>
             <h2>{t.useCasePage.benefitsHeading}</h2>
             <p>{t.useCasePage.benefitsSubtitle}</p>
           </div>
