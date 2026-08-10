@@ -360,7 +360,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, o
         <p className={cardText}>{videoUploadsEnabled ? t.subtitleWithVideo : t.subtitlePhotosOnly}</p>
       </div>
 
-      {videoUploadsEnabled ? <input
+      <input
         ref={galleryInputRef}
         className="sr-only"
         type="file"
@@ -368,8 +368,8 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, o
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
         multiple
         onChange={handleFileChange}
-      /> : null}
-      <input
+      />
+      {videoUploadsEnabled ? <input
         ref={videoInputRef}
         className="sr-only"
         type="file"
@@ -377,7 +377,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, o
         accept="video/mp4,video/quicktime,video/webm"
         multiple
         onChange={handleFileChange}
-      />
+      /> : null}
       <input
         ref={cameraInputRef}
         className="sr-only"
