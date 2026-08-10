@@ -181,8 +181,7 @@
   }
 }
 
-* { box-sizing: border-box; scrollbar-width: none; }
-*::-webkit-scrollbar { display: none; }
+* { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 /* Landing page has a dark footer; paint the root canvas dark so overscroll /
    zoomed-out areas below the footer are dark instead of white. */
