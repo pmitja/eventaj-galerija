@@ -1,7 +1,45 @@
-@import "react-day-picker/style.css";
+/* Tailwind v4, brez preflighta: obstoječi ročni CSS ostane nedotaknjen,
+   dokler ni migriran. Ko bo migracija končana, lahko to zamenjaš z
+   `@import "tailwindcss";` in dobiš tudi preflight. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* V `base` plast, da jo Tailwind utilityji lahko prevozijo. */
+@import "react-day-picker/style.css" layer(base);
+
+@source "../app";
+@source "../components";
+
+/* Design tokeni projekta -> Tailwind utilityji (bg-accent, text-ink, border-line, ...).
+   @theme inline pomeni, da utilityji uporabijo var(--accent) in ne prekopirane
+   vrednosti, zato obstoječi CSS in Tailwind vedno gledata isti vir resnice. */
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-tint: var(--brand-tint);
+  --color-plum: var(--plum);
+  --color-plum-strong: var(--plum-strong);
+  --color-plum-muted: var(--plum-muted);
+  --color-field-line: var(--field-line);
+  --color-field-line-hover: var(--field-line-hover);
+  --color-card-line: var(--card-line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-soft-line: var(--soft-line);
+  --color-surface-muted: var(--surface-muted);
+  --radius-button: var(--button-radius);
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+}
 
 :root {
   --accent: #e11d48;
+  --accent-hover: #be123c;
   --accent-soft: #fdf2f5;
   --ink: #0f172a;
   --muted: #64748b;
@@ -9,6 +47,138 @@
   --soft-line: #f1f5f9;
   --surface-muted: #f8fafc;
   --button-radius: 12px;
+
+  /* Paleta UI komponent (components/ui) */
+  --brand: #db2777;
+  --brand-hover: #be185d;
+  --brand-soft: #fce7f3;
+  --brand-tint: #fdf2f8;
+  --plum: #3f0d25;
+  --plum-strong: #4e1831;
+  --plum-muted: #765d68;
+  --field-line: #d8c7cf;
+  --field-line-hover: #c5a9b6;
+  --card-line: #eadde3;
+}
+
+@theme {
+  --animate-popover-in: popover-in 160ms ease-out;
+  --animate-reveal: reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-live-pulse: live-pulse 1.8s ease-in-out infinite;
+  --animate-slide-comment-in: slide-comment-in 0.5s cubic-bezier(0.22, 0.75, 0.25, 1) both;
+  --animate-shimmer: shimmer 1.3s linear infinite;
+  --animate-voice-wave: voice-wave 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes voice-wave {
+  to {
+    transform: scaleY(0.35);
+    opacity: 0.55;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Keyframi so namerno zunaj @theme: `overlay-lifecycle` in `comment-float` se
+   uporabljata prek arbitrarnih animate-[…] razredov s spremenljivim trajanjem,
+   zato jih Tailwind ne bi znal samodejno vključiti v izhod. */
+@layer base {
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: scale(1.015);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes live-pulse {
+    50% {
+      opacity: 0.35;
+      transform: scale(0.75);
+    }
+  }
+
+  @keyframes overlay-lifecycle {
+    0% {
+      opacity: 0;
+      translate: 0 14px;
+    }
+    7%,
+    88% {
+      opacity: 1;
+      translate: 0 0;
+    }
+    100% {
+      opacity: 0;
+      translate: 0 -8px;
+    }
+  }
+
+  @keyframes overlay-fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    5%,
+    90% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes comment-float {
+    0% {
+      opacity: 0;
+      transform: translate3d(22px, 28px, 0) scale(0.96);
+    }
+    10%,
+    72% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(0, clamp(-150px, -11vh, -80px), 0) scale(1);
+    }
+  }
+
+  @keyframes comment-fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    5%,
+    88% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-comment-in {
+    from {
+      opacity: 0;
+      transform: translate3d(-22px, 10px, 0) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  @keyframes popover-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 }
 
 * { box-sizing: border-box; scrollbar-width: none; }

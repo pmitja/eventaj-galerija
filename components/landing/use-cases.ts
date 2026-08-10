@@ -36,7 +36,7 @@ export const eventUseCases = [
     ],
     scenarios: ["civilni obred", "poročno slavje", "dekliščina ali fantovščina", "obletnica poroke"],
     faq: [
-      ["Ali Guest Mosaic nadomesti poročnega fotografa?", "Ne. Profesionalni fotograf poskrbi za ključne posnetke, galerija pa zbere spontane trenutke iz perspektive gostov."],
+      ["Ali Galerija Eventaj nadomesti poročnega fotografa?", "Ne. Profesionalni fotograf poskrbi za ključne posnetke, galerija pa zbere spontane trenutke iz perspektive gostov."],
       ["Kam lahko postaviva QR kodo?", "Na vabila, dobrodošlico, namizne kartice, meni ali zaslon. Največ fotografij praviloma zberete, če je koda vidna na več mestih."],
     ],
   },
@@ -69,7 +69,7 @@ export const eventUseCases = [
     eyebrow: "QR galerija za praznovanja",
     title: "Vsako praznovanje si zasluži skupen album.",
     description:
-      "Od družinskega srečanja do baby showerja: Guest Mosaic zbere fotografije vseh povabljenih brez zapletenih map, aplikacij ali naknadnega pošiljanja.",
+      "Od družinskega srečanja do baby showerja: Galerija Eventaj zbere fotografije vseh povabljenih brez zapletenih map, aplikacij ali naknadnega pošiljanja.",
     highlights: [
       "Deluje za majhna druženja in večja slavja",
       "Neindeksirana povezava, dosegljiva samo prek QR kode",

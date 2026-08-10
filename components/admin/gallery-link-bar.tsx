@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Icon } from "./icon";
 import styles from "./admin.module.css";
 import { shareGallery } from "@/lib/client/share-gallery";
-import { SITE_NAME } from "@/lib/seo";
+import { SL_SITE_NAME } from "@/lib/seo";
 
 function copyWithLegacySelection(url: string) {
   const textArea = document.createElement("textarea");
@@ -29,7 +29,7 @@ export function GalleryLinkBar({ url, eventName }: { url: string; eventName: str
     const result = await shareGallery({
       client: navigator,
       data: {
-        title: `${eventName} | ${SITE_NAME}`,
+        title: `${eventName} | ${SL_SITE_NAME}`,
         text: `Oglej si fotografije dogodka ${eventName}.`,
         url,
       },

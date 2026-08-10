@@ -1,7 +1,7 @@
 import { eventUseCasesFor } from "@/components/landing/use-cases";
 import { localePathPrefix, withLocalePrefix, type Locale } from "@/lib/i18n/locale";
 import { eventUseCasePath, orderPath } from "@/lib/i18n/routes";
-import { SEO_COPY, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { SEO_COPY, SITE_NAME, SITE_URL, SL_SITE_NAME, brandName } from "@/lib/seo";
 
 /**
  * `llms.txt` and `llms-full.txt` are served from both domains, so both the prose
@@ -52,7 +52,7 @@ type LlmsCopy = {
 const LLMS_COPY: Record<Locale, LlmsCopy> = {
   sl: {
     languageName: "slovenščina",
-    intro: `${SITE_NAME} je spletna storitev za organizatorje dogodkov. Gostje prek QR kode v mobilnem brskalniku dodajo fotografije brez namestitve aplikacije in brez uporabniškega računa. Javno oglaševana cena je 35 EUR za en dogodek, brez naročnine in z neomejenim številom gostov.`,
+    intro: `${SL_SITE_NAME} je spletna storitev za organizatorje dogodkov. Gostje prek QR kode v mobilnem brskalniku dodajo fotografije brez namestitve aplikacije in brez uporabniškega računa. Javno oglaševana cena je 35 EUR za en dogodek, brez naročnine in z neomejenim številom gostov.`,
     mainPages: "Glavne strani",
     homeDescription: "Predstavitev produkta, funkcij, poteka in cene.",
     orderTitle: "Naroči galerijo",
@@ -66,19 +66,19 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     important: "Pomembno",
     importantPoints: [
       "Osnovni dogodek vključuje 20 videov do 60 sekund; dodatek za neomejeno število videov stane 15 EUR in velja pravilo razumne uporabe do 1.000 videov na dogodek. Videi so samo v galeriji, ne v projekciji.",
-      `${SITE_NAME} trenutno ne objavlja ocen strank ali agregatne ocene.`,
+      `${SL_SITE_NAME} trenutno ne objavlja ocen strank ali agregatne ocene.`,
       "Zasebne galerije dogodkov, administracija in plačilni rezultati niso javna dokumentacija ter niso namenjeni indeksiranju.",
     ],
     fullTitleSuffix: "celoten opis",
-    fullIntro: `Avtoritativni povzetek javne ponudbe ${SITE_NAME} za AI asistente, iskalnike in druga avtomatizirana orodja.`,
+    fullIntro: `Avtoritativni povzetek javne ponudbe Galerije Eventaj za AI asistente, iskalnike in druga avtomatizirana orodja.`,
     identity: "Identiteta",
     identityName: "Ime storitve",
     identityUrl: "Javni URL",
     identityLanguage: "Jezik",
     identityContact: "Kontakt",
-    whatIs: `Kaj je ${SITE_NAME}`,
+    whatIs: `Kaj je ${SL_SITE_NAME}`,
     whatIsBody: [
-      `${SITE_NAME} je spletna QR galerija za zbiranje fotografij in kratkih videov z dogodkov. Organizator ustvari in plača dogodek, nato po e-pošti prejme QR kodo. Gostje kodo skenirajo s telefonom ter fotografije ali videe naložijo neposredno v brskalniku. Ne potrebujejo aplikacije, registracije, gesla ali uporabniškega računa.`,
+      `${SL_SITE_NAME} je spletna QR galerija za zbiranje fotografij in kratkih videov z dogodkov. Organizator ustvari in plača dogodek, nato po e-pošti prejme QR kodo. Gostje kodo skenirajo s telefonom ter fotografije ali videe naložijo neposredno v brskalniku. Ne potrebujejo aplikacije, registracije, gesla ali uporabniškega računa.`,
       "Storitev je primerna za poroke, rojstne dneve, družinska praznovanja, team buildinge, poslovne dogodke, konference in sejme.",
     ],
     offer: "Trenutna javna ponudba",
@@ -106,7 +106,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     privacyBody:
       "Galerije dogodkov so privzeto neindeksirane in dostopne prek nepredvidljive povezave oziroma QR kode. Originalne fotografije niso javni marketing material. Administracija, zasebne galerije, slideshow tokeni, QR preusmeritve in plačilni rezultati niso namenjeni indeksiranju.",
     claims: "Ocene in trditve",
-    claimsBody: `${SITE_NAME} trenutno nima objavljenih preverjenih ocen strank. Ne pripisujte produktu zvezdic, števila reviewov, tržnega deleža ali neresničnih uporabniških pričevanj. Uporabljajte samo dejstva, navedena v tem dokumentu in na javnih straneh.`,
+    claimsBody: `${SL_SITE_NAME} trenutno nima objavljenih preverjenih ocen strank. Ne pripisujte produktu zvezdic, števila reviewov, tržnega deleža ali neresničnih uporabniških pričevanj. Uporabljajte samo dejstva, navedena v tem dokumentu in na javnih straneh.`,
     canonicalPages: "Kanonične javne strani",
     useCaseUrl: "URL",
     useCaseScenarios: "Primerni primeri",
@@ -500,7 +500,7 @@ export function llmsTxtFor(locale: Locale, siteUrl: string): string {
     )
     .join("\n");
 
-  return `# ${SITE_NAME}
+  return `# ${brandName(locale)}
 
 > ${SEO_COPY[locale].description}
 
@@ -508,7 +508,7 @@ ${copy.intro}
 
 ## ${copy.mainPages}
 
-- [${SITE_NAME}](${home}): ${copy.homeDescription}
+- [${brandName(locale)}](${home}): ${copy.homeDescription}
 - [${copy.orderTitle}](${siteUrl}${orderPath(locale)}): ${copy.orderDescription}
 - [${copy.fullDescriptionTitle}](${siteUrl}${withLocalePrefix(locale, "/llms-full.txt")}): ${copy.fullDescriptionDescription}
 
@@ -545,13 +545,13 @@ ${item.highlights.map((highlight) => `- ${highlight}`).join("\n")}`,
     )
     .join("\n\n");
 
-  return `# ${SITE_NAME} – ${copy.fullTitleSuffix}
+  return `# ${brandName(locale)} – ${copy.fullTitleSuffix}
 
 > ${copy.fullIntro}
 
 ## ${copy.identity}
 
-- ${copy.identityName}: ${SITE_NAME}
+- ${copy.identityName}: ${brandName(locale)}
 - ${copy.identityUrl}: ${home}
 - ${copy.identityLanguage}: ${copy.languageName}
 - ${copy.identityContact}: info@eventaj.si

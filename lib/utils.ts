@@ -1,3 +1,7 @@
-export function cn(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+/** Združi razrede in razreši konflikte med Tailwind utilityji (zadnji zmaga). */
+export function cn(...classes: ClassValue[]) {
+  return twMerge(clsx(classes));
 }

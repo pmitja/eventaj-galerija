@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { UseCasePage } from "@/components/landing/use-case-page";
 import { JsonLd } from "@/components/seo/json-ld";
 import { eventUseCases, getEventUseCase } from "@/components/landing/use-cases";
-import { absoluteUrl, SITE_NAME } from "@/lib/seo";
+import { absoluteUrl, brandName, ogImage } from "@/lib/seo";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { appUrlForLocale, intlLocale, openGraphLocale } from "@/lib/i18n/locale";
 import { canonicalUrl, languageAlternates } from "@/lib/i18n/alternates";
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!useCase) return {};
 
   const env = getPublicAppUrls();
-  const title = `${useCase.navTitle} – ${getDictionary(locale).seo.useCaseTitleSuffix} | ${SITE_NAME}`;
+  const title = `${useCase.navTitle} – ${getDictionary(locale).seo.useCaseTitleSuffix} | ${brandName(locale)}`;
   const description = useCase.description;
 
   const routePath = eventUseCasePath(locale, useCase.slug);
@@ -39,16 +39,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: routePath,
-      siteName: SITE_NAME,
+      siteName: brandName(locale),
       locale: openGraphLocale(locale),
       type: "website",
-      images: ["/og-image.png"],
+      images: [ogImage(locale)],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-image.png"],
+      images: [ogImage(locale)],
     },
   };
 }
@@ -80,7 +80,7 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
           {
             "@type": "ListItem",
             position: 1,
-            name: SITE_NAME,
+            name: brandName(locale),
             item: siteUrl,
           },
           {

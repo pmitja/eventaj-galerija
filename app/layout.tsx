@@ -6,7 +6,7 @@ import { appUrlForLocale, intlLocale, siteUrlForLocale } from "@/lib/i18n/locale
 import { languageAlternates } from "@/lib/i18n/alternates";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
-import { EVENTAJ_MARK, SEO_COPY, SITE_NAME, siteStructuredDataFor } from "@/lib/seo";
+import { EVENTAJ_MARK, SEO_COPY, brandName, ogImage, siteStructuredDataFor } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -20,14 +20,16 @@ export async function generateMetadata(): Promise<Metadata> {
   const env = getPublicAppUrls();
   const siteUrl = appUrlForLocale(env, locale);
   const copy = SEO_COPY[locale];
+  const siteName = brandName(locale);
+  const shareImage = ogImage(locale);
   return {
     metadataBase: new URL(siteUrl),
     title: copy.title,
     description: copy.description,
-    applicationName: SITE_NAME,
-    authors: [{ name: SITE_NAME }],
-    creator: SITE_NAME,
-    publisher: SITE_NAME,
+    applicationName: siteName,
+    authors: [{ name: siteName }],
+    creator: siteName,
+    publisher: siteName,
     category: "event photo sharing",
     keywords: getDictionary(locale).seo.keywords,
     referrer: "origin-when-cross-origin",
@@ -51,12 +53,12 @@ export async function generateMetadata(): Promise<Metadata> {
       title: copy.title,
       description: copy.description,
       url: "/",
-      siteName: SITE_NAME,
+      siteName,
       locale: copy.openGraphLocale,
       type: "website",
-      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: copy.imageAlt }],
+      images: [{ url: shareImage, width: 1200, height: 630, alt: copy.imageAlt }],
     },
-    twitter: { card: "summary_large_image", title: copy.title, description: copy.description, images: ["/og-image.png"] },
+    twitter: { card: "summary_large_image", title: copy.title, description: copy.description, images: [shareImage] },
     alternates: {
       canonical: siteUrlForLocale(env, locale),
       languages: languageAlternates(env, "/"),

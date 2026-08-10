@@ -5,14 +5,15 @@ import { getLegalCopy } from "@/lib/i18n/legal";
 import { openGraphLocale } from "@/lib/i18n/locale";
 import { termsPath } from "@/lib/i18n/routes";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
-import { SITE_NAME } from "@/lib/seo";
+import { brandName, ogImage } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
   const env = getPublicAppUrls();
   const doc = getLegalCopy(locale).terms;
   const routePath = termsPath(locale);
-  const title = `${doc.metaTitle} | ${SITE_NAME}`;
+  const siteName = brandName(locale);
+  const title = `${doc.metaTitle} | ${siteName}`;
   return {
     title,
     description: doc.metaDescription,
@@ -26,9 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description: doc.metaDescription,
       url: routePath,
-      siteName: SITE_NAME,
+      siteName,
       locale: openGraphLocale(locale),
       type: "article",
+      images: [{ url: ogImage(locale), width: 1200, height: 630 }],
     },
     robots: { index: true, follow: true },
   };

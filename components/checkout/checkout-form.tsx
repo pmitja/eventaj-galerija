@@ -19,8 +19,7 @@ import { checkoutFormSchemaFor, type CheckoutFormValues } from "@/lib/validation
 import { useLocale } from "@/components/i18n/locale-provider";
 import type { Locale } from "@/lib/i18n/locale";
 import { privacyPath, termsPath } from "@/lib/i18n/routes";
-import { SITE_NAME } from "@/lib/seo";
-import styles from "./checkout.module.css";
+import { brandName } from "@/lib/seo";
 
 const CHECKOUT_COPY = {
   sl: {
@@ -200,6 +199,16 @@ function valueFromDate(date: Date) {
 
 const DATE_FNS_LOCALES = { sl, en: enGB, de: deDate, nl: nlDate, es: esDate, it: itDate, fr: frDate };
 
+const includedItem = "flex items-center gap-2";
+const includedIcon = "size-[15px] flex-none text-[#16a34a]";
+const addonRow = "grid cursor-pointer grid-cols-[22px_minmax(0,1fr)_auto] items-start gap-[11px]";
+const addonTitle = "flex items-center gap-1.5 text-[14px] text-plum-strong";
+const addonIcon = "size-[15px] flex-none text-brand";
+const addonNote = "text-[12px]/[1.4] text-[#806672]";
+const addonPrice = "pt-px text-[14px] whitespace-nowrap";
+// `!` je nujen, ker globalni `a { color: … }` iz globals.css ni v Tailwind plasti in bi sicer premagal utility.
+const legalLink = "font-[750] text-[#9d174d]! underline! underline-offset-2";
+
 function DatePickerField({ id, label, value, onChange, error, disabledBefore, locale, dateLabel, chooseDate }: {
   id: string;
   label: string;
@@ -218,8 +227,8 @@ function DatePickerField({ id, label, value, onChange, error, disabledBefore, lo
     <FieldLabel htmlFor={id}>{dateLabel}<RequiredMark /></FieldLabel>
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button id={id} type="button" variant="outline" className={styles.dateButton} aria-label={label} aria-required="true" aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined}>
-          <CalendarDays aria-hidden="true" />
+        <Button id={id} type="button" variant="outline" className="w-full justify-start whitespace-nowrap px-2.5 text-[14px] font-[650] sm:px-3" aria-label={label} aria-required="true" aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined}>
+          <CalendarDays className="size-[18px] flex-none text-[#9d3d68]" aria-hidden="true" />
           <span>{selected ? format(selected, "d MMM yyyy", { locale: dateLocale }) : chooseDate}</span>
         </Button>
       </PopoverTrigger>
@@ -244,8 +253,8 @@ function DatePickerField({ id, label, value, onChange, error, disabledBefore, lo
 }
 
 function SectionHeading({ step, title, description }: { step: string; title: string; description: string }) {
-  return <CardHeader className={styles.sectionHeader}>
-    <span className={styles.stepNumber} aria-hidden="true">{step}</span>
+  return <CardHeader className="grid-cols-[34px_1fr] items-start sm:grid-cols-[38px_1fr]">
+    <span className="grid size-[34px] place-items-center rounded-[10px] bg-brand-soft text-[14px] font-[850] text-brand-hover" aria-hidden="true">{step}</span>
     <div>
       <CardTitle>{title}</CardTitle>
       <CardDescription>{description}</CardDescription>
@@ -311,13 +320,13 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
     }
   }
 
-  return <form className={styles.form} onSubmit={form.handleSubmit(submit)} noValidate>
-    <p className={styles.requiredNote}><span aria-hidden="true">*</span> {copy.required}</p>
-    <div className={styles.formLayout}>
-      <div className={styles.formColumn}>
+  return <form className="grid" onSubmit={form.handleSubmit(submit)} noValidate>
+    <p className="m-0 mb-2.5 text-[12.5px] text-plum-muted sm:text-right"><span className="font-extrabold text-brand-hover" aria-hidden="true">*</span> {copy.required}</p>
+    <div className="grid items-start gap-4 sm:gap-6 min-[961px]:grid-cols-[minmax(0,1fr)_350px]">
+      <div className="grid min-w-0 gap-4 sm:gap-5">
         <Card>
           <SectionHeading step="1" title={copy.deliveryTitle} description={copy.deliveryDescription} />
-          <CardContent className={styles.fieldsGrid}>
+          <CardContent className="grid gap-[18px] sm:grid-cols-[repeat(2,minmax(0,1fr))]">
             <Field>
               <FieldLabel htmlFor="organizationName">{copy.organisation}<RequiredMark /></FieldLabel>
               <Input id="organizationName" required autoComplete="organization" placeholder={copy.organisationPlaceholder} aria-invalid={Boolean(errors.organizationName)} aria-describedby={errors.organizationName ? "organizationName-error" : undefined} {...form.register("organizationName")} />
@@ -333,37 +342,37 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
               <Input id="ownerEmail" type="email" required inputMode="email" autoComplete="email" placeholder={copy.emailPlaceholder} aria-invalid={Boolean(errors.ownerEmail)} aria-describedby={errors.ownerEmail ? "ownerEmail-error" : undefined} {...form.register("ownerEmail")} />
               {errors.ownerEmail ? <FieldError id="ownerEmail-error">{errors.ownerEmail.message}</FieldError> : null}
             </Field>
-            <div className={styles.deliveryPromise}>
-              <Mail aria-hidden="true" />
-              <span><strong>{copy.afterPayment}</strong><small>{copy.afterPaymentNote}</small></span>
+            <div className="flex min-h-[70px] items-start gap-[11px] rounded-[14px] border border-[#eee0e6] bg-[#fffbfd] p-3.5">
+              <Mail className="mt-px size-5 flex-none text-brand" aria-hidden="true" />
+              <span className="grid gap-[3px]"><strong className="text-[13.5px] text-plum-strong">{copy.afterPayment}</strong><small className="text-[12px]/[1.45] text-plum-muted">{copy.afterPaymentNote}</small></span>
             </div>
-            <div className={styles.deliveryPromise}>
-              <Download aria-hidden="true" />
-              <span><strong>{copy.afterEvent}</strong><small>{copy.afterEventNote}</small></span>
+            <div className="flex min-h-[70px] items-start gap-[11px] rounded-[14px] border border-[#eee0e6] bg-[#fffbfd] p-3.5">
+              <Download className="mt-px size-5 flex-none text-brand" aria-hidden="true" />
+              <span className="grid gap-[3px]"><strong className="text-[13.5px] text-plum-strong">{copy.afterEvent}</strong><small className="text-[12px]/[1.45] text-plum-muted">{copy.afterEventNote}</small></span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <SectionHeading step="2" title={copy.eventDetails} description={copy.eventDescription} />
-          <CardContent className={styles.eventContent}>
-            <div className={styles.fieldsGrid}>
-              <Field className={styles.fullWidth}>
+          <CardContent className="grid gap-[22px]">
+            <div className="grid gap-[18px] sm:grid-cols-[repeat(2,minmax(0,1fr))]">
+              <Field className="sm:col-span-full">
                 <FieldLabel htmlFor="eventName">{copy.eventName}<RequiredMark /></FieldLabel>
                 <Input id="eventName" required placeholder={copy.eventPlaceholder} aria-invalid={Boolean(errors.eventName)} aria-describedby={errors.eventName ? "eventName-error" : undefined} {...form.register("eventName")} />
                 {errors.eventName ? <FieldError id="eventName-error">{errors.eventName.message}</FieldError> : null}
               </Field>
-              <Field className={styles.fullWidth}>
-                <FieldLabel htmlFor="eventLocation">{copy.location} <span className={styles.optional}>({copy.optional})</span></FieldLabel>
+              <Field className="sm:col-span-full">
+                <FieldLabel htmlFor="eventLocation">{copy.location} <span className="text-[12px] font-semibold text-[#8a707c]">({copy.optional})</span></FieldLabel>
                 <Input id="eventLocation" placeholder={copy.locationPlaceholder} autoComplete="off" aria-invalid={Boolean(errors.eventLocation)} {...form.register("eventLocation")} />
                 {errors.eventLocation ? <FieldError>{errors.eventLocation.message}</FieldError> : null}
               </Field>
             </div>
 
-            <div className={styles.timeline}>
-              <div className={styles.dateTimeGroup}>
-                <div className={styles.dateTimeHeading}><span>{copy.start}</span><small>Europe/Ljubljana</small></div>
-                <div className={styles.dateTimeFields}>
+            <div className="grid gap-3.5 sm:grid-cols-[repeat(2,minmax(0,1fr))]">
+              <div className="grid min-w-0 gap-3.5 rounded-2xl border border-[#eee0e6] bg-[#fffbfd] p-3.5 sm:p-4">
+                <div className="flex items-baseline justify-between gap-2"><span className="text-[14px] font-[850] text-plum">{copy.start}</span><small className="hidden text-[11px] text-[#8a707c] sm:block">Europe/Ljubljana</small></div>
+                <div className="grid items-start gap-2.5 min-[381px]:grid-cols-[minmax(0,1fr)_102px] sm:grid-cols-[minmax(0,1fr)_108px]">
                   <Controller control={form.control} name="startDate" render={({ field }) => <DatePickerField id="startDate" label={copy.startDateLabel} value={field.value} onChange={(value) => {
                     field.onChange(value);
                     if (!form.getValues("endDate")) form.setValue("endDate", value, { shouldValidate: true });
@@ -375,9 +384,9 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
                   </Field>
                 </div>
               </div>
-              <div className={styles.dateTimeGroup}>
-                <div className={styles.dateTimeHeading}><span>{copy.end}</span></div>
-                <div className={styles.dateTimeFields}>
+              <div className="grid min-w-0 gap-3.5 rounded-2xl border border-[#eee0e6] bg-[#fffbfd] p-3.5 sm:p-4">
+                <div className="flex items-baseline justify-between gap-2"><span className="text-[14px] font-[850] text-plum">{copy.end}</span></div>
+                <div className="grid items-start gap-2.5 min-[381px]:grid-cols-[minmax(0,1fr)_102px] sm:grid-cols-[minmax(0,1fr)_108px]">
                   <Controller control={form.control} name="endDate" render={({ field }) => <DatePickerField id="endDate" label={copy.endDateLabel} value={field.value} onChange={field.onChange} error={errors.endDate?.message} disabledBefore={dateFromValue(startDate)} locale={locale} dateLabel={copy.date} chooseDate={copy.chooseDate} />} />
                   <Field>
                     <FieldLabel htmlFor="endTime">{copy.time}<RequiredMark /></FieldLabel>
@@ -388,65 +397,65 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
               </div>
             </div>
 
-            <Controller control={form.control} name="commentsEnabled" render={({ field }) => <label className={styles.commentsOption} htmlFor="commentsEnabled">
+            <Controller control={form.control} name="commentsEnabled" render={({ field }) => <label className="flex cursor-pointer items-start gap-3 border-t border-[#f0e3e8] pt-[18px]" htmlFor="commentsEnabled">
               <Checkbox id="commentsEnabled" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong>{copy.comments}</strong><small>{copy.commentsNote}</small></span>
+              <span className="grid gap-[3px]"><strong className="text-[14px] text-plum-strong">{copy.comments}</strong><small className="text-[12.5px]/[1.45] text-plum-muted">{copy.commentsNote}</small></span>
             </label>} />
           </CardContent>
         </Card>
       </div>
 
-      <aside className={styles.summary} aria-label={copy.summary}>
-        <Card className={styles.summaryCard}>
+      <aside className="static min-[961px]:sticky min-[961px]:top-6" aria-label={copy.summary}>
+        <Card className="shadow-[0_18px_48px_rgba(79,18,47,.09)]">
           <CardHeader>
             <CardTitle>{copy.summary}</CardTitle>
             <CardDescription>{copy.once}</CardDescription>
           </CardHeader>
-          <CardContent className={styles.summaryContent}>
-            <div className={styles.productRow}>
-              <div className={styles.productIcon}><CalendarDays aria-hidden="true" /></div>
-              <div><strong>{SITE_NAME}</strong><span>{copy.oneEvent}</span></div>
-              <b>35 €</b>
+          <CardContent className="grid gap-[18px]">
+            <div className="grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3">
+              <div className="grid size-[42px] place-items-center rounded-xl bg-brand-soft text-brand-hover"><CalendarDays className="size-5" aria-hidden="true" /></div>
+              <div className="grid gap-0.5"><strong className="text-[14px]">{brandName(locale)}</strong><span className="text-[12px] text-[#806672]">{copy.oneEvent}</span></div>
+              <b className="text-[18px] whitespace-nowrap">35 €</b>
             </div>
-            <ul className={styles.includedList}>
-              <li><Check aria-hidden="true" /> {copy.unlimitedGuests}</li>
-              <li><Check aria-hidden="true" /> {copy.qrGallery}</li>
-              <li><Check aria-hidden="true" /> {copy.qrEmail}</li>
-              {videoUploadsEnabled ? <li><Check aria-hidden="true" /> {copy.videos}</li> : null}
-              <li><Check aria-hidden="true" /> {copy.zip}</li>
+            <ul className="m-0 -mt-1 grid list-none gap-2 p-0 text-[12.5px] text-[#68495a]">
+              <li className={includedItem}><Check className={includedIcon} strokeWidth={3} aria-hidden="true" /> {copy.unlimitedGuests}</li>
+              <li className={includedItem}><Check className={includedIcon} strokeWidth={3} aria-hidden="true" /> {copy.qrGallery}</li>
+              <li className={includedItem}><Check className={includedIcon} strokeWidth={3} aria-hidden="true" /> {copy.qrEmail}</li>
+              {videoUploadsEnabled ? <li className={includedItem}><Check className={includedIcon} strokeWidth={3} aria-hidden="true" /> {copy.videos}</li> : null}
+              <li className={includedItem}><Check className={includedIcon} strokeWidth={3} aria-hidden="true" /> {copy.zip}</li>
             </ul>
             <Separator />
-            <Controller control={form.control} name="aiBestPhotos" render={({ field }) => <label className={styles.addon} htmlFor="aiBestPhotos">
+            <Controller control={form.control} name="aiBestPhotos" render={({ field }) => <label className={addonRow} htmlFor="aiBestPhotos">
               <Checkbox id="aiBestPhotos" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong><Sparkles aria-hidden="true" /> AI Best Photos</strong><small>{copy.aiNote}</small></span>
-              <b>+15 €</b>
+              <span className="grid gap-1"><strong className={addonTitle}><Sparkles className={addonIcon} aria-hidden="true" /> AI Best Photos</strong><small className={addonNote}>{copy.aiNote}</small></span>
+              <b className={addonPrice}>+15 €</b>
             </label>} />
-            <Controller control={form.control} name="faceCollections" render={({ field }) => <label className={styles.addon} htmlFor="faceCollections">
+            <Controller control={form.control} name="faceCollections" render={({ field }) => <label className={addonRow} htmlFor="faceCollections">
               <Checkbox id="faceCollections" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong><ScanFace aria-hidden="true" /> {copy.face}</strong><small>{copy.faceNote}</small></span>
-              <b>+5 €</b>
+              <span className="grid gap-1"><strong className={addonTitle}><ScanFace className={addonIcon} aria-hidden="true" /> {copy.face}</strong><small className={addonNote}>{copy.faceNote}</small></span>
+              <b className={addonPrice}>+5 €</b>
             </label>} />
-            {videoUploadsEnabled ? <Controller control={form.control} name="videoUnlimited" render={({ field }) => <label className={styles.addon} htmlFor="videoUnlimited">
+            {videoUploadsEnabled ? <Controller control={form.control} name="videoUnlimited" render={({ field }) => <label className={addonRow} htmlFor="videoUnlimited">
               <Checkbox id="videoUnlimited" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-              <span><strong><Video aria-hidden="true" /> {copy.unlimitedVideos}</strong><small>{copy.videoNote}</small></span>
-              <b>+15 €</b>
+              <span className="grid gap-1"><strong className={addonTitle}><Video className={addonIcon} aria-hidden="true" /> {copy.unlimitedVideos}</strong><small className={addonNote}>{copy.videoNote}</small></span>
+              <b className={addonPrice}>+15 €</b>
             </label>} /> : null}
             <Separator />
-            <div className={styles.total}><span>{copy.total}</span><strong>{totalEuros} €</strong></div>
-            <span className={styles.taxNote}>{copy.tax}</span>
+            <div className="flex items-baseline justify-between"><span className="text-[14px] font-bold text-[#68495a]">{copy.total}</span><strong className="text-[30px]/none tracking-[-.03em]">{totalEuros} €</strong></div>
+            <span className="-mt-3 text-right text-[11.5px] text-[#8a707c]">{copy.tax}</span>
             <Controller control={form.control} name="termsAccepted" render={({ field }) => <div>
-              <label className={styles.legalConsent} htmlFor="termsAccepted">
+              <label className="flex cursor-pointer items-start gap-2.5 text-[12px]/[1.5] text-[#68495a]" htmlFor="termsAccepted">
                 <Checkbox id="termsAccepted" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} aria-invalid={Boolean(errors.termsAccepted)} />
-                <span>{copy.consentPrefix} <Link href={termsPath(locale)} target="_blank">{copy.terms}</Link> {copy.consentMiddle} <Link href={privacyPath(locale)} target="_blank">{copy.privacy}</Link>.</span>
+                <span>{copy.consentPrefix} <Link className={legalLink} href={termsPath(locale)} target="_blank">{copy.terms}</Link> {copy.consentMiddle} <Link className={legalLink} href={privacyPath(locale)} target="_blank">{copy.privacy}</Link>.</span>
               </label>
               {errors.termsAccepted ? <FieldError>{errors.termsAccepted.message}</FieldError> : null}
             </div>} />
-            {serverError ? <Alert role="alert"><TriangleAlert aria-hidden="true" /><span>{serverError}</span></Alert> : null}
-            <Button className={styles.submit} type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <LoaderCircle className={styles.spinner} aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}
+            {serverError ? <Alert role="alert"><TriangleAlert className="size-[18px] flex-none" aria-hidden="true" /><span>{serverError}</span></Alert> : null}
+            <Button className="min-h-[54px] w-full text-[16px]" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <LoaderCircle className="size-[18px] animate-spin motion-reduce:[animation-duration:1.6s]" aria-hidden="true" /> : <LockKeyhole className="size-[18px]" aria-hidden="true" />}
               {isSubmitting ? copy.opening : copy.continue}
             </Button>
-            <div className={styles.secureNote}><ShieldCheck aria-hidden="true" /><span>{copy.secure}</span></div>
+            <div className="flex items-start justify-center gap-[7px] text-left text-[11.5px]/[1.45] text-[#806672]"><ShieldCheck className="size-4 flex-none text-[#16a34a]" aria-hidden="true" /><span>{copy.secure}</span></div>
           </CardContent>
         </Card>
       </aside>

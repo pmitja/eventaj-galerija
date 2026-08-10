@@ -10,7 +10,7 @@ import { eventUseCasesFor, type EventUseCase } from "./use-cases";
 import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { eventUseCasePath, localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
-import { SITE_NAME } from "@/lib/seo";
+import { brandName } from "@/lib/seo";
 import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
 
 export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
@@ -55,7 +55,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
       <section className="use-case-hero">
         <div className="use-case-hero__inner shell">
           <div className="use-case-hero__copy">
-            <Link className="use-case-breadcrumb" href={home}>{SITE_NAME} <span aria-hidden="true">/</span> {useCase.navTitle}</Link>
+            <Link className="use-case-breadcrumb" href={home}>{brandName(locale)} <span aria-hidden="true">/</span> {useCase.navTitle}</Link>
             <div className="eyebrow"><span />{useCase.eyebrow}</div>
             <h1>{useCase.title}</h1>
             <p>{useCase.description}</p>

@@ -5,6 +5,16 @@ export const SITE_URL = "https://galerija.eventaj.si";
 export const ENGLISH_SITE_URL = "https://guestmosaic.com";
 export const BRAND_URL = "https://eventaj.si";
 export const SITE_NAME = "Guest Mosaic";
+/** Slovenian never rebranded — galerija.eventaj.si stays Galerija Eventaj. */
+export const SL_SITE_NAME = "Galerija Eventaj";
+
+/**
+ * Every user-visible brand mention has to go through this: titles, OG tags and
+ * structured data on the Slovenian site must not say "Guest Mosaic".
+ */
+export function brandName(locale: Locale): string {
+  return locale === "sl" ? SL_SITE_NAME : SITE_NAME;
+}
 
 /**
  * Slovenian keeps the original Eventaj mark; every other language carries the
@@ -32,6 +42,16 @@ export function guestBrandMark(locale: Locale): string | null {
 export function brandWordParts(locale: Locale): [string, string] {
   return locale === "sl" ? ["Galerija", " Eventaj"] : ["Guest", " Mosaic"];
 }
+/**
+ * Each language has its own 1200x630 share card — the headline and CTA on it
+ * are localised, so serving one file to every locale showed Slovenian copy in
+ * every foreign preview. Slovenian keeps the original path so links already
+ * shared and cached by Facebook and friends do not break.
+ */
+export function ogImage(locale: Locale): string {
+  return locale === "sl" ? "/og-image.png" : `/og-image-${locale}.png`;
+}
+
 export const SITE_LANGUAGE = "sl-SI";
 export const SEO_LAST_UPDATED = "2026-08-04";
 
@@ -39,9 +59,12 @@ export const SEO_COPY = {
   sl: {
     language: "sl-SI",
     openGraphLocale: "sl_SI",
-    title: `${SITE_NAME} | QR galerija za dogodke`,
+    // Keyword first, then the H1's own phrasing, so title and H1 share the
+    // primary term. The brand is left off: at 69 chars Google truncates it
+    // away anyway, and it appends the site name from WebSite.name instead.
+    title: "QR galerija za dogodke – vsi spomini na enem mestu",
     description: "Zberite fotografije, kratke videe in glasovna voščila gostov v eni QR galeriji dogodka. Brez aplikacije, registracije ali naročnine.",
-    imageAlt: "Guest Mosaic – vse fotografije z dogodka na enem mestu.",
+    imageAlt: "Galerija Eventaj – vse fotografije z dogodka na enem mestu.",
     operatingSystem: "Vsaka naprava s sodobnim spletnim brskalnikom",
     browserRequirements: "JavaScript in internetna povezava",
     featureList: [
@@ -193,13 +216,14 @@ export const PRIVATE_ROBOTS_PATHS = [
 
 export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
   const copy = SEO_COPY[locale];
+  const name = brandName(locale);
   return {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Organization",
         "@id": `${BRAND_URL}/#organization`,
-        name: SITE_NAME,
+        name,
         url: siteUrl,
         email: "info@eventaj.si",
         logo: { "@type": "ImageObject", url: `${siteUrl}${brandMark(locale)}` },
@@ -208,7 +232,7 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
         "@type": "WebSite",
         "@id": `${siteUrl}/#website`,
         url: siteUrl,
-        name: SITE_NAME,
+        name,
         description: copy.description,
         inLanguage: copy.language,
         publisher: { "@id": `${BRAND_URL}/#organization` },
@@ -217,7 +241,7 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
         "@type": "WebApplication",
         "@id": `${siteUrl}/#application`,
         url: siteUrl,
-        name: SITE_NAME,
+        name,
         description: copy.description,
         applicationCategory: "MultimediaApplication",
         operatingSystem: copy.operatingSystem,

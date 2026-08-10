@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { EVENTAJ_MARK, SEO_COPY, SITE_NAME } from "@/lib/seo";
+import { EVENTAJ_MARK, SEO_COPY, brandName } from "@/lib/seo";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { intlLocale, localePathPrefix } from "@/lib/i18n/locale";
 
@@ -10,10 +10,11 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   // A PWA installed from /de has to start on the German homepage, not the
   // English root the two share.
   const start = `${localePathPrefix(locale)}/`;
+  const siteName = brandName(locale);
   return {
     id: start,
-    name: SITE_NAME,
-    short_name: SITE_NAME,
+    name: siteName,
+    short_name: siteName,
     description: SEO_COPY[locale].description,
     start_url: start,
     scope: start,

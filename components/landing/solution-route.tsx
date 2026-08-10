@@ -6,7 +6,7 @@ import { solutionLanguageAlternates } from "@/lib/i18n/alternates";
 import { appUrlForLocale, intlLocale, openGraphLocale } from "@/lib/i18n/locale";
 import { getPublicAppUrls } from "@/lib/i18n/server";
 import { solutionPagePath, type SolutionPageId, type SolutionPageLocale } from "@/lib/i18n/routes";
-import { absoluteUrl, SITE_NAME } from "@/lib/seo";
+import { absoluteUrl, ogImage, SITE_NAME } from "@/lib/seo";
 
 export function solutionMetadata(locale: SolutionPageLocale, id: SolutionPageId): Metadata {
   const page = getSolutionPage(id, locale);
@@ -28,13 +28,13 @@ export function solutionMetadata(locale: SolutionPageLocale, id: SolutionPageId)
       siteName: SITE_NAME,
       locale: openGraphLocale(locale),
       type: "website",
-      images: ["/og-image.png"],
+      images: [ogImage(locale)],
     },
     twitter: {
       card: "summary_large_image",
       title: page.seoTitle,
       description: page.metaDescription,
-      images: ["/og-image.png"],
+      images: [ogImage(locale)],
     },
   };
 }

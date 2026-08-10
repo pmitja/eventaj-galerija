@@ -17,7 +17,7 @@ export const sl: Dictionary = {
   },
   useCasePage: {
     ctaCreate: "Ustvari dogodek — 35 €",
-    desktopAlt: "Guest Mosaic z vsemi fotografijami dogodka na računalniku",
+    desktopAlt: "Galerija Eventaj z vsemi fotografijami dogodka na računalniku",
     mobileAlt: "Mobilna galerija, ki jo gost odpre prek QR kode",
     guestsUpload: "Gostje dodajo",
     guestsUploadNote: "brez aplikacije in prijave",
@@ -182,7 +182,7 @@ export const sl: Dictionary = {
         "To ni uporabniški račun. Identiteta ostane shranjena le v tem brskalniku za ta dogodek.",
     },
     live: {
-      backToSite: "Nazaj na predstavitveno stran Guest Mosaic",
+      backToSite: "Nazaj na predstavitveno stran Galerije Eventaj",
       linkInvalid: "Povezava do projekcije ni več veljavna.",
       refreshError: "Projekcije ni bilo mogoče osvežiti.",
       preparing: "Pripravljamo projekcijo …",
@@ -355,7 +355,7 @@ export const sl: Dictionary = {
     gallery: {
       shareText: "Oglej si fotografije dogodka {event}.",
       demoEventName: "Ana & Marko",
-      backToSite: "Nazaj na predstavitveno stran Guest Mosaic",
+      backToSite: "Nazaj na predstavitveno stran Galerije Eventaj",
       sharing: "Odpiram možnosti deljenja",
       share: "Deli galerijo",
       welcome:
@@ -419,7 +419,7 @@ export const sl: Dictionary = {
     },
   },
   order: {
-    metaTitle: "Naroči QR galerijo za dogodek | Guest Mosaic",
+    metaTitle: "Naroči QR galerijo za dogodek | Galerija Eventaj",
     metaDescription: "Ustvari QR galerijo za 35 EUR na dogodek. Brez naročnine, brez aplikacije za goste in z neomejenim številom gostov.",
     back: "Nazaj",
     eyebrow: "NOV DOGODEK",

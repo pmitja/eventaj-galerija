@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 const APP_URLS = {
@@ -17,8 +19,8 @@ import { GET as getLlmsFullTxt } from "@/app/llms-full.txt/route";
 import { eventUseCases } from "@/components/landing/use-cases";
 import { languageAlternates } from "@/lib/i18n/alternates";
 import { getRequestLocale } from "@/lib/i18n/server";
-import type { Locale } from "@/lib/i18n/locale";
-import { ENGLISH_SITE_URL, SITE_URL, siteStructuredData } from "@/lib/seo";
+import { SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/locale";
+import { ENGLISH_SITE_URL, SITE_URL, SL_SITE_NAME, ogImage, siteStructuredData } from "@/lib/seo";
 
 const mockedLocale = vi.mocked(getRequestLocale);
 
@@ -103,7 +105,7 @@ describe("public SEO discovery", () => {
     const full = await fullResponse.text();
 
     expect(fullResponse.headers.get("content-type")).toContain("text/plain");
-    expect(concise).toContain(`# Guest Mosaic`);
+    expect(concise).toContain(`# ${SL_SITE_NAME}`);
     expect(concise).toContain(`${SITE_URL}/llms-full.txt`);
     expect(full).toContain("Cena: 35 EUR");
     expect(full).toContain("trenutno nima objavljenih preverjenih ocen strank");
@@ -125,6 +127,16 @@ describe("public SEO discovery", () => {
     expect(french).toContain(`${ENGLISH_SITE_URL}/fr/for-events/weddings`);
     expect(french).toContain("Prix : 35 EUR par événement.");
     expect(french).not.toContain(SITE_URL);
+  });
+
+  it("gives every locale its own share card", () => {
+    const cards = SUPPORTED_LOCALES.map(ogImage);
+
+    expect(new Set(cards).size).toBe(SUPPORTED_LOCALES.length);
+    expect(ogImage("sl")).toBe("/og-image.png");
+    for (const card of cards) {
+      expect(existsSync(join(process.cwd(), "public", card))).toBe(true);
+    }
   });
 
   it("does not claim ratings or reviews in structured data", () => {

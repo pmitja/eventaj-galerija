@@ -41,12 +41,12 @@ const sl: LegalCopy = {
   privacy: {
     metaTitle: "Zasebnost",
     metaDescription:
-      "Kako Guest Mosaic obdeluje podatke organizatorjev in gostov: nameni, ponudniki obdelave, roki hrambe in vaše pravice.",
+      "Kako Galerija Eventaj obdeluje podatke organizatorjev in gostov: nameni, ponudniki obdelave, roki hrambe in vaše pravice.",
     eyebrow: "Pravni dokument",
     title: "Politika zasebnosti",
     version: "Različica: 31. julij 2026",
     intro:
-      "Ta politika pojasnjuje obdelavo podatkov v Guest Mosaic. Za vprašanja ali uveljavljanje pravic pišite na {email}.",
+      "Ta politika pojasnjuje obdelavo podatkov v Galeriji Eventaj. Za vprašanja ali uveljavljanje pravic pišite na {email}.",
     sections: [
       {
         heading: "1. Katere podatke obdelujemo",
@@ -66,7 +66,7 @@ const sl: LegalCopy = {
       {
         heading: "3. Ponudniki obdelave",
         body: [
-          "Za gostovanje, zbirko podatkov, shrambo slik in obdelavo videov uporabljamo Cloudflare. Plačila obdeluje Stripe; Guest Mosaic ne hrani celotnih podatkov plačilne kartice. Posamezne dodatne funkcije lahko uporabljajo dokumentirane zunanje ponudnike pod pogodbenimi in varnostnimi omejitvami.",
+          "Za gostovanje, zbirko podatkov, shrambo slik in obdelavo videov uporabljamo Cloudflare. Plačila obdeluje Stripe; Galerija Eventaj ne hrani celotnih podatkov plačilne kartice. Posamezne dodatne funkcije lahko uporabljajo dokumentirane zunanje ponudnike pod pogodbenimi in varnostnimi omejitvami.",
         ],
       },
       {
@@ -100,12 +100,12 @@ const sl: LegalCopy = {
   terms: {
     metaTitle: "Pogoji uporabe",
     metaDescription:
-      "Pogoji uporabe Guest Mosaic: obseg paketa, pravice do vsebine, objava v galeriji, hramba, razpoložljivost in moderacija.",
+      "Pogoji uporabe Galerije Eventaj: obseg paketa, pravice do vsebine, objava v galeriji, hramba, razpoložljivost in moderacija.",
     eyebrow: "Pravni dokument",
     title: "Pogoji uporabe",
     version: "Različica: 31. julij 2026",
     intro:
-      "Ti pogoji urejajo uporabo Guest Mosaic za organizatorje dogodkov in goste, ki prek povezave ali QR kode nalagajo fotografije in videe.",
+      "Ti pogoji urejajo uporabo Galerije Eventaj za organizatorje dogodkov in goste, ki prek povezave ali QR kode nalagajo fotografije in videe.",
     sections: [
       {
         heading: "1. Storitev in paket",
