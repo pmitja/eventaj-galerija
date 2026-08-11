@@ -1,12 +1,6 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { createAccessPointRecord } from "@/lib/domain/access-points";
-import {
-  INCLUDED_VIDEO_COUNT,
-  VIDEO_FAIR_USE_COUNT,
-  VIDEO_MAX_BYTES,
-  VIDEO_MAX_DURATION_SECONDS,
-  checkoutTotalCents,
-} from "@/lib/domain/billing";
+import { checkoutTotalCents, videoUploadPolicy } from "@/lib/domain/billing";
 import { createEventRecord } from "@/lib/domain/events";
 import { CURRENT_TERMS_VERSION } from "@/lib/domain/legal";
 import type { z } from "zod";
@@ -194,13 +188,7 @@ export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"):
     ).bind(
       crypto.randomUUID(),
       event.id,
-      JSON.stringify({
-        includedCount: INCLUDED_VIDEO_COUNT,
-        unlimited: Boolean(order.video_unlimited),
-        maxDurationSeconds: VIDEO_MAX_DURATION_SECONDS,
-        maxBytes: VIDEO_MAX_BYTES,
-        fairUseCount: VIDEO_FAIR_USE_COUNT,
-      }),
+      JSON.stringify(videoUploadPolicy(Boolean(order.video_unlimited))),
       order.id,
       timestamp,
       timestamp,

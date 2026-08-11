@@ -228,6 +228,8 @@ export const sl: Dictionary = {
       unavailable: "Nalaganje trenutno ni na voljo.",
       offline: "Ni povezave. Poskusi znova, ko boš na spletu.",
       prepareFailed: "Datoteke ni bilo mogoče pripraviti.",
+      videoLimitReached: "Dosežena je omejitev 20 videov za ta dogodek.",
+      videoFairUseLimitReached: "Dosežena je omejitev razumne uporabe 1.000 videov za ta dogodek.",
       transferFailed: "Prenos ni uspel.",
       networkError: "Omrežna napaka.",
       completeFailed: "Zaključevanje prenosa ni uspelo.",

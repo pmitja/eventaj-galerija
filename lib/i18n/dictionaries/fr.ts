@@ -229,6 +229,8 @@ export const fr: Dictionary = {
       unavailable: "L'envoi est momentanément indisponible.",
       offline: "Vous êtes hors ligne. Réessayez une fois reconnecté.",
       prepareFailed: "Le fichier n'a pas pu être préparé.",
+      videoLimitReached: "Cet événement a atteint la limite de 20 vidéos.",
+      videoFairUseLimitReached: "Cet événement a atteint la limite d'utilisation raisonnable de 1 000 vidéos.",
       transferFailed: "Le transfert a échoué.",
       networkError: "Erreur réseau.",
       completeFailed: "L'envoi n'a pas pu être finalisé.",

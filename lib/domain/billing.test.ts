@@ -10,6 +10,7 @@ import {
   VIDEO_MAX_DURATION_SECONDS,
   VIDEO_UNLIMITED_PRICE_CENTS,
   checkoutTotalCents,
+  videoUploadPolicy,
 } from "./billing";
 
 describe("billing rules", () => {
@@ -38,5 +39,7 @@ describe("billing rules", () => {
     expect(VIDEO_UNLIMITED_PRICE_CENTS).toBe(1_500);
     expect(checkoutTotalCents(false, false, true)).toBe(5_000);
     expect(checkoutTotalCents(true, true, true)).toBe(7_000);
+    expect(videoUploadPolicy(false)).toMatchObject({ includedCount: 20, unlimited: false });
+    expect(videoUploadPolicy(true)).toMatchObject({ fairUseCount: 1_000, unlimited: true });
   });
 });

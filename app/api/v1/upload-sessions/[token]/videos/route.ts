@@ -40,7 +40,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     publicationConsent: parsed.data.publicationConsent,
     limit,
   });
-  if (!media) return problem(429, "VIDEO_EVENT_LIMIT", `Dogodek je dosegel omejitev ${limit} videov`);
+  if (!media) {
+    return problem(
+      429,
+      policy.unlimited ? "VIDEO_FAIR_USE_LIMIT" : "VIDEO_EVENT_LIMIT",
+      `Dogodek je dosegel omejitev ${limit} videov`,
+    );
+  }
 
   let streamUid: string | null = null;
   try {

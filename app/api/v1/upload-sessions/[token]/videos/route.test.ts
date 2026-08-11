@@ -77,6 +77,24 @@ describe("video upload preparation", () => {
     const response = await requestVideo();
 
     expect(response.status).toBe(429);
+    await expect(response.json()).resolves.toMatchObject({
+      code: "VIDEO_EVENT_LIMIT",
+      title: "Dogodek je dosegel omejitev 20 videov",
+    });
     expect(state.createTus).not.toHaveBeenCalled();
+  });
+
+  it("uses the 1,000-video fair-use limit for the unlimited add-on", async () => {
+    state.getPolicy.mockResolvedValue({
+      includedCount: 20, unlimited: true, maxDurationSeconds: 60,
+      maxBytes: 524_288_000, fairUseCount: 1000,
+    });
+    state.reserve.mockResolvedValue(null);
+
+    const response = await requestVideo();
+
+    expect(state.reserve).toHaveBeenCalledWith(expect.objectContaining({ limit: 1000 }));
+    expect(response.status).toBe(429);
+    await expect(response.json()).resolves.toMatchObject({ code: "VIDEO_FAIR_USE_LIMIT" });
   });
 });

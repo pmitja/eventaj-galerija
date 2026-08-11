@@ -9,6 +9,16 @@ export const VIDEO_MAX_BYTES = 500 * 1024 * 1024;
 export const VIDEO_FAIR_USE_COUNT = 1_000;
 export const BILLING_CURRENCY = "EUR";
 
+export function videoUploadPolicy(unlimited: boolean) {
+  return {
+    includedCount: INCLUDED_VIDEO_COUNT,
+    unlimited,
+    maxDurationSeconds: VIDEO_MAX_DURATION_SECONDS,
+    maxBytes: VIDEO_MAX_BYTES,
+    fairUseCount: VIDEO_FAIR_USE_COUNT,
+  };
+}
+
 export function checkoutTotalCents(aiBestPhotos: boolean, faceCollections = false, videoUnlimited = false): number {
   return EVENT_PRICE_CENTS
     + (aiBestPhotos ? AI_BEST_PHOTOS_PRICE_CENTS : 0)

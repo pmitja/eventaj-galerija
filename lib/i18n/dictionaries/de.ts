@@ -229,6 +229,8 @@ export const de: Dictionary = {
       unavailable: "Das Hochladen ist derzeit nicht möglich.",
       offline: "Du bist offline. Versuche es erneut, sobald du verbunden bist.",
       prepareFailed: "Die Datei konnte nicht vorbereitet werden.",
+      videoLimitReached: "Dieses Event hat das Limit von 20 Videos erreicht.",
+      videoFairUseLimitReached: "Dieses Event hat die Fair-Use-Grenze von 1.000 Videos erreicht.",
       transferFailed: "Die Übertragung ist fehlgeschlagen.",
       networkError: "Netzwerkfehler.",
       completeFailed: "Das Hochladen konnte nicht abgeschlossen werden.",

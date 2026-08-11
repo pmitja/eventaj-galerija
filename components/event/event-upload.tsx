@@ -106,9 +106,16 @@ function formatFileSize(bytes: number) {
 
 async function responseError(response: Response, fallback: string, locale: Locale = "sl"): Promise<Error> {
   const body = await response.json().catch(() => null) as {
+    code?: string;
     title?: string;
     detail?: string;
   } | null;
+  if (body?.code === "VIDEO_EVENT_LIMIT") {
+    return new Error(getDictionary(locale).guest.upload.videoLimitReached);
+  }
+  if (body?.code === "VIDEO_FAIR_USE_LIMIT") {
+    return new Error(getDictionary(locale).guest.upload.videoFairUseLimitReached);
+  }
   return new Error(locale === "en" ? fallback : body?.detail || body?.title || fallback);
 }
 

@@ -233,6 +233,8 @@ export const en = {
       unavailable: "Uploads are currently unavailable.",
       offline: "You are offline. Try again when you are connected.",
       prepareFailed: "The file could not be prepared.",
+      videoLimitReached: "This event has reached its limit of 20 videos.",
+      videoFairUseLimitReached: "This event has reached the fair-use limit of 1,000 videos.",
       transferFailed: "The upload failed.",
       networkError: "Network error.",
       completeFailed: "The upload could not be completed.",

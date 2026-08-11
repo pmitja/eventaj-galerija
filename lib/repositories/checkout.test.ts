@@ -4,12 +4,19 @@ const state = vi.hoisted(() => ({
   queries: [] as string[],
   bindings: [] as Array<{ sql: string; values: unknown[] }>,
   createStripeCheckout: vi.fn(),
+  retrieveStripeCheckout: vi.fn(),
+  first: vi.fn(),
+  run: vi.fn(),
+  batch: vi.fn(),
+  send: vi.fn(),
 }));
 
 vi.mock("@/lib/cloudflare", () => ({
   getCloudflareEnv: () => ({
     PUBLIC_APP_URL: "https://gallery.example.test",
     PUBLIC_APP_URL_EN: "https://gallery-en.example.test",
+    ORGANIZATION_ID: "organization-1",
+    EXPORT_QUEUE: { send: state.send },
     DB: {
       prepare: (sql: string) => {
         state.queries.push(sql);
@@ -17,22 +24,25 @@ vi.mock("@/lib/cloudflare", () => ({
           bind: (...values: unknown[]) => {
             state.bindings.push({ sql, values });
             return {
-            first: vi.fn().mockResolvedValue(sql.includes("COUNT(*)") ? { count: 0 } : null),
-            run: vi.fn().mockResolvedValue({ meta: { changes: 1 } }),
+              sql,
+              values,
+              first: () => state.first(sql, values),
+              run: () => state.run(sql, values),
             };
           },
         };
       },
+      batch: state.batch,
     },
   }),
 }));
 
 vi.mock("@/lib/billing/stripe", () => ({
   createStripeCheckout: state.createStripeCheckout,
-  retrieveStripeCheckout: vi.fn(),
+  retrieveStripeCheckout: state.retrieveStripeCheckout,
 }));
 
-import { createCheckoutOrder } from "./checkout";
+import { createCheckoutOrder, fulfillCheckout } from "./checkout";
 
 describe("checkout rate limit", () => {
   beforeEach(() => {
@@ -40,6 +50,55 @@ describe("checkout rate limit", () => {
     state.queries.length = 0;
     state.bindings.length = 0;
     state.createStripeCheckout.mockResolvedValue({ id: "cs_test_1", url: "https://checkout.stripe.test/session" });
+    state.first.mockImplementation((sql: string) => sql.includes("COUNT(*)") ? { count: 0 } : null);
+    state.run.mockResolvedValue({ meta: { changes: 1 } });
+    state.batch.mockResolvedValue([]);
+    state.send.mockResolvedValue(undefined);
+  });
+
+  it("provisions 20 video slots for a purchase without the video add-on", async () => {
+    const order = {
+      id: "order-1",
+      owner_name: "Mitja Test",
+      owner_email: "mitja@example.com",
+      organization_name: "Studio Sever",
+      event_name: "Testni dogodek",
+      event_location: "Ljubljana",
+      starts_at: "2026-08-15T14:00:00.000Z",
+      ends_at: "2026-08-15T20:00:00.000Z",
+      timezone: "Europe/Ljubljana",
+      comments_enabled: 1,
+      ai_best_photos: 0,
+      face_collections: 0,
+      video_unlimited: 0,
+      amount_cents: 3_500,
+      currency: "EUR",
+      locale: "sl",
+      status: "pending",
+    };
+    state.retrieveStripeCheckout.mockResolvedValue({
+      payment_status: "paid",
+      amount_total: 3_500,
+      currency: "eur",
+      payment_intent: "pi_1",
+      customer: "cus_1",
+      metadata: { orderId: order.id },
+    });
+    state.first.mockImplementation((sql: string) => {
+      if (sql.includes("stripe_checkout_session_id")) return order;
+      if (sql.includes("SELECT id FROM customers")) return null;
+      if (sql.includes("SELECT * FROM checkout_orders")) return { ...order, status: "provisioned" };
+      return null;
+    });
+
+    await fulfillCheckout("cs_test_paid");
+
+    const statements = state.batch.mock.calls[0]?.[0] as Array<{ sql: string; values: unknown[] }>;
+    const videoEntitlement = statements.find((statement) => statement.sql.includes("'video_uploads'"));
+    expect(JSON.parse(String(videoEntitlement?.values[2]))).toMatchObject({
+      includedCount: 20,
+      unlimited: false,
+    });
   });
 
   it("counts only attempts that reached a Stripe Checkout session", async () => {

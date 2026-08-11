@@ -1,5 +1,6 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { createAccessPointRecord } from "@/lib/domain/access-points";
+import { videoUploadPolicy } from "@/lib/domain/billing";
 import { createEventRecord } from "@/lib/domain/events";
 import { packageIncludesFaceCollections } from "@/lib/domain/face-search";
 import { createPublicToken, hashToken } from "@/lib/security/tokens";
@@ -100,6 +101,18 @@ export async function insertEvent(input: CreateEventInput, organizationId: strin
       crypto.randomUUID(),
       event.id,
       JSON.stringify({ enabled: true, photoLimit: 3000 }),
+      selectedPackage.id,
+      now,
+      now,
+    ),
+    DB.prepare(
+      `INSERT INTO event_entitlements
+        (id, event_id, feature_code, value_json, source, source_id, created_at, updated_at)
+       VALUES (?, ?, 'video_uploads', ?, 'package', ?, ?, ?)`,
+    ).bind(
+      crypto.randomUUID(),
+      event.id,
+      JSON.stringify(videoUploadPolicy(false)),
       selectedPackage.id,
       now,
       now,

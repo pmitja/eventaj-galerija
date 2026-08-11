@@ -229,6 +229,8 @@ export const es: Dictionary = {
       unavailable: "Ahora mismo no se pueden subir archivos.",
       offline: "No tienes conexión. Inténtalo de nuevo cuando vuelvas a estar en línea.",
       prepareFailed: "No se ha podido preparar el archivo.",
+      videoLimitReached: "Este evento ha alcanzado el límite de 20 vídeos.",
+      videoFairUseLimitReached: "Este evento ha alcanzado el límite de uso razonable de 1.000 vídeos.",
       transferFailed: "La transferencia ha fallado.",
       networkError: "Error de red.",
       completeFailed: "No se ha podido completar la subida.",

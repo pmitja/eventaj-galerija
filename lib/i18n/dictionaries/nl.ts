@@ -229,6 +229,8 @@ export const nl: Dictionary = {
       unavailable: "Uploaden is momenteel niet beschikbaar.",
       offline: "Je bent offline. Probeer het opnieuw zodra je verbinding hebt.",
       prepareFailed: "Het bestand kon niet worden voorbereid.",
+      videoLimitReached: "Dit evenement heeft de limiet van 20 video's bereikt.",
+      videoFairUseLimitReached: "Dit evenement heeft de fair-use-limiet van 1.000 video's bereikt.",
       transferFailed: "De overdracht is mislukt.",
       networkError: "Netwerkfout.",
       completeFailed: "Het uploaden kon niet worden voltooid.",
