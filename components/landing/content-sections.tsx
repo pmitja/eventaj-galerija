@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
 import { orderPath } from "@/lib/i18n/routes";
 import { QrMark, VisualPlaceholder } from "./visual-placeholder";
+import { FeatureCarousel } from "./feature-carousel";
 
 function SectionHeading({ title, desktopSubtitle, mobileSubtitle }: { title: string; desktopSubtitle: string; mobileSubtitle?: string }) {
   return (
@@ -23,7 +24,7 @@ export function HowItWorks({ locale = "sl" }: { locale?: Locale }) {
   const stepVisuals = [
     { src: "/marketing/screenshots/gallery-desktop-frame.png", alt: t.devices.desktopAlt },
     { src: "/marketing/screenshots/email-qr.png", alt: t.howItWorks.qrEmailAlt },
-    { src: "/marketing/screenshots/gallery-mobile.png", alt: t.devices.mobileAlt },
+    { src: locale === "en" ? "/marketing/screenshots/upload-actions-mobile.png" : "/marketing/screenshots/gallery-mobile.png", alt: t.devices.mobileAlt },
     { src: "/marketing/screenshots/liveshow-desktop.png", alt: t.slideshow.visualAlt },
   ];
   return (
@@ -75,19 +76,7 @@ export function Features({ locale = "sl" }: { locale?: Locale }) {
           <p className="desktop-only">{t.features.subtitleDesktop}</p>
           <p className="mobile-only">{t.features.subtitleMobile}</p>
         </div>
-        <div className="feature-grid" role="region" aria-label={t.features.headingDesktop} tabIndex={0}>
-          {features.map((feature) => (
-            <article className="feature-card" key={feature.title}>
-              <span className="feature-glyph" aria-hidden="true">
-                <img src={feature.icon} alt="" width={22} height={22} loading="lazy" />
-              </span>
-              <h3 className={"mobileTitle" in feature ? "desktop-only" : ""}>{feature.title}</h3>
-              {"mobileTitle" in feature ? <h3 className="mobile-only">{feature.mobileTitle}</h3> : null}
-              <p className="desktop-only">{feature.description}</p>
-              <p className="mobile-only">{feature.mobile}</p>
-            </article>
-          ))}
-        </div>
+        <FeatureCarousel features={features} locale={locale} label={t.features.headingDesktop} />
       </div>
     </section>
   );
