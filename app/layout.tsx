@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import { JsonLd } from "@/components/seo/json-ld";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
 import { LiveSession } from "@/components/analytics/live-session";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
+import { CookieConsent } from "@/components/privacy/cookie-consent";
 import { appUrlForLocale, intlLocale, siteUrlForLocale } from "@/lib/i18n/locale";
 import { languageAlternates } from "@/lib/i18n/alternates";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -76,6 +78,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <JsonLd data={siteStructuredDataFor(locale, siteUrl) as unknown as Record<string, unknown>} />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
         <LiveSession />
+        <MetaPixel />
+        <CookieConsent locale={locale} />
       </body>
     </html>
   );

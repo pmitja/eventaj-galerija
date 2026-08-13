@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { isGuestMosaicTrackingHostname, isOptionalTrackingPathname } from "@/lib/client/tracking-consent";
+import { useTrackingConsent } from "./use-tracking-consent";
 
-const LIVE_SESSION_HOSTNAME = "guestmosaic.com";
 const LIVE_SESSION_SCRIPT_URL = "https://cdn.livesession.io/track.js";
 const LIVE_SESSION_TRACK_ID = "58d8c373.8d406488";
 
@@ -18,7 +19,7 @@ declare global {
 }
 
 export function isLiveSessionHostname(hostname: string): boolean {
-  return hostname === LIVE_SESSION_HOSTNAME;
+  return isGuestMosaicTrackingHostname(hostname);
 }
 
 function initializeLiveSession(): void {
@@ -44,13 +45,14 @@ function initializeLiveSession(): void {
 
 export function LiveSession(): null {
   const pathname = usePathname();
+  const consent = useTrackingConsent("analytics");
 
   useEffect(() => {
-    if (!isLiveSessionHostname(window.location.hostname)) return;
+    if (!consent || !isLiveSessionHostname(window.location.hostname) || !isOptionalTrackingPathname(pathname)) return;
 
     initializeLiveSession();
     window.__ls?.("newPageView");
-  }, [pathname]);
+  }, [consent, pathname]);
 
   return null;
 }

@@ -44,7 +44,7 @@ const sl: LegalCopy = {
       "Kako Galerija Eventaj obdeluje podatke organizatorjev in gostov: nameni, ponudniki obdelave, roki hrambe in vaše pravice.",
     eyebrow: "Pravni dokument",
     title: "Politika zasebnosti",
-    version: "Različica: 31. julij 2026",
+    version: "Različica: 13. avgust 2026",
     intro:
       "Ta politika pojasnjuje obdelavo podatkov v Galeriji Eventaj. Za vprašanja ali uveljavljanje pravic pišite na {email}.",
     sections: [
@@ -91,6 +91,13 @@ const sl: LegalCopy = {
         heading: "7. Varnost in spremembe",
         body: [
           "Uporabljamo nepredvidljive javne identifikatorje, kratkotrajne upload seje, neposredne podpise za nalaganje, omejevanje zahtevkov ter ločevanje podatkov med organizacijami. Politiko lahko posodobimo; na strani vedno objavimo datum veljavne različice.",
+        ],
+      },
+      {
+        heading: "8. Piškotki, analitika in oglaševanje",
+        body: [
+          "Na javnih marketinških in pravnih straneh guestmosaic.com se LiveSession (analitika uporabe in posnetki interakcij brez beleženja tipkanja) ter Meta Pixel (merjenje oglasov in obiskov) naložita samo z vašim predhodnim soglasjem. Orodji sta izključeni iz zasebnih galerij, prikaza v živo, administracije, prenosov in plačilnega rezultata. Ne uporabljamo ju na galerija.eventaj.si in ponudnikoma ne pošiljamo fotografij, videov, selfiejev ali glasovnih posnetkov.",
+          "Izbira za kategoriji Analitika in Marketing se 180 dni shrani v nujnem piškotku in lokalni shrambi brskalnika. Izbiro lahko kadarkoli spremenite prek gumba »Nastavitve piškotkov«. Preklic velja za prihodnjo obdelavo in ne vpliva na zakonitost obdelave pred preklicem. Ponudnika lahko podatke obdelujeta tudi zunaj EGP ob uporabi veljavnih zaščitnih ukrepov.",
         ],
       },
     ],
@@ -162,7 +169,7 @@ const en: LegalCopy = {
       "How Guest Mosaic processes organiser and guest data: purposes, processors, retention periods and your rights.",
     eyebrow: "Legal document",
     title: "Privacy Policy",
-    version: "Version: 31 July 2026",
+    version: "Version: 13 August 2026",
     intro:
       "This policy explains how data is processed in Guest Mosaic. For questions or to exercise your rights, email {email}.",
     sections: [
@@ -209,6 +216,13 @@ const en: LegalCopy = {
         heading: "7. Security and changes",
         body: [
           "We use unpredictable public identifiers, short-lived upload sessions, direct upload signatures, request limiting and separation between organisations. We may update this policy; the current version date is always published here.",
+        ],
+      },
+      {
+        heading: "8. Cookies, analytics and advertising",
+        body: [
+          "On the public marketing and legal pages of guestmosaic.com, LiveSession (usage analytics and interaction recordings without recording keystrokes) and Meta Pixel (measurement of ads and visits) load only after your prior consent. Both are disabled in private galleries, live display, administration, downloads and the payment-result page. We do not send photos, videos, selfies or voice messages to these providers.",
+          "Your separate Analytics and Marketing choices are stored for 180 days in an essential cookie and browser local storage. You can change them at any time using the Cookie settings button. Withdrawal applies to future processing and does not affect processing before withdrawal. The providers may process data outside the EEA subject to applicable safeguards.",
         ],
       },
     ],
@@ -280,7 +294,7 @@ const de: LegalCopy = {
       "Wie Guest Mosaic Daten von Veranstaltern und Gästen verarbeitet: Zwecke, Auftragsverarbeiter, Speicherfristen und Ihre Rechte.",
     eyebrow: "Rechtliches Dokument",
     title: "Datenschutzerklärung",
-    version: "Fassung: 31. Juli 2026",
+    version: "Fassung: 13. August 2026",
     intro:
       "Diese Erklärung beschreibt, wie Daten in Guest Mosaic verarbeitet werden. Bei Fragen oder zur Ausübung Ihrer Rechte schreiben Sie an {email}.",
     sections: [
@@ -327,6 +341,13 @@ const de: LegalCopy = {
         heading: "7. Sicherheit und Änderungen",
         body: [
           "Wir verwenden nicht erratbare öffentliche Kennungen, kurzlebige Upload-Sitzungen, direkte Upload-Signaturen, Anfragebegrenzung und eine Trennung zwischen Organisationen. Wir können diese Erklärung aktualisieren; das Datum der geltenden Fassung wird hier stets veröffentlicht.",
+        ],
+      },
+      {
+        heading: "8. Cookies, Analyse und Werbung",
+        body: [
+          "Auf den öffentlichen Marketing- und Rechtsseiten von guestmosaic.com werden LiveSession (Nutzungsanalyse und Interaktionsaufzeichnungen ohne Tastatureingaben) und Meta Pixel (Messung von Werbung und Besuchen) erst nach Ihrer Einwilligung geladen. Beide sind in privaten Galerien, Live-Anzeige, Administration, Downloads und auf der Zahlungsergebnisseite deaktiviert. Fotos, Videos, Selfies oder Sprachnachrichten übermitteln wir nicht.",
+          "Ihre getrennten Einstellungen für Analyse und Marketing werden 180 Tage in einem notwendigen Cookie und im lokalen Browserspeicher gespeichert. Sie können sie jederzeit über die Schaltfläche „Cookie-Einstellungen“ ändern. Der Widerruf gilt für die zukünftige Verarbeitung. Die Anbieter können Daten unter Anwendung geeigneter Garantien auch außerhalb des EWR verarbeiten.",
         ],
       },
     ],
@@ -398,7 +419,7 @@ const nl: LegalCopy = {
       "Hoe Guest Mosaic gegevens van organisatoren en gasten verwerkt: doeleinden, verwerkers, bewaartermijnen en jouw rechten.",
     eyebrow: "Juridisch document",
     title: "Privacyverklaring",
-    version: "Versie: 31 juli 2026",
+    version: "Versie: 13 augustus 2026",
     intro:
       "Deze verklaring legt uit hoe gegevens in Guest Mosaic worden verwerkt. Voor vragen of om je rechten uit te oefenen, mail naar {email}.",
     sections: [
@@ -445,6 +466,13 @@ const nl: LegalCopy = {
         heading: "7. Beveiliging en wijzigingen",
         body: [
           "We gebruiken onvoorspelbare openbare identificatoren, kortlopende uploadsessies, directe uploadhandtekeningen, verzoekbeperking en scheiding tussen organisaties. We kunnen deze verklaring bijwerken; de datum van de geldende versie wordt hier altijd gepubliceerd.",
+        ],
+      },
+      {
+        heading: "8. Cookies, analyse en advertenties",
+        body: [
+          "Op de openbare marketing- en juridische pagina's van guestmosaic.com worden LiveSession (gebruiksanalyse en interactie-opnamen zonder toetsaanslagen) en Meta Pixel (meting van advertenties en bezoeken) alleen na jouw toestemming geladen. Beide zijn uitgeschakeld in privégalerijen, liveweergave, administratie, downloads en de betaalresultaatpagina. We sturen geen foto's, video's, selfies of spraakberichten.",
+          "Je afzonderlijke keuzes voor Analyse en Marketing worden 180 dagen opgeslagen in een noodzakelijke cookie en de lokale browseropslag. Je kunt ze altijd wijzigen via de knop ‘Cookie-instellingen’. Intrekking geldt voor toekomstige verwerking. De aanbieders kunnen gegevens buiten de EER verwerken met toepassing van passende waarborgen.",
         ],
       },
     ],
@@ -516,7 +544,7 @@ const es: LegalCopy = {
       "Cómo trata Guest Mosaic los datos de organizadores e invitados: finalidades, encargados del tratamiento, plazos de conservación y tus derechos.",
     eyebrow: "Documento legal",
     title: "Política de privacidad",
-    version: "Versión: 31 de julio de 2026",
+    version: "Versión: 13 de agosto de 2026",
     intro:
       "Esta política explica cómo se tratan los datos en Guest Mosaic. Para cualquier consulta o para ejercer tus derechos, escribe a {email}.",
     sections: [
@@ -563,6 +591,13 @@ const es: LegalCopy = {
         heading: "7. Seguridad y cambios",
         body: [
           "Utilizamos identificadores públicos impredecibles, sesiones de subida de corta duración, firmas directas de subida, limitación de solicitudes y separación entre organizaciones. Podemos actualizar esta política; la fecha de la versión vigente se publica siempre aquí.",
+        ],
+      },
+      {
+        heading: "8. Cookies, analítica y publicidad",
+        body: [
+          "En las páginas públicas de marketing y legales de guestmosaic.com, LiveSession (analítica y grabaciones de interacción sin registrar teclas) y Meta Pixel (medición de anuncios y visitas) solo se cargan tras tu consentimiento. Ambos están desactivados en galerías privadas, visualización en directo, administración, descargas y la página de resultado del pago. No enviamos fotos, vídeos, selfis ni mensajes de voz.",
+          "Tus elecciones separadas de Analítica y Marketing se guardan durante 180 días en una cookie necesaria y en el almacenamiento local del navegador. Puedes cambiarlas en cualquier momento mediante el botón «Configuración de cookies». La retirada se aplica al tratamiento futuro. Los proveedores pueden tratar datos fuera del EEE con las garantías adecuadas.",
         ],
       },
     ],
@@ -634,7 +669,7 @@ const it: LegalCopy = {
       "Come Guest Mosaic tratta i dati di organizzatori e ospiti: finalità, responsabili del trattamento, tempi di conservazione e i tuoi diritti.",
     eyebrow: "Documento legale",
     title: "Informativa sulla privacy",
-    version: "Versione: 31 luglio 2026",
+    version: "Versione: 13 agosto 2026",
     intro:
       "Questa informativa spiega come vengono trattati i dati in Guest Mosaic. Per domande o per esercitare i tuoi diritti scrivi a {email}.",
     sections: [
@@ -681,6 +716,13 @@ const it: LegalCopy = {
         heading: "7. Sicurezza e modifiche",
         body: [
           "Utilizziamo identificatori pubblici imprevedibili, sessioni di caricamento di breve durata, firme dirette per il caricamento, limitazione delle richieste e separazione tra organizzazioni. Possiamo aggiornare questa informativa; la data della versione in vigore è sempre pubblicata qui.",
+        ],
+      },
+      {
+        heading: "8. Cookie, analisi e pubblicità",
+        body: [
+          "Nelle pagine pubbliche di marketing e legali di guestmosaic.com, LiveSession (analisi e registrazioni delle interazioni senza rilevare i tasti) e Meta Pixel (misurazione di annunci e visite) vengono caricati solo dopo il tuo consenso. Entrambi sono disattivati nelle gallerie private, nella visualizzazione live, nell'amministrazione, nei download e nella pagina dell'esito del pagamento. Non inviamo foto, video, selfie o messaggi vocali.",
+          "Le scelte separate per Analisi e Marketing vengono conservate per 180 giorni in un cookie necessario e nella memoria locale del browser. Puoi modificarle in qualsiasi momento tramite il pulsante «Impostazioni cookie». La revoca vale per i trattamenti futuri. I fornitori possono trattare dati al di fuori del SEE adottando garanzie adeguate.",
         ],
       },
     ],
@@ -752,7 +794,7 @@ const fr: LegalCopy = {
       "Comment Guest Mosaic traite les données des organisateurs et des invités : finalités, sous-traitants, durées de conservation et vos droits.",
     eyebrow: "Document juridique",
     title: "Politique de confidentialité",
-    version: "Version : 31 juillet 2026",
+    version: "Version : 13 août 2026",
     intro:
       "Cette politique explique comment les données sont traitées dans Guest Mosaic. Pour toute question ou pour exercer vos droits, écrivez à {email}.",
     sections: [
@@ -799,6 +841,13 @@ const fr: LegalCopy = {
         heading: "7. Sécurité et modifications",
         body: [
           "Nous utilisons des identifiants publics imprévisibles, des sessions de téléversement de courte durée, des signatures de téléversement direct, une limitation des requêtes et une séparation entre les organisations. Nous pouvons mettre à jour cette politique ; la date de la version en vigueur est toujours publiée ici.",
+        ],
+      },
+      {
+        heading: "8. Cookies, analyse et publicité",
+        body: [
+          "Sur les pages publiques marketing et juridiques de guestmosaic.com, LiveSession (analyse et enregistrement des interactions sans frappes clavier) et Meta Pixel (mesure des publicités et visites) ne sont chargés qu'après votre consentement. Ils sont désactivés dans les galeries privées, l'affichage en direct, l'administration, les téléchargements et la page de résultat du paiement. Nous ne transmettons ni photos, ni vidéos, ni selfies, ni messages vocaux.",
+          "Vos choix distincts pour l'Analyse et le Marketing sont conservés pendant 180 jours dans un cookie nécessaire et le stockage local du navigateur. Vous pouvez les modifier à tout moment via le bouton « Paramètres des cookies ». Le retrait vaut pour les traitements futurs. Les prestataires peuvent traiter des données hors de l'EEE avec des garanties appropriées.",
         ],
       },
     ],
@@ -863,8 +912,8 @@ const fr: LegalCopy = {
 
 const LEGAL_COPY: Record<Locale, LegalCopy> = { sl, en, de, nl, es, it, fr };
 
-/** Version date of both documents, used as the sitemap `lastModified`. */
-export const LEGAL_LAST_UPDATED = "2026-07-31";
+/** Latest legal-document update, used as the sitemap `lastModified`. */
+export const LEGAL_LAST_UPDATED = "2026-08-13";
 
 export function getLegalCopy(locale: Locale): LegalCopy {
   return LEGAL_COPY[locale] ?? en;

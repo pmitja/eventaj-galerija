@@ -40,6 +40,15 @@ Največja tveganja so zlonamerni ali množični uploadi, dostop do zasebnih gale
 - dependency in container scanning v CI;
 - CSP, varni cookieji, CSRF zaščita za cookie-auth mutacije in strogi CORS.
 
+### Analitika in oglaševanje
+
+- LiveSession in Meta Pixel se nalagata samo na javnih marketinških in pravnih straneh kanonične domene `guestmosaic.com` in šele po predhodnem soglasju; zasebne galerije, display, admin, prenosi, QR in plačilni rezultat so izključeni;
+- LiveSession spada v ločeno kategorijo Analitika, Meta Pixel pa v kategorijo Marketing; obe sta privzeto izključeni;
+- zavrnitev vseh nenujnih tehnologij mora biti enako dosegljiva kot sprejem, uporabnik pa lahko izbiro kadarkoli ponovno odpre;
+- izbira in verzija obvestila se 180 dni hranita v nujnem first-party piškotku in lokalni shrambi;
+- fotografije, videi, selfieji, face podatki in glasovna voščila se ne pošiljajo ponudnikoma analitike ali oglaševanja;
+- Conversions API ne obide soglasja; dogodki se smejo poslati samo za brskalnik oziroma nakup z veljavnim marketinškim soglasjem.
+
 ## GDPR evidenca
 
 Za vsak namen se zabeležijo verzija pravilnika, čas, dogodek, subjekt/seja in granted/withdrawn. Najmanj ločeni nameni:
@@ -51,7 +60,7 @@ Za vsak namen se zabeležijo verzija pravilnika, čas, dogodek, subjekt/seja in 
 - face collection processing;
 - selfie match processing.
 
-Soglasje ni edina možna pravna podlaga za celoten produkt; končno pravno podlago in vloge upravljavec/obdelovalec mora potrditi pravni svetovalec. Objavljeni strani `/pogoji-uporabe` in `/zasebnost` sta produktni različici z dne 2026-07-31 in pred produkcijsko vključitvijo videov potrebujeta pravni pregled ter dopolnitev polnih podatkov pravne osebe.
+Soglasje ni edina možna pravna podlaga za celoten produkt; končno pravno podlago in vloge upravljavec/obdelovalec mora potrditi pravni svetovalec. Objavljena politika zasebnosti je produktna različica z dne 2026-08-13, pogoji uporabe pa z dne 2026-07-31; oba dokumenta pred polno produkcijsko uporabo potrebujeta pravni pregled ter dopolnitev polnih podatkov pravne osebe.
 
 Videi so zasebni objekti v Cloudflare Stream s podpisanim predvajanjem. Ne vstopajo v slideshow, AI-izbor ali obrazno iskanje. Retention worker mora pred izbrisom dogodka uspešno izbrisati tudi vse pripadajoče Stream UID-je; ob napaki je izbris dogodka blokiran in se ponovi.
 
