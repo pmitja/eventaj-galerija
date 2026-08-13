@@ -145,6 +145,12 @@ ki ponovno pridobi Checkout Session ter preveri plačilo, znesek in valuto.
 Po uspehu Queue pošlje QR e-pošto. Scheduled export worker po `ends_at` izdela ZIP
 in pošlje drugo e-pošto z hashirano, časovno omejeno bearer povezavo.
 
+Za kanonični Guest Mosaic checkout strežnik ob veljavnem marketing soglasju prek
+Meta adapterja pošlje `InitiateCheckout` in po preverjenem plačilu `Purchase`.
+Stabilni ID naročila zagotovi deduplikacijo, napaka zunanjega ponudnika pa ne
+ustavi Stripe toka. Začasni `fbp`, `fbc`, IP in user-agent se po uspešnem
+`Purchase` dogodku fizično izbrišejo.
+
 ## Deployment topologija
 
 Priporočena začetna topologija:

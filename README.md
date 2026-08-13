@@ -82,6 +82,14 @@ pnpm wrangler secret put CLOUDFLARE_STREAM_API_TOKEN
 pnpm wrangler secret put STREAM_WEBHOOK_SECRET
 ```
 
+Za Guest Mosaic merjenje nakupov nastavi še Meta Conversions API token na
+glavnem aplikacijskem Workerju. Dataset `1024314580235586` je v kodi javna
+konfiguracija; token ostane izključno secret:
+
+```bash
+pnpm wrangler secret put META_CONVERSIONS_API_TOKEN
+```
+
 Cloudflare Stream webhook usmeri na `/api/webhooks/cloudflare-stream`. Isti
 Stream binding je potreben tudi na retention workerju, saj mora pred izbrisom
 dogodka fizično izbrisati vse videe.

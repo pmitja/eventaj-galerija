@@ -3,6 +3,7 @@ import { createCheckoutOrder } from "@/lib/repositories/checkout";
 import { createCheckoutSchema } from "@/lib/validation/checkout";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { localeFromRequest } from "@/lib/i18n/locale";
+import { marketingAttributionFromRequest } from "@/lib/analytics/meta-attribution";
 
 export async function POST(request: Request) {
   const env = getCloudflareEnv();
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     return problem(422, "VIDEO_ADDON_UNAVAILABLE", copy.videoUnavailable);
   }
   try {
-    const checkout = await createCheckoutOrder(parsed.data, locale);
+    const attribution = marketingAttributionFromRequest(request, locale);
+    const checkout = await createCheckoutOrder(parsed.data, locale, attribution);
     return Response.json({ checkout }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === "CHECKOUT_RATE_LIMIT") {

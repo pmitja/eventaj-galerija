@@ -22,6 +22,11 @@ organizacijska seja niso del toka. `endsAt` mora biti po `startsAt`; največja
 dolžina dogodka ni omejena. Javni `GET /prenosi/{token}` preveri hashiran,
 časovno omejen token ter preusmeri na kratkotrajen podpisan R2 prenos.
 
+`POST /api/v1/checkout` na `guestmosaic.com` iz nujnega consent piškotka
+strežniško izpelje marketing dovoljenje; klient ga ne more vključiti v JSON.
+Ob veljavnem dovoljenju se Meta CAPI dogodka pošljeta best-effort in zato ne
+spreminjata API statusa uspešnega Stripe/provisioning toka.
+
 ## Javni event API
 
 | Metoda | Pot | Namen | Auth |

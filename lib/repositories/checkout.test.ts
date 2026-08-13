@@ -9,6 +9,7 @@ const state = vi.hoisted(() => ({
   run: vi.fn(),
   batch: vi.fn(),
   send: vi.fn(),
+  sendMeta: vi.fn(),
 }));
 
 vi.mock("@/lib/cloudflare", () => ({
@@ -42,6 +43,8 @@ vi.mock("@/lib/billing/stripe", () => ({
   retrieveStripeCheckout: state.retrieveStripeCheckout,
 }));
 
+vi.mock("@/lib/analytics/meta-conversions", () => ({ sendMetaConversion: state.sendMeta }));
+
 import { createCheckoutOrder, fulfillCheckout } from "./checkout";
 
 describe("checkout rate limit", () => {
@@ -54,6 +57,7 @@ describe("checkout rate limit", () => {
     state.run.mockResolvedValue({ meta: { changes: 1 } });
     state.batch.mockResolvedValue([]);
     state.send.mockResolvedValue(undefined);
+    state.sendMeta.mockResolvedValue("sent");
   });
 
   it("provisions 20 video slots for a purchase without the video add-on", async () => {
@@ -73,8 +77,17 @@ describe("checkout rate limit", () => {
       video_unlimited: 0,
       amount_cents: 3_500,
       currency: "EUR",
-      locale: "sl",
+      locale: "en",
       status: "pending",
+      marketing_consent: 1,
+      marketing_consent_version: "2026-08-13",
+      meta_fbp: "fb.1.1786630000.browser_1",
+      meta_fbc: null,
+      meta_client_ip: "203.0.113.10",
+      meta_client_user_agent: "Test browser",
+      meta_purchase_sent_at: null,
+      completed_at: "2026-08-13T12:00:00.000Z",
+      updated_at: "2026-08-13T12:00:00.000Z",
     };
     state.retrieveStripeCheckout.mockResolvedValue({
       payment_status: "paid",
@@ -99,6 +112,12 @@ describe("checkout rate limit", () => {
       includedCount: 20,
       unlimited: false,
     });
+    expect(state.sendMeta).toHaveBeenCalledWith(expect.objectContaining({
+      name: "Purchase",
+      eventId: "checkout.purchase:order-1",
+      amountCents: 3_500,
+    }));
+    expect(state.queries).toContainEqual(expect.stringContaining("meta_purchase_sent_at = COALESCE"));
   });
 
   it("counts only attempts that reached a Stripe Checkout session", async () => {
@@ -170,5 +189,67 @@ describe("checkout rate limit", () => {
       successUrl: "https://gallery-en.example.test/order/success?session_id={CHECKOUT_SESSION_ID}",
       cancelUrl: "https://gallery-en.example.test/order?preklicano=1",
     }));
+  });
+
+  it("stores consented attribution and sends InitiateCheckout after Stripe accepts the order", async () => {
+    await createCheckoutOrder({
+      organizationName: "North Studio",
+      ownerName: "Nina Novak",
+      ownerEmail: "nina@example.com",
+      eventName: "Launch party",
+      eventLocation: "London",
+      startsAt: "2026-08-01T14:00:00.000Z",
+      endsAt: "2026-08-01T20:00:00.000Z",
+      timezone: "Europe/Ljubljana",
+      commentsEnabled: true,
+      aiBestPhotos: false,
+      faceCollections: false,
+      videoUnlimited: false,
+      termsAccepted: true,
+    }, "en", {
+      consent: true,
+      consentVersion: "2026-08-13",
+      fbp: "fb.1.1786630000.browser_1",
+      fbc: null,
+      clientIp: "203.0.113.10",
+      clientUserAgent: "Test browser",
+    });
+
+    const insert = state.bindings.find(({ sql }) => sql.includes("INSERT INTO checkout_orders"));
+    expect(insert?.values).toEqual(expect.arrayContaining([
+      "2026-08-13", "fb.1.1786630000.browser_1", "203.0.113.10", "Test browser",
+    ]));
+    expect(state.sendMeta).toHaveBeenCalledWith(expect.objectContaining({
+      name: "InitiateCheckout",
+      eventId: expect.stringMatching(/^checkout\.initiate:/),
+      amountCents: 3_500,
+      currency: "EUR",
+    }));
+  });
+
+  it("does not block Stripe Checkout when Meta is unavailable", async () => {
+    state.sendMeta.mockRejectedValueOnce(new Error("META_UNAVAILABLE"));
+    await expect(createCheckoutOrder({
+      organizationName: "North Studio",
+      ownerName: "Nina Novak",
+      ownerEmail: "nina@example.com",
+      eventName: "Launch party",
+      eventLocation: "London",
+      startsAt: "2026-08-01T14:00:00.000Z",
+      endsAt: "2026-08-01T20:00:00.000Z",
+      timezone: "Europe/Ljubljana",
+      commentsEnabled: true,
+      aiBestPhotos: false,
+      faceCollections: false,
+      videoUnlimited: false,
+      termsAccepted: true,
+    }, "en", {
+      consent: true,
+      consentVersion: "2026-08-13",
+      fbp: null,
+      fbc: null,
+      clientIp: null,
+      clientUserAgent: null,
+    })).resolves.toEqual({ id: expect.any(String), url: "https://checkout.stripe.test/session" });
   });
 });

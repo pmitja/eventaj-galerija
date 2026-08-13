@@ -26,7 +26,7 @@ const copy = {
     analytics: "Analitika",
     analyticsDescription: "LiveSession nam pomaga razumeti uporabo strani. Tipkanja ne beležimo.",
     marketing: "Marketing",
-    marketingDescription: "Meta Pixel meri uspešnost oglasov in obiske strani.",
+    marketingDescription: "Meta Pixel in Conversions API merita obiske, začetek nakupa in nakupe iz oglasov.",
     privacy: "Preberite politiko zasebnosti",
   },
   en: {
@@ -43,7 +43,7 @@ const copy = {
     analytics: "Analytics",
     analyticsDescription: "LiveSession helps us understand site usage. Keystrokes are not recorded.",
     marketing: "Marketing",
-    marketingDescription: "Meta Pixel measures ad performance and page visits.",
+    marketingDescription: "Meta Pixel and Conversions API measure visits, checkout starts and purchases from ads.",
     privacy: "Read our Privacy Policy",
   },
   de: {
@@ -60,7 +60,7 @@ const copy = {
     analytics: "Analyse",
     analyticsDescription: "LiveSession hilft uns, die Nutzung zu verstehen. Tastatureingaben werden nicht aufgezeichnet.",
     marketing: "Marketing",
-    marketingDescription: "Meta Pixel misst Werbeerfolg und Seitenaufrufe.",
+    marketingDescription: "Meta Pixel und Conversions API messen Besuche, Checkout-Starts und Käufe aus Anzeigen.",
     privacy: "Datenschutzerklärung lesen",
   },
   nl: {
@@ -77,7 +77,7 @@ const copy = {
     analytics: "Analyse",
     analyticsDescription: "LiveSession helpt ons het gebruik te begrijpen. Toetsaanslagen worden niet opgenomen.",
     marketing: "Marketing",
-    marketingDescription: "Meta Pixel meet advertentieprestaties en paginabezoeken.",
+    marketingDescription: "Meta Pixel en Conversions API meten bezoeken, gestarte checkouts en aankopen uit advertenties.",
     privacy: "Lees ons privacybeleid",
   },
   es: {
@@ -94,7 +94,7 @@ const copy = {
     analytics: "Analítica",
     analyticsDescription: "LiveSession nos ayuda a entender el uso. No registramos las pulsaciones de teclas.",
     marketing: "Marketing",
-    marketingDescription: "Meta Pixel mide el rendimiento publicitario y las visitas a páginas.",
+    marketingDescription: "Meta Pixel y Conversions API miden visitas, inicios de pago y compras procedentes de anuncios.",
     privacy: "Leer la Política de privacidad",
   },
   it: {
@@ -111,7 +111,7 @@ const copy = {
     analytics: "Analisi",
     analyticsDescription: "LiveSession ci aiuta a capire l’utilizzo. I tasti premuti non vengono registrati.",
     marketing: "Marketing",
-    marketingDescription: "Meta Pixel misura le prestazioni pubblicitarie e le visite alle pagine.",
+    marketingDescription: "Meta Pixel e Conversions API misurano visite, avvii del checkout e acquisti dagli annunci.",
     privacy: "Leggi l’Informativa sulla privacy",
   },
   fr: {
@@ -128,7 +128,7 @@ const copy = {
     analytics: "Analyse",
     analyticsDescription: "LiveSession nous aide à comprendre l’utilisation. Les frappes au clavier ne sont pas enregistrées.",
     marketing: "Marketing",
-    marketingDescription: "Meta Pixel mesure les performances publicitaires et les visites de pages.",
+    marketingDescription: "Meta Pixel et Conversions API mesurent les visites, débuts de paiement et achats issus des publicités.",
     privacy: "Lire la Politique de confidentialité",
   },
 } as const satisfies Record<Locale, Record<string, string>>;

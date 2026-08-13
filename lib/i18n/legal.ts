@@ -96,7 +96,7 @@ const sl: LegalCopy = {
       {
         heading: "8. Piškotki, analitika in oglaševanje",
         body: [
-          "Na javnih marketinških in pravnih straneh guestmosaic.com se LiveSession (analitika uporabe in posnetki interakcij brez beleženja tipkanja) ter Meta Pixel (merjenje oglasov in obiskov) naložita samo z vašim predhodnim soglasjem. Orodji sta izključeni iz zasebnih galerij, prikaza v živo, administracije, prenosov in plačilnega rezultata. Ne uporabljamo ju na galerija.eventaj.si in ponudnikoma ne pošiljamo fotografij, videov, selfiejev ali glasovnih posnetkov.",
+          "Na javnih marketinških in pravnih straneh guestmosaic.com se LiveSession (analitika uporabe in posnetki interakcij brez beleženja tipkanja) ter Meta Pixel (merjenje oglasov in obiskov) naložita samo z vašim predhodnim soglasjem. Ob veljavnem marketinškem soglasju Meta Conversions API pošlje tudi začetek nakupa in potrjen nakup; e-pošta je pred pošiljanjem zgoščena, začasni tehnični identifikatorji pa se po poskusu pošiljanja nakupa izbrišejo. Orodji sta izključeni iz zasebnih galerij, prikaza v živo, administracije in prenosov. Ne uporabljamo ju na galerija.eventaj.si in ponudnikoma ne pošiljamo fotografij, videov, selfiejev ali glasovnih posnetkov.",
           "Izbira za kategoriji Analitika in Marketing se 180 dni shrani v nujnem piškotku in lokalni shrambi brskalnika. Izbiro lahko kadarkoli spremenite prek gumba »Nastavitve piškotkov«. Preklic velja za prihodnjo obdelavo in ne vpliva na zakonitost obdelave pred preklicem. Ponudnika lahko podatke obdelujeta tudi zunaj EGP ob uporabi veljavnih zaščitnih ukrepov.",
         ],
       },
@@ -221,7 +221,7 @@ const en: LegalCopy = {
       {
         heading: "8. Cookies, analytics and advertising",
         body: [
-          "On the public marketing and legal pages of guestmosaic.com, LiveSession (usage analytics and interaction recordings without recording keystrokes) and Meta Pixel (measurement of ads and visits) load only after your prior consent. Both are disabled in private galleries, live display, administration, downloads and the payment-result page. We do not send photos, videos, selfies or voice messages to these providers.",
+          "On the public marketing and legal pages of guestmosaic.com, LiveSession (usage analytics and interaction recordings without recording keystrokes) and Meta Pixel (measurement of ads and visits) load only after your prior consent. With valid Marketing consent, Meta Conversions API also sends checkout-start and confirmed-purchase events; email is hashed before transmission and temporary technical identifiers are deleted after the purchase-delivery attempt. These tools are disabled in private galleries, live display, administration and downloads. We do not send photos, videos, selfies or voice messages to these providers.",
           "Your separate Analytics and Marketing choices are stored for 180 days in an essential cookie and browser local storage. You can change them at any time using the Cookie settings button. Withdrawal applies to future processing and does not affect processing before withdrawal. The providers may process data outside the EEA subject to applicable safeguards.",
         ],
       },
@@ -346,7 +346,7 @@ const de: LegalCopy = {
       {
         heading: "8. Cookies, Analyse und Werbung",
         body: [
-          "Auf den öffentlichen Marketing- und Rechtsseiten von guestmosaic.com werden LiveSession (Nutzungsanalyse und Interaktionsaufzeichnungen ohne Tastatureingaben) und Meta Pixel (Messung von Werbung und Besuchen) erst nach Ihrer Einwilligung geladen. Beide sind in privaten Galerien, Live-Anzeige, Administration, Downloads und auf der Zahlungsergebnisseite deaktiviert. Fotos, Videos, Selfies oder Sprachnachrichten übermitteln wir nicht.",
+          "Auf den öffentlichen Marketing- und Rechtsseiten von guestmosaic.com werden LiveSession und Meta Pixel erst nach Ihrer Einwilligung geladen. Bei gültiger Marketing-Einwilligung sendet die Meta Conversions API außerdem Ereignisse zum Checkout-Start und bestätigten Kauf; die E-Mail-Adresse wird vorher gehasht und temporäre technische Kennungen werden nach dem Übermittlungsversuch des Kaufs gelöscht. Die Tools sind in privaten Galerien, Live-Anzeige, Administration und Downloads deaktiviert. Fotos, Videos, Selfies oder Sprachnachrichten übermitteln wir nicht.",
           "Ihre getrennten Einstellungen für Analyse und Marketing werden 180 Tage in einem notwendigen Cookie und im lokalen Browserspeicher gespeichert. Sie können sie jederzeit über die Schaltfläche „Cookie-Einstellungen“ ändern. Der Widerruf gilt für die zukünftige Verarbeitung. Die Anbieter können Daten unter Anwendung geeigneter Garantien auch außerhalb des EWR verarbeiten.",
         ],
       },
@@ -471,7 +471,7 @@ const nl: LegalCopy = {
       {
         heading: "8. Cookies, analyse en advertenties",
         body: [
-          "Op de openbare marketing- en juridische pagina's van guestmosaic.com worden LiveSession (gebruiksanalyse en interactie-opnamen zonder toetsaanslagen) en Meta Pixel (meting van advertenties en bezoeken) alleen na jouw toestemming geladen. Beide zijn uitgeschakeld in privégalerijen, liveweergave, administratie, downloads en de betaalresultaatpagina. We sturen geen foto's, video's, selfies of spraakberichten.",
+          "Op de openbare marketing- en juridische pagina's van guestmosaic.com worden LiveSession en Meta Pixel alleen na jouw toestemming geladen. Met geldige marketingtoestemming verstuurt Meta Conversions API ook gebeurtenissen voor een gestarte checkout en bevestigde aankoop; het e-mailadres wordt vooraf gehasht en tijdelijke technische identificatoren worden na de verzendpoging van de aankoop verwijderd. De tools zijn uitgeschakeld in privégalerijen, liveweergave, administratie en downloads. We sturen geen foto's, video's, selfies of spraakberichten.",
           "Je afzonderlijke keuzes voor Analyse en Marketing worden 180 dagen opgeslagen in een noodzakelijke cookie en de lokale browseropslag. Je kunt ze altijd wijzigen via de knop ‘Cookie-instellingen’. Intrekking geldt voor toekomstige verwerking. De aanbieders kunnen gegevens buiten de EER verwerken met toepassing van passende waarborgen.",
         ],
       },
@@ -596,7 +596,7 @@ const es: LegalCopy = {
       {
         heading: "8. Cookies, analítica y publicidad",
         body: [
-          "En las páginas públicas de marketing y legales de guestmosaic.com, LiveSession (analítica y grabaciones de interacción sin registrar teclas) y Meta Pixel (medición de anuncios y visitas) solo se cargan tras tu consentimiento. Ambos están desactivados en galerías privadas, visualización en directo, administración, descargas y la página de resultado del pago. No enviamos fotos, vídeos, selfis ni mensajes de voz.",
+          "En las páginas públicas de marketing y legales de guestmosaic.com, LiveSession y Meta Pixel solo se cargan tras tu consentimiento. Con un consentimiento de Marketing válido, Meta Conversions API también envía eventos de inicio de pago y compra confirmada; el correo se cifra mediante hash antes del envío y los identificadores técnicos temporales se eliminan tras el intento de envío de la compra. Las herramientas están desactivadas en galerías privadas, visualización en directo, administración y descargas. No enviamos fotos, vídeos, selfis ni mensajes de voz.",
           "Tus elecciones separadas de Analítica y Marketing se guardan durante 180 días en una cookie necesaria y en el almacenamiento local del navegador. Puedes cambiarlas en cualquier momento mediante el botón «Configuración de cookies». La retirada se aplica al tratamiento futuro. Los proveedores pueden tratar datos fuera del EEE con las garantías adecuadas.",
         ],
       },
@@ -721,7 +721,7 @@ const it: LegalCopy = {
       {
         heading: "8. Cookie, analisi e pubblicità",
         body: [
-          "Nelle pagine pubbliche di marketing e legali di guestmosaic.com, LiveSession (analisi e registrazioni delle interazioni senza rilevare i tasti) e Meta Pixel (misurazione di annunci e visite) vengono caricati solo dopo il tuo consenso. Entrambi sono disattivati nelle gallerie private, nella visualizzazione live, nell'amministrazione, nei download e nella pagina dell'esito del pagamento. Non inviamo foto, video, selfie o messaggi vocali.",
+          "Nelle pagine pubbliche di marketing e legali di guestmosaic.com, LiveSession e Meta Pixel vengono caricati solo dopo il tuo consenso. Con un consenso Marketing valido, Meta Conversions API invia anche gli eventi di avvio del checkout e acquisto confermato; l'e-mail viene sottoposta ad hash prima dell'invio e gli identificatori tecnici temporanei vengono eliminati dopo il tentativo di invio dell'acquisto. Gli strumenti sono disattivati nelle gallerie private, nella visualizzazione live, nell'amministrazione e nei download. Non inviamo foto, video, selfie o messaggi vocali.",
           "Le scelte separate per Analisi e Marketing vengono conservate per 180 giorni in un cookie necessario e nella memoria locale del browser. Puoi modificarle in qualsiasi momento tramite il pulsante «Impostazioni cookie». La revoca vale per i trattamenti futuri. I fornitori possono trattare dati al di fuori del SEE adottando garanzie adeguate.",
         ],
       },
@@ -846,7 +846,7 @@ const fr: LegalCopy = {
       {
         heading: "8. Cookies, analyse et publicité",
         body: [
-          "Sur les pages publiques marketing et juridiques de guestmosaic.com, LiveSession (analyse et enregistrement des interactions sans frappes clavier) et Meta Pixel (mesure des publicités et visites) ne sont chargés qu'après votre consentement. Ils sont désactivés dans les galeries privées, l'affichage en direct, l'administration, les téléchargements et la page de résultat du paiement. Nous ne transmettons ni photos, ni vidéos, ni selfies, ni messages vocaux.",
+          "Sur les pages publiques marketing et juridiques de guestmosaic.com, LiveSession et Meta Pixel ne sont chargés qu'après votre consentement. Avec un consentement Marketing valide, Meta Conversions API envoie aussi les événements de début de paiement et d'achat confirmé ; l'e-mail est haché avant l'envoi et les identifiants techniques temporaires sont supprimés après la tentative d'envoi de l'achat. Les outils sont désactivés dans les galeries privées, l'affichage en direct, l'administration et les téléchargements. Nous ne transmettons ni photos, ni vidéos, ni selfies, ni messages vocaux.",
           "Vos choix distincts pour l'Analyse et le Marketing sont conservés pendant 180 jours dans un cookie nécessaire et le stockage local du navigateur. Vous pouvez les modifier à tout moment via le bouton « Paramètres des cookies ». Le retrait vaut pour les traitements futurs. Les prestataires peuvent traiter des données hors de l'EEE avec des garanties appropriées.",
         ],
       },

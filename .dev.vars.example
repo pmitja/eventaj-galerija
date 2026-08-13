@@ -3,6 +3,7 @@ STRIPE_SECRET_KEY=sk_test_your-key
 STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
 STRIPE_GUESTMOSAIC_SECRET_KEY=sk_test_your-guest-mosaic-key
 STRIPE_GUESTMOSAIC_WEBHOOK_SECRET=whsec_your-guest-mosaic-webhook-secret
+META_CONVERSIONS_API_TOKEN=your-meta-conversions-api-token
 ADMIN_PASSWORD_HASH=generate-with-pnpm-auth-hash
 R2_ACCOUNT_ID=your-cloudflare-account-id
 R2_ACCESS_KEY_ID=your-r2-api-token-access-key-id

@@ -1,9 +1,14 @@
 # Podatkovni model
 
-Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja zaporedne D1 migracije v `migrations/`. Migracije 0001–0014 uvedejo dogodke, QR dostop, medije, slideshow, izvoze, tehnično kakovost, komentarje in face-search rez. Migracija 0015 zamenja implicitnega enega administratorja z organizacijami, uporabniki, članstvi in Stripe checkout naročili; stare podatke ohrani v organizaciji `eventaj`. Migracija 0024 aditivno doda `locale` na checkout naročilo in dogodek; obstoječe vrstice ostanejo slovenske.
+Opomba: spodnji razširjeni model ostaja cilj poznejših faz. Cloudflare MVP po [ADR-004](decisions/ADR-004-cloudflare-platform.md) uporablja zaporedne D1 migracije v `migrations/`. Migracije 0001–0014 uvedejo dogodke, QR dostop, medije, slideshow, izvoze, tehnično kakovost, komentarje in face-search rez. Migracija 0015 zamenja implicitnega enega administratorja z organizacijami, uporabniki, članstvi in Stripe checkout naročili; stare podatke ohrani v organizaciji `eventaj`. Migracija 0024 aditivno doda `locale` na checkout naročilo in dogodek; obstoječe vrstice ostanejo slovenske. Migracija 0028 aditivno doda consent-gated Meta attribution; obstoječa naročila imajo marketing privzeto izključen, zato je sprememba povratno združljiva.
 
 Stripe webhook po ADR-012 idempotentno materializira plačan dogodek in glavno QR
 kodo brez članskega dostopa. Dostavi QR in ZIP sta ločeni idempotentni opravili.
+
+`checkout_orders` začasno hrani `meta_fbp`, `meta_fbc`, `meta_client_ip` in
+`meta_client_user_agent` samo pri veljavnem marketing soglasju. Po poskusu
+pošiljanja `Purchase` se ti stolpci nastavijo na `NULL`; ostaneta verzija soglasja
+in čas pošiljanja za dokazljivost ter deduplikacijo.
 
 ## Splošna pravila
 

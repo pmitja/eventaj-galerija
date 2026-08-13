@@ -9,6 +9,8 @@ import { createStripeCheckout, retrieveStripeCheckout } from "@/lib/billing/stri
 import { createPublicToken, hashToken } from "@/lib/security/tokens";
 import { appUrlForLocale, type Locale } from "@/lib/i18n/locale";
 import { checkoutSuccessPath, orderPath } from "@/lib/i18n/routes";
+import type { CheckoutMarketingAttribution } from "@/lib/analytics/meta-attribution";
+import { sendMetaConversion } from "@/lib/analytics/meta-conversions";
 
 type CheckoutInput = z.infer<typeof createCheckoutSchema>;
 
@@ -31,6 +33,13 @@ export type CheckoutOrder = {
   video_unlimited: number;
   locale: Locale;
   legal_terms_version: string | null;
+  marketing_consent: number;
+  marketing_consent_version: string | null;
+  meta_fbp: string | null;
+  meta_fbc: string | null;
+  meta_client_ip: string | null;
+  meta_client_user_agent: string | null;
+  meta_purchase_sent_at: string | null;
   amount_cents: number;
   currency: string;
   stripe_checkout_session_id: string | null;
@@ -38,9 +47,14 @@ export type CheckoutOrder = {
   provisioned_event_id: string | null;
   created_at: string;
   updated_at: string;
+  completed_at: string | null;
 };
 
-export async function createCheckoutOrder(input: CheckoutInput, locale: Locale = "sl"): Promise<{ id: string; url: string }> {
+export async function createCheckoutOrder(
+  input: CheckoutInput,
+  locale: Locale = "sl",
+  attribution: CheckoutMarketingAttribution | null = null,
+): Promise<{ id: string; url: string }> {
   const env = getCloudflareEnv();
   const recent = await env.DB.prepare(
     `SELECT COUNT(*) AS count FROM checkout_orders
@@ -56,13 +70,17 @@ export async function createCheckoutOrder(input: CheckoutInput, locale: Locale =
       (id, organization_id, existing_user_id, owner_name, owner_email, password_hash,
        organization_name, event_name, event_location, starts_at, ends_at, timezone,
        comments_enabled, ai_best_photos, face_collections, video_unlimited, legal_terms_version,
-       amount_cents, currency, locale, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', ?, 'pending', ?, ?)`,
+       amount_cents, currency, locale, marketing_consent, marketing_consent_version,
+       meta_fbp, meta_fbc, meta_client_ip, meta_client_user_agent, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
   ).bind(
     id, null, null, input.ownerName, input.ownerEmail, null,
     input.organizationName, input.eventName, input.eventLocation || null, input.startsAt, input.endsAt,
     input.timezone, input.commentsEnabled ? 1 : 0, input.aiBestPhotos ? 1 : 0, input.faceCollections ? 1 : 0,
-    input.videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, locale, now, now,
+    input.videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, locale,
+    attribution ? 1 : 0, attribution?.consentVersion ?? null, attribution?.fbp ?? null,
+    attribution?.fbc ?? null, attribution?.clientIp ?? null, attribution?.clientUserAgent ?? null,
+    now, now,
   ).run();
 
   try {
@@ -81,10 +99,31 @@ export async function createCheckoutOrder(input: CheckoutInput, locale: Locale =
     await env.DB.prepare(
       "UPDATE checkout_orders SET stripe_checkout_session_id = ?, updated_at = ? WHERE id = ? AND status = 'pending'",
     ).bind(session.id, new Date().toISOString(), id).run();
+    if (attribution) {
+      try {
+        await sendMetaConversion({
+          name: "InitiateCheckout",
+          eventId: `checkout.initiate:${id}`,
+          occurredAt: new Date(),
+          sourceUrl: new URL(orderPath(locale), root).toString(),
+          email: input.ownerEmail,
+          amountCents: amount,
+          currency: "EUR",
+          orderId: id,
+          fbp: attribution.fbp,
+          fbc: attribution.fbc,
+          clientIp: attribution.clientIp,
+          clientUserAgent: attribution.clientUserAgent,
+        });
+      } catch {
+        console.error(JSON.stringify({ event: "meta.initiate_checkout_failed", orderId: id }));
+      }
+    }
     return { id, url: session.url! };
   } catch (error) {
     await env.DB.prepare(
-      "UPDATE checkout_orders SET status = 'failed', password_hash = NULL, error_code = 'STRIPE_CHECKOUT_FAILED', updated_at = ? WHERE id = ?",
+      `UPDATE checkout_orders SET status = 'failed', password_hash = NULL, error_code = 'STRIPE_CHECKOUT_FAILED',
+       meta_fbp = NULL, meta_fbc = NULL, meta_client_ip = NULL, meta_client_user_agent = NULL, updated_at = ? WHERE id = ?`,
     ).bind(new Date().toISOString(), id).run();
     throw error;
   }
@@ -109,9 +148,45 @@ export async function findDeliveryLinks(eventId: string): Promise<DeliveryLinks 
 
 export async function expireCheckout(sessionId: string): Promise<void> {
   await getCloudflareEnv().DB.prepare(
-    `UPDATE checkout_orders SET status = 'expired', password_hash = NULL, updated_at = ?
+    `UPDATE checkout_orders SET status = 'expired', password_hash = NULL,
+     meta_fbp = NULL, meta_fbc = NULL, meta_client_ip = NULL, meta_client_user_agent = NULL, updated_at = ?
      WHERE stripe_checkout_session_id = ? AND status = 'pending'`,
   ).bind(new Date().toISOString(), sessionId).run();
+}
+
+async function sendPurchaseConversion(order: CheckoutOrder): Promise<void> {
+  if (!order.marketing_consent || order.locale === "sl" || order.meta_purchase_sent_at) return;
+  const env = getCloudflareEnv();
+  let sentAt: string | null = null;
+  try {
+    const result = await sendMetaConversion({
+      name: "Purchase",
+      eventId: `checkout.purchase:${order.id}`,
+      occurredAt: new Date(order.completed_at ?? order.updated_at),
+      sourceUrl: new URL(checkoutSuccessPath(order.locale), appUrlForLocale(env, order.locale)).toString(),
+      email: order.owner_email,
+      amountCents: order.amount_cents,
+      currency: order.currency,
+      orderId: order.id,
+      fbp: order.meta_fbp,
+      fbc: order.meta_fbc,
+      clientIp: order.meta_client_ip,
+      clientUserAgent: order.meta_client_user_agent,
+    });
+    if (result === "sent") sentAt = new Date().toISOString();
+  } catch {
+    console.error(JSON.stringify({ event: "meta.purchase_failed", orderId: order.id }));
+  } finally {
+    try {
+      await env.DB.prepare(
+        `UPDATE checkout_orders SET meta_purchase_sent_at = COALESCE(meta_purchase_sent_at, ?),
+         meta_fbp = NULL, meta_fbc = NULL, meta_client_ip = NULL, meta_client_user_agent = NULL, updated_at = ?
+         WHERE id = ?`,
+      ).bind(sentAt, new Date().toISOString(), order.id).run();
+    } catch {
+      console.error(JSON.stringify({ event: "meta.attribution_cleanup_failed", orderId: order.id }));
+    }
+  }
 }
 
 export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"): Promise<CheckoutOrder> {
@@ -121,7 +196,10 @@ export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"):
   const order = await env.DB.prepare("SELECT * FROM checkout_orders WHERE id = ? AND stripe_checkout_session_id = ?")
     .bind(orderId, sessionId).first<CheckoutOrder>();
   if (!order) throw new Error("CHECKOUT_ORDER_NOT_FOUND");
-  if (order.status === "provisioned") return order;
+  if (order.status === "provisioned") {
+    await sendPurchaseConversion(order);
+    return order;
+  }
   if (session.payment_status !== "paid" || session.amount_total !== order.amount_cents
     || session.currency?.toUpperCase() !== order.currency) throw new Error("CHECKOUT_NOT_PAID");
 
@@ -228,5 +306,8 @@ export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"):
   } catch {
     console.error(JSON.stringify({ event: "checkout.qr_email_enqueue_failed", eventId: event.id }));
   }
-  return env.DB.prepare("SELECT * FROM checkout_orders WHERE id = ?").bind(order.id).first<CheckoutOrder>() as Promise<CheckoutOrder>;
+  const provisioned = await env.DB.prepare("SELECT * FROM checkout_orders WHERE id = ?").bind(order.id).first<CheckoutOrder>();
+  if (!provisioned) throw new Error("CHECKOUT_ORDER_NOT_FOUND");
+  await sendPurchaseConversion(provisioned);
+  return provisioned;
 }

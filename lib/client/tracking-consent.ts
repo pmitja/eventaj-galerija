@@ -26,7 +26,9 @@ const SENSITIVE_PATH_PREFIXES = [
   "/downloads/",
   "/e/",
   "/login",
+  "/naroci",
   "/nakup/uspesen",
+  "/order",
   "/prenosi/",
   "/qr/",
 ] as const;

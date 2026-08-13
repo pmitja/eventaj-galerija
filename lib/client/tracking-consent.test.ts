@@ -40,7 +40,7 @@ describe("tracking consent", () => {
 
   it("keeps optional tracking out of private and operational routes", () => {
     expect(isOptionalTrackingPathname("/")).toBe(true);
-    expect(isOptionalTrackingPathname("/de/order")).toBe(true);
+    expect(isOptionalTrackingPathname("/de/order")).toBe(false);
     expect(isOptionalTrackingPathname("/privacy")).toBe(true);
     expect(isOptionalTrackingPathname("/e/private-event")).toBe(false);
     expect(isOptionalTrackingPathname("/de/e/private-event")).toBe(false);
@@ -48,5 +48,8 @@ describe("tracking consent", () => {
     expect(isOptionalTrackingPathname("/admin/events")).toBe(false);
     expect(isOptionalTrackingPathname("/downloads/token")).toBe(false);
     expect(isOptionalTrackingPathname("/nakup/uspesen")).toBe(false);
+    expect(isOptionalTrackingPathname("/naroci")).toBe(false);
+    expect(isOptionalTrackingPathname("/order")).toBe(false);
+    expect(isOptionalTrackingPathname("/order/success")).toBe(false);
   });
 });
