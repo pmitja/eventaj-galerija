@@ -13,6 +13,7 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
   const brandName = t.nav.brandWord;
   const weddingPath = solutionPagePath(locale, "wedding-qr") ?? eventUseCasePath(locale, "poroke");
   const qrGalleryPath = solutionPagePath(locale, "event-qr-gallery") ?? `${home}#${t.anchors.howItWorks}`;
+  const noAppPath = solutionPagePath(locale, "no-app-sharing");
   return (
     <>
       <footer className="footer">
@@ -46,6 +47,8 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
           <div className="footer-column">
             <strong>{brandName}</strong>
             <Link href={qrGalleryPath}>QR {t.footer.qrGallery}</Link>
+            {locale !== "sl" && noAppPath ? <Link href={noAppPath}>{getSolutionLabel(locale, "no-app-sharing")}</Link> : null}
+            {locale !== "sl" ? <Link href={weddingPath}>{getSolutionLabel(locale, "wedding-qr")}</Link> : null}
             <Link href={`${home}#${t.anchors.faq}`}>{t.footer.help}</Link>
             <a href="mailto:info@eventaj.si">{t.footer.contact}</a>
           </div>
@@ -61,4 +64,12 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
       <StickyCreateEventCta locale={locale} />
     </>
   );
+}
+
+function getSolutionLabel(locale: Locale, id: "wedding-qr" | "no-app-sharing") {
+  const labels = {
+    "wedding-qr": { en: "Wedding photo QR", de: "QR für Hochzeitsfotos", nl: "QR voor trouwfoto’s", es: "QR para fotos de boda", it: "QR per foto di matrimonio", fr: "QR pour photos de mariage" },
+    "no-app-sharing": { en: "Share photos without an app", de: "Fotos ohne App teilen", nl: "Foto’s delen zonder app", es: "Compartir fotos sin app", it: "Condividere foto senza app", fr: "Partager sans application" },
+  } as const;
+  return locale === "sl" ? "" : labels[id][locale];
 }

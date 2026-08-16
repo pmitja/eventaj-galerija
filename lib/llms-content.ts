@@ -1,6 +1,14 @@
 import { eventUseCasesFor } from "@/components/landing/use-cases";
+import { getSolutionPage } from "@/components/landing/solution-pages";
 import { localePathPrefix, withLocalePrefix, type Locale } from "@/lib/i18n/locale";
-import { eventUseCasePath, orderPath } from "@/lib/i18n/routes";
+import {
+  SOLUTION_PAGE_LOCALES,
+  SOLUTION_PAGE_PATHS,
+  eventUseCaseMarketingPath,
+  orderPath,
+  solutionPagePath,
+  type SolutionPageLocale,
+} from "@/lib/i18n/routes";
 import { SEO_COPY, SITE_NAME, SITE_URL, SL_SITE_NAME, brandName } from "@/lib/seo";
 
 /**
@@ -494,11 +502,24 @@ export function llmsTxtFor(locale: Locale, siteUrl: string): string {
   const copy = LLMS_COPY[locale] ?? LLMS_COPY.en;
   const home = `${siteUrl}${localePathPrefix(locale) || "/"}`;
   const useCaseLinks = eventUseCasesFor(locale)
+    .filter((item) => locale === "sl" || item.slug !== "poroke")
     .map(
       (item) =>
-        `- [${item.navTitle}](${siteUrl}${eventUseCasePath(locale, item.slug)}): ${item.navDescription}`,
+        `- [${item.navTitle}](${siteUrl}${eventUseCaseMarketingPath(locale, item.slug)}): ${item.navDescription}`,
     )
     .join("\n");
+  const solutionLinks = SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)
+    ? Object.keys(SOLUTION_PAGE_PATHS)
+        .map((id) => {
+          const solutionId = id as keyof typeof SOLUTION_PAGE_PATHS;
+          const path = solutionPagePath(locale, solutionId);
+          if (!path) return null;
+          const page = getSolutionPage(solutionId, locale as SolutionPageLocale);
+          return `- [${page.navTitle}](${siteUrl}${path}): ${page.metaDescription}`;
+        })
+        .filter((link): link is string => Boolean(link))
+        .join("\n")
+    : "";
 
   return `# ${brandName(locale)}
 
@@ -511,6 +532,7 @@ ${copy.intro}
 - [${brandName(locale)}](${home}): ${copy.homeDescription}
 - [${copy.orderTitle}](${siteUrl}${orderPath(locale)}): ${copy.orderDescription}
 - [${copy.fullDescriptionTitle}](${siteUrl}${withLocalePrefix(locale, "/llms-full.txt")}): ${copy.fullDescriptionDescription}
+${solutionLinks ? `\n${solutionLinks}` : ""}
 
 ## ${copy.eventTypes}
 
@@ -529,12 +551,17 @@ ${copy.importantPoints.map((point) => `- ${point}`).join("\n")}
 export function llmsFullTxtFor(locale: Locale, siteUrl: string): string {
   const copy = LLMS_COPY[locale] ?? LLMS_COPY.en;
   const home = `${siteUrl}${localePathPrefix(locale) || "/"}`;
-  const useCases = eventUseCasesFor(locale);
+  const useCases = eventUseCasesFor(locale).filter((item) => locale === "sl" || item.slug !== "poroke");
+  const solutionUrls = SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)
+    ? Object.keys(SOLUTION_PAGE_PATHS)
+        .map((id) => solutionPagePath(locale, id as keyof typeof SOLUTION_PAGE_PATHS))
+        .filter((path): path is string => Boolean(path))
+    : [];
   const useCaseDetails = useCases
     .map(
       (item) => `### ${item.navTitle}
 
-${copy.useCaseUrl}: ${siteUrl}${eventUseCasePath(locale, item.slug)}
+${copy.useCaseUrl}: ${siteUrl}${eventUseCaseMarketingPath(locale, item.slug)}
 
 ${item.description}
 
@@ -588,7 +615,8 @@ ${useCaseDetails}
 
 - ${home}
 - ${siteUrl}${orderPath(locale)}
-${useCases.map((item) => `- ${siteUrl}${eventUseCasePath(locale, item.slug)}`).join("\n")}
+${solutionUrls.map((path) => `- ${siteUrl}${path}`).join("\n")}
+${useCases.map((item) => `- ${siteUrl}${eventUseCaseMarketingPath(locale, item.slug)}`).join("\n")}
 `;
 }
 

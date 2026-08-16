@@ -23,7 +23,7 @@ import { LOCALE_LABELS, LOCALE_SHORT_LABELS, intlLocale, type Locale } from "@/l
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { pluralCount } from "@/lib/i18n/plural";
 import { usePathname } from "next/navigation";
-import { localizedMarketingPath } from "@/lib/i18n/routes";
+import { localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
 import { VoiceGuestbook } from "@/components/guest/voice-message-recorder";
 
 const VoiceMessageRecorder = dynamic(
@@ -169,6 +169,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     downloadUrl: null,
   }));
   const t = getDictionary(locale).guest.gallery;
+  const createEventLabel = getDictionary(locale).useCasePage.ctaCreate;
   const alternateLocale: Locale = locale === "sl" ? "en" : "sl";
   const homeHref = localizedMarketingPath("/", locale);
   const brandMarkSrc = guestBrandMark(locale);
@@ -410,6 +411,14 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
 
   return (
     <main className={pageClass}>
+      {isDemoEvent ? (
+        <Link
+          className="fixed bottom-20 left-1/2 z-30 min-h-12 -translate-x-1/2 rounded-full bg-brand px-5 py-3 text-center text-[14px] font-extrabold whitespace-nowrap text-white! shadow-[0_14px_34px_rgba(96,20,55,.32)] transition-transform hover:-translate-x-1/2 hover:-translate-y-0.5 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white sm:bottom-4 motion-reduce:transition-none"
+          href={orderPath(locale)}
+        >
+          {createEventLabel}
+        </Link>
+      ) : null}
       <header className="absolute inset-x-0 top-0 z-10 flex h-[68px] items-center justify-between px-5 text-white md:h-[78px] md:px-9">
         <Link className={brandClass} href={homeHref} aria-label={t.backToSite}>
           {brandMarkSrc ? <img className={brandMarkClass} src={brandMarkSrc} alt="" width={30} height={30} /> : null}

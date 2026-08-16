@@ -28,7 +28,7 @@ export function LoginModalProvider({ children }: Readonly<{ children: ReactNode 
   return (
     <LoginModalContext.Provider value={{ openLogin: (url = "/admin") => setCallbackUrl(url) }}>
       {children}
-      <dialog
+      {callbackUrl ? <dialog
         ref={dialogRef}
         className="login-modal"
         aria-labelledby="login-modal-title"
@@ -44,7 +44,7 @@ export function LoginModalProvider({ children }: Readonly<{ children: ReactNode 
           <LoginForm callbackUrl={callbackUrl ?? "/admin"} titleId="login-modal-title" compact />
           <a className="login-modal__fallback" href="/login">Odpri prijavo na ločeni strani</a>
         </div>
-      </dialog>
+      </dialog> : null}
     </LoginModalContext.Provider>
   );
 }

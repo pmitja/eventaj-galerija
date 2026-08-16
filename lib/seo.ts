@@ -4,6 +4,8 @@ import { orderPath } from "@/lib/i18n/routes";
 export const SITE_URL = "https://galerija.eventaj.si";
 export const ENGLISH_SITE_URL = "https://guestmosaic.com";
 export const BRAND_URL = "https://eventaj.si";
+export const EVENTAJ_ORGANIZATION_ID = `${BRAND_URL}/#organization`;
+export const GUEST_MOSAIC_BRAND_ID = `${ENGLISH_SITE_URL}/#brand`;
 export const SITE_NAME = "Guest Mosaic";
 /** Slovenian never rebranded — galerija.eventaj.si stays Galerija Eventaj. */
 export const SL_SITE_NAME = "Galerija Eventaj";
@@ -222,12 +224,20 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": `${BRAND_URL}/#organization`,
-        name,
-        url: siteUrl,
+        "@id": EVENTAJ_ORGANIZATION_ID,
+        name: "Eventaj",
+        url: BRAND_URL,
         email: "info@eventaj.si",
-        logo: { "@type": "ImageObject", url: `${siteUrl}${brandMark(locale)}` },
+        logo: { "@type": "ImageObject", url: `${SITE_URL}${EVENTAJ_MARK}` },
       },
+      ...(locale === "sl" ? [] : [{
+        "@type": "Brand",
+        "@id": GUEST_MOSAIC_BRAND_ID,
+        name,
+        url: ENGLISH_SITE_URL,
+        logo: { "@type": "ImageObject", url: `${ENGLISH_SITE_URL}${GUEST_MOSAIC_MARK}` },
+        parentOrganization: { "@id": EVENTAJ_ORGANIZATION_ID },
+      }]),
       {
         "@type": "WebSite",
         "@id": `${siteUrl}/#website`,
@@ -235,7 +245,7 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
         name,
         description: copy.description,
         inLanguage: copy.language,
-        publisher: { "@id": `${BRAND_URL}/#organization` },
+        publisher: { "@id": EVENTAJ_ORGANIZATION_ID },
       },
       {
         "@type": "WebApplication",
@@ -247,7 +257,8 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
         operatingSystem: copy.operatingSystem,
         browserRequirements: copy.browserRequirements,
         inLanguage: copy.language,
-        provider: { "@id": `${BRAND_URL}/#organization` },
+        provider: { "@id": EVENTAJ_ORGANIZATION_ID },
+        ...(locale === "sl" ? {} : { brand: { "@id": GUEST_MOSAIC_BRAND_ID } }),
         isPartOf: { "@id": `${siteUrl}/#website` },
         offers: {
           "@type": "Offer",

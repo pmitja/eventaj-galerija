@@ -1,5 +1,4 @@
 import { AnimationController } from "./animation-controller";
-import { LoginModalProvider } from "@/components/auth/login-modal";
 import { Faq, Pricing } from "./commerce-sections";
 import { AiFeatures, Devices, Features, HowItWorks, Slideshow } from "./content-sections";
 import { Footer } from "./footer";
@@ -7,6 +6,7 @@ import { Header, Hero, QuickSteps } from "./header-hero";
 import { Showcase } from "./showcase-sections";
 import { MemoryFeatures } from "./memory-features";
 import { EventUseCasesSection } from "./use-case-page";
+import { SolutionHub } from "./solution-hub";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { appUrlForLocale } from "@/lib/i18n/locale";
 
@@ -14,12 +14,12 @@ export async function LandingPage() {
   const locale = await getRequestLocale();
   const alternateOrigin = appUrlForLocale(getPublicAppUrls(), locale === "sl" ? "en" : "sl");
   return (
-    <LoginModalProvider>
       <main className="landing-page">
         <AnimationController />
         <Header locale={locale} alternateOrigin={alternateOrigin} />
         <Hero locale={locale} />
         <QuickSteps locale={locale} />
+        <SolutionHub locale={locale} />
         <HowItWorks locale={locale} />
         <Features locale={locale} />
         <MemoryFeatures locale={locale} />
@@ -32,6 +32,5 @@ export async function LandingPage() {
         <Faq locale={locale} />
         <Footer locale={locale} />
       </main>
-    </LoginModalProvider>
   );
 }

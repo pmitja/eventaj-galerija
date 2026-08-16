@@ -36,7 +36,7 @@ export function languageAlternates(
   return alternates;
 }
 
-/** hreflang map for a solution page that currently exists only in pilot markets. */
+/** hreflang map for an international solution page. */
 export function solutionLanguageAlternates(
   env: { PUBLIC_APP_URL: string; PUBLIC_APP_URL_EN: string },
   id: SolutionPageId,

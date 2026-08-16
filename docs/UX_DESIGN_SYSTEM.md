@@ -136,3 +136,33 @@ da je produkt omejen na poroke.
   `aggregateRating`, reviewi in testimonial trditve ne objavljajo.
 - `/llms.txt` je kratek kuriran zemljevid javnih virov, `/llms-full.txt` pa
   avtoritativni razširjeni opis ponudbe, omejitev, zasebnosti in vseh use-caseov.
+- `/llm.txt` je združljiv singularni alias za `/llms.txt`. Vse tri poti so na
+  Guest Mosaic lokalizirane za `en`, `de`, `nl`, `es`, `it` in `fr`, na
+  Galeriji Eventaj pa v slovenščini; vsebujejo samo kanonične javne povezave.
+
+### Lastništvo mednarodnih solution URL-jev
+
+- Wedding intent na Guest Mosaic vedno pripada namenski solution strani. Stare
+  generične poti `/for-events/weddings` in njihove jezikovne različice se z
+  enim trajnim `308` preusmerijo na lokaliziran wedding solution URL.
+- Generične wedding poti niso v sitemapu in niso cilj notranjih povezav. Header,
+  domači solution hub, footer, povezani use-case bloki in `llms*.txt` kažejo
+  neposredno na izbran kanonični URL.
+- EN, DE, NL, ES, IT in FR imajo po tri native solution strani: wedding QR,
+  deljenje brez aplikacije in event QR galerijo. Slovenska informacijska
+  arhitektura ostaja nespremenjena na `/za-dogodke/poroke`.
+- Wedding landing sledi zaporedju obljuba → lokalni upload simulator → postopek
+  → koristi → ponudba → zasebnost → primerjava → brezplačni DIY vodič → FAQ →
+  končni CTA. Simulator uporablja samo lokalni `blob:` predogled in ne odpre
+  upload seje, ne kliče API-ja ter datoteke ne shrani.
+
+### Performance budget marketinških strani
+
+- Samo dejanski LCP posnetek uporablja high-priority image preload; dekorativne
+  hero kartice se naložijo po običajni prioriteti.
+- Hero in statična vsebina sta server componenta. Interaktivna navigacija ter
+  lokalni upload simulator sta ločena client islanda.
+- Javni home, use-case in solution odzivi deklarirajo 5-minutni CDN cache ter
+  24-urni `stale-while-revalidate`; checkout, galerije, admin in zasebne poti so
+  iz te politike izključene.
+- Cilji ostajajo mobile p75 LCP < 2,5 s, INP < 200 ms, CLS < 0,1 in TTFB < 800 ms.

@@ -1,4 +1,5 @@
 import type { SolutionPageId, SolutionPageLocale } from "@/lib/i18n/routes";
+import { romanceSolutionPages } from "./solution-pages-romance";
 
 type Benefit = { title: string; description: string };
 
@@ -39,7 +40,7 @@ const content: Record<SolutionPageLocale, Record<SolutionPageId, SolutionPageCon
       title: "Collect your guests’ wedding photos with one QR code.",
       description: "Place the code on your welcome sign, tables or invitations. Guests scan it and upload photos, short videos and voice messages straight from their phone—no app and no guest account.",
       primaryCta: "Create your wedding gallery — €35",
-      secondaryCta: "Try the demo gallery",
+      secondaryCta: "Try uploading as a guest",
       trust: ["€35 per event · VAT included · no subscription", "Unlimited guests", "Gallery for 180 days after the event"],
       benefitsPill: "One place for every perspective",
       benefitsHeading: "Stop chasing photos after the wedding.",
@@ -147,7 +148,7 @@ const content: Record<SolutionPageLocale, Record<SolutionPageId, SolutionPageCon
       title: "Alle Gästefotos eurer Hochzeit. In einer Galerie.",
       description: "Eure Gäste scannen den QR-Code und laden Fotos, kurze Videos und Sprachnachrichten direkt im Browser hoch – ohne App und ohne Anmeldung.",
       primaryCta: "Hochzeitsgalerie erstellen — 35 €",
-      secondaryCta: "Demo-Galerie ansehen",
+      secondaryCta: "Gäste-Upload ausprobieren",
       trust: ["35 € pro Event · inkl. MwSt. · kein Abo", "Unbegrenzt viele Gäste", "Galerie 180 Tage nach dem Event verfügbar"],
       benefitsPill: "Alle Perspektiven an einem Ort",
       benefitsHeading: "Nach der Hochzeit keine Fotos mehr zusammensuchen.",
@@ -255,7 +256,7 @@ const content: Record<SolutionPageLocale, Record<SolutionPageId, SolutionPageCon
       title: "Alle foto’s van jullie bruiloft. In één gedeelde galerij.",
       description: "Gasten scannen de QR-code en uploaden foto’s, korte video’s en spraakberichten rechtstreeks in hun browser – zonder app of account.",
       primaryCta: "Maak jullie trouwgalerij — € 35",
-      secondaryCta: "Bekijk de demogalerij",
+      secondaryCta: "Probeer de upload als gast",
       trust: ["€ 35 per evenement · inclusief btw · geen abonnement", "Onbeperkt aantal gasten", "Galerij 180 dagen na het evenement beschikbaar"],
       benefitsPill: "Elk perspectief op één plek",
       benefitsHeading: "Na de bruiloft niet meer achter foto’s aan.",
@@ -353,6 +354,7 @@ const content: Record<SolutionPageLocale, Record<SolutionPageId, SolutionPageCon
       relatedLink: "Bekijken",
     },
   },
+  ...romanceSolutionPages,
 };
 
 export function getSolutionPage(id: SolutionPageId, locale: SolutionPageLocale): SolutionPageContent {

@@ -15,12 +15,22 @@ vi.mock("@/lib/cloudflare", () => ({ getCloudflareEnv: () => APP_URLS }));
 import sitemap from "@/app/sitemap";
 import robots from "@/app/robots";
 import { GET as getLlmsTxt } from "@/app/llms.txt/route";
+import { GET as getLlmTxt } from "@/app/llm.txt/route";
 import { GET as getLlmsFullTxt } from "@/app/llms-full.txt/route";
 import { eventUseCases } from "@/components/landing/use-cases";
 import { languageAlternates } from "@/lib/i18n/alternates";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/locale";
-import { ENGLISH_SITE_URL, SITE_URL, SL_SITE_NAME, ogImage, siteStructuredData } from "@/lib/seo";
+import {
+  ENGLISH_SITE_URL,
+  EVENTAJ_ORGANIZATION_ID,
+  GUEST_MOSAIC_BRAND_ID,
+  SITE_URL,
+  SL_SITE_NAME,
+  ogImage,
+  siteStructuredData,
+  siteStructuredDataFor,
+} from "@/lib/seo";
 
 const mockedLocale = vi.mocked(getRequestLocale);
 
@@ -55,9 +65,9 @@ describe("public SEO discovery", () => {
     const urls = entries.map((entry) => entry.url);
 
     // en + de, nl, es, it, fr
-    // The base route set exists in six international locales. The three pilot
-    // solution pages exist only in EN, DE and NL.
-    expect(urls).toHaveLength(PAGES_PER_LOCALE * 6 + 9);
+    // Every international locale has the base routes minus the consolidated
+    // wedding use-case, plus three focused solution pages.
+    expect(urls).toHaveLength((PAGES_PER_LOCALE - 1 + 3) * 6);
     expect(urls).toContain(ENGLISH_SITE_URL);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/de`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/fr/order`);
@@ -72,6 +82,9 @@ describe("public SEO discovery", () => {
       "en-GB": `${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`,
       "de-DE": `${ENGLISH_SITE_URL}/de/hochzeitsfotos-per-qr-code`,
       "nl-NL": `${ENGLISH_SITE_URL}/nl/trouwfotos-verzamelen-qr-code`,
+      "es-ES": `${ENGLISH_SITE_URL}/es/codigo-qr-fotos-boda`,
+      "it-IT": `${ENGLISH_SITE_URL}/it/codice-qr-foto-matrimonio`,
+      "fr-FR": `${ENGLISH_SITE_URL}/fr/qr-code-photos-mariage`,
       "x-default": `${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`,
     });
 
@@ -94,6 +107,7 @@ describe("public SEO discovery", () => {
 
     expect(config.sitemap).toBe(`${SITE_URL}/sitemap.xml`);
     expect(openAiRule?.allow).toContain("/za-dogodke/");
+    expect(openAiRule?.allow).toContain("/llm.txt");
     expect(openAiRule?.allow).toContain("/zasebnost");
     expect(openAiRule?.disallow).toContain("/admin/");
     expect(openAiRule?.disallow).toContain("/e/");
@@ -115,16 +129,24 @@ describe("public SEO discovery", () => {
     }
   });
 
+  it("keeps the requested singular llm.txt alias compatible with llms.txt", async () => {
+    const singular = await withLocale("en", async () => (await getLlmTxt()).text());
+    const standard = await withLocale("en", async () => (await getLlmsTxt()).text());
+
+    expect(singular).toBe(standard);
+    expect(singular).toContain(`${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`);
+  });
+
   it("serves the AI files in the request language, with that language's URLs", async () => {
     const german = await withLocale("de", async () => (await getLlmsTxt()).text());
     const french = await withLocale("fr", async () => (await getLlmsFullTxt()).text());
 
     expect(german).toContain(`${ENGLISH_SITE_URL}/de/order`);
-    expect(german).toContain(`${ENGLISH_SITE_URL}/de/for-events/weddings`);
+    expect(german).toContain(`${ENGLISH_SITE_URL}/de/hochzeitsfotos-per-qr-code`);
     expect(german).toContain("## Eventarten");
     expect(german).not.toContain(SITE_URL);
 
-    expect(french).toContain(`${ENGLISH_SITE_URL}/fr/for-events/weddings`);
+    expect(french).toContain(`${ENGLISH_SITE_URL}/fr/qr-code-photos-mariage`);
     expect(french).toContain("Prix : 35 EUR par événement.");
     expect(french).not.toContain(SITE_URL);
   });
@@ -144,5 +166,14 @@ describe("public SEO discovery", () => {
 
     expect(serialized).not.toContain("aggregateRating");
     expect(serialized).not.toContain('"review"');
+  });
+
+  it("keeps Eventaj and Guest Mosaic as stable, separate structured-data entities", () => {
+    const graph = siteStructuredDataFor("en", ENGLISH_SITE_URL)["@graph"];
+    const serialized = JSON.stringify(graph);
+
+    expect(serialized).toContain(EVENTAJ_ORGANIZATION_ID);
+    expect(serialized).toContain(GUEST_MOSAIC_BRAND_ID);
+    expect(serialized).toContain(`"parentOrganization":{"@id":"${EVENTAJ_ORGANIZATION_ID}"}`);
   });
 });

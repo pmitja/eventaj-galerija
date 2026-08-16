@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LoginModalProvider } from "@/components/auth/login-modal";
 import type { SolutionPageLocale } from "@/lib/i18n/routes";
 import {
+  SOLUTION_PAGE_LOCALES,
   SOLUTION_PAGE_PATHS,
   demoEventPath,
   localizedMarketingPath,
@@ -16,7 +16,9 @@ import { HowItWorks } from "./content-sections";
 import { Footer } from "./footer";
 import { Header } from "./header-hero";
 import { Showcase } from "./showcase-sections";
-import type { SolutionPageContent } from "./solution-pages";
+import { getSolutionPage, type SolutionPageContent } from "./solution-pages";
+import { LocalUploadDemo } from "./local-upload-demo";
+import { weddingConversionCopy } from "./wedding-conversion-copy";
 
 export function SolutionPage({
   page,
@@ -31,13 +33,12 @@ export function SolutionPage({
     .map((id) => id as keyof typeof SOLUTION_PAGE_PATHS);
 
   return (
-    <LoginModalProvider>
       <main className="landing-page use-case-page solution-page" id="top">
         <AnimationController />
         <Header
           howItWorksHref="#how-it-works"
           locale={locale}
-          languageLocales={["en", "de", "nl"]}
+          languageLocales={SOLUTION_PAGE_LOCALES}
         />
 
         <section className="use-case-hero">
@@ -53,7 +54,7 @@ export function SolutionPage({
                 <Link className="button" href={orderPath(locale)} data-sticky-cta-trigger="create-event">
                   {page.primaryCta}
                 </Link>
-                <Link className="button button--secondary" href={demoEventPath(locale)}>
+                <Link className="button button--secondary" href={page.id === "wedding-qr" ? "#guest-upload-demo" : demoEventPath(locale)}>
                   {page.secondaryCta}
                 </Link>
               </div>
@@ -88,6 +89,8 @@ export function SolutionPage({
           </div>
         </section>
 
+        {page.id === "wedding-qr" ? <WeddingGuestDemo locale={locale} /> : null}
+
         <HowItWorks locale={locale} />
 
         <section className="section use-case-benefits">
@@ -111,6 +114,8 @@ export function SolutionPage({
           </div>
         </section>
 
+        {page.id === "wedding-qr" ? <WeddingOffer locale={locale} /> : null}
+
         <section className="section-muted use-case-scenarios solution-clarity">
           <div className="shell use-case-scenarios__inner">
             <div>
@@ -124,7 +129,7 @@ export function SolutionPage({
           </div>
         </section>
 
-        <Showcase locale={locale} />
+        {page.id === "wedding-qr" ? <WeddingComparison locale={locale} /> : <Showcase locale={locale} />}
 
         <section className="section use-case-faq">
           <div className="faq-shell">
@@ -149,11 +154,7 @@ export function SolutionPage({
             <div className="use-case-related__grid">
               {related.map((id) => {
                 const target = solutionPagePath(locale, id);
-                const label = id === "wedding-qr"
-                  ? { en: "Wedding photo QR code", de: "QR-Code für Hochzeitsfotos", nl: "QR-code voor trouwfoto’s" }[locale]
-                  : id === "no-app-sharing"
-                    ? { en: "Share photos without an app", de: "Fotos ohne App teilen", nl: "Foto’s delen zonder app" }[locale]
-                    : { en: "Event photo QR gallery", de: "QR-Fotogalerie für Events", nl: "QR-fotogalerij voor evenementen" }[locale];
+                const label = getSolutionPage(id, locale).navTitle;
                 return target ? (
                   <Link href={target} key={id}>
                     <span>{page.relatedLink}</span>
@@ -168,6 +169,88 @@ export function SolutionPage({
 
         <Footer locale={locale} />
       </main>
-    </LoginModalProvider>
+  );
+}
+
+function WeddingGuestDemo({ locale }: { locale: SolutionPageLocale }) {
+  const copy = weddingConversionCopy[locale];
+  return (
+    <section className="section wedding-guest-demo" id="guest-upload-demo">
+      <div className="shell wedding-guest-demo__inner">
+        <div className="wedding-guest-demo__copy">
+          <span className="section-pill">{copy.guestViewPill}</span>
+          <h2>{copy.guestViewHeading}</h2>
+          <p>{copy.guestViewText}</p>
+          <ol>
+            <li><span>1</span>QR</li>
+            <li><span>2</span>{copy.uploadButton}</li>
+            <li><span>3</span>{copy.uploadReady}</li>
+          </ol>
+        </div>
+        <LocalUploadDemo copy={copy} />
+      </div>
+    </section>
+  );
+}
+
+function WeddingOffer({ locale }: { locale: SolutionPageLocale }) {
+  const copy = weddingConversionCopy[locale];
+  return (
+    <section className="section wedding-offer">
+      <div className="shell wedding-offer__card">
+        <div className="wedding-offer__heading">
+          <span className="section-pill">{copy.offerPill}</span>
+          <h2>{copy.offerHeading}</h2>
+          <p>{copy.offerText}</p>
+        </div>
+        <div className="wedding-offer__details">
+          <div className="wedding-offer__price"><strong>{copy.offerPrice}</strong><span>{copy.offerPriceNote}</span></div>
+          <ul>{copy.offerItems.map((item) => <li key={item}>{item}</li>)}</ul>
+          <Link className="button" href={orderPath(locale)}>{copy.offerCta}</Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WeddingComparison({ locale }: { locale: SolutionPageLocale }) {
+  const copy = weddingConversionCopy[locale];
+  return (
+    <>
+      <section className="section-muted wedding-comparison">
+        <div className="shell">
+          <div className="section-heading">
+            <span className="section-pill">{copy.comparisonPill}</span>
+            <h2>{copy.comparisonHeading}</h2>
+            <p>{copy.comparisonText}</p>
+          </div>
+          <div className="wedding-comparison__table" role="table" aria-label={copy.comparisonHeading}>
+            <div className="wedding-comparison__row wedding-comparison__head" role="row">
+              <strong role="columnheader">{copy.comparisonFeature}</strong>
+              <strong role="columnheader">{copy.comparisonProduct}</strong>
+              <strong role="columnheader">{copy.comparisonAlternative}</strong>
+            </div>
+            {copy.comparisonRows.map(([feature, product, alternative]) => (
+              <div className="wedding-comparison__row" role="row" key={feature}>
+                <strong role="cell">{feature}</strong><span role="cell">{product}</span><span role="cell">{alternative}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="section wedding-free-guide" id="free-wedding-photo-sharing">
+        <div className="shell">
+          <div className="section-heading">
+            <span className="section-pill">{copy.freePill}</span>
+            <h2>{copy.freeHeading}</h2>
+            <p>{copy.freeText}</p>
+          </div>
+          <div className="wedding-free-guide__grid">
+            <article><strong>{copy.freeGoodFor}</strong><p>{copy.freeGoodForText}</p></article>
+            <article><strong>{copy.paidGoodFor}</strong><p>{copy.paidGoodForText}</p><Link href={orderPath(locale)}>{copy.offerCta} →</Link></article>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

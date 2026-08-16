@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LoginModalProvider } from "@/components/auth/login-modal";
 import { AnimationController } from "./animation-controller";
 import { HowItWorks, Slideshow } from "./content-sections";
 import { Footer } from "./footer";
@@ -9,7 +8,7 @@ import { Showcase } from "./showcase-sections";
 import { eventUseCasesFor, type EventUseCase } from "./use-cases";
 import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { eventUseCasePath, localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
+import { eventUseCaseMarketingPath, localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
 import { brandName } from "@/lib/seo";
 import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
 
@@ -26,7 +25,7 @@ export function EventUseCasesSection({ locale = "sl" }: { locale?: Locale }) {
         </div>
         <div className="event-use-cases__grid">
           {eventUseCases.map((item) => (
-            <Link href={eventUseCasePath(locale, item.slug)} key={item.slug}>
+            <Link href={eventUseCaseMarketingPath(locale, item.slug)} key={item.slug}>
               <span>{item.group}</span>
               <strong>{item.navTitle}</strong>
               <p>{item.navDescription}</p>
@@ -48,7 +47,6 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
     .slice(0, 2);
 
   return (
-    <LoginModalProvider>
     <main className="landing-page use-case-page" id="top">
       <AnimationController />
       <Header howItWorksHref={`#${t.anchors.howItWorks}`} locale={locale} alternateOrigin={alternateOrigin} />
@@ -158,7 +156,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
             </div>
             <div className="use-case-related__grid">
               {related.map((item) => (
-                <Link href={eventUseCasePath(locale, item.slug)} key={item.slug}>
+                <Link href={eventUseCaseMarketingPath(locale, item.slug)} key={item.slug}>
                   <span>{item.group}</span>
                   <strong>{item.navTitle}</strong>
                   <p>{item.navDescription}</p>
@@ -171,6 +169,5 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
       ) : null}
       <Footer locale={locale} />
     </main>
-    </LoginModalProvider>
   );
 }

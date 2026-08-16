@@ -638,6 +638,80 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .use-case-related__grid p { max-width: 420px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
 .use-case-related__grid b { position: absolute; right: 26px; bottom: 24px; color: var(--accent); }
 
+/* International solution hub */
+.solution-hub { background: #fff; }
+.solution-hub .section-heading { margin-bottom: 34px; }
+.solution-hub__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.solution-hub__grid > a { min-height: 270px; display: flex; flex-direction: column; padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: linear-gradient(155deg,#fff 45%,#fff7f8); color: var(--ink); box-shadow: 0 8px 24px rgba(15,23,42,.04); transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.solution-hub__grid > a:hover { color: var(--ink); border-color: rgba(225,29,72,.28); box-shadow: 0 16px 34px rgba(15,23,42,.08); transform: translateY(-3px); }
+.solution-hub__grid > a:focus-visible { outline: 3px solid rgba(225,29,72,.25); outline-offset: 3px; }
+.solution-hub__grid > a > span { width: 34px; height: 34px; display: grid; place-items: center; margin-bottom: 28px; border-radius: 10px; background: #fff0f3; color: var(--accent); font-size: 12px; font-weight: 800; }
+.solution-hub__grid strong { font-size: 21px; line-height: 1.25; }
+.solution-hub__grid p { margin: 10px 0 22px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.solution-hub__grid b { margin-top: auto; color: var(--accent); font-size: 13px; }
+.solution-hub__grid b span { display: inline; transition: transform .2s ease; }
+
+/* Focused wedding conversion journey */
+.wedding-guest-demo { scroll-margin-top: 76px; background: #fff; }
+.wedding-guest-demo__inner { display: grid; grid-template-columns: minmax(0,1fr) minmax(330px,.78fr); align-items: center; gap: 88px; }
+.wedding-guest-demo__copy { max-width: 620px; }
+.wedding-guest-demo__copy h2, .wedding-offer h2 { margin: 16px 0 16px; font-size: clamp(34px,4vw,52px); line-height: 1.08; letter-spacing: -.04em; }
+.wedding-guest-demo__copy > p, .wedding-offer__heading > p { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+.wedding-guest-demo__copy ol { display: flex; flex-direction: column; gap: 10px; margin: 30px 0 0; padding: 0; list-style: none; }
+.wedding-guest-demo__copy li { min-height: 44px; display: inline-flex; align-items: center; gap: 9px; padding: 8px 13px 8px 8px; border: 1px solid var(--line); border-radius: 999px; color: #475569; font-size: 12px; font-weight: 700; }
+.wedding-guest-demo__copy li span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #fff0f3; color: var(--accent); }
+.local-upload-demo { display: grid; place-items: center; padding: 26px; border: 1px solid rgba(225,29,72,.12); border-radius: 32px; background: linear-gradient(145deg,#fff 0%,#fde9ee 100%); box-shadow: 0 28px 70px rgba(190,18,60,.1); }
+.local-upload-demo__phone { width: min(100%,340px); min-height: 520px; display: flex; flex-direction: column; padding: 14px 18px 20px; border: 7px solid #18181b; border-radius: 36px; background: #fff; box-shadow: 0 18px 42px rgba(15,23,42,.18); text-align: center; }
+.local-upload-demo__topbar { height: 18px; display: flex; justify-content: center; gap: 3px; }
+.local-upload-demo__topbar span { width: 4px; height: 4px; border-radius: 50%; background: #cbd5e1; }
+.local-upload-demo__copy { padding: 8px 6px 16px; }
+.local-upload-demo__mark { width: 42px; height: 42px; display: grid; place-items: center; margin: 0 auto 12px; border-radius: 13px; background: #fff0f3; color: var(--accent); font-size: 11px; font-weight: 850; }
+.local-upload-demo__copy h3 { margin: 0 0 6px; font-size: 20px; letter-spacing: -.02em; }
+.local-upload-demo__copy p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.local-upload-demo__empty, .local-upload-demo__preview { height: 220px; overflow: hidden; display: grid; place-items: center; margin-bottom: 14px; border: 1px dashed #f1a8ba; border-radius: 18px; background: #fff8fa; }
+.local-upload-demo__empty svg { width: 44px; height: 44px; fill: none; stroke: var(--accent); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; }
+.local-upload-demo__preview { position: relative; align-content: end; border-style: solid; background: #0f172a; }
+.local-upload-demo__preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.local-upload-demo__preview::after { content: ""; position: absolute; inset: 46% 0 0; background: linear-gradient(transparent,rgba(15,23,42,.9)); }
+.local-upload-demo__preview div { position: relative; z-index: 1; display: grid; gap: 3px; padding: 18px; color: #fff; text-align: left; }
+.local-upload-demo__preview strong { font-size: 12px; }
+.local-upload-demo__preview small { overflow: hidden; color: #cbd5e1; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.local-upload-demo__button { width: 100%; min-height: 52px; cursor: pointer; }
+.local-upload-demo__input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.local-upload-demo__phone:has(.local-upload-demo__input:focus-visible) .local-upload-demo__button { outline: 3px solid rgba(225,29,72,.25); outline-offset: 3px; }
+.local-upload-demo__privacy { margin-top: 10px; color: #64748b; font-size: 10.5px; line-height: 1.45; }
+
+.wedding-offer { padding-top: 0; }
+.wedding-offer__card { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(360px,.95fr); gap: 70px; padding: 58px; border-radius: 30px; background: #1f1020; color: #fff; box-shadow: 0 28px 68px rgba(63,13,37,.16); }
+.wedding-offer .section-pill { border-color: rgba(255,255,255,.14); background: rgba(255,255,255,.08); color: #fecdd3; }
+.wedding-offer__heading > p { color: #cbd5e1; }
+.wedding-offer__details { padding: 30px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(255,255,255,.06); }
+.wedding-offer__price { display: flex; align-items: baseline; gap: 12px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.wedding-offer__price strong { font-size: 42px; letter-spacing: -.04em; }
+.wedding-offer__price span { color: #cbd5e1; font-size: 12px; }
+.wedding-offer__details ul { display: grid; gap: 12px; margin: 22px 0 26px; padding: 0; list-style: none; }
+.wedding-offer__details li { display: flex; gap: 10px; color: #e2e8f0; font-size: 13.5px; line-height: 1.4; }
+.wedding-offer__details li::before { content: "✓"; color: #fda4af; font-weight: 900; }
+.wedding-offer__details .button { width: 100%; }
+
+.wedding-comparison .section-heading, .wedding-free-guide .section-heading { margin-bottom: 34px; }
+.wedding-comparison__table { overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: #fff; }
+.wedding-comparison__row { display: grid; grid-template-columns: .75fr 1fr 1fr; }
+.wedding-comparison__row > * { min-width: 0; padding: 18px 20px; border-bottom: 1px solid var(--line); color: #475569; font-size: 13.5px; line-height: 1.5; }
+.wedding-comparison__row > * + * { border-left: 1px solid var(--line); }
+.wedding-comparison__row:last-child > * { border-bottom: 0; }
+.wedding-comparison__row > strong:first-child { color: var(--ink); }
+.wedding-comparison__row > :nth-child(2) { background: #fff8fa; color: #7f1d3f; }
+.wedding-comparison__head > * { background: #f8fafc; color: var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.wedding-comparison__head > :nth-child(2) { background: #fff0f3; }
+.wedding-free-guide { scroll-margin-top: 76px; }
+.wedding-free-guide__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.wedding-free-guide__grid article { min-height: 190px; padding: 28px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
+.wedding-free-guide__grid article:last-child { border-color: rgba(225,29,72,.18); background: #fff8fa; }
+.wedding-free-guide__grid strong { font-size: 18px; }
+.wedding-free-guide__grid p { margin: 10px 0 16px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+.wedding-free-guide__grid a { color: var(--accent); font-size: 13px; font-weight: 800; }
+
 /* Motion */
 
 /* Shared dialog/drawer motion. Names are global so CSS modules can reference them. */
@@ -878,6 +952,35 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .quick-step > span { width: 36px; height: 36px; }
   .quick-step strong { font-size: 15px; }
   .step-arrow { display: none; }
+
+  .solution-hub .section-heading { margin-bottom: 24px; }
+  .solution-hub__grid { grid-template-columns: 1fr; gap: 12px; }
+  .solution-hub__grid > a { min-height: 210px; padding: 22px; border-radius: 18px; }
+  .solution-hub__grid > a > span { margin-bottom: 18px; }
+  .solution-hub__grid strong { font-size: 19px; }
+
+  .wedding-guest-demo__inner { grid-template-columns: 1fr; gap: 34px; }
+  .wedding-guest-demo__copy { text-align: left; }
+  .wedding-guest-demo__copy h2, .wedding-offer h2 { font-size: 29px; }
+  .wedding-guest-demo__copy > p, .wedding-offer__heading > p { font-size: 14.5px; }
+  .wedding-guest-demo__copy ol { margin-top: 22px; }
+  .wedding-guest-demo__copy li { width: 100%; border-radius: 13px; }
+  .local-upload-demo { margin-inline: -4px; padding: 14px; border-radius: 24px; }
+  .local-upload-demo__phone { min-height: 490px; border-radius: 31px; }
+  .local-upload-demo__empty, .local-upload-demo__preview { height: 195px; }
+  .wedding-offer { padding-inline: 14px; }
+  .wedding-offer__card { grid-template-columns: 1fr; gap: 28px; padding: 30px 22px; border-radius: 24px; }
+  .wedding-offer__details { padding: 20px; border-radius: 18px; }
+  .wedding-offer__price { display: grid; gap: 3px; }
+  .wedding-comparison__table { overflow: visible; border: 0; background: transparent; }
+  .wedding-comparison__head { display: none; }
+  .wedding-comparison__row { display: grid; grid-template-columns: 1fr; overflow: hidden; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .wedding-comparison__row > * { padding: 13px 16px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+  .wedding-comparison__row > * + * { border-left: 0; }
+  .wedding-comparison__row > *:last-child { border-bottom: 0; }
+  .wedding-comparison__row > strong:first-child { background: #f8fafc; font-size: 13px; }
+  .wedding-free-guide__grid { grid-template-columns: 1fr; gap: 12px; }
+  .wedding-free-guide__grid article { min-height: 0; padding: 22px; border-radius: 17px; }
 
   .how .section-heading { margin-bottom: 26px; }
   .how-bento { grid-template-columns: 1fr; gap: 14px; }

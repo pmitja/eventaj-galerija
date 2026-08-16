@@ -39,6 +39,7 @@ describe("checkout validation", () => {
       startTime: "14:00",
       endDate: "2026-08-08",
       endTime: "14:01",
+      timezone: "Europe/Ljubljana",
       commentsEnabled: true,
       aiBestPhotos: false,
       faceCollections: false,
@@ -57,6 +58,7 @@ describe("checkout validation", () => {
       startTime: "14:00",
       endDate: "2026-08-01",
       endTime: "22:00",
+      timezone: "Europe/Ljubljana",
       commentsEnabled: true,
       aiBestPhotos: false,
       faceCollections: false,
@@ -67,5 +69,10 @@ describe("checkout validation", () => {
 
   it("requires acceptance of the current terms before checkout", () => {
     expect(createCheckoutSchema.safeParse({ ...valid, termsAccepted: false }).success).toBe(false);
+  });
+
+  it("accepts international IANA zones and rejects unknown zones", () => {
+    expect(createCheckoutSchema.safeParse({ ...valid, timezone: "America/New_York" }).success).toBe(true);
+    expect(createCheckoutSchema.safeParse({ ...valid, timezone: "Europe/Nowhere" }).success).toBe(false);
   });
 });

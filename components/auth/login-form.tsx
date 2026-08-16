@@ -41,7 +41,7 @@ export function LoginForm({ callbackUrl = "/admin", compact = false, titleId }: 
     <form className={`login-form ${compact ? "login-form--compact" : ""}`} onSubmit={handleSubmit}>
       <div className="login-form__heading">
         <p>EVENTAJ.SI GALERIJA</p>
-        <h1 id={titleId}>Prijava</h1>
+        {compact ? <h2 id={titleId}>Prijava</h2> : <h1 id={titleId}>Prijava</h1>}
         <span>Upravljanje dogodkov in galerij.</span>
       </div>
       <label>

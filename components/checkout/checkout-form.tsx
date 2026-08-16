@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, Check, Download, LoaderCircle, LockKeyhole, Mail, ScanFace, ShieldCheck, Sparkles, TriangleAlert, Video } from "lucide-react";
@@ -20,6 +20,24 @@ import { useLocale } from "@/components/i18n/locale-provider";
 import type { Locale } from "@/lib/i18n/locale";
 import { privacyPath, termsPath } from "@/lib/i18n/routes";
 import { brandName } from "@/lib/seo";
+import { detectedTimeZone, zonedLocalDateTimeToIso } from "@/lib/datetime/timezone";
+
+const TIME_ZONE_COPY: Record<Locale, { label: string; note: string }> = {
+  sl: { label: "Časovni pas dogodka", note: "Datumi in ure bodo shranjeni v tem časovnem pasu." },
+  en: { label: "Event time zone", note: "Event dates and times will use this time zone." },
+  de: { label: "Zeitzone des Events", note: "Datum und Uhrzeit des Events verwenden diese Zeitzone." },
+  nl: { label: "Tijdzone van het evenement", note: "De datums en tijden gebruiken deze tijdzone." },
+  es: { label: "Zona horaria del evento", note: "Las fechas y horas del evento usarán esta zona horaria." },
+  it: { label: "Fuso orario dell’evento", note: "Le date e gli orari useranno questo fuso orario." },
+  fr: { label: "Fuseau horaire de l’événement", note: "Les dates et heures utiliseront ce fuseau horaire." },
+};
+
+const COMMON_TIME_ZONES = [
+  "Europe/Ljubljana", "Europe/London", "Europe/Berlin", "Europe/Amsterdam",
+  "Europe/Paris", "Europe/Madrid", "Europe/Rome", "Europe/Vienna",
+  "Europe/Zurich", "Europe/Brussels", "America/New_York", "America/Chicago",
+  "America/Denver", "America/Los_Angeles", "UTC",
+] as const;
 
 const CHECKOUT_COPY = {
   sl: {
@@ -255,7 +273,13 @@ function SectionHeading({ step, title, description }: { step: string; title: str
   </CardHeader>;
 }
 
-export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnabled?: boolean }) {
+export function CheckoutForm({
+  videoUploadsEnabled = false,
+  faceSearchEnabled = false,
+}: {
+  videoUploadsEnabled?: boolean;
+  faceSearchEnabled?: boolean;
+}) {
   const locale = useLocale();
   const copy = CHECKOUT_COPY[locale];
   const [serverError, setServerError] = useState<string | null>(null);
@@ -271,6 +295,7 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
       startTime: "16:00",
       endDate: "",
       endTime: "23:59",
+      timezone: "UTC",
       commentsEnabled: true,
       aiBestPhotos: false,
       faceCollections: false,
@@ -279,12 +304,19 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
     },
   });
   const { errors, isSubmitting } = form.formState;
-  const [aiBestPhotos, faceCollections, videoUnlimited, startDate] = useWatch({ control: form.control, name: ["aiBestPhotos", "faceCollections", "videoUnlimited", "startDate"] });
+  const [aiBestPhotos, faceCollections, videoUnlimited, startDate, timeZone] = useWatch({ control: form.control, name: ["aiBestPhotos", "faceCollections", "videoUnlimited", "startDate", "timezone"] });
   const totalEuros = 35 + (aiBestPhotos ? 15 : 0) + (faceCollections ? 5 : 0) + (videoUnlimited ? 15 : 0);
+
+  useEffect(() => {
+    form.setValue("timezone", detectedTimeZone(), { shouldValidate: false });
+  }, [form]);
 
   async function submit(data: CheckoutFormValues) {
     setServerError(null);
     try {
+      const startsAt = zonedLocalDateTimeToIso(data.startDate, data.startTime, data.timezone);
+      const endsAt = zonedLocalDateTimeToIso(data.endDate, data.endTime, data.timezone);
+      if (!startsAt || !endsAt) throw new Error(TIME_ZONE_COPY[locale].note);
       const response = await fetch("/api/v1/checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -293,9 +325,9 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
           ownerEmail: data.ownerEmail,
           eventName: data.eventName,
           eventLocation: data.eventLocation,
-          startsAt: new Date(`${data.startDate}T${data.startTime}:00`).toISOString(),
-          endsAt: new Date(`${data.endDate}T${data.endTime}:00`).toISOString(),
-          timezone: "Europe/Ljubljana",
+          startsAt,
+          endsAt,
+          timezone: data.timezone,
           commentsEnabled: data.commentsEnabled,
           aiBestPhotos: data.aiBestPhotos,
           faceCollections: data.faceCollections,
@@ -353,11 +385,17 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
                 <Input id="eventLocation" placeholder={copy.locationPlaceholder} autoComplete="off" aria-invalid={Boolean(errors.eventLocation)} {...form.register("eventLocation")} />
                 {errors.eventLocation ? <FieldError>{errors.eventLocation.message}</FieldError> : null}
               </Field>
+              <Field className="sm:col-span-full">
+                <FieldLabel htmlFor="timezone">{TIME_ZONE_COPY[locale].label}<RequiredMark /></FieldLabel>
+                <Input id="timezone" list="event-time-zones" autoComplete="off" required aria-invalid={Boolean(errors.timezone)} aria-describedby={errors.timezone ? "timezone-error" : "timezone-note"} {...form.register("timezone")} />
+                <datalist id="event-time-zones">{COMMON_TIME_ZONES.map((zone) => <option value={zone} key={zone} />)}</datalist>
+                {errors.timezone ? <FieldError id="timezone-error">{errors.timezone.message}</FieldError> : <small id="timezone-note" className="text-[11px]/[1.45] text-[#8a707c]">{TIME_ZONE_COPY[locale].note}</small>}
+              </Field>
             </div>
 
             <div className="grid gap-3.5 sm:grid-cols-[repeat(2,minmax(0,1fr))]">
               <div className="grid min-w-0 gap-3.5 rounded-2xl border border-[#eee0e6] bg-[#fffbfd] p-3.5 sm:p-4">
-                <div className="flex items-baseline justify-between gap-2"><span className="text-[14px] font-[850] text-plum">{copy.start}</span><small className="hidden text-[11px] text-[#8a707c] sm:block">Europe/Ljubljana</small></div>
+                <div className="flex items-baseline justify-between gap-2"><span className="text-[14px] font-[850] text-plum">{copy.start}</span><small className="hidden text-[11px] text-[#8a707c] sm:block">{timeZone}</small></div>
                 <div className="grid items-start gap-2.5 min-[381px]:grid-cols-[minmax(0,1fr)_102px] sm:grid-cols-[minmax(0,1fr)_108px]">
                   <Controller control={form.control} name="startDate" render={({ field }) => <DatePickerField id="startDate" label={copy.startDateLabel} value={field.value} onChange={(value) => {
                     field.onChange(value);
@@ -416,11 +454,11 @@ export function CheckoutForm({ videoUploadsEnabled = false }: { videoUploadsEnab
               <span className="grid gap-1"><strong className={addonTitle}><Sparkles className={addonIcon} aria-hidden="true" /> AI Best Photos</strong><small className={addonNote}>{copy.aiNote}</small></span>
               <b className={addonPrice}>+15 €</b>
             </label>} />
-            <Controller control={form.control} name="faceCollections" render={({ field }) => <label className={addonRow} htmlFor="faceCollections">
+            {faceSearchEnabled ? <Controller control={form.control} name="faceCollections" render={({ field }) => <label className={addonRow} htmlFor="faceCollections">
               <Checkbox id="faceCollections" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
               <span className="grid gap-1"><strong className={addonTitle}><ScanFace className={addonIcon} aria-hidden="true" /> {copy.face}</strong><small className={addonNote}>{copy.faceNote}</small></span>
               <b className={addonPrice}>+5 €</b>
-            </label>} />
+            </label>} /> : null}
             {videoUploadsEnabled ? <Controller control={form.control} name="videoUnlimited" render={({ field }) => <div className="grid gap-1">
               <label className={addonRow} htmlFor="videoUnlimited">
                 <Checkbox id="videoUnlimited" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />

@@ -19,8 +19,13 @@
 
 Javni nakup zahteva kontaktno ime, e-pošto in podatke dogodka. Geslo, uporabnik in
 organizacijska seja niso del toka. `endsAt` mora biti po `startsAt`; največja
-dolžina dogodka ni omejena. Javni `GET /prenosi/{token}` preveri hashiran,
+dolžina dogodka ni omejena. Checkout sprejme veljaven IANA `timezone`; lokalna
+datum in ura se pred pošiljanjem pretvorita v UTC, izbrani časovni pas pa se
+shrani za pravilen prikaz ter izvajanje dogodka. Javni `GET /prenosi/{token}` preveri hashiran,
 časovno omejen token ter preusmeri na kratkotrajen podpisan R2 prenos.
+
+Video in biometrični dodatki so fail-closed: API ju zavrne, kadar pripadajoči
+runtime oziroma policy gate ni aktiven, tudi če klient pošlje ročno izdelan JSON.
 
 `POST /api/v1/checkout` na `guestmosaic.com` iz nujnega consent piškotka
 strežniško izpelje marketing dovoljenje; klient ga ne more vključiti v JSON.

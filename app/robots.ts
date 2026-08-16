@@ -15,6 +15,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   const publicRules = {
     allow: [
       "/",
+      "/llm.txt",
       "/llms.txt",
       "/llms-full.txt",
       ...localesOnHost.flatMap((item) => [
@@ -23,6 +24,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         termsPath(item),
         privacyPath(item),
         // The prefixed languages serve their own translated copies of these.
+        `${localePathPrefix(item)}/llm.txt`,
         `${localePathPrefix(item)}/llms.txt`,
         `${localePathPrefix(item)}/llms-full.txt`,
       ]),

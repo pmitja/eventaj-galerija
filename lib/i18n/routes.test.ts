@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   checkoutSuccessPath,
   eventUseCasePath,
+  eventUseCaseMarketingPath,
   localizedMarketingPath,
   orderPath,
   privacyPath,
@@ -21,7 +22,7 @@ describe("localized public routes", () => {
   });
 
   it("maps language-switch destinations in both directions", () => {
-    expect(localizedMarketingPath("/za-dogodke/poroke", "en")).toBe("/for-events/weddings");
+    expect(localizedMarketingPath("/za-dogodke/poroke", "en")).toBe("/wedding-qr-code-for-photos");
     expect(localizedMarketingPath("/for-events/weddings", "sl")).toBe("/za-dogodke/poroke");
     expect(localizedMarketingPath("/order", "sl")).toBe("/naroci");
   });
@@ -36,8 +37,8 @@ describe("localized public routes", () => {
 
   it("switches languages from and to a prefixed locale", () => {
     expect(localizedMarketingPath("/de/for-events/weddings", "sl")).toBe("/za-dogodke/poroke");
-    expect(localizedMarketingPath("/de/for-events/weddings", "fr")).toBe("/fr/for-events/weddings");
-    expect(localizedMarketingPath("/za-dogodke/poroke", "de")).toBe("/de/for-events/weddings");
+    expect(localizedMarketingPath("/de/for-events/weddings", "fr")).toBe("/fr/qr-code-photos-mariage");
+    expect(localizedMarketingPath("/za-dogodke/poroke", "de")).toBe("/de/hochzeitsfotos-per-qr-code");
     expect(localizedMarketingPath("/de/order", "en")).toBe("/order");
     expect(localizedMarketingPath("/", "de")).toBe("/de");
     expect(localizedMarketingPath("/de", "sl")).toBe("/");
@@ -55,11 +56,15 @@ describe("localized public routes", () => {
     expect(solutionPagePath("en", "wedding-qr")).toBe("/wedding-qr-code-for-photos");
     expect(solutionPagePath("de", "wedding-qr")).toBe("/de/hochzeitsfotos-per-qr-code");
     expect(solutionPagePath("nl", "wedding-qr")).toBe("/nl/trouwfotos-verzamelen-qr-code");
-    expect(solutionPagePath("fr", "wedding-qr")).toBeNull();
+    expect(solutionPagePath("fr", "wedding-qr")).toBe("/fr/qr-code-photos-mariage");
+    expect(solutionPagePath("es", "no-app-sharing")).toBe("/es/compartir-fotos-evento-sin-app");
+    expect(solutionPagePath("it", "event-qr-gallery")).toBe("/it/codice-qr-foto-evento");
     expect(solutionPageIdFromPath("/de/hochzeitsfotos-per-qr-code")).toBe("wedding-qr");
     expect(localizedMarketingPath("/nl/trouwfotos-verzamelen-qr-code", "de"))
       .toBe("/de/hochzeitsfotos-per-qr-code");
     expect(slovenianRoutePath("/event-photo-sharing-qr-code"))
       .toBe("/solutions/event-qr-gallery");
+    expect(eventUseCaseMarketingPath("fr", "poroke")).toBe("/fr/qr-code-photos-mariage");
+    expect(eventUseCaseMarketingPath("sl", "poroke")).toBe("/za-dogodke/poroke");
   });
 });

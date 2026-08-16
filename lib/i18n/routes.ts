@@ -16,22 +16,31 @@ export const SOLUTION_PAGE_PATHS = {
     en: "/wedding-qr-code-for-photos",
     de: "/de/hochzeitsfotos-per-qr-code",
     nl: "/nl/trouwfotos-verzamelen-qr-code",
+    es: "/es/codigo-qr-fotos-boda",
+    it: "/it/codice-qr-foto-matrimonio",
+    fr: "/fr/qr-code-photos-mariage",
   },
   "no-app-sharing": {
     en: "/share-event-photos-without-an-app",
     de: "/de/eventfotos-ohne-app-teilen",
     nl: "/nl/fotos-delen-zonder-app",
+    es: "/es/compartir-fotos-evento-sin-app",
+    it: "/it/condividere-foto-evento-senza-app",
+    fr: "/fr/partager-photos-evenement-sans-application",
   },
   "event-qr-gallery": {
     en: "/event-photo-sharing-qr-code",
     de: "/de/qr-fotogalerie-events",
     nl: "/nl/qr-fotogalerij-evenement",
+    es: "/es/codigo-qr-fotos-eventos",
+    it: "/it/codice-qr-foto-evento",
+    fr: "/fr/qr-code-partage-photos-evenement",
   },
 } as const;
 
 export type SolutionPageId = keyof typeof SOLUTION_PAGE_PATHS;
 export type SolutionPageLocale = keyof (typeof SOLUTION_PAGE_PATHS)[SolutionPageId];
-export const SOLUTION_PAGE_LOCALES: readonly SolutionPageLocale[] = ["en", "de", "nl"];
+export const SOLUTION_PAGE_LOCALES: readonly SolutionPageLocale[] = ["en", "de", "nl", "es", "it", "fr"];
 
 export function solutionPagePath(locale: Locale, id: SolutionPageId): string | null {
   if (!SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)) return null;
@@ -86,6 +95,18 @@ export function eventUseCasePath(locale: Locale, slovenianSlug: string): string 
   return localized(locale, `/za-dogodke/${slovenianSlug}`, `/for-events/${englishSlug}`);
 }
 
+/**
+ * Public link ownership for a use-case intent. Wedding searches on every
+ * international locale belong to the focused commercial solution page;
+ * Slovenian keeps the existing Eventaj information architecture.
+ */
+export function eventUseCaseMarketingPath(locale: Locale, slovenianSlug: string): string {
+  if (locale !== "sl" && slovenianSlug === "poroke") {
+    return solutionPagePath(locale, "wedding-qr") ?? eventUseCasePath(locale, slovenianSlug);
+  }
+  return eventUseCasePath(locale, slovenianSlug);
+}
+
 /** Maps the Slovenian internal path of a marketing route to its localized public path. */
 const SLOVENIAN_ROUTE_BUILDERS: Readonly<Record<string, (locale: Locale) => string>> = {
   "/naroci": orderPath,
@@ -133,7 +154,7 @@ export function localizedMarketingPath(pathname: string, targetLocale: Locale): 
   const slovenianPath = slovenianRoutePath(pathname);
 
   if (slovenianPath.startsWith("/za-dogodke/")) {
-    return eventUseCasePath(targetLocale, slovenianPath.slice("/za-dogodke/".length));
+    return eventUseCaseMarketingPath(targetLocale, slovenianPath.slice("/za-dogodke/".length));
   }
   if (slovenianPath.startsWith("/prenosi/")) {
     return downloadPath(targetLocale, decodeURIComponent(slovenianPath.slice("/prenosi/".length)));

@@ -146,3 +146,14 @@ Tipke za hitro moderacijo so dovoljene, vendar morajo imeti vidne oznake in ne s
    premor ter celozaslonski način.
 5. Z akcijo »Nazaj v galerijo« se vrne v isti vzorčni dogodek; demo ne ustvari
    dogodka, upload seje ali produkcijskega slideshow tokena.
+6. V galeriji je ves čas vidna lokalizirana akcija za ustvarjanje lastnega
+   dogodka, ki obiskovalca vrne neposredno v naročilo.
+
+## 12. Obiskovalec lokalno preizkusi wedding upload
+
+1. Na mednarodni wedding solution strani izbere akcijo za preizkus nalaganja.
+2. Brskalnik odpre sistemski izbirnik fotografij, kot ga gost pričakuje v galeriji.
+3. Izbrana fotografija se prikaže prek lokalnega `blob:` URL-ja; odjemalec ne
+   ustvari upload seje, ne izvede omrežne zahteve in datoteke ne shrani.
+4. Besedilo ob predogledu jasno pove, da datoteka ostane na napravi.
+5. Obiskovalec lahko izbere drugo fotografijo ali nadaljuje v naročilo za 35 EUR.

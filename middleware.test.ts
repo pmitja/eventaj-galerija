@@ -50,7 +50,7 @@ describe("canonical hostname middleware", () => {
     const response = middleware(new NextRequest("https://guestmosaic.com/za-dogodke/poroke"));
 
     expect(response.status).toBe(308);
-    expect(response.headers.get("location")).toBe("https://guestmosaic.com/for-events/weddings");
+    expect(response.headers.get("location")).toBe("https://guestmosaic.com/wedding-qr-code-for-photos");
   });
 
   it("internally rewrites English public paths to App Router routes", () => {
@@ -66,11 +66,18 @@ describe("canonical hostname middleware", () => {
     expect(response.headers.get("x-middleware-rewrite")).toBe("https://guestmosaic.com/pogoji-uporabe");
   });
 
+  it("serves localized AI discovery aliases through the shared route", () => {
+    const response = middleware(new NextRequest("https://guestmosaic.com/fr/llm.txt"));
+
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-middleware-rewrite")).toBe("https://guestmosaic.com/llm.txt");
+  });
+
   it("redirects Slovenian and English paths to the active language prefix", () => {
     const response = middleware(new NextRequest("https://guestmosaic.com/de/za-dogodke/poroke"));
 
     expect(response.status).toBe(308);
-    expect(response.headers.get("location")).toBe("https://guestmosaic.com/de/for-events/weddings");
+    expect(response.headers.get("location")).toBe("https://guestmosaic.com/de/hochzeitsfotos-per-qr-code");
   });
 
   it("ignores language prefixes on the Slovenian domain", () => {
@@ -92,5 +99,20 @@ describe("canonical hostname middleware", () => {
 
     expect(response.status).toBe(308);
     expect(response.headers.get("location")).toBe("https://galerija.eventaj.si/nakup/uspesen?session_id=cs_1");
+  });
+
+  it("consolidates every international wedding use-case URL and preserves its query", () => {
+    const response = middleware(new NextRequest("https://guestmosaic.com/fr/for-events/weddings?utm_source=print"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://guestmosaic.com/fr/qr-code-photos-mariage?utm_source=print");
+  });
+
+  it("adds CDN caching only to public marketing HTML", () => {
+    const marketing = middleware(new NextRequest("https://guestmosaic.com/fr/for-events/birthdays"));
+    const checkout = middleware(new NextRequest("https://guestmosaic.com/fr/order"));
+
+    expect(marketing.headers.get("cdn-cache-control")).toContain("s-maxage=300");
+    expect(checkout.headers.get("cdn-cache-control")).toBeNull();
   });
 });

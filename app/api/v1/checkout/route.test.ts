@@ -4,6 +4,8 @@ const state = vi.hoisted(() => ({ create: vi.fn(), attribution: vi.fn() }));
 vi.mock("@/lib/cloudflare", () => ({ getCloudflareEnv: () => ({
   PUBLIC_APP_URL_EN: "https://guestmosaic.com",
   VIDEO_UPLOAD_ENABLED: "true",
+  FACE_SEARCH_ENABLED: "false",
+  FACE_SEARCH_POLICY_VERSION: "",
 }) }));
 vi.mock("@/lib/repositories/checkout", () => ({ createCheckoutOrder: state.create }));
 vi.mock("@/lib/analytics/meta-attribution", () => ({ marketingAttributionFromRequest: state.attribution }));
@@ -45,5 +47,16 @@ describe("checkout route marketing boundary", () => {
     expect(state.create).toHaveBeenCalledWith(expect.not.objectContaining({
       marketingConsent: expect.anything(),
     }), "en", { consent: true, consentVersion: "2026-08-13" });
+  });
+
+  it("rejects the face-search add-on while its runtime and legal gate is closed", async () => {
+    const response = await POST(new Request("https://guestmosaic.com/api/v1/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...body, faceCollections: true }),
+    }));
+
+    expect(response.status).toBe(422);
+    expect(state.create).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,8 @@
 import { z } from "zod";
 import type { Locale } from "@/lib/i18n/locale";
+import { isSupportedTimeZone, zonedLocalDateTimeToIso } from "@/lib/datetime/timezone";
+
+const timeZoneSchema = z.string().trim().min(1).max(64).refine(isSupportedTimeZone, "Invalid IANA time zone");
 
 export function checkoutFormSchemaFor(locale: Locale) {
   const en = locale === "en";
@@ -14,15 +17,18 @@ export function checkoutFormSchemaFor(locale: Locale) {
     startTime: localTimeSchema,
     endDate: localDateSchema,
     endTime: localTimeSchema,
+    timezone: timeZoneSchema,
     commentsEnabled: z.boolean(),
     aiBestPhotos: z.boolean(),
     faceCollections: z.boolean(),
     videoUnlimited: z.boolean(),
     termsAccepted: z.boolean().refine((value) => value, en ? "Accept the terms of use to continue" : "Za nadaljevanje sprejmi pogoje uporabe"),
   }).superRefine((value, context) => {
-    const startsAt = Date.parse(`${value.startDate}T${value.startTime}`);
-    const endsAt = Date.parse(`${value.endDate}T${value.endTime}`);
-    if (Number.isFinite(startsAt) && Number.isFinite(endsAt) && endsAt <= startsAt) {
+    const startsAt = zonedLocalDateTimeToIso(value.startDate, value.startTime, value.timezone);
+    const endsAt = zonedLocalDateTimeToIso(value.endDate, value.endTime, value.timezone);
+    if (!startsAt || !endsAt) {
+      context.addIssue({ code: "custom", path: ["timezone"], message: en ? "Choose a valid event time zone and time" : "Izberi veljaven čas in časovni pas dogodka" });
+    } else if (Date.parse(endsAt) <= Date.parse(startsAt)) {
       context.addIssue({ code: "custom", path: ["endDate"], message: en ? "The event must end after it starts" : "Konec dogodka mora biti po začetku" });
     }
   });
@@ -40,7 +46,7 @@ export const createCheckoutSchema = z.object({
   eventLocation: z.string().trim().max(160).optional().default(""),
   startsAt: z.iso.datetime(),
   endsAt: z.iso.datetime(),
-  timezone: z.literal("Europe/Ljubljana").default("Europe/Ljubljana"),
+  timezone: timeZoneSchema,
   commentsEnabled: z.boolean().default(true),
   aiBestPhotos: z.boolean().default(false),
   faceCollections: z.boolean().default(false),

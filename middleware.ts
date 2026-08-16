@@ -33,6 +33,22 @@ function isInternalPath(pathname: string): boolean {
     || pathname.startsWith("/qr/");
 }
 
+function withMarketingCache(response: NextResponse, request: NextRequest): NextResponse {
+  if (request.method !== "GET" && request.method !== "HEAD") return response;
+  const internalPath = slovenianRoutePath(request.nextUrl.pathname);
+  const cacheable = internalPath === "/"
+    || internalPath.startsWith("/za-dogodke/")
+    || internalPath.startsWith("/solutions/");
+  if (!cacheable) return response;
+
+  // Public marketing HTML has no account- or cookie-specific server content.
+  // Let the browser revalidate while Cloudflare/OpenNext can reuse a warm edge
+  // response and serve stale content during a background refresh.
+  response.headers.set("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+  response.headers.set("CDN-Cache-Control", "public, s-maxage=300, stale-while-revalidate=86400");
+  return response;
+}
+
 // Keep the deprecated middleware convention until OpenNext supports the
 // Node.js runtime used by Next.js 16 proxy.ts. Middleware remains Edge-based.
 export function middleware(request: NextRequest) {
@@ -70,11 +86,24 @@ export function middleware(request: NextRequest) {
   // one shared pathname, because the route cache must remain locale-specific.
   const solutionId = solutionPageIdFromPath(currentPath);
   if (solutionId && solutionPagePath(locale, solutionId) === currentPath) {
-    if (!canonicalOrigin) return NextResponse.next({ request: { headers: requestHeaders } });
+    if (!canonicalOrigin) return withMarketingCache(NextResponse.next({ request: { headers: requestHeaders } }), request);
     return NextResponse.redirect(
       new URL(`${currentPath}${request.nextUrl.search}`, canonicalOrigin),
       308,
     );
+  }
+
+  // One URL owns the international wedding intent. Keep the Slovenian Eventaj
+  // use-case page unchanged, while every Guest Mosaic locale permanently
+  // consolidates its legacy generic wedding URL into the focused solution.
+  if (locale !== "sl" && slovenianRoutePath(currentPath) === "/za-dogodke/poroke") {
+    const weddingPath = solutionPagePath(locale, "wedding-qr");
+    if (weddingPath) {
+      return NextResponse.redirect(
+        new URL(`${weddingPath}${request.nextUrl.search}`, canonicalOrigin ?? request.url),
+        308,
+      );
+    }
   }
 
   const localizedPath = localizedMarketingPath(currentPath, locale);
@@ -92,8 +121,8 @@ export function middleware(request: NextRequest) {
   if (internalPath !== currentPath) {
     const destination = request.nextUrl.clone();
     destination.pathname = internalPath;
-    return NextResponse.rewrite(destination, { request: { headers: requestHeaders } });
+    return withMarketingCache(NextResponse.rewrite(destination, { request: { headers: requestHeaders } }), request);
   }
 
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return withMarketingCache(NextResponse.next({ request: { headers: requestHeaders } }), request);
 }

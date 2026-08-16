@@ -11,6 +11,7 @@ export async function POST(request: Request) {
   const copy = locale === "en" ? {
     invalid: "The order details are invalid",
     videoUnavailable: "The video add-on is currently unavailable",
+    faceUnavailable: "Photo search by face is currently unavailable",
     rateLimit: "Too many payment attempts",
     retryHour: "Please try again in one hour.",
     unavailable: "Payment cannot be started right now",
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
   } : {
     invalid: "Podatki za naročilo niso veljavni",
     videoUnavailable: "Video dodatek trenutno ni na voljo",
+    faceUnavailable: "Iskanje fotografij po obrazu trenutno ni na voljo",
     rateLimit: "Preveč poskusov plačila",
     retryHour: "Poskusi znova čez eno uro.",
     unavailable: "Plačila trenutno ni mogoče začeti",
@@ -29,6 +31,10 @@ export async function POST(request: Request) {
   }
   if (parsed.data.videoUnlimited && String(env.VIDEO_UPLOAD_ENABLED) !== "true") {
     return problem(422, "VIDEO_ADDON_UNAVAILABLE", copy.videoUnavailable);
+  }
+  if (parsed.data.faceCollections
+    && (String(env.FACE_SEARCH_ENABLED) !== "true" || !env.FACE_SEARCH_POLICY_VERSION)) {
+    return problem(422, "FACE_SEARCH_ADDON_UNAVAILABLE", copy.faceUnavailable);
   }
   try {
     const attribution = marketingAttributionFromRequest(request, locale);

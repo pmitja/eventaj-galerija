@@ -39,7 +39,10 @@ const stepLabel = "max-w-[86px] text-[11px]/[1.25] min-[381px]:text-[12px] sm:ma
 export default async function OrderPage() {
   const locale = await getRequestLocale();
   const t = getDictionary(locale).order;
-  const videoUploadsEnabled = String(getCloudflareEnv().VIDEO_UPLOAD_ENABLED) === "true";
+  const runtime = getCloudflareEnv();
+  const videoUploadsEnabled = String(runtime.VIDEO_UPLOAD_ENABLED) === "true";
+  const faceSearchEnabled = String(runtime.FACE_SEARCH_ENABLED) === "true"
+    && Boolean(runtime.FACE_SEARCH_POLICY_VERSION);
   const home = localizedMarketingPath("/", locale);
   const brandMarkSrc = guestBrandMark(locale);
   return <main className={checkoutPageClass}><div className={checkoutShellClass}>
@@ -62,6 +65,6 @@ export default async function OrderPage() {
       <li className={stepItem}><span className={stepBadge}><CreditCard className="size-4" aria-hidden="true" /></span><small className={stepLabel}>{t.stepPayment}</small></li>
       <li className={stepItem}><span className={stepBadge}><Images className="size-4" aria-hidden="true" /></span><small className={stepLabel}>{t.stepQr}</small></li>
     </ol>
-    <CheckoutForm videoUploadsEnabled={videoUploadsEnabled} />
+    <CheckoutForm videoUploadsEnabled={videoUploadsEnabled} faceSearchEnabled={faceSearchEnabled} />
   </div></main>;
 }
