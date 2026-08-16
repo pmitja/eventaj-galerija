@@ -122,7 +122,6 @@ describe("checkout rate limit", () => {
 
   it("counts only attempts that reached a Stripe Checkout session", async () => {
     await createCheckoutOrder({
-      organizationName: "Studio Sever",
       ownerName: "Mitja Test",
       ownerEmail: "mitja@example.com",
       eventName: "Testni dogodek",
@@ -143,7 +142,6 @@ describe("checkout rate limit", () => {
 
   it("creates a public order without account credentials or a user binding", async () => {
     await createCheckoutOrder({
-      organizationName: "Studio Sever",
       ownerName: "Mitja Test",
       ownerEmail: "mitja@example.com",
       eventName: "Testni dogodek",
@@ -162,7 +160,7 @@ describe("checkout rate limit", () => {
     expect(insert?.values.slice(0, 6)).toEqual([
       expect.any(String), null, null, "Mitja Test", "mitja@example.com", null,
     ]);
-    expect(insert?.values[6]).toBe("Studio Sever");
+    expect(insert?.values[6]).toBe("Mitja Test");
   });
 
   it("persists English locale and keeps Stripe return URLs on the English domain", async () => {

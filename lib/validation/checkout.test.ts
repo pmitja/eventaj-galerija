@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { checkoutFormSchema, createCheckoutSchema } from "./checkout";
 
 const valid = {
-  organizationName: "Studio Sever",
   ownerName: "Nina Novak",
   ownerEmail: "NINA@example.com",
   eventName: "Poletni piknik",
@@ -32,7 +31,6 @@ describe("checkout validation", () => {
     expect(apiResult.success).toBe(true);
 
     expect(checkoutFormSchema.safeParse({
-      organizationName: "Studio Sever",
       ownerName: "Nina Novak",
       ownerEmail: "nina@example.com",
       eventName: "Poletni piknik",
@@ -51,7 +49,6 @@ describe("checkout validation", () => {
 
   it("accepts a public purchase without account credentials", () => {
     expect(checkoutFormSchema.safeParse({
-      organizationName: "Studio Sever",
       ownerName: "Nina Novak",
       ownerEmail: "nina@example.com",
       eventName: "Poletni piknik",

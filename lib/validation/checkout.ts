@@ -6,7 +6,6 @@ export function checkoutFormSchemaFor(locale: Locale) {
   const localDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, en ? "Choose a date" : "Izberi datum");
   const localTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, en ? "Choose a time" : "Izberi čas");
   return z.object({
-    organizationName: z.string().trim().min(2, en ? "Enter the organisation name" : "Vnesi naziv organizacije").max(120),
     ownerName: z.string().trim().min(2, en ? "Enter your full name" : "Vnesi ime in priimek").max(120),
     ownerEmail: z.email(en ? "Enter a valid email address" : "Vnesi veljaven e-poštni naslov"),
     eventName: z.string().trim().min(2, en ? "Enter the event name" : "Vnesi naziv dogodka").max(120),
@@ -34,7 +33,7 @@ export const checkoutFormSchema = checkoutFormSchemaFor("sl");
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
 export const createCheckoutSchema = z.object({
-  organizationName: z.string().trim().min(2).max(120),
+  organizationName: z.string().trim().min(2).max(120).optional(),
   ownerName: z.string().trim().min(2).max(120),
   ownerEmail: z.email().transform((value) => value.toLowerCase()),
   eventName: z.string().trim().min(2).max(120),

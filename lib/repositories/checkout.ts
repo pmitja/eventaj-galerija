@@ -75,7 +75,7 @@ export async function createCheckoutOrder(
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
   ).bind(
     id, null, null, input.ownerName, input.ownerEmail, null,
-    input.organizationName, input.eventName, input.eventLocation || null, input.startsAt, input.endsAt,
+    input.organizationName ?? input.ownerName, input.eventName, input.eventLocation || null, input.startsAt, input.endsAt,
     input.timezone, input.commentsEnabled ? 1 : 0, input.aiBestPhotos ? 1 : 0, input.faceCollections ? 1 : 0,
     input.videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, locale,
     attribution ? 1 : 0, attribution?.consentVersion ?? null, attribution?.fbp ?? null,

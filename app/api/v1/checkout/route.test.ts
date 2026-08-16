@@ -11,7 +11,6 @@ vi.mock("@/lib/analytics/meta-attribution", () => ({ marketingAttributionFromReq
 import { POST } from "./route";
 
 const body = {
-  organizationName: "North Studio",
   ownerName: "Nina Novak",
   ownerEmail: "nina@example.com",
   eventName: "Launch party",
