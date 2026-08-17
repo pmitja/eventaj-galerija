@@ -432,7 +432,7 @@ export const en = {
     eyebrow: "NEW EVENT",
     title: "Order your gallery",
     intro:
-      "Enter your event details and complete your payment securely via Stripe. You’ll receive the QR code by email; no user account or sign-in is required.",
+      "Enter only your email and pay securely via Stripe. You’ll add the event details afterwards through a private link.",
     stepsLabel: "Order steps",
     stepDetails: "Event details",
     stepPayment: "Secure payment",

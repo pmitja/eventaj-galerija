@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Check, CreditCard, Images } from "lucide-react";
-import { CheckoutForm } from "@/components/checkout/checkout-form";
-import { getCloudflareEnv } from "@/lib/cloudflare";
+import { ArrowLeft } from "lucide-react";
+import { MinimalCheckoutForm } from "@/components/checkout/minimal-checkout-form";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
 import { getPublicAppUrls } from "@/lib/i18n/server";
 import { canonicalUrl, languageAlternates } from "@/lib/i18n/alternates";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { brandName, guestBrandMark } from "@/lib/seo";
-import { cn } from "@/lib/utils";
 import { checkoutEyebrowClass, checkoutHeadingClass, checkoutHeadingTextClass, checkoutHeadingTitleClass, checkoutPageClass, checkoutShellClass } from "@/components/checkout/checkout-styles";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,19 +28,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = "force-dynamic";
 
-const stepItem =
-  "relative grid justify-items-center gap-[7px] text-center text-[12px] font-bold text-[#856b77] [&:not(:last-child)]:after:absolute [&:not(:last-child)]:after:top-[15px] [&:not(:last-child)]:after:left-[calc(50%+22px)] [&:not(:last-child)]:after:z-0 [&:not(:last-child)]:after:h-px [&:not(:last-child)]:after:w-[calc(100%-44px)] [&:not(:last-child)]:after:bg-[#e4d4dc] [&:not(:last-child)]:after:content-['']";
-const stepBadge =
-  "z-1 grid size-8 place-items-center rounded-full border border-[#dcc5d0] bg-white text-[#8b4966]";
-const stepLabel = "max-w-[86px] text-[11px]/[1.25] min-[381px]:text-[12px] sm:max-w-none sm:leading-normal";
-
 export default async function OrderPage() {
   const locale = await getRequestLocale();
   const t = getDictionary(locale).order;
-  const runtime = getCloudflareEnv();
-  const videoUploadsEnabled = String(runtime.VIDEO_UPLOAD_ENABLED) === "true";
-  const faceSearchEnabled = String(runtime.FACE_SEARCH_ENABLED) === "true"
-    && Boolean(runtime.FACE_SEARCH_POLICY_VERSION);
   const home = localizedMarketingPath("/", locale);
   const brandMarkSrc = guestBrandMark(locale);
   return <main className={checkoutPageClass}><div className={checkoutShellClass}>
@@ -60,11 +48,6 @@ export default async function OrderPage() {
       <h1 className={checkoutHeadingTitleClass}>{t.title}</h1>
       <span className={checkoutHeadingTextClass}>{t.intro}</span>
     </header>
-    <ol className="mx-auto mb-7 grid max-w-[670px] list-none grid-cols-3 gap-0 p-0 sm:mb-[38px]" aria-label={t.stepsLabel}>
-      <li className={cn(stepItem, "text-plum")} aria-current="step"><span className={cn(stepBadge, "border-brand bg-brand text-white shadow-[0_0_0_5px_var(--brand-soft)]")}><Check className="size-4" aria-hidden="true" /></span><small className={stepLabel}>{t.stepDetails}</small></li>
-      <li className={stepItem}><span className={stepBadge}><CreditCard className="size-4" aria-hidden="true" /></span><small className={stepLabel}>{t.stepPayment}</small></li>
-      <li className={stepItem}><span className={stepBadge}><Images className="size-4" aria-hidden="true" /></span><small className={stepLabel}>{t.stepQr}</small></li>
-    </ol>
-    <CheckoutForm videoUploadsEnabled={videoUploadsEnabled} faceSearchEnabled={faceSearchEnabled} />
+    <MinimalCheckoutForm />
   </div></main>;
 }

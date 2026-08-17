@@ -428,7 +428,7 @@ export const nl: Dictionary = {
     eyebrow: "NIEUW EVENEMENT",
     title: "Bestel je galerij",
     intro:
-      "Vul de gegevens van je evenement in en rond je betaling veilig af via Stripe. Je ontvangt de QR-code per e-mail; je hebt geen gebruikersaccount nodig en hoeft niet in te loggen.",
+      "Vul alleen je e-mailadres in en betaal veilig via Stripe. Daarna voeg je de evenementgegevens toe via een persoonlijke link.",
     stepsLabel: "Stappen van de bestelling",
     stepDetails: "Evenementgegevens",
     stepPayment: "Veilig betalen",

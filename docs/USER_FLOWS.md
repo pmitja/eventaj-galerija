@@ -2,11 +2,11 @@
 
 ## 0. Naročnik kupi dogodek brez računa
 
-1. Vnese kontaktno ime in e-pošto ter podatke dogodka; gesla ne ustvarja.
+1. Vnese samo e-pošto, sprejme pogoje in nadaljuje na plačilo; gesla ne ustvarja.
 2. Stripe Checkout obdela enkratno plačilo.
-3. Potrditev jasno pove, da bo QR prispel po e-pošti in prijava ni potrebna.
-4. Podpisan webhook ustvari dogodek in glavno QR točko ter v Queue odda e-pošto.
-5. Naročnik prejme QR sliko, neposredno povezavo in kratka navodila za uporabo.
+3. Potrditev odpre kratko nastavitev dogodka, unikatna povezava pa prispe tudi po e-pošti.
+4. Naročnik vnese naziv, datum in neobvezno lokacijo; časovni pas se zazna samodejno.
+5. Po nastavitvi prejme QR sliko, galerijo, Live Show in trajno upravljavsko povezavo.
 6. Po `ends_at` scheduled worker izdela ZIP pripravljenih fotografij.
 7. Naročnik prejme drugo e-pošto z 24-urno varno povezavo za prenos.
 

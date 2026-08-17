@@ -4,15 +4,17 @@ import { checkoutTotalCents, videoUploadPolicy } from "@/lib/domain/billing";
 import { createEventRecord } from "@/lib/domain/events";
 import { CURRENT_TERMS_VERSION } from "@/lib/domain/legal";
 import type { z } from "zod";
-import type { createCheckoutSchema } from "@/lib/validation/checkout";
+import type { minimalCheckoutSchema } from "@/lib/validation/checkout";
 import { createStripeCheckout, retrieveStripeCheckout } from "@/lib/billing/stripe";
 import { createPublicToken, hashToken } from "@/lib/security/tokens";
 import { appUrlForLocale, type Locale } from "@/lib/i18n/locale";
 import { checkoutSuccessPath, orderPath } from "@/lib/i18n/routes";
 import type { CheckoutMarketingAttribution } from "@/lib/analytics/meta-attribution";
 import { sendMetaConversion } from "@/lib/analytics/meta-conversions";
+import type { eventSetupSchema } from "@/lib/validation/checkout";
+import { zonedLocalDateTimeToIso } from "@/lib/datetime/timezone";
 
-type CheckoutInput = z.infer<typeof createCheckoutSchema>;
+type CheckoutInput = z.infer<typeof minimalCheckoutSchema> & Record<string, unknown>;
 
 export type CheckoutOrder = {
   id: string;
@@ -64,7 +66,10 @@ export async function createCheckoutOrder(
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const amount = checkoutTotalCents(input.aiBestPhotos, input.faceCollections, input.videoUnlimited);
+  const amount = checkoutTotalCents(false, false, false);
+  const placeholderStart = now;
+  const placeholderEnd = new Date(Date.now() + 36 * 60 * 60_000).toISOString();
+  const placeholderName = locale === "sl" ? "Moj dogodek" : "My event";
   await env.DB.prepare(
     `INSERT INTO checkout_orders
       (id, organization_id, existing_user_id, owner_name, owner_email, password_hash,
@@ -74,10 +79,10 @@ export async function createCheckoutOrder(
        meta_fbp, meta_fbc, meta_client_ip, meta_client_user_agent, status, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
   ).bind(
-    id, null, null, input.ownerName, input.ownerEmail, null,
-    input.organizationName ?? input.ownerName, input.eventName, input.eventLocation || null, input.startsAt, input.endsAt,
-    input.timezone, input.commentsEnabled ? 1 : 0, input.aiBestPhotos ? 1 : 0, input.faceCollections ? 1 : 0,
-    input.videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, locale,
+    id, null, null, input.ownerEmail.split("@")[0], input.ownerEmail, null,
+    input.ownerEmail.split("@")[0], placeholderName, null, placeholderStart, placeholderEnd,
+    "UTC", 1, 0, 0,
+    0, CURRENT_TERMS_VERSION, amount, locale,
     attribution ? 1 : 0, attribution?.consentVersion ?? null, attribution?.fbp ?? null,
     attribution?.fbc ?? null, attribution?.clientIp ?? null, attribution?.clientUserAgent ?? null,
     now, now,
@@ -89,9 +94,9 @@ export async function createCheckoutOrder(
       orderId: id,
       email: input.ownerEmail,
       amountCents: amount,
-      aiBestPhotos: input.aiBestPhotos,
-      faceCollections: input.faceCollections,
-      videoUnlimited: input.videoUnlimited,
+      aiBestPhotos: false,
+      faceCollections: false,
+      videoUnlimited: false,
       locale,
       successUrl: `${root}${checkoutSuccessPath(locale)}?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${root}${orderPath(locale)}?preklicano=1`,
@@ -189,7 +194,7 @@ async function sendPurchaseConversion(order: CheckoutOrder): Promise<void> {
   }
 }
 
-export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"): Promise<CheckoutOrder> {
+export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"): Promise<CheckoutOrder & { managementToken?: string }> {
   const env = getCloudflareEnv();
   const session = await retrieveStripeCheckout(sessionId, locale);
   const orderId = session.metadata.orderId;
@@ -198,7 +203,9 @@ export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"):
   if (!order) throw new Error("CHECKOUT_ORDER_NOT_FOUND");
   if (order.status === "provisioned") {
     await sendPurchaseConversion(order);
-    return order;
+    const delivery = await env.DB.prepare("SELECT management_token FROM event_deliveries WHERE checkout_order_id = ?")
+      .bind(order.id).first<{ management_token: string | null }>();
+    return { ...order, managementToken: delivery?.management_token ?? undefined };
   }
   if (session.payment_status !== "paid" || session.amount_total !== order.amount_cents
     || session.currency?.toUpperCase() !== order.currency) throw new Error("CHECKOUT_NOT_PAID");
@@ -232,6 +239,8 @@ export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"):
   const customerId = existingCustomer?.id ?? crypto.randomUUID();
   const deliveryId = crypto.randomUUID();
   const slideshowToken = createPublicToken(32);
+  const managementToken = createPublicToken(32);
+  const managementTokenHash = await hashToken(managementToken);
   const timestamp = now.toISOString();
 
   const statements: D1PreparedStatement[] = [];
@@ -278,9 +287,11 @@ export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"):
     env.DB.prepare(
       `INSERT INTO event_deliveries
         (id, event_id, checkout_order_id, access_point_id, recipient_email,
-         qr_email_status, archive_email_status, slideshow_token, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, ?)`,
-    ).bind(deliveryId, event.id, order.id, point.id, order.owner_email, slideshowToken, timestamp, timestamp),
+         qr_email_status, archive_email_status, slideshow_token, management_token,
+         management_token_hash, setup_email_status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, ?, 'pending', ?, ?)`,
+    ).bind(deliveryId, event.id, order.id, point.id, order.owner_email, slideshowToken,
+      managementToken, managementTokenHash, timestamp, timestamp),
     env.DB.prepare(
       `INSERT INTO audit_logs
         (id, event_id, actor_type, actor_id, action, target_type, target_id, changes_json, created_at)
@@ -302,12 +313,64 @@ export async function fulfillCheckout(sessionId: string, locale: Locale = "sl"):
     throw error;
   }
   try {
-    await env.EXPORT_QUEUE.send({ type: "qr_email", deliveryId });
+    await env.EXPORT_QUEUE.send({ type: "setup_email", deliveryId });
   } catch {
-    console.error(JSON.stringify({ event: "checkout.qr_email_enqueue_failed", eventId: event.id }));
+    console.error(JSON.stringify({ event: "checkout.setup_email_enqueue_failed", eventId: event.id }));
   }
   const provisioned = await env.DB.prepare("SELECT * FROM checkout_orders WHERE id = ?").bind(order.id).first<CheckoutOrder>();
   if (!provisioned) throw new Error("CHECKOUT_ORDER_NOT_FOUND");
   await sendPurchaseConversion(provisioned);
-  return provisioned;
+  return { ...provisioned, managementToken };
+}
+
+export type ManagedEvent = {
+  deliveryId: string; eventId: string; email: string; locale: Locale; setupCompletedAt: string | null;
+  name: string; location: string | null; startsAt: string; timezone: string; publicCode: string; slideshowToken: string | null;
+  exportStatus: string | null;
+};
+
+export async function findManagedEvent(token: string): Promise<ManagedEvent | null> {
+  const row = await getCloudflareEnv().DB.prepare(
+    `SELECT ed.id AS deliveryId, ed.event_id AS eventId, ed.recipient_email AS email,
+            ed.setup_completed_at AS setupCompletedAt, ed.slideshow_token AS slideshowToken,
+            co.locale, e.name, e.location, e.starts_at AS startsAt, e.timezone, ap.public_code AS publicCode,
+            de.status AS exportStatus
+     FROM event_deliveries ed JOIN checkout_orders co ON co.id = ed.checkout_order_id
+     JOIN events e ON e.id = ed.event_id JOIN access_points ap ON ap.id = ed.access_point_id
+     LEFT JOIN download_exports de ON de.id = ed.export_id
+     WHERE ed.management_token_hash = ?`,
+  ).bind(await hashToken(token)).first<ManagedEvent>();
+  return row ?? null;
+}
+
+function followingDate(date: string): string {
+  const value = new Date(`${date}T12:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + 1);
+  return value.toISOString().slice(0, 10);
+}
+
+export async function completeEventSetup(token: string, input: z.infer<typeof eventSetupSchema>): Promise<ManagedEvent> {
+  const env = getCloudflareEnv();
+  const managed = await findManagedEvent(token);
+  if (!managed) throw new Error("MANAGEMENT_LINK_INVALID");
+  const startsAt = zonedLocalDateTimeToIso(input.eventDate, "00:00", input.timezone);
+  const endsAt = zonedLocalDateTimeToIso(followingDate(input.eventDate), "12:00", input.timezone);
+  if (!startsAt || !endsAt) throw new Error("EVENT_DATE_INVALID");
+  const retentionUntil = new Date(Date.parse(endsAt) + 180 * 24 * 60 * 60_000).toISOString();
+  const now = new Date().toISOString();
+  await env.DB.batch([
+    env.DB.prepare("UPDATE events SET name = ?, location = ?, starts_at = ?, ends_at = ?, timezone = ?, retention_until = ?, updated_at = ? WHERE id = ?")
+      .bind(input.eventName, input.eventLocation || null, startsAt, endsAt, input.timezone, retentionUntil, now, managed.eventId),
+    env.DB.prepare("UPDATE checkout_orders SET event_name = ?, event_location = ?, starts_at = ?, ends_at = ?, timezone = ?, updated_at = ? WHERE provisioned_event_id = ?")
+      .bind(input.eventName, input.eventLocation || null, startsAt, endsAt, input.timezone, now, managed.eventId),
+    env.DB.prepare("UPDATE event_deliveries SET setup_completed_at = COALESCE(setup_completed_at, ?), updated_at = ? WHERE id = ?")
+      .bind(now, now, managed.deliveryId),
+    env.DB.prepare(`INSERT INTO audit_logs (id, event_id, actor_type, actor_id, action, target_type, target_id, changes_json, created_at)
+      VALUES (?, ?, 'customer', ?, 'event.setup_completed', 'event', ?, ?, ?)`)
+      .bind(crypto.randomUUID(), managed.eventId, managed.email, managed.eventId, JSON.stringify({ timezone: input.timezone }), now),
+  ]);
+  if (!managed.setupCompletedAt) await env.EXPORT_QUEUE.send({ type: "qr_email", deliveryId: managed.deliveryId });
+  const updated = await findManagedEvent(token);
+  if (!updated) throw new Error("MANAGEMENT_LINK_INVALID");
+  return updated;
 }

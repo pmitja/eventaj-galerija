@@ -1,7 +1,7 @@
 import { Uint8ArrayReader, ZipWriter } from "@zip.js/zip.js";
 import { archiveSchedulingCutoff, createDeliveryToken, hashDeliveryToken } from "../lib/domain/delivery";
 import { exportExpiry, exportFileName, uniqueWebpEntryNames } from "../lib/domain/exports";
-import { archiveDeliveryEmail, qrDeliveryEmail, ResendEmailAdapter } from "../lib/notifications/email";
+import { archiveDeliveryEmail, qrDeliveryEmail, setupDeliveryEmail, ResendEmailAdapter } from "../lib/notifications/email";
 import { exportQueueMessageSchema } from "../lib/validation/exports";
 import { appUrlForLocale, intlLocale, type Locale } from "../lib/i18n/locale";
 import { downloadPath } from "../lib/i18n/routes";
@@ -9,6 +9,7 @@ import { downloadPath } from "../lib/i18n/routes";
 type ExportMessage =
   | { type: "build_export"; exportId: string }
   | { type: "qr_email"; deliveryId: string }
+  | { type: "setup_email"; deliveryId: string }
   | { type: "archive_email"; deliveryId: string; token: string }
   | { exportId: string };
 
@@ -204,6 +205,20 @@ async function sendQrDelivery(env: Env, deliveryId: string): Promise<void> {
   ).bind(now, now, deliveryId).run();
 }
 
+async function sendSetupDelivery(env: Env, deliveryId: string): Promise<void> {
+  const row = await env.DB.prepare(
+    `SELECT ed.id, ed.recipient_email, ed.setup_email_status, ed.management_token, co.locale
+     FROM event_deliveries ed JOIN checkout_orders co ON co.id = ed.checkout_order_id WHERE ed.id = ?`,
+  ).bind(deliveryId).first<{ id: string; recipient_email: string; setup_email_status: string; management_token: string | null; locale: Locale }>();
+  if (!row || row.setup_email_status === "sent") return;
+  if (!row.management_token) throw new Error("MANAGEMENT_TOKEN_MISSING");
+  const setupUrl = `${appRoot(env, row.locale)}${row.locale === "sl" ? "" : row.locale === "en" ? "" : `/${row.locale}`}/manage/${encodeURIComponent(row.management_token)}`;
+  await emailAdapter(env, row.locale).send(setupDeliveryEmail({ deliveryId: row.id, recipientEmail: row.recipient_email, setupUrl, locale: row.locale }));
+  const now = new Date().toISOString();
+  await env.DB.prepare("UPDATE event_deliveries SET setup_email_status = 'sent', setup_email_sent_at = ?, error_code = NULL, updated_at = ? WHERE id = ?")
+    .bind(now, now, deliveryId).run();
+}
+
 async function sendArchiveDelivery(env: Env, deliveryId: string, token: string): Promise<void> {
   const row = await env.DB.prepare(
     `SELECT ed.id, ed.recipient_email, ed.archive_email_status, ed.download_token_hash,
@@ -385,7 +400,7 @@ async function markJobFailed(env: Env, job: { type: string; exportId?: string; d
       .bind(code, new Date().toISOString(), job.exportId).run();
   }
   if (job.deliveryId) {
-    const column = job.type === "qr_email" ? "qr_email_status" : "archive_email_status";
+    const column = job.type === "qr_email" ? "qr_email_status" : job.type === "setup_email" ? "setup_email_status" : "archive_email_status";
     await env.DB.prepare(
       `UPDATE event_deliveries SET ${column} = 'failed', error_code = ?, updated_at = ? WHERE id = ?`,
     ).bind(code, new Date().toISOString(), job.deliveryId).run();
@@ -408,6 +423,8 @@ export default {
           await queueArchiveEmail(env, job.exportId);
         } else if (job.type === "qr_email") {
           await sendQrDelivery(env, job.deliveryId);
+        } else if (job.type === "setup_email") {
+          await sendSetupDelivery(env, job.deliveryId);
         } else {
           await sendArchiveDelivery(env, job.deliveryId, job.token);
         }

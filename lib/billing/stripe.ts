@@ -50,13 +50,14 @@ export async function createStripeCheckout(input: {
   locale: Locale;
   successUrl: string; cancelUrl: string; customerId?: string | null;
 }): Promise<StripeCheckoutSession> {
+  const eventLabel = { sl: "dogodek", en: "event", de: "Event", nl: "evenement", es: "evento", it: "evento", fr: "événement" }[input.locale];
   const body = new URLSearchParams({
     mode: "payment",
     success_url: input.successUrl,
     cancel_url: input.cancelUrl,
     "metadata[orderId]": input.orderId,
     "line_items[0][price_data][currency]": "eur",
-    "line_items[0][price_data][product_data][name]": `${brandName(input.locale)} · dogodek`,
+    "line_items[0][price_data][product_data][name]": `${brandName(input.locale)} · ${eventLabel}`,
     "line_items[0][price_data][unit_amount]": "3500",
     "line_items[0][quantity]": "1",
     "payment_intent_data[metadata][orderId]": input.orderId,
@@ -75,9 +76,6 @@ export async function createStripeCheckout(input: {
     body.set(`line_items[${lineItemIndex}][quantity]`, "1");
     lineItemIndex += 1;
   };
-  if (input.locale === "en") {
-    body.set("line_items[0][price_data][product_data][name]", `${brandName(input.locale)} · event`);
-  }
   if (input.aiBestPhotos) addLineItem(input.locale === "en" ? "AI Best Photos · up to 3,000 photos" : "AI Best Photos · do 3.000 fotografij", "1500");
   if (input.faceCollections) addLineItem(input.locale === "en" ? "Photo search by face" : "Iskanje fotografij po obrazu", "500");
   if (input.videoUnlimited) addLineItem(input.locale === "en" ? "Unlimited videos · up to 60 seconds" : "Neomejeno videoposnetkov · do 60 sekund", "1500");

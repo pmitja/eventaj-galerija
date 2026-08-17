@@ -13,17 +13,7 @@ vi.mock("@/lib/analytics/meta-attribution", () => ({ marketingAttributionFromReq
 import { POST } from "./route";
 
 const body = {
-  ownerName: "Nina Novak",
   ownerEmail: "nina@example.com",
-  eventName: "Launch party",
-  eventLocation: "London",
-  startsAt: "2026-09-01T14:00:00.000Z",
-  endsAt: "2026-09-01T20:00:00.000Z",
-  timezone: "Europe/Ljubljana",
-  commentsEnabled: true,
-  aiBestPhotos: false,
-  faceCollections: false,
-  videoUnlimited: false,
   termsAccepted: true,
 };
 
@@ -49,14 +39,18 @@ describe("checkout route marketing boundary", () => {
     }), "en", { consent: true, consentVersion: "2026-08-13" });
   });
 
-  it("rejects the face-search add-on while its runtime and legal gate is closed", async () => {
+  it("does not allow clients to add paid options to the fixed-price minimal checkout", async () => {
     const response = await POST(new Request("https://guestmosaic.com/api/v1/checkout", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ ...body, faceCollections: true }),
     }));
 
-    expect(response.status).toBe(422);
-    expect(state.create).not.toHaveBeenCalled();
+    expect(response.status).toBe(201);
+    expect(state.create).toHaveBeenCalledWith(
+      { ownerEmail: "nina@example.com", termsAccepted: true },
+      "en",
+      expect.anything(),
+    );
   });
 });

@@ -38,6 +38,20 @@ export const checkoutFormSchema = checkoutFormSchemaFor("sl");
 
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
+export const minimalCheckoutSchema = z.object({
+  ownerEmail: z.email().transform((value) => value.toLowerCase()),
+  termsAccepted: z.boolean().refine((value) => value, "Accept the terms to continue"),
+});
+
+export type MinimalCheckoutValues = z.infer<typeof minimalCheckoutSchema>;
+
+export const eventSetupSchema = z.object({
+  eventName: z.string().trim().min(2).max(120),
+  eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  eventLocation: z.string().trim().max(160).optional().default(""),
+  timezone: timeZoneSchema,
+});
+
 export const createCheckoutSchema = z.object({
   organizationName: z.string().trim().min(2).max(120).optional(),
   ownerName: z.string().trim().min(2).max(120),
@@ -59,3 +73,4 @@ export const createCheckoutSchema = z.object({
 });
 
 export const checkoutSessionIdSchema = z.string().regex(/^cs_(test|live)_[A-Za-z0-9]+$/).max(255);
+export const managementTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);

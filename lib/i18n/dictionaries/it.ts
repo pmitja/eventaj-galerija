@@ -428,7 +428,7 @@ export const it: Dictionary = {
     eyebrow: "NUOVO EVENTO",
     title: "Ordina la tua galleria",
     intro:
-      "Inserisci i dati del tuo evento e completa il pagamento in sicurezza tramite Stripe. Riceverai il codice QR via e-mail; non è necessario creare un account utente né effettuare l’accesso.",
+      "Inserisci solo la tua e-mail e paga in sicurezza tramite Stripe. Aggiungerai i dati dell’evento dopo il pagamento tramite un link privato.",
     stepsLabel: "Passaggi dell'ordine",
     stepDetails: "Dati dell'evento",
     stepPayment: "Pagamento sicuro",

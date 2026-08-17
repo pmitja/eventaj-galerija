@@ -1,6 +1,6 @@
 import { problem } from "@/lib/http/problem";
 import { createCheckoutOrder } from "@/lib/repositories/checkout";
-import { createCheckoutSchema } from "@/lib/validation/checkout";
+import { minimalCheckoutSchema } from "@/lib/validation/checkout";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { localeFromRequest } from "@/lib/i18n/locale";
 import { marketingAttributionFromRequest } from "@/lib/analytics/meta-attribution";
@@ -8,7 +8,7 @@ import { marketingAttributionFromRequest } from "@/lib/analytics/meta-attributio
 export async function POST(request: Request) {
   const env = getCloudflareEnv();
   const locale = localeFromRequest(request, env.PUBLIC_APP_URL_EN);
-  const copy = locale === "en" ? {
+  const copy = locale !== "sl" ? {
     invalid: "The order details are invalid",
     videoUnavailable: "The video add-on is currently unavailable",
     faceUnavailable: "Photo search by face is currently unavailable",
@@ -25,16 +25,9 @@ export async function POST(request: Request) {
     unavailable: "Plačila trenutno ni mogoče začeti",
     retrySoon: "Poskusi znova čez nekaj trenutkov.",
   };
-  const parsed = createCheckoutSchema.safeParse(await request.json().catch(() => null));
+  const parsed = minimalCheckoutSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return problem(422, "INVALID_CHECKOUT", copy.invalid, parsed.error.issues[0]?.message);
-  }
-  if (parsed.data.videoUnlimited && String(env.VIDEO_UPLOAD_ENABLED) !== "true") {
-    return problem(422, "VIDEO_ADDON_UNAVAILABLE", copy.videoUnavailable);
-  }
-  if (parsed.data.faceCollections
-    && (String(env.FACE_SEARCH_ENABLED) !== "true" || !env.FACE_SEARCH_POLICY_VERSION)) {
-    return problem(422, "FACE_SEARCH_ADDON_UNAVAILABLE", copy.faceUnavailable);
   }
   try {
     const attribution = marketingAttributionFromRequest(request, locale);

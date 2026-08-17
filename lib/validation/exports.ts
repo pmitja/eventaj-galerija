@@ -5,6 +5,7 @@ export const exportStatusParamsSchema = z.object({ exportId: z.uuid() });
 export const exportQueueMessageSchema = z.union([
   z.object({ type: z.literal("build_export"), exportId: z.uuid() }),
   z.object({ type: z.literal("qr_email"), deliveryId: z.uuid() }),
+  z.object({ type: z.literal("setup_email"), deliveryId: z.uuid() }),
   z.object({
     type: z.literal("archive_email"),
     deliveryId: z.uuid(),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkoutFormSchema, createCheckoutSchema } from "./checkout";
+import { checkoutFormSchema, createCheckoutSchema, eventSetupSchema, minimalCheckoutSchema } from "./checkout";
 
 const valid = {
   ownerName: "Nina Novak",
@@ -17,6 +17,15 @@ const valid = {
 };
 
 describe("checkout validation", () => {
+  it("requires only email and accepted terms for the payment step", () => {
+    expect(minimalCheckoutSchema.safeParse({ ownerEmail: "guest@example.com", termsAccepted: true }).success).toBe(true);
+    expect(minimalCheckoutSchema.safeParse({ ownerEmail: "guest@example.com", termsAccepted: false }).success).toBe(false);
+  });
+
+  it("validates the post-payment event setup independently", () => {
+    expect(eventSetupSchema.safeParse({ eventName: "Anna & Mark", eventDate: "2026-09-12", eventLocation: "Dublin", timezone: "Europe/Dublin" }).success).toBe(true);
+    expect(eventSetupSchema.safeParse({ eventName: "A", eventDate: "12/09/2026", timezone: "Europe/Dublin" }).success).toBe(false);
+  });
   it("normalizes the owner email", () => {
     const parsed = createCheckoutSchema.parse(valid);
     expect(parsed.ownerEmail).toBe("nina@example.com");

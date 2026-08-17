@@ -8,8 +8,9 @@ Eventaj Galerija omogoča organizatorju, da brez nameščanja aplikacije zbere f
 
 - Eventaj Galerija: 35 EUR na dogodek, brez naročnine in z neomejenim številom gostov.
 - AI Best Photos: 15 EUR na dogodek do 3.000 fotografij; več po ponudbi.
-- Po plačilu Stripe webhook samodejno ustvari aktiven dogodek in glavno QR kodo.
-  Naročnik ne dobi računa: QR prejme po e-pošti, po zaključku pa še varen ZIP.
+- Pred plačilom naročnik vnese samo e-pošto in sprejme pogoje. Stripe webhook
+  ustvari dogodek in zasebno upravljavsko povezavo; po kratki nastavitvi naročnik
+  brez računa prejme QR, galerijo in Live Show, po zaključku pa varen ZIP.
 - Osnovni dogodek vključuje 20 videov. Dodatek »Neomejeno videov« stane 15 EUR
   in ima interno fair-use mejo 1.000 videov na dogodek.
 - Video je dolg največ 60 sekund in velik največ 500 MB. Prikaže se samo v

@@ -158,9 +158,9 @@ describe("checkout rate limit", () => {
 
     const insert = state.bindings.find(({ sql }) => sql.includes("INSERT INTO checkout_orders"));
     expect(insert?.values.slice(0, 6)).toEqual([
-      expect.any(String), null, null, "Mitja Test", "mitja@example.com", null,
+      expect.any(String), null, null, "mitja", "mitja@example.com", null,
     ]);
-    expect(insert?.values[6]).toBe("Mitja Test");
+    expect(insert?.values[6]).toBe("mitja");
   });
 
   it("persists English locale and keeps Stripe return URLs on the English domain", async () => {

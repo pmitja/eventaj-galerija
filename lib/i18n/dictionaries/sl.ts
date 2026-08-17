@@ -427,7 +427,7 @@ export const sl: Dictionary = {
     eyebrow: "NOV DOGODEK",
     title: "Naroči svojo galerijo",
     intro:
-      "Vnesi podatke o dogodku in varno zaključi plačilo prek Stripe. QR kodo prejmeš po e-pošti, uporabniškega računa ali prijave ne potrebuješ.",
+      "Vnesi samo e-pošto in varno plačaj prek Stripe. Podatke dogodka dodaš po plačilu prek zasebne povezave.",
     stepsLabel: "Potek naročila",
     stepDetails: "Podatki o dogodku",
     stepPayment: "Varno plačilo",
