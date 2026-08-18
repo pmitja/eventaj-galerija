@@ -3,6 +3,7 @@ import {
   checkoutSuccessPath,
   eventUseCasePath,
   eventUseCaseMarketingPath,
+  featuresPath,
   localizedMarketingPath,
   orderPath,
   privacyPath,
@@ -19,12 +20,15 @@ describe("localized public routes", () => {
     expect(termsPath("en")).toBe("/terms-of-use");
     expect(privacyPath("en")).toBe("/privacy");
     expect(eventUseCasePath("en", "poslovni-dogodki")).toBe("/for-events/corporate-events");
+    expect(featuresPath("en")).toBe("/features");
   });
 
   it("maps language-switch destinations in both directions", () => {
     expect(localizedMarketingPath("/za-dogodke/poroke", "en")).toBe("/wedding-qr-code-for-photos");
     expect(localizedMarketingPath("/for-events/weddings", "sl")).toBe("/za-dogodke/poroke");
     expect(localizedMarketingPath("/order", "sl")).toBe("/naroci");
+    expect(localizedMarketingPath("/funkcije", "fr")).toBe("/fr/features");
+    expect(localizedMarketingPath("/features", "sl")).toBe("/funkcije");
   });
 
   it("reuses English slugs under a path prefix for the additional languages", () => {
@@ -33,6 +37,7 @@ describe("localized public routes", () => {
     expect(termsPath("es")).toBe("/es/terms-of-use");
     expect(privacyPath("it")).toBe("/it/privacy");
     expect(eventUseCasePath("fr", "poslovni-dogodki")).toBe("/fr/for-events/corporate-events");
+    expect(featuresPath("de")).toBe("/de/features");
   });
 
   it("switches languages from and to a prefixed locale", () => {
@@ -46,6 +51,7 @@ describe("localized public routes", () => {
 
   it("reduces any localized path back to the internal Slovenian route", () => {
     expect(slovenianRoutePath("/de/order")).toBe("/naroci");
+    expect(slovenianRoutePath("/it/features")).toBe("/funkcije");
     expect(slovenianRoutePath("/nl/for-events/birthdays")).toBe("/za-dogodke/rojstni-dnevi");
     expect(slovenianRoutePath("/es/downloads/abc")).toBe("/prenosi/abc");
     expect(slovenianRoutePath("/naroci")).toBe("/naroci");

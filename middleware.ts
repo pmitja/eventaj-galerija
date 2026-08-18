@@ -37,6 +37,7 @@ function withMarketingCache(response: NextResponse, request: NextRequest): NextR
   if (request.method !== "GET" && request.method !== "HEAD") return response;
   const internalPath = slovenianRoutePath(request.nextUrl.pathname);
   const cacheable = internalPath === "/"
+    || internalPath === "/funkcije"
     || internalPath.startsWith("/za-dogodke/")
     || internalPath.startsWith("/solutions/");
   if (!cacheable) return response;

@@ -53,15 +53,27 @@ export const de: Dictionary = {
   },
   hero: {
     eyebrow: "Ein QR-Code · keine App",
-    title: "Alle Erinnerungen vom Event. An einem Ort.",
+    title: "Alle Erinnerungen an Ihr Event. An einem Ort.",
     subtitle:
-      "Fotos, kurze Videos und Sprachnachrichten Ihrer Gäste, gesammelt in einer eleganten Galerie. Ohne App und ohne Anmeldung.",
-    ctaPrimary: "Event für 35 € erstellen",
-    ctaSecondary: "Demo-Event ausprobieren",
+      "Gäste laden Fotos, Videos und Nachrichten mit einem einzigen QR-Code hoch — ohne App und ohne Anmeldung.",
+    ctaPrimary: "Event-Galerie erstellen — 35 €",
+    ctaSecondary: "Demo-Galerie ansehen",
     trustLabel: "Ihre Vorteile",
-    trust: ["Einmalzahlung", "Unbegrenzt Gäste", "Galerie 180 Tage"],
+    trust: ["Einmalzahlung", "Einrichtungslink sofort", "ZIP-Download nach dem Event"],
     guestPhotoAlt: "Gästefoto",
     phoneAlt: "Event-Galerie von Anna und Mark auf dem Smartphone",
+  },
+  heroPromise: {
+    pill: "Das passiert nach der Zahlung",
+    headline: "Einmalig 35 €. In wenigen Minuten bereit.",
+    text:
+      "Nach der Zahlung senden wir Ihnen per E-Mail einen privaten Einrichtungslink. Sie ergänzen die Eventdaten und erhalten sofort Ihre Gästegalerie, den druckfertigen QR-Code und den Link zur Live Slideshow. Nach dem Event bekommen Sie alle Erinnerungen in einer ZIP-Datei.",
+    steps: [
+      ["Einmal zahlen — 35 €", "Kein Konto, keine Abo-Verwaltung."],
+      ["Einrichtungslink per E-Mail", "Kommt direkt nach erfolgreicher Zahlung."],
+      ["QR-Code in Minuten", "Ausdrucken oder auf dem Bildschirm zeigen."],
+      ["ZIP nach dem Event", "Alle Fotos, Videos und Nachrichten in einem Download."],
+    ],
   },
   quickSteps: [
     ["Event erstellen", "Galerie und QR-Code sind sofort bereit."],
@@ -84,6 +96,34 @@ export const de: Dictionary = {
     subtitleDesktop:
       "Fotos, kurze Videos, Sprachnachrichten und Funktionen, die die Inhalte Ihrer Gäste an einem Ort zusammenführen.",
     subtitleMobile: "Fotos, Videos und Sprachnachrichten an einem Ort.",
+  },
+  featuresPage: {
+    metaTitle: "Alle Funktionen — Guest Mosaic",
+    metaDescription:
+      "Sprach-Gästebuch, AI Best Photos, Live-Slideshow, Kommentare und Glückwünsche, Foto-Download und ein QR-Code für jede Art von Event. Alles, was die Galerie für 35 € enthält.",
+    eyebrow: "Alle Funktionen",
+    title: "Alles, was eure Event-Galerie kann.",
+    subtitle:
+      "Ein QR-Code, keine App für die Gäste, einmalig 35 € pro Event. Hier ist alles im Detail.",
+    backToHome: "Zurück zur Startseite",
+    ctaHeading: "Bereit für euer Event?",
+    ctaText: "Die Galerie ist in wenigen Minuten erstellt — den QR-Code bekommt ihr sofort per E-Mail.",
+  },
+  essentials: {
+    pill: "In der Praxis",
+    heading: "QR-Code, Upload der Gäste, Live-Slideshow.",
+    subtitle: "Drei Dinge, die eure Gäste am Abend erleben.",
+    allFeatures: "Alle Funktionen ansehen",
+    items: [
+      ["QR-Code auf jedem Tisch", "Ausdrucken oder auf einem Bildschirm zeigen. Ein Scan öffnet die Galerie direkt im Browser."],
+      ["Gäste laden in Sekunden hoch", "Fotos, kurze Videos und Sprachnachrichten. Ohne App, Konto und Passwort."],
+      ["Live-Slideshow auf großer Leinwand", "Neue Uploads erscheinen auf Beamer oder TV, während noch gefeiert wird."],
+    ],
+  },
+  finalCta: {
+    heading: "Ein QR-Code. Alle Erinnerungen an euer Event.",
+    text: "Einmalig 35 €, unbegrenzt Gäste, Galerie 180 Tage verfügbar.",
+    note: "Sichere Zahlung über Stripe · Einrichtungslink sofort · Kein Abo",
   },
   ai: {
     pill: "Künstliche Intelligenz",
@@ -114,6 +154,7 @@ export const de: Dictionary = {
     qrCallout: "Fotos hinzufügen",
   },
   devices: {
+    demoCta: "Demo-Galerie öffnen",
     heading: "Läuft direkt im Browser",
     subtitle: "Keine App. Keine Registrierung. Einfach auf Smartphone und Computer.",
     exampleUrl: "guestmosaic.com/de/anna-and-mark",
@@ -130,7 +171,7 @@ export const de: Dictionary = {
     popular: "Ein Paket · alles inklusive",
     perEvent: "Event",
     cta: "Event für 35 € erstellen",
-    reassurance: "Einmalige Zahlung über Stripe. Galerie und QR-Code erhalten Sie per E-Mail.",
+    reassurance: "Sichere Zahlung über Stripe · Einrichtungslink sofort · Kein Abo",
     addOnsLabel: "Erweiterungen",
   },
   faq: {

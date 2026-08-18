@@ -9,6 +9,7 @@ import { LOCALE_LABELS, PREFIXED_LOCALES, type Locale } from "@/lib/i18n/locale"
 import {
   demoEventPath,
   eventUseCaseMarketingPath,
+  featuresPath,
   localizedMarketingPath,
   orderPath,
 } from "@/lib/i18n/routes";
@@ -100,7 +101,7 @@ export function HeaderClient({
               ))}
             </div>
           </div>
-          <Link href={`${home}#${t.anchors.features}`}>{t.nav.features}</Link>
+          <Link href={featuresPath(locale)}>{t.nav.features}</Link>
           <Link href={`${home}#${t.anchors.pricing}`}>{t.nav.pricing}</Link>
           <Link href={`${home}#${t.anchors.faq}`}>{t.nav.faq}</Link>
         </nav>
@@ -119,7 +120,7 @@ export function HeaderClient({
           <summary>{t.nav.events} <span aria-hidden="true">+</span></summary>
           <div>{eventUseCases.map((item) => <Link href={eventUseCaseMarketingPath(locale, item.slug)} key={item.slug} onClick={closeMenu}>{item.navTitle}</Link>)}</div>
         </details>
-        <Link href={`${home}#${t.anchors.features}`} onClick={closeMenu}>{t.nav.features}</Link>
+        <Link href={featuresPath(locale)} onClick={closeMenu}>{t.nav.features}</Link>
         <Link href={`${home}#${t.anchors.pricing}`} onClick={closeMenu}>{t.nav.pricing}</Link>
         <Link href={`${home}#${t.anchors.faq}`} onClick={closeMenu}>{t.nav.faq}</Link>
         <details className="mobile-nav__events">

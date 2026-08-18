@@ -57,15 +57,27 @@ export const en = {
   },
   hero: {
     eyebrow: "One QR code · no app",
-    title: "Every memory from the event. In one place.",
+    title: "Every memory from your event. In one place.",
     subtitle:
-      "Photos, short videos and voice messages from your guests, gathered in one elegant gallery. No app and no sign-up.",
-    ctaPrimary: "Create your event for €35",
-    ctaSecondary: "Try the demo event",
+      "Guests upload photos, videos and messages with one QR code — no app and no sign-up.",
+    ctaPrimary: "Create my event gallery — €35",
+    ctaSecondary: "See the demo gallery",
     trustLabel: "Purchase benefits",
-    trust: ["One-time payment", "Unlimited guests", "180-day gallery"],
+    trust: ["One-time payment", "Setup link sent instantly", "ZIP download after your event"],
     guestPhotoAlt: "Guest photo",
     phoneAlt: "Anna and Mark's event gallery on a phone",
+  },
+  heroPromise: {
+    pill: "What happens after you pay",
+    headline: "€35 once. Ready in minutes.",
+    text:
+      "After payment we email you a private setup link. Add your event details and instantly receive your guest gallery, printable QR code and live slideshow link. After the event, every memory comes back to you in one ZIP.",
+    steps: [
+      ["Pay once — €35", "No account to manage, no subscription."],
+      ["Setup link by email", "Sent the moment your payment goes through."],
+      ["QR code in minutes", "Print it or show it on a screen."],
+      ["ZIP after the event", "Every photo, video and message in one download."],
+    ] as [string, string][],
   },
   quickSteps: [
     ["Create your event", "Your gallery and QR code are ready right away."],
@@ -88,6 +100,34 @@ export const en = {
     subtitleDesktop:
       "Photos, short videos, voice messages and the features that bring your guests' content together in one place.",
     subtitleMobile: "Photos, videos and voice messages in one place.",
+  },
+  featuresPage: {
+    metaTitle: "All features — Guest Mosaic",
+    metaDescription:
+      "Voice guestbook, AI Best Photos, live slideshow, comments and wishes, photo downloads and one QR code for every kind of event. Everything the €35 gallery includes.",
+    eyebrow: "All features",
+    title: "Everything your event gallery can do.",
+    subtitle:
+      "One QR code, no app for your guests, €35 once per event. Here is everything included, in detail.",
+    backToHome: "Back to the home page",
+    ctaHeading: "Ready for your event?",
+    ctaText: "The gallery takes a couple of minutes to create — the QR code arrives by email right away.",
+  },
+  essentials: {
+    pill: "In practice",
+    heading: "QR code, guest uploads, live slideshow.",
+    subtitle: "Three things your guests see on the night.",
+    allFeatures: "See all features",
+    items: [
+      ["A QR code on every table", "Print it or show it on a screen. Scanning opens the gallery straight in the browser."],
+      ["Guests upload in seconds", "Photos, short videos and voice messages. No app, account or password."],
+      ["Live slideshow on the big screen", "New uploads appear on a projector or TV while the party is still going."],
+    ] as [string, string][],
+  },
+  finalCta: {
+    heading: "One QR code. Every memory from your event.",
+    text: "€35 once, unlimited guests, gallery available for 180 days.",
+    note: "Secure payment via Stripe · Setup link sent instantly · No subscription",
   },
   ai: {
     pill: "Artificial intelligence",
@@ -118,6 +158,7 @@ export const en = {
     qrCallout: "Add your photos",
   },
   devices: {
+    demoCta: "Open the demo gallery",
     heading: "Works right in the browser",
     subtitle: "No app. No sign-up. Simple on phone and computer.",
     exampleUrl: "guestmosaic.com/anna-and-mark",
@@ -134,7 +175,7 @@ export const en = {
     popular: "One package · everything included",
     perEvent: "event",
     cta: "Create your event for €35",
-    reassurance: "One-time Stripe payment. Your gallery and QR code arrive by email.",
+    reassurance: "Secure payment via Stripe · Setup link sent instantly · No subscription",
     addOnsLabel: "Add-ons",
   },
   faq: {

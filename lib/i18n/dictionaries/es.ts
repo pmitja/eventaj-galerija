@@ -53,15 +53,27 @@ export const es: Dictionary = {
   },
   hero: {
     eyebrow: "Un código QR · sin aplicación",
-    title: "Todos los recuerdos del evento. En un solo lugar.",
+    title: "Todos los recuerdos de tu evento. En un solo lugar.",
     subtitle:
-      "Fotos, vídeos cortos y mensajes de voz de tus invitados, reunidos en una galería elegante. Sin aplicación y sin registro.",
-    ctaPrimary: "Crea tu evento por 35 €",
-    ctaSecondary: "Prueba el evento de demostración",
+      "Los invitados suben fotos, vídeos y mensajes con un solo código QR: sin aplicación y sin registro.",
+    ctaPrimary: "Crear mi galería de evento — 35 €",
+    ctaSecondary: "Ver la galería de demostración",
     trustLabel: "Ventajas de la compra",
-    trust: ["Pago único", "Invitados ilimitados", "Galería 180 días"],
+    trust: ["Pago único", "Enlace de configuración al instante", "Descarga ZIP tras el evento"],
     guestPhotoAlt: "Foto de un invitado",
     phoneAlt: "La galería del evento de Anna y Mark en un móvil",
+  },
+  heroPromise: {
+    pill: "Qué pasa después de pagar",
+    headline: "35 € una sola vez. Listo en minutos.",
+    text:
+      "Tras el pago te enviamos por correo un enlace privado de configuración. Añades los datos de tu evento y recibes al instante la galería para invitados, el código QR listo para imprimir y el enlace al Live Slideshow. Después del evento recibes todos los recuerdos en un único ZIP.",
+    steps: [
+      ["Pagas una vez — 35 €", "Sin cuenta que gestionar y sin suscripción."],
+      ["Enlace por correo", "Se envía en cuanto se confirma el pago."],
+      ["Código QR en minutos", "Imprímelo o muéstralo en una pantalla."],
+      ["ZIP tras el evento", "Todas las fotos, vídeos y mensajes en una descarga."],
+    ],
   },
   quickSteps: [
     ["Crea tu evento", "La galería y el código QR están listos al instante."],
@@ -84,6 +96,34 @@ export const es: Dictionary = {
     subtitleDesktop:
       "Fotos, vídeos cortos, mensajes de voz y funciones que reúnen el contenido de tus invitados en un solo lugar.",
     subtitleMobile: "Fotos, vídeos y mensajes de voz en un solo lugar.",
+  },
+  featuresPage: {
+    metaTitle: "Todas las funciones — Guest Mosaic",
+    metaDescription:
+      "Libro de voz, AI Best Photos, proyección en directo, comentarios y felicitaciones, descarga de fotos y un código QR para cualquier evento. Todo lo que incluye la galería de 35 €.",
+    eyebrow: "Todas las funciones",
+    title: "Todo lo que puede hacer la galería de vuestro evento.",
+    subtitle:
+      "Un código QR, sin app para los invitados, 35 € una sola vez por evento. Aquí está todo, en detalle.",
+    backToHome: "Volver a la página principal",
+    ctaHeading: "¿Listos para vuestro evento?",
+    ctaText: "La galería se crea en unos minutos: el código QR llega enseguida por correo.",
+  },
+  essentials: {
+    pill: "En la práctica",
+    heading: "Código QR, subidas de los invitados, proyección en directo.",
+    subtitle: "Tres cosas que vuestros invitados viven esa noche.",
+    allFeatures: "Ver todas las funciones",
+    items: [
+      ["Un código QR en cada mesa", "Imprimidlo o mostradlo en una pantalla. Al escanearlo, la galería se abre en el navegador."],
+      ["Los invitados suben en segundos", "Fotos, vídeos cortos y mensajes de voz. Sin aplicación, cuenta ni contraseña."],
+      ["Proyección en directo en pantalla grande", "Las fotos nuevas aparecen en el proyector o la tele mientras sigue la fiesta."],
+    ],
+  },
+  finalCta: {
+    heading: "Un código QR. Todos los recuerdos del evento.",
+    text: "35 € una sola vez, invitados ilimitados, galería disponible 180 días.",
+    note: "Pago seguro con Stripe · Enlace de configuración al instante · Sin suscripción",
   },
   ai: {
     pill: "Inteligencia artificial",
@@ -114,6 +154,7 @@ export const es: Dictionary = {
     qrCallout: "Añade tus fotos",
   },
   devices: {
+    demoCta: "Abrir la galería de demostración",
     heading: "Funciona directamente en el navegador",
     subtitle: "Sin aplicación. Sin registro. Sencillo en el móvil y en el ordenador.",
     exampleUrl: "guestmosaic.com/es/anna-and-mark",
@@ -130,7 +171,7 @@ export const es: Dictionary = {
     popular: "Un paquete · todo incluido",
     perEvent: "evento",
     cta: "Crea tu evento por 35 €",
-    reassurance: "Pago único con Stripe. Recibirás la galería y el código QR por correo electrónico.",
+    reassurance: "Pago seguro con Stripe · Enlace de configuración al instante · Sin suscripción",
     addOnsLabel: "Complementos",
   },
   faq: {

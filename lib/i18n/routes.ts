@@ -69,6 +69,10 @@ export function orderPath(locale: Locale): string {
   return localized(locale, "/naroci", "/order");
 }
 
+export function featuresPath(locale: Locale): string {
+  return localized(locale, "/funkcije", "/features");
+}
+
 export function checkoutSuccessPath(locale: Locale): string {
   return localized(locale, "/nakup/uspesen", "/order/success");
 }
@@ -110,6 +114,7 @@ export function eventUseCaseMarketingPath(locale: Locale, slovenianSlug: string)
 /** Maps the Slovenian internal path of a marketing route to its localized public path. */
 const SLOVENIAN_ROUTE_BUILDERS: Readonly<Record<string, (locale: Locale) => string>> = {
   "/naroci": orderPath,
+  "/funkcije": featuresPath,
   "/nakup/uspesen": checkoutSuccessPath,
   "/pogoji-uporabe": termsPath,
   "/zasebnost": privacyPath,
@@ -135,6 +140,7 @@ export function slovenianRoutePath(pathname: string): string {
 
   const englishToSlovenian: Readonly<Record<string, string>> = {
     "/order": "/naroci",
+    "/features": "/funkcije",
     "/order/success": "/nakup/uspesen",
     "/terms-of-use": "/pogoji-uporabe",
     "/privacy": "/zasebnost",
@@ -170,6 +176,7 @@ export function localizedMarketingPath(pathname: string, targetLocale: Locale): 
 /** Public English path -> internal Slovenian path, used by the middleware rewrite. */
 export const englishRewriteEntries = [
   ["/order", "/naroci"],
+  ["/features", "/funkcije"],
   ["/order/success", "/nakup/uspesen"],
   ["/terms-of-use", "/pogoji-uporabe"],
   ["/privacy", "/zasebnost"],

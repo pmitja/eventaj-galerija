@@ -3,7 +3,7 @@ import { landingData } from "./data";
 import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
-import { orderPath } from "@/lib/i18n/routes";
+import { demoEventPath, orderPath } from "@/lib/i18n/routes";
 import { QrMark, VisualPlaceholder } from "./visual-placeholder";
 import { FeatureCarousel } from "./feature-carousel";
 
@@ -17,8 +17,14 @@ function SectionHeading({ title, desktopSubtitle, mobileSubtitle }: { title: str
   );
 }
 
-export function HowItWorks({ locale = "sl" }: { locale?: Locale }) {
+/**
+ * `maxSteps` shortens the bento for the ad landing, where the flow is sold as
+ * three steps and the fourth ("everything in one place") is covered by the
+ * essentials strip further down.
+ */
+export function HowItWorks({ locale = "sl", maxSteps, tone = "muted" }: { locale?: Locale; maxSteps?: number; tone?: "muted" | "plain" }) {
   const { howSteps } = landingData(locale);
+  const steps = maxSteps ? howSteps.slice(0, maxSteps) : howSteps;
   const t = getDictionary(locale);
   /** One product screenshot per step, in step order. */
   const stepVisuals = [
@@ -28,11 +34,11 @@ export function HowItWorks({ locale = "sl" }: { locale?: Locale }) {
     { src: "/marketing/screenshots/liveshow-desktop.png", alt: t.slideshow.visualAlt },
   ];
   return (
-    <section className="how section-muted" id={t.anchors.howItWorks}>
+    <section className={`how ${tone === "plain" ? "section" : "section-muted"}`} id={t.anchors.howItWorks}>
       <div className="shell">
         <SectionHeading title={t.howItWorks.heading} desktopSubtitle={t.howItWorks.subtitle} />
-        <div className="how-bento">
-          {howSteps.map((step, index) => (
+        <div className={`how-bento${steps.length === 3 ? " how-bento--three" : ""}`}>
+          {steps.map((step, index) => (
             <article
               className={`how-card how-card--${index < 2 ? "lead" : "compact"}${index === 2 ? " how-card--phone" : ""}`}
               key={step.n}
@@ -146,6 +152,9 @@ export function Devices({ locale = "sl" }: { locale?: Locale }) {
           <div className="browser-bar"><span /><span /><span /><small>{t.devices.exampleUrl}</small></div>
           <VisualPlaceholder label={t.devices.desktopLabel} imageSrc={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-desktop-frame.png")} imageAlt={t.devices.desktopAlt} className="browser-visual" />
           <div className="device-phone"><VisualPlaceholder label={t.devices.mobileLabel} imageSrc={localizedMarketingScreenshot(locale, "/marketing/screenshots/gallery-mobile.png")} imageAlt={t.devices.mobileAlt} /></div>
+        </div>
+        <div className="devices-cta">
+          <Link className="button button--secondary" href={demoEventPath(locale)}>{t.devices.demoCta}</Link>
         </div>
       </div>
     </section>

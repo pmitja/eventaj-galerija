@@ -53,15 +53,27 @@ export const sl: Dictionary = {
   },
   hero: {
     eyebrow: "Ena QR koda · brez aplikacije",
-    title: "Vsi spomini z dogodka. Na enem mestu.",
+    title: "Vsi spomini z vašega dogodka. Na enem mestu.",
     subtitle:
-      "Fotografije, kratki videi in glasovna voščila gostov, zbrani v eni elegantni galeriji. Brez aplikacije in brez registracije.",
-    ctaPrimary: "Ustvari dogodek za 35 €",
-    ctaSecondary: "Preizkusi demo dogodek",
+      "Gostje z eno QR kodo dodajo fotografije, videe in voščila — brez aplikacije in brez registracije.",
+    ctaPrimary: "Ustvari galerijo dogodka — 35 €",
+    ctaSecondary: "Poglej demo galerijo",
     trustLabel: "Prednosti nakupa",
-    trust: ["Enkratno plačilo", "Neomejeno gostov", "Galerija 180 dni"],
+    trust: ["Enkratno plačilo", "Povezava za nastavitev takoj", "ZIP po dogodku"],
     guestPhotoAlt: "Fotografija gosta",
     phoneAlt: "Galerija dogodka Ana & Marko na telefonu",
+  },
+  heroPromise: {
+    pill: "Kaj sledi po plačilu",
+    headline: "Enkratnih 35 €. Pripravljeno v nekaj minutah.",
+    text:
+      "Po plačilu vam po e-pošti pošljemo zasebno povezavo za nastavitev. Dodate podatke o dogodku in takoj dobite galerijo za goste, QR kodo za tisk in povezavo do Live Slideshowa. Po dogodku prejmete vse spomine v enem ZIP-u.",
+    steps: [
+      ["Plačate enkrat — 35 €", "Brez računa za upravljanje in brez naročnine."],
+      ["Povezava po e-pošti", "Pošljemo jo takoj po uspešnem plačilu."],
+      ["QR koda v nekaj minutah", "Natisnete jo ali prikažete na zaslonu."],
+      ["ZIP po dogodku", "Vse fotografije, videi in voščila v enem prenosu."],
+    ],
   },
   quickSteps: [
     ["Ustvari dogodek", "Galerija in QR koda sta pripravljeni takoj."],
@@ -84,6 +96,34 @@ export const sl: Dictionary = {
     subtitleDesktop:
       "Fotografije, kratki videi, glasovna voščila in funkcije, ki povežejo vsebino gostov na enem mestu.",
     subtitleMobile: "Fotografije, videi in glasovna voščila na enem mestu.",
+  },
+  featuresPage: {
+    metaTitle: "Vse funkcije — Galerija Eventaj",
+    metaDescription:
+      "Glasovna knjiga gostov, AI Best Photos, Live Slideshow, komentarji in voščila, prenos fotografij ter ena QR koda za vse vrste dogodkov. Vse, kar vključuje galerija za 35 €.",
+    eyebrow: "Vse funkcije",
+    title: "Vse, kar zmore galerija vašega dogodka.",
+    subtitle:
+      "Ena QR koda, brez aplikacije za goste, enkratnih 35 € na dogodek. Tukaj je vse vključeno, podrobno.",
+    backToHome: "Nazaj na domačo stran",
+    ctaHeading: "Pripravljeni na svoj dogodek?",
+    ctaText: "Galerijo ustvarite v nekaj minutah — QR kodo prejmete po e-pošti takoj.",
+  },
+  essentials: {
+    pill: "V praksi",
+    heading: "QR koda, nalaganje gostov, Live Slideshow.",
+    subtitle: "Trije koraki, ki jih gostje vidijo na dogodku.",
+    allFeatures: "Poglej vse funkcije",
+    items: [
+      ["QR koda na vsaki mizi", "Natisnite jo ali prikažite na zaslonu. Skeniranje odpre galerijo neposredno v brskalniku."],
+      ["Gostje dodajo v nekaj sekundah", "Fotografije, kratke videe in glasovna voščila. Brez aplikacije, računa in gesla."],
+      ["Live Slideshow na velikem platnu", "Nove fotografije se prikažejo na projektorju ali TV-zaslonu med samim dogodkom."],
+    ],
+  },
+  finalCta: {
+    heading: "Ena QR koda. Vsi spomini z dogodka.",
+    text: "Enkratnih 35 €, neomejeno gostov, galerija na voljo 180 dni.",
+    note: "Varno plačilo prek Stripe · Povezava za nastavitev takoj · Brez naročnine",
   },
   ai: {
     pill: "Umetna inteligenca",
@@ -114,6 +154,7 @@ export const sl: Dictionary = {
     qrCallout: "Dodaj svoje fotografije",
   },
   devices: {
+    demoCta: "Odpri demo galerijo",
     heading: "Deluje neposredno v brskalniku",
     subtitle: "Brez aplikacije. Brez registracije. Preprosto na telefonu in računalniku.",
     exampleUrl: "galerija.eventaj.si/ana-in-marko",
@@ -129,7 +170,7 @@ export const sl: Dictionary = {
     popular: "En paket · vse vključeno",
     perEvent: "dogodek",
     cta: "Ustvari dogodek za 35 €",
-    reassurance: "Enkratno plačilo prek Stripe. Galerijo in QR kodo prejmete po e-pošti.",
+    reassurance: "Varno plačilo prek Stripe · Povezava za nastavitev takoj · Brez naročnine",
     addOnsLabel: "Dodatki",
   },
   faq: {

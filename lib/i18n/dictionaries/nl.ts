@@ -53,15 +53,27 @@ export const nl: Dictionary = {
   },
   hero: {
     eyebrow: "Één QR-code · geen app",
-    title: "Alle herinneringen aan het evenement. Op één plek.",
+    title: "Alle herinneringen aan jouw evenement. Op één plek.",
     subtitle:
-      "Foto's, korte video's en spraakberichten van je gasten, verzameld in één elegante galerij. Zonder app en zonder registratie.",
-    ctaPrimary: "Maak je evenement voor € 35",
-    ctaSecondary: "Probeer het demo-evenement",
+      "Gasten uploaden foto's, video's en berichten met één QR-code — zonder app en zonder registratie.",
+    ctaPrimary: "Maak mijn evenementgalerij — € 35",
+    ctaSecondary: "Bekijk de demogalerij",
     trustLabel: "Voordelen",
-    trust: ["Eenmalige betaling", "Onbeperkt gasten", "Galerij 180 dagen"],
+    trust: ["Eenmalige betaling", "Instellink direct per e-mail", "ZIP-download na je evenement"],
     guestPhotoAlt: "Foto van een gast",
     phoneAlt: "De evenementgalerij van Anna en Mark op een telefoon",
+  },
+  heroPromise: {
+    pill: "Dit gebeurt er na je betaling",
+    headline: "Eenmalig € 35. Binnen enkele minuten klaar.",
+    text:
+      "Na de betaling mailen we je een privélink om alles in te stellen. Je vult de gegevens van je evenement in en krijgt meteen je gastengalerij, een printbare QR-code en de link naar de Live Slideshow. Na het evenement ontvang je alle herinneringen in één ZIP.",
+    steps: [
+      ["Eén keer betalen — € 35", "Geen account om te beheren, geen abonnement."],
+      ["Instellink per e-mail", "Verstuurd zodra je betaling rond is."],
+      ["QR-code in minuten", "Print hem of toon hem op een scherm."],
+      ["ZIP na het evenement", "Alle foto's, video's en berichten in één download."],
+    ],
   },
   quickSteps: [
     ["Maak je evenement", "Galerij en QR-code zijn meteen klaar."],
@@ -84,6 +96,34 @@ export const nl: Dictionary = {
     subtitleDesktop:
       "Foto's, korte video's, spraakberichten en functies die de content van je gasten op één plek samenbrengen.",
     subtitleMobile: "Foto's, video's en spraakberichten op één plek.",
+  },
+  featuresPage: {
+    metaTitle: "Alle functies — Guest Mosaic",
+    metaDescription:
+      "Spraakgastenboek, AI Best Photos, live slideshow, reacties en wensen, foto's downloaden en één QR-code voor elk soort evenement. Alles wat de galerij van € 35 bevat.",
+    eyebrow: "Alle functies",
+    title: "Alles wat je evenementgalerij kan.",
+    subtitle:
+      "Eén QR-code, geen app voor je gasten, eenmalig € 35 per evenement. Hier staat alles uitgebreid.",
+    backToHome: "Terug naar de startpagina",
+    ctaHeading: "Klaar voor je evenement?",
+    ctaText: "De galerij maak je in een paar minuten — de QR-code komt meteen per e-mail.",
+  },
+  essentials: {
+    pill: "In de praktijk",
+    heading: "QR-code, uploads van gasten, live slideshow.",
+    subtitle: "Drie dingen die je gasten die avond zien.",
+    allFeatures: "Bekijk alle functies",
+    items: [
+      ["Een QR-code op elke tafel", "Print hem of toon hem op een scherm. Scannen opent de galerij direct in de browser."],
+      ["Gasten uploaden in enkele seconden", "Foto's, korte video's en spraakberichten. Geen app, account of wachtwoord."],
+      ["Live slideshow op het grote scherm", "Nieuwe uploads verschijnen op beamer of tv terwijl het feest doorgaat."],
+    ],
+  },
+  finalCta: {
+    heading: "Eén QR-code. Alle herinneringen aan je evenement.",
+    text: "Eenmalig € 35, onbeperkt gasten, galerij 180 dagen beschikbaar.",
+    note: "Veilig betalen via Stripe · Instellink direct · Geen abonnement",
   },
   ai: {
     pill: "Kunstmatige intelligentie",
@@ -114,6 +154,7 @@ export const nl: Dictionary = {
     qrCallout: "Voeg je foto's toe",
   },
   devices: {
+    demoCta: "Open de demogalerij",
     heading: "Werkt direct in de browser",
     subtitle: "Geen app. Geen registratie. Eenvoudig op telefoon en computer.",
     exampleUrl: "guestmosaic.com/nl/anna-and-mark",
@@ -130,7 +171,7 @@ export const nl: Dictionary = {
     popular: "Eén pakket · alles inbegrepen",
     perEvent: "evenement",
     cta: "Maak je evenement voor € 35",
-    reassurance: "Eenmalige betaling via Stripe. Je galerij en QR-code ontvang je per e-mail.",
+    reassurance: "Veilig betalen via Stripe · Instellink direct · Geen abonnement",
     addOnsLabel: "Uitbreidingen",
   },
   faq: {

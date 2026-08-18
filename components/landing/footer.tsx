@@ -2,7 +2,7 @@ import Link from "next/link";
 import { StickyCreateEventCta } from "./sticky-create-event-cta";
 import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { eventUseCasePath, localizedMarketingPath, orderPath, privacyPath, solutionPagePath, termsPath } from "@/lib/i18n/routes";
+import { eventUseCasePath, featuresPath, localizedMarketingPath, orderPath, privacyPath, solutionPagePath, termsPath } from "@/lib/i18n/routes";
 import { brandMark } from "@/lib/seo";
 
 export function Footer({ locale = "sl" }: { locale?: Locale }) {
@@ -33,7 +33,7 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
           <div className="footer-column">
             <strong>{t.footer.productColumn}</strong>
             <Link href={`${home}#${t.anchors.howItWorks}`}>{t.nav.howItWorks}</Link>
-            <Link className="desktop-only" href={`${home}#${t.anchors.features}`}>{t.nav.features}</Link>
+            <Link className="desktop-only" href={featuresPath(locale)}>{t.nav.features}</Link>
             <Link href={`${home}#${t.anchors.pricing}`}>{t.nav.pricing}</Link>
             <Link className="desktop-only" href={`${home}#${t.anchors.faq}`}>{t.nav.faq}</Link>
           </div>

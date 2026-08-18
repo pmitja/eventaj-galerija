@@ -106,3 +106,35 @@ export function QuickSteps({ locale = "sl" }: { locale?: Locale }) {
     </section>
   );
 }
+
+/**
+ * The band directly under the hero that answers the question the hero cannot:
+ * what actually happens after the €35 payment. Price, delivery and the ZIP that
+ * closes the loop, so nobody has to scroll to pricing to learn the model.
+ */
+export function HeroPromise({ locale = "sl" }: { locale?: Locale }) {
+  const t = getDictionary(locale).heroPromise;
+
+  return (
+    <section className="hero-promise">
+      <div className="hero-promise-inner shell">
+        <div className="hero-promise-copy">
+          <div className="section-pill">{t.pill}</div>
+          <h2>{t.headline}</h2>
+          <p>{t.text}</p>
+        </div>
+        <ol className="hero-promise-steps">
+          {t.steps.map(([title, text], index) => (
+            <li key={title}>
+              <span aria-hidden="true">{index + 1}</span>
+              <div>
+                <strong>{title}</strong>
+                <small>{text}</small>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}

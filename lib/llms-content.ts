@@ -5,11 +5,13 @@ import {
   SOLUTION_PAGE_LOCALES,
   SOLUTION_PAGE_PATHS,
   eventUseCaseMarketingPath,
+  featuresPath,
   orderPath,
   solutionPagePath,
   type SolutionPageLocale,
 } from "@/lib/i18n/routes";
 import { SEO_COPY, SITE_NAME, SITE_URL, SL_SITE_NAME, brandName } from "@/lib/seo";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 
 /**
  * `llms.txt` and `llms-full.txt` are served from both domains, so both the prose
@@ -531,6 +533,7 @@ ${copy.intro}
 
 - [${brandName(locale)}](${home}): ${copy.homeDescription}
 - [${copy.orderTitle}](${siteUrl}${orderPath(locale)}): ${copy.orderDescription}
+- [${getDictionary(locale).nav.features}](${siteUrl}${featuresPath(locale)}): ${getDictionary(locale).featuresPage.metaDescription}
 - [${copy.fullDescriptionTitle}](${siteUrl}${withLocalePrefix(locale, "/llms-full.txt")}): ${copy.fullDescriptionDescription}
 ${solutionLinks ? `\n${solutionLinks}` : ""}
 
@@ -615,6 +618,7 @@ ${useCaseDetails}
 
 - ${home}
 - ${siteUrl}${orderPath(locale)}
+- ${siteUrl}${featuresPath(locale)}
 ${solutionUrls.map((path) => `- ${siteUrl}${path}`).join("\n")}
 ${useCases.map((item) => `- ${siteUrl}${eventUseCaseMarketingPath(locale, item.slug)}`).join("\n")}
 `;

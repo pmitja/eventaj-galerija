@@ -1,15 +1,16 @@
 import { AnimationController } from "./animation-controller";
 import { Faq, Pricing } from "./commerce-sections";
-import { AiFeatures, Devices, Features, HowItWorks, Slideshow } from "./content-sections";
+import { Devices, HowItWorks } from "./content-sections";
+import { Essentials, FinalCta } from "./landing-essentials";
 import { Footer } from "./footer";
-import { Header, Hero, QuickSteps } from "./header-hero";
-import { Showcase } from "./showcase-sections";
-import { MemoryFeatures } from "./memory-features";
-import { EventUseCasesSection } from "./use-case-page";
-import { SolutionHub } from "./solution-hub";
+import { Header, Hero, HeroPromise } from "./header-hero";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { appUrlForLocale } from "@/lib/i18n/locale";
 
+/**
+ * The landing is the paid-traffic page: price, proof, three steps, what €35
+ * buys, and a close. Every long feature story lives on the features page.
+ */
 export async function LandingPage() {
   const locale = await getRequestLocale();
   const alternateOrigin = appUrlForLocale(getPublicAppUrls(), locale === "sl" ? "en" : "sl");
@@ -18,18 +19,13 @@ export async function LandingPage() {
         <AnimationController />
         <Header locale={locale} alternateOrigin={alternateOrigin} />
         <Hero locale={locale} />
-        <QuickSteps locale={locale} />
-        <SolutionHub locale={locale} />
-        <HowItWorks locale={locale} />
-        <Features locale={locale} />
-        <MemoryFeatures locale={locale} />
-        <AiFeatures locale={locale} />
-        <Slideshow locale={locale} />
-        <Showcase locale={locale} />
+        <HeroPromise locale={locale} />
         <Devices locale={locale} />
-        <EventUseCasesSection locale={locale} />
+        <HowItWorks locale={locale} maxSteps={3} tone="plain" />
         <Pricing locale={locale} />
+        <Essentials locale={locale} />
         <Faq locale={locale} />
+        <FinalCta locale={locale} />
         <Footer locale={locale} />
       </main>
   );

@@ -52,6 +52,7 @@
     "@types/react-dom": "latest",
     "eslint": "^9.39.0",
     "eslint-config-next": "latest",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.0",
     "vitest": "^4.1.10",
