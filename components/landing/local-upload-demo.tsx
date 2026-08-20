@@ -1,59 +1,51 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
+import { EventUpload } from "@/components/event/event-upload";
+import { VoiceMessageRecorder } from "@/components/guest/voice-message-recorder";
+import { DEMO_EVENT_SLUG } from "@/lib/demo/event";
+import { useLocalDemoMedia } from "@/lib/demo/local-media";
+import { demoEventPath } from "@/lib/i18n/routes";
+import type { SolutionPageLocale } from "@/lib/i18n/routes";
 import type { WeddingConversionCopy } from "./wedding-conversion-copy";
 
-export function LocalUploadDemo({ copy }: { copy: WeddingConversionCopy }) {
-  const inputId = useId();
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  function chooseFile(nextFile: File | null) {
-    setFile(nextFile);
-    setPreviewUrl(nextFile ? URL.createObjectURL(nextFile) : null);
-  }
+/**
+ * The marketing simulator runs the exact guest upload card from the event page,
+ * only in local mode: photos, videos and voice messages stay in the browser and
+ * show up in the demo gallery on this device.
+ */
+export function LocalUploadDemo({ copy, locale }: { copy: WeddingConversionCopy; locale: SolutionPageLocale }) {
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  const addedCount = useLocalDemoMedia().length;
 
   return (
     <div className="local-upload-demo">
       <div className="local-upload-demo__phone">
         <div className="local-upload-demo__topbar" aria-hidden="true"><span /><span /><span /></div>
-        <div className="local-upload-demo__copy">
-          <span className="local-upload-demo__mark">GM</span>
-          <h3>{copy.uploadTitle}</h3>
-          <p>{copy.uploadText}</p>
+        <div className="local-upload-demo__stage [&>section]:w-full [&>section]:rounded-2xl [&>section]:border-0 [&>section]:px-0 [&>section]:pt-0 [&>section]:shadow-none">
+          <EventUpload
+            eventSlug={DEMO_EVENT_SLUG}
+            guestId="demo-guest"
+            videoUploadsEnabled
+            onRequestVoiceMessage={() => setVoiceOpen(true)}
+            localOnly
+          />
+          <VoiceMessageRecorder
+            eventSlug={DEMO_EVENT_SLUG}
+            guestId="demo-guest"
+            onSubmitted={() => undefined}
+            hideEntryCard
+            open={voiceOpen}
+            onOpenChange={setVoiceOpen}
+            localOnly
+          />
         </div>
-        {previewUrl ? (
-          <div className="local-upload-demo__preview">
-            {/* A blob URL is intentionally local-only and never sent to Next/Image. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={previewUrl} alt="" />
-            <div>
-              <strong>{copy.uploadReady}</strong>
-              <small>{file?.name}</small>
-            </div>
-          </div>
+        {addedCount > 0 ? (
+          <Link className="local-upload-demo__link" href={demoEventPath(locale)}>{copy.uploadDemoLink}</Link>
         ) : (
-          <div className="local-upload-demo__empty" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" /></svg>
-          </div>
+          <small className="local-upload-demo__privacy">{copy.uploadLocalOnly}</small>
         )}
-        <label className="button local-upload-demo__button" htmlFor={inputId}>
-          {previewUrl ? copy.uploadReset : copy.uploadButton}
-        </label>
-        <input
-          id={inputId}
-          className="local-upload-demo__input"
-          type="file"
-          accept="image/*"
-          onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
-        />
-        <small className="local-upload-demo__privacy">{copy.uploadLocalOnly}</small>
       </div>
     </div>
   );

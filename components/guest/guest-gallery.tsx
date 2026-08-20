@@ -10,6 +10,7 @@ import { PhotoComments } from "@/components/guest/photo-comments";
 import { FaceSearch } from "@/components/guest/face-search";
 import { shareGallery, type GalleryShareResult } from "@/lib/client/share-gallery";
 import { DEMO_EVENT_SLUG, demoEventPhotosFor } from "@/lib/demo/event";
+import { localDemoMediaUrl, useLocalDemoMedia } from "@/lib/demo/local-media";
 import { faceSearchResultStorageKey, isFaceSearchLocalResultCurrent } from "@/lib/domain/face-search";
 import { galleryLikesStorageKey, toggleMediaLike } from "@/lib/domain/media-comments";
 import { storedFaceSearchResultSchema, type StoredFaceSearchResult } from "@/lib/validation/face-search";
@@ -32,6 +33,15 @@ const VoiceMessageRecorder = dynamic(
 );
 
 const PHOTO_PAGE_SIZE = 6;
+
+/** Stands in for a locally added video whose first frame could not be captured. */
+const VIDEO_PLACEHOLDER_SRC =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Crect width='4' height='5' fill='%23392029'/%3E%3C/svg%3E";
+
+/** Signed media routes and local blob previews cannot go through the image optimizer. */
+function isUnoptimizedSource(src: string) {
+  return src.startsWith("/api/") || src.startsWith("blob:") || src.startsWith("data:");
+}
 
 type LiveGalleryMedia = {
   key: string;
@@ -191,13 +201,30 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [voiceMessageCount, setVoiceMessageCount] = useState(0);
   const [galleryTab, setGalleryTab] = useState<"photos" | "voice">("photos");
   const [voiceRecorderOpen, setVoiceRecorderOpen] = useState(false);
-  const allPhotos = isDemoEvent ? [...demoPhotos] : livePhotos;
+  const localDemoMedia = useLocalDemoMedia();
+  const localDemoPhotos = localDemoMedia
+    .filter((item) => item.kind !== "voice")
+    .map((item) => ({
+      key: `local-${item.id}`,
+      publicId: `local-${item.id}`,
+      src: item.poster
+        ? localDemoMediaUrl(item.id, item.poster, "-poster")
+        : item.kind === "video" ? VIDEO_PLACEHOLDER_SRC : localDemoMediaUrl(item.id, item.blob),
+      alt: item.filename,
+      commentCount: 0,
+      comments: [] as const,
+      kind: item.kind === "video" ? "video" as const : "image" as const,
+      playbackUrl: item.kind === "video" ? localDemoMediaUrl(item.id, item.blob) : null,
+      downloadUrl: null,
+    }));
+  const allPhotos = isDemoEvent ? [...localDemoPhotos, ...demoPhotos] : livePhotos;
+  const heroPhoto = isDemoEvent ? demoPhotos[0] : allPhotos[0];
   const faceMatchIds = new Set(faceSearchResult?.mediaIds ?? []);
   const faceSearchPhotos = faceSearchResult ? allPhotos.filter((photo) => photo.publicId && faceMatchIds.has(photo.publicId)) : [];
   const photos = faceFilterActive && faceSearchResult ? faceSearchPhotos : allPhotos;
   const commentsVisible = eventInfo.commentsEnabled && commentsOpen;
   const faceTabEnabled = Boolean(guestIdentity && eventInfo.faceSearchEnabled && eventInfo.faceSearchPolicyVersion);
-  const voiceTabVisible = !isDemoEvent && voiceMessageCount > 0;
+  const voiceTabVisible = voiceMessageCount > 0;
   const voiceTabActive = voiceTabVisible && galleryTab === "voice";
   const hasMorePhotos = visiblePhotoCount < photos.length;
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -455,7 +482,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
 
       <section className="relative flex min-h-[560px] items-end overflow-hidden bg-[#392029] md:min-h-[640px]" id="top">
         <div className="absolute inset-0 after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgba(30,13,20,.2)_0%,rgba(30,13,20,.14)_32%,rgba(30,13,20,.9)_100%)] after:content-['']" aria-hidden="true">
-          {allPhotos[0] ? <Image className="scale-[1.02] object-cover object-[42%_center]" src={allPhotos[0].src} alt="" fill priority sizes="100vw" unoptimized={allPhotos[0].src.startsWith("/api/")} /> : null}
+          {heroPhoto ? <Image className="scale-[1.02] object-cover object-[42%_center]" src={heroPhoto.src} alt="" fill priority sizes="100vw" unoptimized={isUnoptimizedSource(heroPhoto.src)} /> : null}
         </div>
         <div className="relative z-1 w-full px-6 pt-[116px] pb-9 text-center text-white md:pb-[58px]">
           <p className="m-0 text-[11px] font-extrabold tracking-[.14em] text-[#f4c6d6] uppercase">{new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "long" }).format(new Date(eventInfo.startsAt))}{eventInfo.location ? ` · ${eventInfo.location}` : ""}</p>
@@ -463,11 +490,11 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
           <p className="mx-auto mb-6 max-w-[520px] text-[16px]/[1.55] text-white/88 text-pretty md:text-[17px]">{t.welcome}</p>
           {isDemoEvent ? (
             <>
-              <a className={heroCtaClass} href="#gallery-title">
-                <svg className={cn(strokeIcon, "w-[21px]")} viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                {t.exploreDemo}
+              <a className={heroCtaClass} href="#dodaj">
+                <CameraIcon className={cn(strokeIcon, "w-[21px]")} /> {t.addPhotos}
               </a>
-              <p className={uploadHintClass}>{t.demoHint}</p>
+              <p className={uploadHintClass}>{t.demoLocalNote}</p>
+              <a className="mt-1 inline-block text-[13px] font-bold text-white/80! underline" href="#gallery-title">{t.exploreDemo}</a>
             </>
           ) : eventInfo.uploadsOpen ? (
             <>
@@ -482,22 +509,24 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         </div>
       </section>
 
-      {eventInfo.uploadsOpen && !isDemoEvent ? (
+      {eventInfo.uploadsOpen ? (
         <div className="relative z-2 mx-auto -mt-[18px] w-[min(100%-24px,620px)] md:-mt-[34px]">
-          {guestIdentity ? <>
+          {guestIdentity || isDemoEvent ? <>
             <EventUpload
               eventSlug={eventSlug}
-              guestId={guestIdentity.guestId}
-              videoUploadsEnabled={eventInfo.videoUploadsEnabled}
+              guestId={guestIdentity?.guestId ?? "demo-guest"}
+              videoUploadsEnabled={isDemoEvent ? true : eventInfo.videoUploadsEnabled}
               onRequestVoiceMessage={() => setVoiceRecorderOpen(true)}
+              localOnly={isDemoEvent}
             />
             <VoiceMessageRecorder
               eventSlug={eventSlug}
-              guestId={guestIdentity.guestId}
+              guestId={guestIdentity?.guestId ?? "demo-guest"}
               onSubmitted={() => setVoiceMessagesRefreshKey((current) => current + 1)}
               hideEntryCard
               open={voiceRecorderOpen}
               onOpenChange={setVoiceRecorderOpen}
+              localOnly={isDemoEvent}
             />
           </> : null}
         </div>
@@ -566,11 +595,15 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
           </div>
         ) : null}
 
-        {!isDemoEvent ? (
-          <div hidden={!voiceTabActive}>
-            <VoiceGuestbook eventSlug={eventSlug} refreshKey={voiceMessagesRefreshKey} embedded onCountChange={setVoiceMessageCount} />
-          </div>
-        ) : null}
+        <div hidden={!voiceTabActive}>
+          <VoiceGuestbook
+            eventSlug={eventSlug}
+            refreshKey={voiceMessagesRefreshKey}
+            embedded
+            onCountChange={setVoiceMessageCount}
+            localOnly={isDemoEvent}
+          />
+        </div>
 
         {voiceTabActive ? null : <>
         {/* Točke preloma so pisane kot min-[…], da jih Tailwind uredi po širini — mešanica `md:` in `min-[1100px]:` bi se razvrstila napačno. */}
@@ -589,7 +622,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
               key={photo.key}
             >
               <button className="group/photo absolute inset-0 block w-full cursor-zoom-in border-0 bg-none p-0" type="button" onClick={() => openPhoto(index)} aria-label={`${photo.kind === "video" ? t.openVideo : t.openPhoto}: ${photo.alt}`}>
-                <Image className="object-cover transition-transform duration-[280ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover/photo:scale-[1.025] motion-reduce:transition-none" src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized={photo.src.startsWith("/api/")} />
+                <Image className="object-cover transition-transform duration-[280ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover/photo:scale-[1.025] motion-reduce:transition-none" src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 50vw, (max-width: 1100px) 33vw, 25vw" unoptimized={isUnoptimizedSource(photo.src)} />
                 {photo.kind === "video" ? <span className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/55 bg-[rgba(35,17,24,.58)] pl-[3px] text-[18px] text-white shadow-[0_8px_24px_rgba(0,0,0,.22)] backdrop-blur-sm" aria-hidden="true">▶</span> : null}
               </button>
               <button className="group/like absolute top-[7px] right-[7px] z-1 grid size-11 cursor-pointer place-items-center rounded-full border-0 bg-[rgba(35,17,24,.3)] text-white backdrop-blur-sm" type="button" onClick={() => toggleLike(photo.key)} aria-label={liked.includes(photo.key) ? t.removeFavourite : t.addFavourite} aria-pressed={liked.includes(photo.key)}>
@@ -642,7 +675,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
                     aria-label={photos[lightboxIndex].alt}
                   />
                 ) : (
-                  <Image className="object-contain" src={photos[lightboxIndex].src} alt={photos[lightboxIndex].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={photos[lightboxIndex].src.startsWith("/api/")} />
+                  <Image className="object-contain" src={photos[lightboxIndex].src} alt={photos[lightboxIndex].alt} fill priority sizes={commentsVisible ? "(min-width: 768px) calc(100vw - 380px), 100vw" : "100vw"} unoptimized={isUnoptimizedSource(photos[lightboxIndex].src)} />
                 )}
               </div>
               <button className={cn(lightboxNavClass, "right-2.5", commentsMounted ? "md:right-2.5" : "md:right-[max(12px,calc(50%-420px))]")} type="button" onClick={() => movePhoto((lightboxIndex + 1) % photos.length)} aria-label={t.nextPhoto}>

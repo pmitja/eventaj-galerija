@@ -54,6 +54,7 @@ export function Faq({ locale = "sl" }: { locale?: Locale }) {
     <section className="faq section" id={t.anchors.faq}>
       <div className="faq-shell">
         <div className="section-heading"><h2>{t.faq.heading}</h2><p>{t.faq.subtitle}</p></div>
+        <p className="faq-privacy-note"><span aria-hidden="true">🔒</span> {t.faq.privacyNote}</p>
         <div className="faq-list">
           {faqs.map(([question, answer]) => (
             <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>

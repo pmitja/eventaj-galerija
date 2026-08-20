@@ -35,6 +35,7 @@ export const faqsEs = [
   ["¿Cómo funciona el libro de visitas de audio?", "El invitado elige en la galería la opción de mensaje de voz, permite el acceso al micrófono y graba hasta dos minutos. Puede escucharlo antes de enviarlo y repetirlo si quiere. No hacen falta aplicación ni cuenta."],
   ["¿Cuánto tiempo está disponible la galería?", "La galería está disponible durante 180 días después del evento."],
   ["¿Los invitados pueden subir vídeos?", "Sí, hasta 20 vídeos por evento. Cada vídeo puede durar 60 segundos y pesar 500 MB como máximo. Los vídeos se ven en la galería, pero no en el Live Slideshow. El complemento de 15 € elimina el límite de vídeos (uso razonable, hasta 1.000 por evento)."],
-  ["¿Las fotos son privadas?", "La galería del evento no se indexa públicamente y solo se accede a ella con un enlace impredecible o el código QR. No está protegida con contraseña, así que comparte el enlace solo con tus invitados. El organizador puede ocultar la galería entera o una foto concreta en cualquier momento."],
+  ["¿Las fotos son privadas?", "La galería no se indexa públicamente y no está protegida con contraseña, así que comparte el enlace solo con tus invitados. El organizador puede ocultar la galería entera o una foto concreta en cualquier momento."],
+  ["¿Usáis nuestras fotos para marketing?", "No. Nunca usamos las fotos, los vídeos ni los mensajes de voz de tus invitados para promoción, publicidad ni nuestra propia web, y no los enviamos a herramientas de publicidad o analítica. El contenido se queda en tu galería y se elimina a los 180 días."],
   ["¿Qué incluye AI Best Photos?", "Por 15 € por evento, el complemento clasifica la calidad técnica y detecta duplicados en hasta 3.000 fotos."],
 ] as const;

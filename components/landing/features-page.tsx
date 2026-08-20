@@ -6,6 +6,7 @@ import { Header } from "./header-hero";
 import { FinalCta } from "./landing-essentials";
 import { MemoryFeatures } from "./memory-features";
 import { Showcase } from "./showcase-sections";
+import { SocialProof } from "./social-proof";
 import { SolutionHub } from "./solution-hub";
 import { EventUseCasesSection } from "./use-case-page";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -58,6 +59,7 @@ export async function FeaturesPage() {
       <AnimationController />
       <Header locale={locale} alternateOrigin={alternateOrigin} />
       <FeaturesHero locale={locale} />
+      <SocialProof locale={locale} />
       <Features locale={locale} />
       <MemoryFeatures locale={locale} />
       <AiFeatures locale={locale} />

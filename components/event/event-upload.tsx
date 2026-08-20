@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { Upload as TusUpload } from "tus-js-client";
 import { runWithConcurrency } from "@/lib/client/concurrency";
+import { addLocalDemoMedia, videoPosterBlob } from "@/lib/demo/local-media";
 import { CURRENT_UPLOAD_CONSENT_VERSION } from "@/lib/domain/legal";
 import {
   CameraIcon,
@@ -119,7 +120,20 @@ async function responseError(response: Response, fallback: string, locale: Local
   return new Error(locale === "en" ? fallback : body?.detail || body?.title || fallback);
 }
 
-export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, onRequestVoiceMessage }: { eventSlug: string; guestId: string; videoUploadsEnabled?: boolean; onRequestVoiceMessage?: () => void }) {
+export function EventUpload({
+  eventSlug,
+  guestId,
+  videoUploadsEnabled = false,
+  onRequestVoiceMessage,
+  localOnly = false,
+}: {
+  eventSlug: string;
+  guestId: string;
+  videoUploadsEnabled?: boolean;
+  onRequestVoiceMessage?: () => void;
+  /** Demo mode: files are kept on the visitor's device instead of being uploaded. */
+  localOnly?: boolean;
+}) {
   const locale = useLocale();
   const t = getDictionary(locale).guest.upload;
   const [items, setItems] = useState<UploadItem[]>([]);
@@ -181,7 +195,32 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, o
     }
   }, [eventSlug, guestId, locale, t]);
 
+  const saveItemLocally = useCallback(async (id: string) => {
+    const item = itemsRef.current.find((candidate) => candidate.id === id);
+    if (!item) return;
+    setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, status: "uploading", progress: 20, error: undefined } : candidate));
+    try {
+      const isVideo = item.file.type.startsWith("video/");
+      const poster = isVideo ? await videoPosterBlob(item.file) : null;
+      await addLocalDemoMedia({
+        kind: isVideo ? "video" : "image",
+        mime: item.file.type,
+        filename: item.file.name,
+        durationMs: null,
+        blob: item.file,
+        poster,
+      });
+      setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, status: "done", progress: 100 } : candidate));
+    } catch {
+      setItems((current) => current.map((candidate) => candidate.id === id ? { ...candidate, status: "error", error: t.transferFailed } : candidate));
+    }
+  }, [t]);
+
   const uploadItem = useCallback(async (id: string) => {
+    if (localOnly) {
+      await saveItemLocally(id);
+      return;
+    }
     if (!navigator.onLine) {
       setItems((current) => current.map((item) => (
         item.id === id
@@ -265,7 +304,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, o
         error: error instanceof Error ? error.message : t.transferFailed,
       } : candidate));
     }
-  }, [allowPublishing, getSessionToken, locale, t, termsAccepted]);
+  }, [allowPublishing, getSessionToken, locale, localOnly, saveItemLocally, t, termsAccepted]);
 
   const startUpload = () => {
     const uploadableItems = items.filter((item) => (
@@ -343,7 +382,7 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, o
         <h2 className={cardTitle}>{plural(locale, doneCount, t.thanks)}</h2>
         <p className={cn(cardText, "max-w-[390px]")}>
           {pluralCount(locale, doneCount, t.addedCount)}
-          {allowPublishing ? t.willAppear : t.storedForOrganiser}
+          {localOnly ? ` ${t.localOnlyNote}` : allowPublishing ? t.willAppear : t.storedForOrganiser}
         </p>
         <button
           className={cn(outlineButton, "min-w-[160px]")}
@@ -496,9 +535,11 @@ export function EventUpload({ eventSlug, guestId, videoUploadsEnabled = false, o
       )}
 
       <p className="mx-1 mt-3.5 mb-0 text-center text-[10.5px]/[1.45] text-[#8d7180]">
-        {isUploading
-          ? t.keepOpen
-          : t.consentNote}
+        {localOnly
+          ? t.localOnlyNote
+          : isUploading
+            ? t.keepOpen
+            : t.consentNote}
       </p>
     </section>
   );

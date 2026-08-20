@@ -35,6 +35,7 @@ export const faqsIt = [
   ["Come funziona il guestbook audio?", "Nella galleria l'ospite sceglie il messaggio vocale, consente l'accesso al microfono e registra fino a due minuti. Può riascoltarlo prima di inviarlo e rifarlo se vuole. Non servono app né account."],
   ["Per quanto tempo è disponibile la galleria?", "La galleria è disponibile per 180 giorni dopo l'evento."],
   ["Gli ospiti possono caricare video?", "Sì, fino a 20 video per evento. Ogni video può durare al massimo 60 secondi e pesare al massimo 500 MB. I video si vedono nella galleria, ma non nel Live Slideshow. L'estensione da 15 € elimina il limite di video (uso corretto, fino a 1.000 per evento)."],
-  ["Le foto sono private?", "La galleria dell'evento non è indicizzata pubblicamente ed è raggiungibile solo tramite un link imprevedibile o il codice QR. Non è protetta da password, quindi condividi il link solo con i tuoi ospiti. L'organizzatore può nascondere in qualsiasi momento l'intera galleria o una singola foto."],
+  ["Le foto sono private?", "La galleria non è indicizzata pubblicamente e non è protetta da password, quindi condividi il link solo con i tuoi ospiti. L'organizzatore può nascondere in qualsiasi momento l'intera galleria o una singola foto."],
+  ["Usate le nostre foto per il marketing?", "No. Non usiamo mai le foto, i video e i messaggi vocali dei tuoi ospiti per promozione, pubblicità o il nostro sito, e non li inviamo a strumenti pubblicitari o di analisi. I contenuti restano nella tua galleria e vengono eliminati dopo 180 giorni."],
   ["Che cosa include AI Best Photos?", "Per 15 € a evento, l'estensione classifica la qualità tecnica e rileva i duplicati per un massimo di 3.000 foto."],
 ] as const;

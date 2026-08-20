@@ -53,11 +53,11 @@ export const de: Dictionary = {
   },
   hero: {
     eyebrow: "Ein QR-Code · keine App",
-    title: "Alle Erinnerungen an Ihr Event. An einem Ort.",
+    title: "Sammeln Sie jedes Hochzeitsfoto Ihrer Gäste in einer privaten Galerie.",
     subtitle:
-      "Gäste laden Fotos, Videos und Nachrichten mit einem einzigen QR-Code hoch — ohne App und ohne Anmeldung.",
-    ctaPrimary: "Event-Galerie erstellen — 35 €",
-    ctaSecondary: "Demo-Galerie ansehen",
+      "Erstellen Sie einen QR-Code, stellen Sie ihn auf die Tische und Ihre Gäste laden Fotos und Videos direkt vom Handy hoch — ohne App und ohne Konto.",
+    ctaPrimary: "Unsere Hochzeitsgalerie erstellen — 35 €",
+    ctaSecondary: "Gast-Ansicht ausprobieren",
     trustLabel: "Ihre Vorteile",
     trust: ["Einmalzahlung", "Einrichtungslink sofort", "ZIP-Download nach dem Event"],
     guestPhotoAlt: "Gästefoto",
@@ -177,6 +177,8 @@ export const de: Dictionary = {
   faq: {
     heading: "Häufige Fragen",
     subtitle: "Das Wichtigste vor Ihrem ersten Event.",
+    privacyNote:
+      "Standardmäßig privat. Nur Personen mit Ihrem Galerie-Link oder QR-Code haben Zugriff.",
   },
   memories: {
     pill: "Sprachnachrichten",
@@ -259,6 +261,7 @@ export const de: Dictionary = {
       uploadDetail: "Gerade ins Album aufgenommen.",
     },
     upload: {
+      localOnlyNote: "Demo: Eure Dateien bleiben auf diesem Gerät. Es wird nichts hochgeladen.",
       consentPrefix: "Ich bestätige, dass ich diese Dateien teilen darf, und akzeptiere die",
       termsWord: "Bedingungen",
       consentMiddle: "und die",
@@ -311,6 +314,7 @@ export const de: Dictionary = {
         "Mit dem Fortfahren erlaubst du die sichere Verarbeitung der ausgewählten Dateien für dieses Event.",
     },
     voice: {
+      localOnlyNote: "Demo: Die Aufnahme bleibt auf diesem Gerät.",
       unsupported: "Dieser Browser unterstützt keine Sprachaufnahme.",
       noFormat: "Dieser Browser unterstützt kein kompatibles Audioformat.",
       stoppedUnexpectedly: "Die Aufnahme wurde unerwartet beendet. Bitte versuche es erneut.",
@@ -397,6 +401,7 @@ export const de: Dictionary = {
       tryAgain: "Erneut versuchen",
     },
     gallery: {
+      demoLocalNote: "Probiert den echten Ablauf — alles, was ihr hinzufügt, bleibt auf eurem Gerät.",
       shareText: "Sieh dir die Fotos von {event} an.",
       demoEventName: "Anna & Mark",
       backToSite: "Zurück zur Website von Guest Mosaic",
@@ -493,5 +498,42 @@ export const de: Dictionary = {
     rightsReserved: "Alle Rechte vorbehalten.",
     terms: "Nutzungsbedingungen",
     privacy: "Datenschutz",
+  },
+  qrPlacement: {
+    eyebrow: "Wohin mit dem QR-Code",
+    heading: "Wo der QR-Code hingehört",
+    subtitle:
+      "Platziert ihn dort, wo eure Gäste ihn sehen: auf den Tischen, dem Welcome-Schild, der Menükarte oder der Hochzeitspapeterie.",
+    items: [
+      {
+        image: "/marketing/qr-placement/table.jpg",
+        title: "Auf den Tischen",
+        description: "Eine kleine Karte auf einem Ständer an jedem Tisch — Gäste scannen zwischen den Gängen.",
+        alt: "Karte mit QR-Code auf einem Hochzeitstisch",
+      },
+      {
+        image: "/marketing/qr-placement/welcome-sign.jpg",
+        title: "Auf dem Welcome-Schild",
+        description: "Das Erste, was Gäste beim Ankommen sehen, direkt neben dem Sitzplan.",
+        alt: "Hochzeits-Welcome-Schild mit QR-Code am Eingang",
+      },
+      {
+        image: "/marketing/qr-placement/menu-card.jpg",
+        title: "Auf Menü oder Karte",
+        description: "Gedruckt auf Menükarte, Platzkarte oder einer kurzen Hinweiskarte an jedem Platz.",
+        alt: "Hochzeitsmenü mit QR-Code neben dem Teller",
+      },
+      {
+        image: "/marketing/qr-placement/projection.jpg",
+        title: "Auf der Leinwand während der Party",
+        description: "Die Live-Diashow zeigt den Code den ganzen Abend, so machen auch Nachzügler mit.",
+        alt: "Projektion der Live-Galerie mit QR-Code auf der Party",
+      },
+    ],
+  },
+  socialProof: {
+    label: "Was Paare sagen",
+    line:
+      "Gemacht für Paare, die auch die spontanen Momente wollen, die ihr Fotograf nicht einfangen kann.",
   },
 };

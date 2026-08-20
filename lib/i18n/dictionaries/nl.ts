@@ -53,11 +53,11 @@ export const nl: Dictionary = {
   },
   hero: {
     eyebrow: "Één QR-code · geen app",
-    title: "Alle herinneringen aan jouw evenement. Op één plek.",
+    title: "Verzamel elke trouwfoto van je gasten in één privégalerij.",
     subtitle:
-      "Gasten uploaden foto's, video's en berichten met één QR-code — zonder app en zonder registratie.",
-    ctaPrimary: "Maak mijn evenementgalerij — € 35",
-    ctaSecondary: "Bekijk de demogalerij",
+      "Maak één QR-code, zet hem op de tafels en je gasten uploaden foto's en video's direct vanaf hun telefoon — zonder app of account.",
+    ctaPrimary: "Onze trouwgalerij maken — € 35",
+    ctaSecondary: "Probeer de gastervaring",
     trustLabel: "Voordelen",
     trust: ["Eenmalige betaling", "Instellink direct per e-mail", "ZIP-download na je evenement"],
     guestPhotoAlt: "Foto van een gast",
@@ -177,6 +177,8 @@ export const nl: Dictionary = {
   faq: {
     heading: "Veelgestelde vragen",
     subtitle: "Het belangrijkste vóór je eerste evenement.",
+    privacyNote:
+      "Standaard privé. Alleen mensen met jouw galerijlink of QR-code hebben toegang.",
   },
   memories: {
     pill: "Spraakberichten",
@@ -259,6 +261,7 @@ export const nl: Dictionary = {
       uploadDetail: "Zojuist aan het album toegevoegd.",
     },
     upload: {
+      localOnlyNote: "Demo: je bestanden blijven op dit apparaat. Er wordt niets geüpload.",
       consentPrefix: "Ik bevestig dat ik deze bestanden mag delen en accepteer de",
       termsWord: "voorwaarden",
       consentMiddle: "en het",
@@ -311,6 +314,7 @@ export const nl: Dictionary = {
         "Door door te gaan sta je toe dat de gekozen bestanden veilig worden verwerkt voor dit evenement.",
     },
     voice: {
+      localOnlyNote: "Demo: de opname blijft op dit apparaat.",
       unsupported: "Deze browser ondersteunt geen spraakopname.",
       noFormat: "Deze browser ondersteunt geen compatibel audioformaat.",
       stoppedUnexpectedly: "De opname is onverwacht gestopt. Probeer het opnieuw.",
@@ -397,6 +401,7 @@ export const nl: Dictionary = {
       tryAgain: "Opnieuw proberen",
     },
     gallery: {
+      demoLocalNote: "Probeer de echte flow — alles wat je toevoegt blijft op je apparaat.",
       shareText: "Bekijk de foto's van {event}.",
       demoEventName: "Anna & Mark",
       backToSite: "Terug naar de website van Guest Mosaic",
@@ -493,5 +498,42 @@ export const nl: Dictionary = {
     rightsReserved: "Alle rechten voorbehouden.",
     terms: "Gebruiksvoorwaarden",
     privacy: "Privacy",
+  },
+  qrPlacement: {
+    eyebrow: "Waar plaats je de QR-code",
+    heading: "Waar de QR-code komt te staan",
+    subtitle:
+      "Zet hem waar je gasten hem zien: op de tafels, het welkomstbord, het menu of het trouwdrukwerk.",
+    items: [
+      {
+        image: "/marketing/qr-placement/table.jpg",
+        title: "Op de tafels",
+        description: "Een klein kaartje op een standaard op elke tafel — gasten scannen tussen de gangen door.",
+        alt: "Kaartje met QR-code op een bruiloftstafel",
+      },
+      {
+        image: "/marketing/qr-placement/welcome-sign.jpg",
+        title: "Op het welkomstbord",
+        description: "Het eerste wat gasten zien bij aankomst, naast het tafelschema.",
+        alt: "Welkomstbord van de bruiloft met QR-code bij de ingang",
+      },
+      {
+        image: "/marketing/qr-placement/menu-card.jpg",
+        title: "Op het menu of een kaartje",
+        description: "Gedrukt op het menu, de naamkaart of een kort instructiekaartje bij elke plek.",
+        alt: "Menukaart van de bruiloft met QR-code naast het bord",
+      },
+      {
+        image: "/marketing/qr-placement/projection.jpg",
+        title: "Op het scherm tijdens het feest",
+        description: "De live diashow toont de code de hele avond, zo doen laatkomers ook mee.",
+        alt: "Projectie van de live galerij met QR-code op het feest",
+      },
+    ],
+  },
+  socialProof: {
+    label: "Wat stellen zeggen",
+    line:
+      "Gemaakt voor stellen die ook de spontane momenten willen die hun fotograaf niet vastlegt.",
   },
 };

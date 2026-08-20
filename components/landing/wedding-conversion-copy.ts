@@ -4,12 +4,10 @@ export type WeddingConversionCopy = {
   guestViewPill: string;
   guestViewHeading: string;
   guestViewText: string;
-  uploadTitle: string;
-  uploadText: string;
   uploadButton: string;
   uploadReady: string;
   uploadLocalOnly: string;
-  uploadReset: string;
+  uploadDemoLink: string;
   offerPill: string;
   offerHeading: string;
   offerText: string;
@@ -37,13 +35,12 @@ export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversion
   en: {
     guestViewPill: "What guests see",
     guestViewHeading: "Try the three-tap guest flow before you buy.",
-    guestViewText: "Choose a photo below to preview the real first step. The simulator stays in your browser: nothing is uploaded or stored.",
-    uploadTitle: "Anna & Mark's wedding",
-    uploadText: "Add your photos to their shared gallery.",
+    guestViewText:
+      "Add a photo, a video or a voice message below — the real guest card, step for step. Everything stays in your browser and shows up in the demo gallery on this device.",
     uploadButton: "Choose wedding photos",
     uploadReady: "Ready to upload in the real gallery",
     uploadLocalOnly: "Private preview · this file never leaves your device",
-    uploadReset: "Choose another photo",
+    uploadDemoLink: "See it in the demo gallery →",
     offerPill: "Everything included",
     offerHeading: "One complete wedding gallery. €35 once.",
     offerText: "Create the event, download the QR code immediately and use the same link throughout your wedding.",
@@ -75,13 +72,12 @@ export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversion
   de: {
     guestViewPill: "Was Gäste sehen",
     guestViewHeading: "Probiert den Gäste-Upload vor dem Kauf aus.",
-    guestViewText: "Wählt unten ein Foto und testet den ersten echten Schritt. Die Vorschau bleibt im Browser; nichts wird hochgeladen oder gespeichert.",
-    uploadTitle: "Hochzeit von Anna & Mark",
-    uploadText: "Fügt eure Fotos zur gemeinsamen Galerie hinzu.",
+    guestViewText:
+      "Fügt unten ein Foto, ein Video oder eine Sprachnachricht hinzu — die echte Gästekarte, Schritt für Schritt. Alles bleibt im Browser und erscheint in der Demo-Galerie auf diesem Gerät.",
     uploadButton: "Hochzeitsfotos auswählen",
     uploadReady: "In der echten Galerie bereit zum Hochladen",
     uploadLocalOnly: "Private Vorschau · die Datei bleibt auf eurem Gerät",
-    uploadReset: "Anderes Foto wählen",
+    uploadDemoLink: "In der Demo-Galerie ansehen →",
     offerPill: "Alles inklusive",
     offerHeading: "Eine komplette Hochzeitsgalerie. Einmalig 35 €.",
     offerText: "Event erstellen, QR-Code sofort herunterladen und denselben Link während der ganzen Hochzeit nutzen.",
@@ -107,13 +103,12 @@ export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversion
   nl: {
     guestViewPill: "Wat gasten zien",
     guestViewHeading: "Probeer de upload voor gasten vóór je koopt.",
-    guestViewText: "Kies hieronder een foto en bekijk de echte eerste stap. De preview blijft in je browser; er wordt niets geüpload of opgeslagen.",
-    uploadTitle: "Bruiloft van Anna & Mark",
-    uploadText: "Voeg je foto's toe aan hun gedeelde galerij.",
+    guestViewText:
+      "Voeg hieronder een foto, video of spraakbericht toe — de echte gastenkaart, stap voor stap. Alles blijft in je browser en verschijnt in de demogalerij op dit apparaat.",
     uploadButton: "Trouwfoto's kiezen",
     uploadReady: "Klaar om in de echte galerij te uploaden",
     uploadLocalOnly: "Privépreview · dit bestand blijft op je apparaat",
-    uploadReset: "Andere foto kiezen",
+    uploadDemoLink: "Bekijk het in de demogalerij →",
     offerPill: "Alles inbegrepen",
     offerHeading: "Eén complete trouwgalerij. Eenmalig € 35.",
     offerText: "Maak het evenement, download de QR-code direct en gebruik dezelfde link tijdens de hele bruiloft.",
@@ -139,13 +134,12 @@ export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversion
   es: {
     guestViewPill: "Lo que ven los invitados",
     guestViewHeading: "Probad la subida de invitado antes de comprar.",
-    guestViewText: "Elegid una foto para probar el primer paso real. La vista previa se queda en el navegador: no se sube ni se guarda nada.",
-    uploadTitle: "Boda de Anna y Mark",
-    uploadText: "Añade tus fotos a su galería compartida.",
+    guestViewText:
+      "Añade abajo una foto, un vídeo o un mensaje de voz: la tarjeta real de invitado, paso a paso. Todo se queda en tu navegador y aparece en la galería demo de este dispositivo.",
     uploadButton: "Elegir fotos de boda",
     uploadReady: "Lista para subir en la galería real",
     uploadLocalOnly: "Vista privada · el archivo no sale de tu dispositivo",
-    uploadReset: "Elegir otra foto",
+    uploadDemoLink: "Verlo en la galería demo →",
     offerPill: "Todo incluido",
     offerHeading: "Una galería de boda completa. 35 € una vez.",
     offerText: "Cread el evento, descargad el QR al momento y usad el mismo enlace durante toda la boda.",
@@ -171,13 +165,12 @@ export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversion
   it: {
     guestViewPill: "Cosa vedono gli ospiti",
     guestViewHeading: "Provate il caricamento prima di acquistare.",
-    guestViewText: "Scegliete una foto per provare il primo passaggio reale. L'anteprima resta nel browser: nulla viene caricato o salvato.",
-    uploadTitle: "Matrimonio di Anna & Mark",
-    uploadText: "Aggiungi le tue foto alla loro galleria.",
+    guestViewText:
+      "Aggiungi qui sotto una foto, un video o un messaggio vocale: la vera scheda per gli invitati, passo dopo passo. Tutto resta nel browser e compare nella galleria demo su questo dispositivo.",
     uploadButton: "Scegli foto del matrimonio",
     uploadReady: "Pronta per il caricamento nella galleria reale",
     uploadLocalOnly: "Anteprima privata · il file resta sul dispositivo",
-    uploadReset: "Scegli un'altra foto",
+    uploadDemoLink: "Guardalo nella galleria demo →",
     offerPill: "Tutto incluso",
     offerHeading: "Una galleria completa. 35 € una volta.",
     offerText: "Create l'evento, scaricate subito il QR e usate lo stesso link per tutto il matrimonio.",
@@ -203,13 +196,12 @@ export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversion
   fr: {
     guestViewPill: "Ce que voient les invités",
     guestViewHeading: "Testez l'envoi invité avant d'acheter.",
-    guestViewText: "Choisissez une photo pour essayer la première étape réelle. L'aperçu reste dans le navigateur : rien n'est envoyé ni stocké.",
-    uploadTitle: "Mariage d'Anna & Mark",
-    uploadText: "Ajoutez vos photos à leur galerie partagée.",
+    guestViewText:
+      "Ajoutez ci-dessous une photo, une vidéo ou un message vocal : la vraie carte invité, étape par étape. Tout reste dans votre navigateur et apparaît dans la galerie démo sur cet appareil.",
     uploadButton: "Choisir des photos du mariage",
     uploadReady: "Prête à être envoyée dans la vraie galerie",
     uploadLocalOnly: "Aperçu privé · le fichier reste sur votre appareil",
-    uploadReset: "Choisir une autre photo",
+    uploadDemoLink: "Voir dans la galerie démo →",
     offerPill: "Tout compris",
     offerHeading: "Une galerie de mariage complète. 35 € une fois.",
     offerText: "Créez l'événement, téléchargez immédiatement le QR et utilisez le même lien pendant tout le mariage.",

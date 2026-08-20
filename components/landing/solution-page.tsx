@@ -16,8 +16,11 @@ import { HowItWorks } from "./content-sections";
 import { Footer } from "./footer";
 import { Header } from "./header-hero";
 import { Showcase } from "./showcase-sections";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getSolutionPage, type SolutionPageContent } from "./solution-pages";
 import { LocalUploadDemo } from "./local-upload-demo";
+import { QrPlacement } from "./qr-placement";
+import { SocialProof } from "./social-proof";
 import { weddingConversionCopy } from "./wedding-conversion-copy";
 
 export function SolutionPage({
@@ -27,6 +30,7 @@ export function SolutionPage({
   page: SolutionPageContent;
   locale: SolutionPageLocale;
 }) {
+  const t = getDictionary(locale);
   const home = localizedMarketingPath("/", locale);
   const related = Object.keys(SOLUTION_PAGE_PATHS)
     .filter((id) => id !== page.id)
@@ -89,45 +93,15 @@ export function SolutionPage({
           </div>
         </section>
 
+        <SocialProof locale={locale} />
+
         {page.id === "wedding-qr" ? <WeddingGuestDemo locale={locale} /> : null}
 
         <HowItWorks locale={locale} />
 
-        <section className="section use-case-benefits">
-          <div className="shell">
-            <div className="section-heading">
-              <span className="section-pill">{page.benefitsPill}</span>
-              <h2>{page.benefitsHeading}</h2>
-              <p>{page.benefitsIntro}</p>
-            </div>
-            <div className="use-case-benefit-grid">
-              {page.benefits.map((benefit, index) => (
-                <article className="use-case-benefit-card solution-benefit-card" key={benefit.title}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <h3>{benefit.title}</h3>
-                    <p>{benefit.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <QrPlacement locale={locale} tone="plain" />
 
         {page.id === "wedding-qr" ? <WeddingOffer locale={locale} /> : null}
-
-        <section className="section-muted use-case-scenarios solution-clarity">
-          <div className="shell use-case-scenarios__inner">
-            <div>
-              <span className="section-pill">{page.clarityPill}</span>
-              <h2>{page.clarityHeading}</h2>
-              <p>{page.clarityText}</p>
-            </div>
-            <ul>
-              {page.clarityItems.map((item) => <li key={item}>{item}</li>)}
-            </ul>
-          </div>
-        </section>
 
         {page.id === "wedding-qr" ? <WeddingComparison locale={locale} /> : <Showcase locale={locale} />}
 
@@ -137,6 +111,7 @@ export function SolutionPage({
               <span className="section-pill">{page.faqPill}</span>
               <h2>{page.faqHeading}</h2>
             </div>
+            <p className="faq-privacy-note"><span aria-hidden="true">🔒</span> {t.faq.privacyNote}</p>
             <div className="faq-list">
               {page.faq.map(([question, answer]) => (
                 <details key={question}>
@@ -187,7 +162,7 @@ function WeddingGuestDemo({ locale }: { locale: SolutionPageLocale }) {
             <li><span>3</span>{copy.uploadReady}</li>
           </ol>
         </div>
-        <LocalUploadDemo copy={copy} />
+        <LocalUploadDemo copy={copy} locale={locale} />
       </div>
     </section>
   );

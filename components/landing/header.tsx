@@ -107,7 +107,6 @@ export function HeaderClient({
         </nav>
         <div className="header-actions">
           {locale !== "sl" ? <LanguageSwitcher locale={locale} pathname={pathname} alternateOrigin={alternateOrigin} label={t.nav.language} menuLabel={t.nav.chooseLanguage} locales={languageLocales} /> : null}
-          <Link className="button button--small button--secondary desktop-only" href={demoEventPath(locale)}>{t.nav.demoEvent}</Link>
           <Link className="button button--small desktop-only" href={orderPath(locale)}>{t.nav.createEvent}</Link>
           <button className={`menu-button ${menuOpen ? "menu-button--open" : ""}`} type="button" aria-label={menuOpen ? t.nav.closeMenu : t.nav.openMenu} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen((open) => !open)}>
             <span /><span /><span />

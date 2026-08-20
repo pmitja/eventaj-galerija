@@ -1,0 +1,22 @@
+[
+  {
+    "id": "table",
+    "image_size": "landscape_4_3",
+    "prompt": "Photorealistic wedding reception photograph, evening. Close-up of an elegant white acrylic table card on a small gold easel standing on a round reception table, next to a gold votive candle, eucalyptus greenery and a blush silk runner. The card reads in elegant script 'Capture Our Day' with small caps subtitle 'SHARE YOUR PHOTOS WITH US!', a crisp black QR code in the middle, and 'SCAN THE QR CODE' beneath it. Warm bistro string lights and a blurred dance floor with a couple dancing in the background, shallow depth of field, soft golden bokeh, natural editorial wedding photography, 50mm lens."
+  },
+  {
+    "id": "welcome-sign",
+    "image_size": "landscape_4_3",
+    "prompt": "Photorealistic outdoor wedding welcome sign photograph, golden hour. A large white welcome board on a gold easel by a stone villa entrance, decorated with blush roses, white flowers and eucalyptus. The sign reads 'Welcome' in large calligraphy, 'TO OUR WEDDING' below, then a big black QR code, and small text 'Scan the QR code to share your photos with us'. Blurred guests in formal attire walking toward the ceremony in the background, pillar candles in glass hurricanes at the base, soft warm sunlight, shallow depth of field, editorial wedding photography."
+  },
+  {
+    "id": "menu-card",
+    "image_size": "landscape_4_3",
+    "prompt": "Photorealistic close-up of a wedding place setting on a white linen table. A cream menu card with a fine serif 'Menu' heading and dinner courses sits on a folded napkin over a porcelain plate, and at the bottom of the card is a small crisp black QR code with the tiny caption 'Share your photos'. Gold cutlery, a crystal wine glass, a sprig of olive leaves and a name card beside it. Soft daylight from a window, muted neutral palette, shallow depth of field, top-down three-quarter angle, fine-art wedding stationery photography."
+  },
+  {
+    "id": "projection",
+    "image_size": "landscape_4_3",
+    "prompt": "Photorealistic wedding reception photograph at night. A large projection screen on the wall of the venue shows a live photo slideshow grid of guest photos with a big white QR code panel on the right side and the words 'Scan to add your photos'. Guests at round tables in the foreground are lit by warm string lights, some holding up phones toward the screen, blurred silhouettes, purple and amber uplighting, wide shot, shallow depth of field, atmospheric event photography."
+  }
+]

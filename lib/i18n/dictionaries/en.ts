@@ -57,11 +57,11 @@ export const en = {
   },
   hero: {
     eyebrow: "One QR code · no app",
-    title: "Every memory from your event. In one place.",
+    title: "Collect every wedding photo from your guests in one private gallery.",
     subtitle:
-      "Guests upload photos, videos and messages with one QR code — no app and no sign-up.",
-    ctaPrimary: "Create my event gallery — €35",
-    ctaSecondary: "See the demo gallery",
+      "Create one QR code, place it on your tables, and let guests upload photos and videos directly from their phones — no app or account required.",
+    ctaPrimary: "Create our wedding gallery — €35",
+    ctaSecondary: "Try the guest experience",
     trustLabel: "Purchase benefits",
     trust: ["One-time payment", "Setup link sent instantly", "ZIP download after your event"],
     guestPhotoAlt: "Guest photo",
@@ -181,6 +181,8 @@ export const en = {
   faq: {
     heading: "Frequently asked questions",
     subtitle: "The essentials before your first event.",
+    privacyNote:
+      "Private by default. Only people with your gallery link or QR code can access it.",
   },
   memories: {
     pill: "Voice messages",
@@ -263,6 +265,7 @@ export const en = {
       uploadDetail: "Just added to the album.",
     },
     upload: {
+      localOnlyNote: "Demo: your files stay on this device. Nothing is uploaded.",
       consentPrefix: "I confirm that I may share these files and accept the",
       termsWord: "terms",
       consentMiddle: "and",
@@ -315,6 +318,7 @@ export const en = {
         "By continuing, you allow the selected files to be processed securely for this event.",
     },
     voice: {
+      localOnlyNote: "Demo: the recording stays on this device.",
       unsupported: "Voice recording is not supported by this browser.",
       noFormat: "This browser does not support a compatible audio format.",
       stoppedUnexpectedly: "Recording stopped unexpectedly. Please try again.",
@@ -401,6 +405,7 @@ export const en = {
       tryAgain: "Try again",
     },
     gallery: {
+      demoLocalNote: "Try the real flow — everything you add stays on your device.",
       shareText: "See the photos from {event}.",
       demoEventName: "Anna & Mark",
       backToSite: "Back to the Guest Mosaic website",
@@ -497,6 +502,43 @@ export const en = {
     rightsReserved: "All rights reserved.",
     terms: "Terms of Use",
     privacy: "Privacy",
+  },
+  qrPlacement: {
+    eyebrow: "Where to put the QR code",
+    heading: "Where the QR code goes",
+    subtitle:
+      "Put it where your guests can see it: on the tables, welcome sign, menu or wedding stationery.",
+    items: [
+      {
+        image: "/marketing/qr-placement/table.jpg",
+        title: "On the reception tables",
+        description: "A small card on a stand at every table — guests scan between courses.",
+        alt: "QR code card on a wedding reception table",
+      },
+      {
+        image: "/marketing/qr-placement/welcome-sign.jpg",
+        title: "On the welcome sign",
+        description: "The first thing guests see when they arrive, next to the seating chart.",
+        alt: "Wedding welcome sign with a QR code at the entrance",
+      },
+      {
+        image: "/marketing/qr-placement/menu-card.jpg",
+        title: "On the menu or a card",
+        description: "Printed on the menu, place card or a short instruction card at every seat.",
+        alt: "Wedding menu card with a QR code next to the plate",
+      },
+      {
+        image: "/marketing/qr-placement/projection.jpg",
+        title: "On the screen during the party",
+        description: "The live slideshow keeps the code on screen all night, so latecomers join too.",
+        alt: "Live gallery projection with a QR code at the party",
+      },
+    ],
+  },
+  socialProof: {
+    label: "Social proof",
+    line:
+      "Built for couples who want the candid moments their photographer can’t capture.",
   },
 };
 

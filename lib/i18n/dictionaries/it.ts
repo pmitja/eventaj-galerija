@@ -53,11 +53,11 @@ export const it: Dictionary = {
   },
   hero: {
     eyebrow: "Un codice QR · nessuna app",
-    title: "Tutti i ricordi del tuo evento. In un unico posto.",
+    title: "Raccogli tutte le foto di matrimonio dei tuoi ospiti in un'unica galleria privata.",
     subtitle:
-      "Gli ospiti caricano foto, video e messaggi con un solo codice QR: senza app e senza registrazione.",
-    ctaPrimary: "Crea la mia galleria evento — 35 €",
-    ctaSecondary: "Guarda la galleria demo",
+      "Crea un codice QR, mettilo sui tavoli e i tuoi ospiti caricano foto e video direttamente dal telefono: senza app e senza account.",
+    ctaPrimary: "Crea la nostra galleria di matrimonio — 35 €",
+    ctaSecondary: "Prova l'esperienza degli ospiti",
     trustLabel: "Vantaggi dell'acquisto",
     trust: ["Pagamento unico", "Link di configurazione subito", "Download ZIP dopo l'evento"],
     guestPhotoAlt: "Foto di un ospite",
@@ -177,6 +177,8 @@ export const it: Dictionary = {
   faq: {
     heading: "Domande frequenti",
     subtitle: "L'essenziale prima del tuo primo evento.",
+    privacyNote:
+      "Privata per impostazione predefinita. Solo chi ha il link della tua galleria o il codice QR può accedervi.",
   },
   memories: {
     pill: "Messaggi vocali",
@@ -259,6 +261,7 @@ export const it: Dictionary = {
       uploadDetail: "Appena aggiunta all'album.",
     },
     upload: {
+      localOnlyNote: "Demo: i tuoi file restano su questo dispositivo. Non viene caricato nulla.",
       consentPrefix: "Confermo di poter condividere questi file e accetto le",
       termsWord: "condizioni",
       consentMiddle: "e l'",
@@ -311,6 +314,7 @@ export const it: Dictionary = {
         "Continuando, autorizzi il trattamento sicuro dei file scelti per questo evento.",
     },
     voice: {
+      localOnlyNote: "Demo: la registrazione resta su questo dispositivo.",
       unsupported: "Questo browser non supporta la registrazione vocale.",
       noFormat: "Questo browser non supporta un formato audio compatibile.",
       stoppedUnexpectedly: "La registrazione si è interrotta all'improvviso. Riprova.",
@@ -397,6 +401,7 @@ export const it: Dictionary = {
       tryAgain: "Riprova",
     },
     gallery: {
+      demoLocalNote: "Prova il flusso reale: tutto ciò che aggiungi resta sul tuo dispositivo.",
       shareText: "Guarda le foto di {event}.",
       demoEventName: "Anna & Mark",
       backToSite: "Torna al sito di Guest Mosaic",
@@ -493,5 +498,42 @@ export const it: Dictionary = {
     rightsReserved: "Tutti i diritti riservati.",
     terms: "Condizioni d'uso",
     privacy: "Privacy",
+  },
+  qrPlacement: {
+    eyebrow: "Dove mettere il codice QR",
+    heading: "Dove va il codice QR",
+    subtitle:
+      "Mettetelo dove gli invitati lo vedono: sui tavoli, sul cartello di benvenuto, sul menù o sulla partecipazione.",
+    items: [
+      {
+        image: "/marketing/qr-placement/table.jpg",
+        title: "Sui tavoli del ricevimento",
+        description: "Un cartoncino su un supporto a ogni tavolo: gli invitati scansionano tra una portata e l'altra.",
+        alt: "Cartoncino con codice QR su un tavolo di matrimonio",
+      },
+      {
+        image: "/marketing/qr-placement/welcome-sign.jpg",
+        title: "Sul cartello di benvenuto",
+        description: "La prima cosa che gli invitati vedono all'arrivo, accanto al tableau de mariage.",
+        alt: "Cartello di benvenuto del matrimonio con codice QR all'ingresso",
+      },
+      {
+        image: "/marketing/qr-placement/menu-card.jpg",
+        title: "Sul menù o su un cartoncino",
+        description: "Stampato sul menù, sul segnaposto o su un breve cartoncino con le istruzioni.",
+        alt: "Menù di matrimonio con codice QR accanto al piatto",
+      },
+      {
+        image: "/marketing/qr-placement/projection.jpg",
+        title: "Sullo schermo durante la festa",
+        description: "La proiezione live mostra il codice per tutta la serata, così partecipa anche chi arriva tardi.",
+        alt: "Proiezione della galleria live con codice QR alla festa",
+      },
+    ],
+  },
+  socialProof: {
+    label: "Cosa dicono le coppie",
+    line:
+      "Creato per le coppie che vogliono anche i momenti spontanei che il fotografo non può catturare.",
   },
 };

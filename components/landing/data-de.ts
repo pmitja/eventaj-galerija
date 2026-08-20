@@ -35,6 +35,7 @@ export const faqsDe = [
   ["Wie funktioniert das Audio-Gästebuch?", "Ein Gast wählt in der Galerie die Sprachnachricht, erlaubt den Zugriff aufs Mikrofon und nimmt bis zu zwei Minuten auf. Vor dem Senden lässt sich die Aufnahme anhören und bei Bedarf wiederholen. App und Konto sind nicht nötig."],
   ["Wie lange ist die Galerie verfügbar?", "Die Galerie ist nach dem Event 180 Tage verfügbar."],
   ["Können Gäste Videos hochladen?", "Ja, bis zu 20 Videos pro Event. Ein Video darf höchstens 60 Sekunden lang und 500 MB groß sein. Videos erscheinen in der Galerie, nicht aber in der Live Slideshow. Die Erweiterung für 15 € hebt die Videobegrenzung auf (faire Nutzung, bis zu 1.000 pro Event)."],
-  ["Sind die Fotos privat?", "Die Event-Galerie wird nicht öffentlich indexiert und ist nur über einen nicht erratbaren Link oder den QR-Code erreichbar. Sie ist nicht passwortgeschützt, teilen Sie den Link also nur mit Ihren Gästen. Der Organisator kann die gesamte Galerie oder einzelne Fotos jederzeit ausblenden."],
+  ["Sind die Fotos privat?", "Die Galerie wird nicht öffentlich indexiert und ist nicht passwortgeschützt, teilen Sie den Link also nur mit Ihren Gästen. Der Organisator kann die gesamte Galerie oder einzelne Fotos jederzeit ausblenden."],
+  ["Nutzen Sie unsere Fotos für Marketing?", "Nein. Fotos, Videos und Sprachnachrichten Ihrer Gäste verwenden wir nie für Promotion, Werbung oder unsere eigene Website und übermitteln sie nicht an Werbe- oder Analysetools. Die Inhalte bleiben in Ihrer Galerie und werden nach 180 Tagen gelöscht."],
   ["Was umfasst AI Best Photos?", "Für 15 € pro Event klassifiziert die Erweiterung die technische Qualität und erkennt Duplikate bei bis zu 3.000 Fotos."],
 ] as const;

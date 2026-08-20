@@ -4,6 +4,8 @@ import { Devices, HowItWorks } from "./content-sections";
 import { Essentials, FinalCta } from "./landing-essentials";
 import { Footer } from "./footer";
 import { Header, Hero, HeroPromise } from "./header-hero";
+import { QrPlacement } from "./qr-placement";
+import { SocialProof } from "./social-proof";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { appUrlForLocale } from "@/lib/i18n/locale";
 
@@ -19,11 +21,13 @@ export async function LandingPage() {
         <AnimationController />
         <Header locale={locale} alternateOrigin={alternateOrigin} />
         <Hero locale={locale} />
-        <HeroPromise locale={locale} />
-        <Devices locale={locale} />
+        <SocialProof locale={locale} />
         <HowItWorks locale={locale} maxSteps={3} tone="plain" />
+        <QrPlacement locale={locale} tone="plain" />
         <Pricing locale={locale} />
+        <HeroPromise locale={locale} />
         <Essentials locale={locale} />
+        <Devices locale={locale} />
         <Faq locale={locale} />
         <FinalCta locale={locale} />
         <Footer locale={locale} />

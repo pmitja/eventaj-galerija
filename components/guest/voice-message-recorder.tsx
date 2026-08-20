@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { pluralCount } from "@/lib/i18n/plural";
@@ -13,6 +13,7 @@ import {
   VOICE_MESSAGE_MIN_DURATION_MS,
   type VoiceMessageMime,
 } from "@/lib/domain/voice-messages";
+import { addLocalDemoMedia, localDemoMediaUrl, useLocalDemoMedia } from "@/lib/demo/local-media";
 import { useDialogTransition } from "@/lib/client/use-dialog-transition";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +66,7 @@ export function VoiceMessageRecorder({
   hideEntryCard,
   open: openProp,
   onOpenChange,
+  localOnly = false,
 }: {
   eventSlug: string;
   guestId: string;
@@ -73,6 +75,8 @@ export function VoiceMessageRecorder({
   hideEntryCard?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Demo mode: the recording stays on the visitor's device instead of being sent. */
+  localOnly?: boolean;
 }) {
   const locale = useLocale();
   const t = getDictionary(locale).guest.voice;
@@ -238,6 +242,25 @@ export function VoiceMessageRecorder({
     setStep("uploading");
     setProgress(4);
     setError(null);
+    if (localOnly) {
+      try {
+        await addLocalDemoMedia({
+          kind: "voice",
+          mime: recording.mime,
+          filename: `${t.title}.${recording.mime.includes("mp4") ? "m4a" : "webm"}`,
+          durationMs: recording.durationMs,
+          blob: recording.blob,
+          poster: null,
+        });
+        setProgress(100);
+        setStep("success");
+        onSubmitted();
+      } catch {
+        setError(t.transferFailed);
+        setStep("error");
+      }
+      return;
+    }
     try {
       const sessionResponse = await fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/upload-sessions`, {
         method: "POST",
@@ -316,7 +339,7 @@ export function VoiceMessageRecorder({
             </> : null}
 
             {step === "uploading" ? <div className={statusClass} aria-live="polite"><span className="mx-auto block size-[54px] animate-spin rounded-full border-[5px] border-[#f5dbe5] border-t-[#d92d72] motion-reduce:animate-none" /><h3 className={statusTitleClass}>{t.sending}</h3><div className="mt-[22px] mb-[7px] h-2 overflow-hidden rounded-[99px] bg-[#f1e6ea]" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><i className="block h-full rounded-[inherit] bg-[#d92d72] transition-[width] duration-150 ease-linear motion-reduce:transition-none" style={{ width: `${progress}%` }} /></div><p className={statusTextClass}>{progress} %</p></div> : null}
-            {step === "success" ? <div className={statusClass} aria-live="polite"><span className={statusBadgeClass}>✓</span><h3 className={statusTitleClass}>{t.sent}</h3><p className={statusTextClass}>{allowPublishing ? t.sentPublic : t.sentPrivate}</p><button className={pillButtonClass} type="button" onClick={closeDialog}>{t.done}</button></div> : null}
+            {step === "success" ? <div className={statusClass} aria-live="polite"><span className={statusBadgeClass}>✓</span><h3 className={statusTitleClass}>{t.sent}</h3><p className={statusTextClass}>{localOnly ? t.localOnlyNote : allowPublishing ? t.sentPublic : t.sentPrivate}</p><button className={pillButtonClass} type="button" onClick={closeDialog}>{t.done}</button></div> : null}
             {step === "error" ? <div className={statusClass} role="alert"><span className={cn(statusBadgeClass, "bg-[#fee8e8] text-[#c9343c]")}>!</span><h3 className={statusTitleClass}>{t.errorTitle}</h3><p className={statusTextClass}>{error}</p><div className={previewActionsClass}>{recording ? <button className={previewButtonClass} type="button" onClick={() => setStep("preview")}>{t.backToPreview}</button> : null}<button className={cn(previewButtonClass, previewButtonPrimaryClass)} type="button" onClick={() => { setError(null); setStep("intro"); }}>{t.tryAgain}</button></div></div> : null}
           </div>
         </div>
@@ -340,12 +363,14 @@ export function VoiceMessageRecorder({
   );
 }
 
-export function VoiceGuestbook({ eventSlug, refreshKey, embedded, onCountChange }: {
+export function VoiceGuestbook({ eventSlug, refreshKey, embedded, onCountChange, localOnly = false }: {
   eventSlug: string;
   refreshKey: number;
   /** Drops the standalone card chrome and heading, for use inside the gallery tabs. */
   embedded?: boolean;
   onCountChange?: (count: number) => void;
+  /** Demo mode: lists the recordings stored on this device. */
+  localOnly?: boolean;
 }) {
   const locale = useLocale();
   const t = getDictionary(locale).guest.voice;
@@ -367,7 +392,22 @@ export function VoiceGuestbook({ eventSlug, refreshKey, embedded, onCountChange 
     }
   }
 
+  const localMessages = useLocalDemoMedia("voice");
+  const localList = useMemo(() => localMessages.map((message) => ({
+    publicId: message.id,
+    displayName: null as string | null,
+    durationMs: message.durationMs ?? 0,
+    playbackUrl: localDemoMediaUrl(message.id, message.blob),
+  })), [localMessages]);
+  const visibleMessages = localOnly ? localList : messages;
+  const visibleState = localOnly ? "ready" as const : state;
+
   useEffect(() => {
+    if (localOnly) countChange.current?.(localList.length);
+  }, [localList, localOnly]);
+
+  useEffect(() => {
+    if (localOnly) return;
     let active = true;
     fetch(`/api/v1/events/${encodeURIComponent(eventSlug)}/voice-messages`, { cache: "no-store" })
       .then(async (response) => {
@@ -382,16 +422,16 @@ export function VoiceGuestbook({ eventSlug, refreshKey, embedded, onCountChange 
       })
       .catch(() => { if (active) setState("error"); });
     return () => { active = false; };
-  }, [eventSlug, refreshKey]);
+  }, [eventSlug, localOnly, refreshKey]);
 
   const shellClass = embedded
     ? "m-0 p-0"
     : "mx-3.5 mb-[38px] max-w-[1100px] rounded-[28px] border border-[#eadce1] bg-[#fff9fb] px-3.5 py-5 md:mx-auto md:p-7";
-  const heading = embedded ? null : <div className="mb-[18px] flex flex-wrap items-baseline gap-3"><p className={cn(eyebrowClass, "w-full")}>{t.entryEyebrow}</p><h2 className="m-0 text-[26px] text-plum" id="voice-guestbook-title">{t.guestbookHeading}</h2>{state === "ready" && messages.length ? <span className="text-[12px] text-[#8b747d]">{pluralCount(locale, messages.length, t.messageCount)}</span> : null}</div>;
+  const heading = embedded ? null : <div className="mb-[18px] flex flex-wrap items-baseline gap-3"><p className={cn(eyebrowClass, "w-full")}>{t.entryEyebrow}</p><h2 className="m-0 text-[26px] text-plum" id="voice-guestbook-title">{t.guestbookHeading}</h2>{visibleState === "ready" && visibleMessages.length ? <span className="text-[12px] text-[#8b747d]">{pluralCount(locale, visibleMessages.length, t.messageCount)}</span> : null}</div>;
 
-  if (state === "loading") return <section className={shellClass}>{heading}<div className="h-[84px] animate-[shimmer_1.2s_infinite] rounded-[18px] bg-[linear-gradient(90deg,#f4e9ed,#fff,#f4e9ed)] bg-[length:200%_100%] motion-reduce:animate-none" aria-label={t.loadingList} /></section>;
-  if (state === "error") return <section className={shellClass}>{heading}<div className="flex items-center justify-between gap-3 text-[#93404e]" role="alert"><span>{t.loadError}</span><button className="min-h-11 cursor-pointer rounded-full border border-[#dcbec9] bg-white px-[15px] font-[750] text-inherit" type="button" onClick={() => { setState("loading"); void load(); }}>{t.tryAgain}</button></div></section>;
-  if (!messages.length) return embedded ? <section className={shellClass}><p className="mx-auto my-6 rounded-2xl border border-dashed border-[#ddcfd4] px-[18px] py-6 text-center text-[#705f66]">{t.emptyList}</p></section> : null;
+  if (visibleState === "loading") return <section className={shellClass}>{heading}<div className="h-[84px] animate-[shimmer_1.2s_infinite] rounded-[18px] bg-[linear-gradient(90deg,#f4e9ed,#fff,#f4e9ed)] bg-[length:200%_100%] motion-reduce:animate-none" aria-label={t.loadingList} /></section>;
+  if (visibleState === "error") return <section className={shellClass}>{heading}<div className="flex items-center justify-between gap-3 text-[#93404e]" role="alert"><span>{t.loadError}</span><button className="min-h-11 cursor-pointer rounded-full border border-[#dcbec9] bg-white px-[15px] font-[750] text-inherit" type="button" onClick={() => { setState("loading"); void load(); }}>{t.tryAgain}</button></div></section>;
+  if (!visibleMessages.length) return embedded ? <section className={shellClass}><p className="mx-auto my-6 rounded-2xl border border-dashed border-[#ddcfd4] px-[18px] py-6 text-center text-[#705f66]">{t.emptyList}</p></section> : null;
 
-  return <section className={shellClass} aria-labelledby={embedded ? undefined : "voice-guestbook-title"}>{heading}<div className="grid gap-2.5 md:grid-cols-[repeat(2,minmax(0,1fr))]">{messages.map((message, index) => <article className="flex min-w-0 gap-3 rounded-[18px] border border-[#eadce1] bg-white p-[15px]" key={message.publicId}><span className="grid size-[42px] flex-none place-items-center rounded-full bg-[#f7dce7] font-[850] text-[#b7205d]">{(message.displayName ?? t.guest).slice(0, 1).toUpperCase()}</span><div className="min-w-0 flex-1"><strong className="block overflow-hidden text-[13px] text-ellipsis whitespace-nowrap text-[#4b2434]">{message.displayName ?? t.guest}</strong><small className="mt-0.5 mb-2 block text-[10px] text-[#8b747d]">{`${t.messageLabel.replace("{number}", String(messages.length - index))} · ${formatDuration(message.durationMs)}`}</small><audio className="h-[34px] w-full accent-[#d92d72]" controls preload="none" src={message.playbackUrl}>{t.cannotPlayMessage}</audio></div></article>)}</div></section>;
+  return <section className={shellClass} aria-labelledby={embedded ? undefined : "voice-guestbook-title"}>{heading}<div className="grid gap-2.5 md:grid-cols-[repeat(2,minmax(0,1fr))]">{visibleMessages.map((message, index) => <article className="flex min-w-0 gap-3 rounded-[18px] border border-[#eadce1] bg-white p-[15px]" key={message.publicId}><span className="grid size-[42px] flex-none place-items-center rounded-full bg-[#f7dce7] font-[850] text-[#b7205d]">{(message.displayName ?? t.guest).slice(0, 1).toUpperCase()}</span><div className="min-w-0 flex-1"><strong className="block overflow-hidden text-[13px] text-ellipsis whitespace-nowrap text-[#4b2434]">{message.displayName ?? t.guest}</strong><small className="mt-0.5 mb-2 block text-[10px] text-[#8b747d]">{`${t.messageLabel.replace("{number}", String(visibleMessages.length - index))} · ${formatDuration(message.durationMs)}`}</small><audio className="h-[34px] w-full accent-[#d92d72]" controls preload="none" src={message.playbackUrl}>{t.cannotPlayMessage}</audio></div></article>)}</div></section>;
 }

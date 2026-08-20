@@ -176,6 +176,8 @@ export const sl: Dictionary = {
   faq: {
     heading: "Pogosta vprašanja",
     subtitle: "Vse pomembno pred prvim dogodkom.",
+    privacyNote:
+      "Zasebno po privzetku. Do galerije lahko dostopajo samo tisti, ki imajo vašo povezavo ali QR kodo.",
   },
   memories: {
     pill: "Glasovna voščila",
@@ -258,6 +260,7 @@ export const sl: Dictionary = {
       uploadDetail: "Pravkar sprejeto v album.",
     },
     upload: {
+      localOnlyNote: "Demo: datoteke ostanejo samo na tvoji napravi. Nič se ne naloži v oblak.",
       consentPrefix: "Potrjujem, da smem deliti datoteke, ter sprejemam",
       termsWord: "pogoje",
       consentMiddle: "in",
@@ -310,6 +313,7 @@ export const sl: Dictionary = {
         "Z nadaljevanjem dovoliš varno obdelavo izbranih datotek za ta dogodek.",
     },
     voice: {
+      localOnlyNote: "Demo: posnetek ostane samo na tvoji napravi.",
       unsupported: "Ta brskalnik ne podpira snemanja glasu.",
       noFormat: "Brskalnik ne podpira združljivega zvočnega formata.",
       stoppedUnexpectedly: "Snemanje se je nepričakovano ustavilo. Poskusi znova.",
@@ -396,6 +400,7 @@ export const sl: Dictionary = {
       tryAgain: "Poskusi znova",
     },
     gallery: {
+      demoLocalNote: "Preizkusi pravi postopek — vse, kar dodaš, ostane samo na tvoji napravi.",
       shareText: "Oglej si fotografije dogodka {event}.",
       demoEventName: "Ana & Marko",
       backToSite: "Nazaj na predstavitveno stran Galerije Eventaj",
@@ -492,5 +497,42 @@ export const sl: Dictionary = {
     rightsReserved: "Vse pravice pridržane.",
     terms: "Pogoji uporabe",
     privacy: "Zasebnost",
+  },
+  qrPlacement: {
+    eyebrow: "Kam s QR-kodo",
+    heading: "Kam postaviti QR-kodo",
+    subtitle:
+      "Postavite jo tja, kjer jo gostje res vidijo: na mize, na welcome tablo, na meni ali na poročne kartice.",
+    items: [
+      {
+        image: "/marketing/qr-placement/table.jpg",
+        title: "Na poročno mizo",
+        description: "Majhna kartica na stojalu na vsaki mizi — gostje jo skenirajo med hodi.",
+        alt: "Kartica s QR-kodo na poročni mizi med večerjo",
+      },
+      {
+        image: "/marketing/qr-placement/welcome-sign.jpg",
+        title: "Na welcome tablo",
+        description: "Prvo, kar gostje vidijo ob prihodu, poleg pozdrava in razporeda sedežev.",
+        alt: "Poročna welcome tabla s QR-kodo ob vhodu",
+      },
+      {
+        image: "/marketing/qr-placement/menu-card.jpg",
+        title: "Na meni ali kartico",
+        description: "Natisnjena na meniju, imenski kartici ali kartici z navodili pri vsakem sedežu.",
+        alt: "Poročni meni s QR-kodo pri krožniku",
+      },
+      {
+        image: "/marketing/qr-placement/projection.jpg",
+        title: "Na projekcijo med zabavo",
+        description: "Živa projekcija kodo prikazuje ves večer, da se pridružijo tudi tisti, ki pridejo kasneje.",
+        alt: "Projekcija žive galerije s QR-kodo na zabavi",
+      },
+    ],
+  },
+  socialProof: {
+    label: "Zakaj pari izberejo Eventaj",
+    line:
+      "Ustvarjeno za pare, ki si želijo tudi iskrene trenutke, ki jih fotograf ne ujame.",
   },
 };

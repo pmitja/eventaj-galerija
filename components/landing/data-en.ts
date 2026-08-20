@@ -35,6 +35,7 @@ export const faqsEn = [
   ["How does the audio guestbook work?", "In the gallery a guest picks the voice message option, allows microphone access and records up to two minutes. They can listen before sending and record again if needed. No app and no account required."],
   ["How long is the gallery available?", "The gallery is available for 180 days after the event."],
   ["Can guests upload videos?", "Yes, up to 20 videos per event. Each video can be up to 60 seconds and 500 MB. Videos appear in the gallery, but not in the Live Slideshow. A €15 add-on removes the video limit (fair use, up to 1,000 per event)."],
-  ["Are the photos private?", "The event gallery is not publicly indexed and is reachable only through an unpredictable link or the QR code. It is not password protected, so share the link with your guests only. The organiser can hide the whole gallery or an individual photo at any time."],
+  ["Are the photos private?", "The gallery is not publicly indexed and is not password protected, so share the link with your guests only. The organiser can hide the whole gallery or an individual photo at any time."],
+  ["Do you use our photos for marketing?", "No. We never use your guests' photos, videos or voice messages for promotion, ads or our own website, and we do not send them to advertising or analytics tools. The content stays in your gallery and is deleted after 180 days."],
   ["What does AI Best Photos include?", "For €15 per event, the add-on classifies technical quality and detects duplicates for up to 3,000 photos."],
 ] as const;

@@ -35,6 +35,7 @@ export const faqsNl = [
   ["Hoe werkt het audiogastenboek?", "Een gast kiest in de galerij de optie voor een spraakbericht, geeft toegang tot de microfoon en neemt maximaal twee minuten op. Voor het versturen kan de opname worden teruggeluisterd en zo nodig opnieuw gemaakt. Een app of account is niet nodig."],
   ["Hoe lang blijft de galerij beschikbaar?", "De galerij is na het evenement 180 dagen beschikbaar."],
   ["Kunnen gasten video's uploaden?", "Ja, tot 20 video's per evenement. Eén video duurt maximaal 60 seconden en is maximaal 500 MB. Video's staan in de galerij, maar niet in de Live Slideshow. De uitbreiding van € 15 haalt de limiet weg (fair use, tot 1.000 per evenement)."],
-  ["Zijn de foto's privé?", "De evenementgalerij wordt niet openbaar geïndexeerd en is alleen bereikbaar via een niet te raden link of de QR-code. Ze is niet met een wachtwoord beveiligd, dus deel de link alleen met je gasten. De organisator kan de hele galerij of een losse foto altijd verbergen."],
+  ["Zijn de foto's privé?", "De galerij wordt niet openbaar geïndexeerd en is niet met een wachtwoord beveiligd, dus deel de link alleen met je gasten. De organisator kan de hele galerij of een losse foto altijd verbergen."],
+  ["Gebruiken jullie onze foto's voor marketing?", "Nee. Foto's, video's en spraakberichten van je gasten gebruiken we nooit voor promotie, advertenties of onze eigen website, en we sturen ze niet naar advertentie- of analysetools. De inhoud blijft in je galerij en wordt na 180 dagen verwijderd."],
   ["Wat houdt AI Best Photos in?", "Voor € 15 per evenement classificeert de uitbreiding de technische kwaliteit en detecteert duplicaten voor maximaal 3.000 foto's."],
 ] as const;

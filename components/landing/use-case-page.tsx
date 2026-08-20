@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimationController } from "./animation-controller";
+import { QrPlacement } from "./qr-placement";
+import { SocialProof } from "./social-proof";
 import { HowItWorks, Slideshow } from "./content-sections";
 import { Footer } from "./footer";
 import { Header } from "./header-hero";
@@ -94,7 +96,11 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
         </div>
       </section>
 
+      <SocialProof locale={locale} />
+
       <HowItWorks locale={locale} />
+
+      <QrPlacement locale={locale} tone="plain" />
 
       <section className="section use-case-benefits">
         <div className="shell">
@@ -136,6 +142,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
             <span className="section-pill">{t.useCasePage.faqPill}</span>
             <h2>{t.useCasePage.faqHeading}</h2>
           </div>
+          <p className="faq-privacy-note"><span aria-hidden="true">🔒</span> {t.faq.privacyNote}</p>
           <div className="faq-list">
             {useCase.faq.map(([question, answer]) => (
               <details key={question}>

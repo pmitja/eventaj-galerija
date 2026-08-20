@@ -85,7 +85,8 @@ export const faqs = [
   ["Kako deluje glasovna knjiga gostov?", "Gost v galeriji izbere glasovno voščilo, dovoli mikrofon in posname do dve minuti. Posnetek lahko pred oddajo posluša in ga po potrebi ponovi. Aplikacija in račun nista potrebna."],
   ["Kako dolgo je galerija na voljo?", "Galerija je na voljo 180 dni po dogodku."],
   ["Ali lahko gostje naložijo videe?", "Da, do 20 videov na dogodek. Posamezen video traja največ 60 sekund in meri največ 500 MB. Videi so vidni v galeriji, ne pa v Live Slideshowu. Dodatek za 15 € odpravi omejitev števila videov (razumna uporaba do 1.000 na dogodek)."],
-  ["So fotografije zasebne?", "Galerija dogodka ni javno indeksirana in je dostopna samo prek nepredvidljive povezave oziroma QR kode. Ni zaščitena z geslom, zato povezavo delite le z gosti. Organizator lahko kadar koli skrije celotno galerijo ali posamezno fotografijo."],
+  ["So fotografije zasebne?", "Galerija ni javno indeksirana in ni zaščitena z geslom, zato povezavo delite le z gosti. Organizator lahko kadar koli skrije celotno galerijo ali posamezno fotografijo."],
+  ["Ali fotografije uporabljate za marketing?", "Ne. Fotografij, videov in glasovnih voščil vaših gostov nikoli ne uporabimo za promocijo, oglase ali našo spletno stran in jih ne pošiljamo oglaševalskim ali analitičnim orodjem. Vsebina ostane v vaši galeriji, po 180 dneh pa jo izbrišemo."],
   ["Kaj vključuje AI Best Photos?", "Za 15 € na dogodek dodatek tehnično razvrsti kakovost in zazna dvojnike pri največ 3.000 fotografijah. Večje količine pripravimo po meri."],
 ] as const;
 
