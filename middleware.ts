@@ -59,6 +59,13 @@ export function middleware(request: NextRequest) {
 
   const isEnglishHost = ENGLISH_HOSTNAMES.has(hostname);
   const canonicalOrigin = CANONICAL_ORIGINS[hostname];
+  const redirectOrigin = canonicalOrigin ?? (request.nextUrl.protocol === "http:"
+    ? hostname === "guestmosaic.com"
+      ? "https://guestmosaic.com"
+      : hostname === "galerija.eventaj.si"
+        ? "https://galerija.eventaj.si"
+        : undefined
+    : undefined);
   const currentPath = request.nextUrl.pathname;
 
   // The English host also serves the prefixed languages (/de, /nl, /es, /it, /fr).
@@ -68,9 +75,9 @@ export function middleware(request: NextRequest) {
   requestHeaders.set("x-locale", locale);
 
   if (isInternalPath(currentPath)) {
-    if (!canonicalOrigin) return NextResponse.next({ request: { headers: requestHeaders } });
+    if (!redirectOrigin) return NextResponse.next({ request: { headers: requestHeaders } });
     return NextResponse.redirect(
-      new URL(`${currentPath}${request.nextUrl.search}`, canonicalOrigin),
+      new URL(`${currentPath}${request.nextUrl.search}`, redirectOrigin),
       308,
     );
   }
@@ -87,9 +94,9 @@ export function middleware(request: NextRequest) {
   // one shared pathname, because the route cache must remain locale-specific.
   const solutionId = solutionPageIdFromPath(currentPath);
   if (solutionId && solutionPagePath(locale, solutionId) === currentPath) {
-    if (!canonicalOrigin) return withMarketingCache(NextResponse.next({ request: { headers: requestHeaders } }), request);
+    if (!redirectOrigin) return withMarketingCache(NextResponse.next({ request: { headers: requestHeaders } }), request);
     return NextResponse.redirect(
-      new URL(`${currentPath}${request.nextUrl.search}`, canonicalOrigin),
+      new URL(`${currentPath}${request.nextUrl.search}`, redirectOrigin),
       308,
     );
   }
@@ -101,7 +108,7 @@ export function middleware(request: NextRequest) {
     const weddingPath = solutionPagePath(locale, "wedding-qr");
     if (weddingPath) {
       return NextResponse.redirect(
-        new URL(`${weddingPath}${request.nextUrl.search}`, canonicalOrigin ?? request.url),
+        new URL(`${weddingPath}${request.nextUrl.search}`, redirectOrigin ?? request.url),
         308,
       );
     }
@@ -109,10 +116,10 @@ export function middleware(request: NextRequest) {
 
   const localizedPath = localizedMarketingPath(currentPath, locale);
 
-  if (canonicalOrigin || localizedPath !== currentPath) {
+  if (redirectOrigin || localizedPath !== currentPath) {
     const destination = new URL(
       `${localizedPath}${request.nextUrl.search}`,
-      canonicalOrigin ?? request.url,
+      redirectOrigin ?? request.url,
     );
     return NextResponse.redirect(destination, 308);
   }

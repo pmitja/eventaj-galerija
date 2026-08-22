@@ -1,9 +1,18 @@
 import { NextRequest } from "next/server";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { middleware } from "./middleware";
 
 describe("canonical hostname middleware", () => {
+  it("keeps the default Worker cache off because marketing HTML varies by hostname", () => {
+    const config = JSON.parse(readFileSync(new URL("./wrangler.jsonc", import.meta.url), "utf8")) as {
+      cache?: { enabled?: boolean };
+    };
+
+    expect(config.cache?.enabled).toBe(false);
+  });
+
   it("redirects the www hostname while preserving path and query", () => {
     const request = new NextRequest(
       "https://www.galerija.eventaj.si/e/poroka?slika=42",
@@ -16,6 +25,16 @@ describe("canonical hostname middleware", () => {
     expect(response.headers.get("location")).toBe(
       "https://galerija.eventaj.si/e/poroka?slika=42",
     );
+  });
+
+  it("redirects canonical hosts from HTTP to their localized HTTPS URL", () => {
+    const slovenian = middleware(new NextRequest("http://galerija.eventaj.si/order?ref=http"));
+    const english = middleware(new NextRequest("http://guestmosaic.com/naroci?ref=http"));
+
+    expect(slovenian.status).toBe(308);
+    expect(slovenian.headers.get("location")).toBe("https://galerija.eventaj.si/naroci?ref=http");
+    expect(english.status).toBe(308);
+    expect(english.headers.get("location")).toBe("https://guestmosaic.com/order?ref=http");
   });
 
   it("does not redirect the canonical hostname", () => {

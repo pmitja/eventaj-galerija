@@ -162,7 +162,7 @@ da je produkt omejen na poroke.
   hero kartice se naložijo po običajni prioriteti.
 - Hero in statična vsebina sta server componenta. Interaktivna navigacija ter
   lokalni upload simulator sta ločena client islanda.
-- Javni home, use-case in solution odzivi deklarirajo 5-minutni CDN cache ter
-  24-urni `stale-while-revalidate`; checkout, galerije, admin in zasebne poti so
-  iz te politike izključene.
+- HTML marketing strani ne uporablja skupnega Workers Cache, ker se jezik in SEO
+  metadata razlikujeta po hostnameu, ta cache pa hostnamea ne vključi v ključ.
+  Statične datoteke ostanejo predpomnjene prek Cloudflare Assets.
 - Cilji ostajajo mobile p75 LCP < 2,5 s, INP < 200 ms, CLS < 0,1 in TTFB < 800 ms.

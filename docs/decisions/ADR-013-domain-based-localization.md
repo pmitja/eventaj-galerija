@@ -70,5 +70,12 @@ mora dodati prevode za trge, v katerih je objavljena, ter teste za obe domeni in
 aktivne jezikovne predpone. Piškotki so namenoma omejeni na posamezno domeno,
 zato se anonimna gostujoča seja med domenama ne prenaša.
 
+Privzeti entrypoint ne uporablja Cloudflare Workers Cache. Ta cache pripada
+Workerju in hostnamea ne vključi v ključ, HTML te aplikacije pa je odvisen od
+domene. Skupni cache bi zato lahko med domenama pomešal jezik, canonical in
+preusmeritve. Statične datoteke še naprej uporablja Cloudflare Assets cache.
+HTML cache se lahko vrne z ločenim entrypointom ali drugim ključem, ki dokazljivo
+loči kanonično domeno oziroma locale.
+
 Migracija je aditivna in povratno združljiva: starejša aplikacija dodatni polji
 ignorira, novi aplikaciji pa privzeta vrednost `sl` ohrani dosedanje vedenje.

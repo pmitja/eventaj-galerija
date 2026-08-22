@@ -78,7 +78,7 @@
     ]
   },
   "cache": {
-    "enabled": true
+    "enabled": false
   },
   "vars": {
     "ADMIN_EMAIL": "info@eventaj.si",
