@@ -3,7 +3,7 @@ import { StickyCreateEventCta } from "./sticky-create-event-cta";
 import type { Locale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { eventUseCasePath, featuresPath, localizedMarketingPath, orderPath, privacyPath, solutionPagePath, termsPath } from "@/lib/i18n/routes";
-import { brandMark } from "@/lib/seo";
+import { brandMark, supportEmail } from "@/lib/seo";
 
 export function Footer({ locale = "sl" }: { locale?: Locale }) {
   const t = getDictionary(locale);
@@ -14,6 +14,7 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
   const weddingPath = solutionPagePath(locale, "wedding-qr") ?? eventUseCasePath(locale, "poroke");
   const qrGalleryPath = solutionPagePath(locale, "event-qr-gallery") ?? `${home}#${t.anchors.howItWorks}`;
   const noAppPath = solutionPagePath(locale, "no-app-sharing");
+  const contactEmail = supportEmail(locale);
   return (
     <>
       <footer className="footer">
@@ -50,7 +51,7 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
             {locale !== "sl" && noAppPath ? <Link href={noAppPath}>{getSolutionLabel(locale, "no-app-sharing")}</Link> : null}
             {locale !== "sl" ? <Link href={weddingPath}>{getSolutionLabel(locale, "wedding-qr")}</Link> : null}
             <Link href={`${home}#${t.anchors.faq}`}>{t.footer.help}</Link>
-            <a href="mailto:info@eventaj.si">{t.footer.contact}</a>
+            <a href={`mailto:${contactEmail}`}>{t.footer.contact}</a>
           </div>
         </div>
         <div className="copyright shell">

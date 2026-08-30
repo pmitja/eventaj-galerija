@@ -23,13 +23,16 @@ import { getRequestLocale } from "@/lib/i18n/server";
 import { SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/locale";
 import {
   ENGLISH_SITE_URL,
+  EVENTAJ_SUPPORT_EMAIL,
   EVENTAJ_ORGANIZATION_ID,
+  GUEST_MOSAIC_SUPPORT_EMAIL,
   GUEST_MOSAIC_BRAND_ID,
   SITE_URL,
   SL_SITE_NAME,
   ogImage,
   siteStructuredData,
   siteStructuredDataFor,
+  supportEmail,
 } from "@/lib/seo";
 
 const mockedLocale = vi.mocked(getRequestLocale);
@@ -147,11 +150,23 @@ describe("public SEO discovery", () => {
     expect(german).toContain(`${ENGLISH_SITE_URL}/de/order`);
     expect(german).toContain(`${ENGLISH_SITE_URL}/de/hochzeitsfotos-per-qr-code`);
     expect(german).toContain("## Eventarten");
+    expect(german).toContain(`mailto:${GUEST_MOSAIC_SUPPORT_EMAIL}`);
+    expect(german).not.toContain(EVENTAJ_SUPPORT_EMAIL);
     expect(german).not.toContain(SITE_URL);
 
     expect(french).toContain(`${ENGLISH_SITE_URL}/fr/qr-code-photos-mariage`);
     expect(french).toContain("Prix : 35 EUR par événement.");
+    expect(french).toContain(GUEST_MOSAIC_SUPPORT_EMAIL);
+    expect(french).not.toContain(EVENTAJ_SUPPORT_EMAIL);
     expect(french).not.toContain(SITE_URL);
+  });
+
+  it("uses separate public contact addresses for the two brands", () => {
+    expect(supportEmail("sl")).toBe(EVENTAJ_SUPPORT_EMAIL);
+    expect(supportEmail("en")).toBe(GUEST_MOSAIC_SUPPORT_EMAIL);
+
+    const internationalGraph = siteStructuredDataFor("en", ENGLISH_SITE_URL)["@graph"];
+    expect(JSON.stringify(internationalGraph)).toContain(`\"email\":\"${GUEST_MOSAIC_SUPPORT_EMAIL}\"`);
   });
 
   it("gives every locale its own share card", () => {

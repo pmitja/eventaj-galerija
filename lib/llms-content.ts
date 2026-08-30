@@ -10,7 +10,7 @@ import {
   solutionPagePath,
   type SolutionPageLocale,
 } from "@/lib/i18n/routes";
-import { SEO_COPY, SITE_NAME, SITE_URL, SL_SITE_NAME, brandName } from "@/lib/seo";
+import { SEO_COPY, SITE_NAME, SITE_URL, SL_SITE_NAME, brandName, supportEmail } from "@/lib/seo";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 
 /**
@@ -502,6 +502,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
  */
 export function llmsTxtFor(locale: Locale, siteUrl: string): string {
   const copy = LLMS_COPY[locale] ?? LLMS_COPY.en;
+  const contactEmail = supportEmail(locale);
   const home = `${siteUrl}${localePathPrefix(locale) || "/"}`;
   const useCaseLinks = eventUseCasesFor(locale)
     .filter((item) => locale === "sl" || item.slug !== "poroke")
@@ -543,7 +544,7 @@ ${useCaseLinks}
 
 ## ${copy.contact}
 
-- [${copy.contactTitle}](mailto:info@eventaj.si): ${copy.contactDescription}
+- [${copy.contactTitle}](mailto:${contactEmail}): ${copy.contactDescription}
 
 ## ${copy.important}
 
@@ -553,6 +554,7 @@ ${copy.importantPoints.map((point) => `- ${point}`).join("\n")}
 
 export function llmsFullTxtFor(locale: Locale, siteUrl: string): string {
   const copy = LLMS_COPY[locale] ?? LLMS_COPY.en;
+  const contactEmail = supportEmail(locale);
   const home = `${siteUrl}${localePathPrefix(locale) || "/"}`;
   const useCases = eventUseCasesFor(locale).filter((item) => locale === "sl" || item.slug !== "poroke");
   const solutionUrls = SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)
@@ -584,7 +586,7 @@ ${item.highlights.map((highlight) => `- ${highlight}`).join("\n")}`,
 - ${copy.identityName}: ${brandName(locale)}
 - ${copy.identityUrl}: ${home}
 - ${copy.identityLanguage}: ${copy.languageName}
-- ${copy.identityContact}: info@eventaj.si
+- ${copy.identityContact}: ${contactEmail}
 
 ## ${copy.whatIs}
 

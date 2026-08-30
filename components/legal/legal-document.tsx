@@ -3,9 +3,7 @@ import Link from "next/link";
 import type { Locale } from "@/lib/i18n/locale";
 import { getLegalCopy, type LegalDocument } from "@/lib/i18n/legal";
 import { localizedMarketingPath, privacyPath } from "@/lib/i18n/routes";
-import { brandWordParts, guestBrandMark } from "@/lib/seo";
-
-const SUPPORT_EMAIL = "info@eventaj.si";
+import { brandWordParts, guestBrandMark, supportEmail } from "@/lib/seo";
 
 // `!` premaga globalni `a { color; text-decoration }` iz globals.css, ki ni v Tailwind plasti.
 const inlineLink = "text-[#9a315a]! underline! underline-offset-[3px]";
@@ -17,11 +15,12 @@ const bodyText = "text-[15px]/[1.7] text-[#59464e] min-[601px]:text-[16px]";
  */
 function LegalText({ value, locale }: { value: string; locale: Locale }) {
   const parts = value.split(/(\{email\}|\{privacyPolicy\})/g);
+  const contactEmail = supportEmail(locale);
   return (
     <>
       {parts.map((part, index) => {
         if (part === "{email}") {
-          return <a className={inlineLink} key={index} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>;
+          return <a className={inlineLink} key={index} href={`mailto:${contactEmail}`}>{contactEmail}</a>;
         }
         if (part === "{privacyPolicy}") {
           return (

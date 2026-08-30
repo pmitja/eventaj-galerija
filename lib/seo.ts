@@ -9,6 +9,12 @@ export const GUEST_MOSAIC_BRAND_ID = `${ENGLISH_SITE_URL}/#brand`;
 export const SITE_NAME = "Guest Mosaic";
 /** Slovenian never rebranded — galerija.eventaj.si stays Galerija Eventaj. */
 export const SL_SITE_NAME = "Galerija Eventaj";
+export const EVENTAJ_SUPPORT_EMAIL = "info@eventaj.si";
+export const GUEST_MOSAIC_SUPPORT_EMAIL = "info@guestmosaic.com";
+
+export function supportEmail(locale: Locale): string {
+  return locale === "sl" ? EVENTAJ_SUPPORT_EMAIL : GUEST_MOSAIC_SUPPORT_EMAIL;
+}
 
 /**
  * Every user-visible brand mention has to go through this: titles, OG tags and
@@ -227,7 +233,7 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
         "@id": EVENTAJ_ORGANIZATION_ID,
         name: "Eventaj",
         url: BRAND_URL,
-        email: "info@eventaj.si",
+        email: supportEmail(locale),
         logo: { "@type": "ImageObject", url: `${SITE_URL}${EVENTAJ_MARK}` },
       },
       ...(locale === "sl" ? [] : [{
