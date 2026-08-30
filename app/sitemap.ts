@@ -64,12 +64,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         })
       : [];
 
+    // Slovenian marketing lives on eventaj.si/qr-galerija. This sitemap keeps
+    // only application and legal URLs that still belong to the subdomain.
+    if (locale === "sl") {
+      return [
+        entry(orderPath(locale), SEO_LAST_UPDATED, "monthly", 0.8),
+        entry(termsPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
+        entry(privacyPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
+      ];
+    }
+
     return [
       entry(localePathPrefix(locale) || "/", SEO_LAST_UPDATED, "weekly", 1),
       entry(orderPath(locale), SEO_LAST_UPDATED, "monthly", 0.8),
       entry(featuresPath(locale), SEO_LAST_UPDATED, "monthly", 0.8),
       ...eventUseCasesFor(locale)
-        .filter(({ slug }) => locale === "sl" || slug !== "poroke")
+        .filter(({ slug }) => slug !== "poroke")
         .map(({ slug }) =>
           entry(eventUseCasePath(locale, slug), SEO_LAST_UPDATED, "monthly", 0.8),
         ),

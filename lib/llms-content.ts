@@ -59,6 +59,14 @@ type LlmsCopy = {
   useCaseHighlights: string;
 };
 
+const EVENTAJ_MARKETING_ORIGIN = "https://www.eventaj.si";
+
+function marketingUrl(locale: Locale, siteUrl: string, path: string): string {
+  if (locale !== "sl") return `${siteUrl}${path}`;
+  if (path === "/") return `${EVENTAJ_MARKETING_ORIGIN}/qr-galerija`;
+  return `${EVENTAJ_MARKETING_ORIGIN}/qr-galerija${path}`;
+}
+
 const LLMS_COPY: Record<Locale, LlmsCopy> = {
   sl: {
     languageName: "slovenščina",
@@ -503,12 +511,12 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
 export function llmsTxtFor(locale: Locale, siteUrl: string): string {
   const copy = LLMS_COPY[locale] ?? LLMS_COPY.en;
   const contactEmail = supportEmail(locale);
-  const home = `${siteUrl}${localePathPrefix(locale) || "/"}`;
+  const home = marketingUrl(locale, siteUrl, localePathPrefix(locale) || "/");
   const useCaseLinks = eventUseCasesFor(locale)
     .filter((item) => locale === "sl" || item.slug !== "poroke")
     .map(
       (item) =>
-        `- [${item.navTitle}](${siteUrl}${eventUseCaseMarketingPath(locale, item.slug)}): ${item.navDescription}`,
+        `- [${item.navTitle}](${marketingUrl(locale, siteUrl, eventUseCaseMarketingPath(locale, item.slug))}): ${item.navDescription}`,
     )
     .join("\n");
   const solutionLinks = SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)
@@ -534,7 +542,7 @@ ${copy.intro}
 
 - [${brandName(locale)}](${home}): ${copy.homeDescription}
 - [${copy.orderTitle}](${siteUrl}${orderPath(locale)}): ${copy.orderDescription}
-- [${getDictionary(locale).nav.features}](${siteUrl}${featuresPath(locale)}): ${getDictionary(locale).featuresPage.metaDescription}
+- [${getDictionary(locale).nav.features}](${marketingUrl(locale, siteUrl, featuresPath(locale))}): ${getDictionary(locale).featuresPage.metaDescription}
 - [${copy.fullDescriptionTitle}](${siteUrl}${withLocalePrefix(locale, "/llms-full.txt")}): ${copy.fullDescriptionDescription}
 ${solutionLinks ? `\n${solutionLinks}` : ""}
 
@@ -555,7 +563,7 @@ ${copy.importantPoints.map((point) => `- ${point}`).join("\n")}
 export function llmsFullTxtFor(locale: Locale, siteUrl: string): string {
   const copy = LLMS_COPY[locale] ?? LLMS_COPY.en;
   const contactEmail = supportEmail(locale);
-  const home = `${siteUrl}${localePathPrefix(locale) || "/"}`;
+  const home = marketingUrl(locale, siteUrl, localePathPrefix(locale) || "/");
   const useCases = eventUseCasesFor(locale).filter((item) => locale === "sl" || item.slug !== "poroke");
   const solutionUrls = SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)
     ? Object.keys(SOLUTION_PAGE_PATHS)
@@ -566,7 +574,7 @@ export function llmsFullTxtFor(locale: Locale, siteUrl: string): string {
     .map(
       (item) => `### ${item.navTitle}
 
-${copy.useCaseUrl}: ${siteUrl}${eventUseCaseMarketingPath(locale, item.slug)}
+${copy.useCaseUrl}: ${marketingUrl(locale, siteUrl, eventUseCaseMarketingPath(locale, item.slug))}
 
 ${item.description}
 

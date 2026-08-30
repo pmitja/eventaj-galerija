@@ -24,7 +24,7 @@ import { LOCALE_LABELS, LOCALE_SHORT_LABELS, intlLocale, type Locale } from "@/l
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { pluralCount } from "@/lib/i18n/plural";
 import { usePathname } from "next/navigation";
-import { localizedMarketingPath, orderPath } from "@/lib/i18n/routes";
+import { localizedMarketingPath, marketingHomeHref, orderPath } from "@/lib/i18n/routes";
 import { VoiceGuestbook } from "@/components/guest/voice-message-recorder";
 
 const VoiceMessageRecorder = dynamic(
@@ -181,7 +181,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const t = getDictionary(locale).guest.gallery;
   const createEventLabel = getDictionary(locale).useCasePage.ctaCreate;
   const alternateLocale: Locale = locale === "sl" ? "en" : "sl";
-  const homeHref = localizedMarketingPath("/", locale);
+  const homeHref = marketingHomeHref(locale);
   const brandMarkSrc = guestBrandMark(locale);
   const [brandLead, brandTail] = brandWordParts(locale);
   const pathname = usePathname();

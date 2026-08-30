@@ -122,17 +122,23 @@ da je produkt omejen na poroke.
 
 ## SEO in AI discovery
 
-- Kanonična domena aplikacije je `https://galerija.eventaj.si`; strukturirani
-  podatki jo povezujejo z glavno znamko `https://eventaj.si`.
+- Kanonična domena aplikacije je `https://galerija.eventaj.si`. Kanonični
+  slovenski marketing je na `https://www.eventaj.si/qr-galerija`; poddomena
+  ostane lastnik naročila, pravnih strani in aplikacijskih poti.
 - Angleška domena uporablja isto aplikacijo in poti, jezik pa določa domena po
   ADR-013. Indeksabilne strani imajo vzajemne absolutne `hreflang` povezave za
   `sl-SI` in `en-GB`; zasebne galerije ostanejo `noindex` na obeh domenah.
-- Sitemap vsebuje samo domačo stran, naročilo in marketinške podstrani po vrstah
-  dogodkov. Zasebne galerije, admin, demo in plačilni rezultati niso vključeni.
-- Javni marketing je indeksabilen; zasebni in operativni tokovi uporabljajo
-  `noindex` ter ustrezne `robots.txt` omejitve.
-- JSON-LD uporablja dejanske tipe `Organization`, `WebSite`, `WebApplication`,
-  `WebPage` in `BreadcrumbList`. Dokler ni preverjenih ocen, se
+- Slovenski sitemap poddomene vsebuje samo naročilo in pravne strani. Preseljene
+  marketinške strani so v sitemapu glavne domene. Mednarodni sitemap vsebuje
+  domačo stran, naročilo in marketinške podstrani po vrstah dogodkov. Zasebne
+  galerije, admin, demo in plačilni rezultati niso vključeni.
+- Javni marketing je indeksabilen. Zasebne galerije uporabljajo `noindex` in
+  `noimageindex` v HTML ter HTTP glavi, vendar jih `robots.txt` ne blokira, da
+  lahko iskalnik ti navodili prebere. Drugi operativni tokovi ostanejo blokirani.
+- JSON-LD uporablja dejanske tipe `Organization`, `Product`, `WebSite`,
+  `WebApplication`, `WebPage` in `BreadcrumbList`. Produkt vsebuje javno ceno
+  35 EUR in povezavo na lokalizirano naročilo. `FAQPage` se ne objavlja.
+  Dokler ni preverjenih ocen, se
   `aggregateRating`, reviewi in testimonial trditve ne objavljajo.
 - `/llms.txt` je kratek kuriran zemljevid javnih virov, `/llms-full.txt` pa
   avtoritativni razširjeni opis ponudbe, omejitev, zasebnosti in vseh use-caseov.

@@ -30,6 +30,7 @@ import {
   SITE_URL,
   SL_SITE_NAME,
   ogImage,
+  productStructuredDataFor,
   siteStructuredData,
   siteStructuredDataFor,
   supportEmail,
@@ -106,7 +107,7 @@ describe("public SEO discovery", () => {
     expect(languageAlternates(APP_URLS, "/")["x-default"]).toBe(ENGLISH_SITE_URL);
   });
 
-  it("allows public discovery and keeps private application paths out of crawlers", async () => {
+  it("allows public discovery and lets crawlers read gallery noindex directives", async () => {
     const config = await robots();
     const rules = Array.isArray(config.rules) ? config.rules : [config.rules];
     const openAiRule = rules.find((rule) => rule.userAgent === "OAI-SearchBot");
@@ -116,7 +117,8 @@ describe("public SEO discovery", () => {
     expect(openAiRule?.allow).toContain("/llm.txt");
     expect(openAiRule?.allow).toContain("/zasebnost");
     expect(openAiRule?.disallow).toContain("/admin/");
-    expect(openAiRule?.disallow).toContain("/e/");
+    expect(openAiRule?.disallow).not.toContain("/e/");
+    expect(openAiRule?.disallow).toContain("/admin/");
   });
 
   it("publishes concise and full AI-readable product facts", async () => {
@@ -184,6 +186,23 @@ describe("public SEO discovery", () => {
 
     expect(serialized).not.toContain("aggregateRating");
     expect(serialized).not.toContain('"review"');
+  });
+
+  it("publishes a priced Product without fabricated ratings", () => {
+    const product = productStructuredDataFor("en", ENGLISH_SITE_URL);
+
+    expect(product).toMatchObject({
+      "@id": `${ENGLISH_SITE_URL}/#product`,
+      name: "Guest Mosaic",
+      offers: {
+        "@type": "Offer",
+        price: "35.00",
+        priceCurrency: "EUR",
+        url: `${ENGLISH_SITE_URL}/order`,
+      },
+    });
+    expect(JSON.stringify(product)).not.toContain("aggregateRating");
+    expect(JSON.stringify(product)).not.toContain('"review"');
   });
 
   it("keeps Eventaj and Guest Mosaic as stable, separate structured-data entities", () => {

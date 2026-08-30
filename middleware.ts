@@ -24,6 +24,21 @@ const ENGLISH_HOSTNAMES = new Set([
   "en.localhost",
 ]);
 
+const SLOVENIAN_GALLERY_HOSTNAMES = new Set([
+  "galerija.eventaj.si",
+  "www.galerija.eventaj.si",
+]);
+
+const EVENTAJ_MARKETING_ORIGIN = "https://www.eventaj.si";
+
+/** Slovenian sales and editorial pages now inherit the main Eventaj domain. */
+function movedSlovenianMarketingPath(pathname: string): string | undefined {
+  if (pathname === "/") return "/qr-galerija";
+  if (pathname === "/funkcije") return "/qr-galerija/funkcije";
+  if (pathname.startsWith("/za-dogodke/")) return `/qr-galerija${pathname}`;
+  return undefined;
+}
+
 /** Paths that are never marketing pages and must pass through untouched. */
 function isInternalPath(pathname: string): boolean {
   return pathname.startsWith("/api/")
@@ -67,6 +82,16 @@ export function middleware(request: NextRequest) {
         : undefined
     : undefined);
   const currentPath = request.nextUrl.pathname;
+
+  const movedMarketingPath = SLOVENIAN_GALLERY_HOSTNAMES.has(hostname)
+    ? movedSlovenianMarketingPath(currentPath)
+    : undefined;
+  if (movedMarketingPath) {
+    return NextResponse.redirect(
+      new URL(`${movedMarketingPath}${request.nextUrl.search}`, EVENTAJ_MARKETING_ORIGIN),
+      301,
+    );
+  }
 
   // The English host also serves the prefixed languages (/de, /nl, /es, /it, /fr).
   const locale: Locale = isEnglishHost ? localeFromPathname(currentPath) ?? "en" : "sl";

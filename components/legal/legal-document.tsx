@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/locale";
 import { getLegalCopy, type LegalDocument } from "@/lib/i18n/legal";
-import { localizedMarketingPath, privacyPath } from "@/lib/i18n/routes";
+import { marketingHomeHref, privacyPath } from "@/lib/i18n/routes";
 import { brandWordParts, guestBrandMark, supportEmail } from "@/lib/seo";
 
 // `!` premaga globalni `a { color; text-decoration }` iz globals.css, ki ni v Tailwind plasti.
@@ -43,7 +43,7 @@ export function LegalDocumentPage({
   document: LegalDocument;
 }) {
   const copy = getLegalCopy(locale);
-  const home = localizedMarketingPath("/", locale);
+  const home = marketingHomeHref(locale);
   const brandMarkSrc = guestBrandMark(locale);
   const [brandLead, brandTail] = brandWordParts(locale);
 

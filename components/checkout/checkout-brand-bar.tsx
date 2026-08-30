@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Locale } from "@/lib/i18n/locale";
-import { localizedMarketingPath } from "@/lib/i18n/routes";
+import { marketingHomeHref } from "@/lib/i18n/routes";
 import { brandName, guestBrandMark } from "@/lib/seo";
 
 /** Enotna glava nakupne poti: /naroci, /nakup/uspesen in /manage/[token]. */
 export function CheckoutBrandBar({ locale, back }: { locale: Locale; back?: string }) {
-  const home = localizedMarketingPath("/", locale);
+  const home = marketingHomeHref(locale);
   const brandMarkSrc = guestBrandMark(locale);
   return (
     <div className="flex min-h-11 items-center justify-between gap-4">

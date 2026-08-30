@@ -16,7 +16,7 @@ import type { EngagementSnapshot } from "@/lib/repositories/engagement";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { localizedMarketingPath } from "@/lib/i18n/routes";
+import { marketingHomeHref } from "@/lib/i18n/routes";
 import { brandWordParts, guestBrandMark } from "@/lib/seo";
 
 export type SlideshowSlide = {
@@ -89,7 +89,7 @@ export function SlideshowDisplay({
 }: SlideshowDisplayProps) {
   const locale = useLocale();
   const t = getDictionary(locale).guest.live;
-  const homeHref = localizedMarketingPath("/", locale);
+  const homeHref = marketingHomeHref(locale);
   const brandMarkSrc = guestBrandMark(locale);
   const [brandLead, brandTail] = brandWordParts(locale);
   const demoMode = Boolean(initialSlides);

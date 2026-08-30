@@ -38,11 +38,55 @@ describe("canonical hostname middleware", () => {
   });
 
   it("does not redirect the canonical hostname", () => {
-    const request = new NextRequest("https://galerija.eventaj.si/", {
+    const request = new NextRequest("https://galerija.eventaj.si/naroci", {
       headers: { host: "galerija.eventaj.si" },
     });
 
     const response = middleware(request);
+
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it.each([
+    ["/", "/qr-galerija"],
+    ["/funkcije", "/qr-galerija/funkcije"],
+    ["/za-dogodke/poroke", "/qr-galerija/za-dogodke/poroke"],
+    ["/za-dogodke/poslovni-dogodki", "/qr-galerija/za-dogodke/poslovni-dogodki"],
+  ])("moves Slovenian marketing %s to the main Eventaj domain", (source, destination) => {
+    const response = middleware(
+      new NextRequest(`https://galerija.eventaj.si${source}?utm_source=legacy`),
+    );
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe(
+      `https://www.eventaj.si${destination}?utm_source=legacy`,
+    );
+  });
+
+  it("moves www Slovenian marketing in one redirect", () => {
+    const response = middleware(
+      new NextRequest("https://www.galerija.eventaj.si/funkcije", {
+        headers: { host: "www.galerija.eventaj.si" },
+      }),
+    );
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe(
+      "https://www.eventaj.si/qr-galerija/funkcije",
+    );
+  });
+
+  it.each([
+    "/naroci",
+    "/pogoji-uporabe",
+    "/zasebnost",
+    "/e/ana-in-marko",
+    "/admin",
+    "/api/v1/events",
+  ])("keeps Slovenian application path %s on the gallery domain", (path) => {
+    const response = middleware(
+      new NextRequest(`https://galerija.eventaj.si${path}`),
+    );
 
     expect(response.headers.get("location")).toBeNull();
   });

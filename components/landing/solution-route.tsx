@@ -67,14 +67,6 @@ export function SolutionRoute({ locale, id }: { locale: SolutionPageLocale; id: 
           { "@type": "ListItem", position: 2, name: page.navTitle, item: pageUrl },
         ],
       },
-      {
-        "@type": "FAQPage",
-        mainEntity: page.faq.map(([question, answer]) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
-      },
     ],
   };
 

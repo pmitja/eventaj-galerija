@@ -5,6 +5,7 @@ import {
   eventUseCaseMarketingPath,
   featuresPath,
   localizedMarketingPath,
+  marketingHomeHref,
   orderPath,
   privacyPath,
   solutionPageIdFromPath,
@@ -21,6 +22,12 @@ describe("localized public routes", () => {
     expect(privacyPath("en")).toBe("/privacy");
     expect(eventUseCasePath("en", "poslovni-dogodki")).toBe("/for-events/corporate-events");
     expect(featuresPath("en")).toBe("/features");
+  });
+
+  it("links Slovenian application chrome directly to the moved marketing home", () => {
+    expect(marketingHomeHref("sl")).toBe("https://www.eventaj.si/qr-galerija");
+    expect(marketingHomeHref("en")).toBe("/");
+    expect(marketingHomeHref("de")).toBe("/de");
   });
 
   it("maps language-switch destinations in both directions", () => {

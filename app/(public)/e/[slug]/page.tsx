@@ -19,7 +19,15 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
   return {
     title,
     description,
-    robots: { index: false, follow: false },
+    robots: {
+      index: false,
+      follow: false,
+      nocache: true,
+      googleBot: { index: false, follow: false, noimageindex: true },
+    },
+    // Do not inherit the marketing canonical or hreflang cluster. Event URLs
+    // are private, locale-neutral access points rather than translated pages.
+    alternates: null,
   };
 }
 

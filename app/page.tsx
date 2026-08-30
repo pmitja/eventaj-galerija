@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { LandingPage } from "@/components/landing/landing-page";
-import { SEO_COPY, ogImage } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { appUrlForLocale } from "@/lib/i18n/locale";
+import { SEO_COPY, ogImage, productStructuredDataFor } from "@/lib/seo";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { canonicalUrl, languageAlternates } from "@/lib/i18n/alternates";
 
@@ -29,6 +31,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function Home() {
-  return <LandingPage />;
+export default async function Home() {
+  const locale = await getRequestLocale();
+  const siteUrl = appUrlForLocale(getPublicAppUrls(), locale);
+  return (
+    <>
+      <JsonLd data={productStructuredDataFor(locale, siteUrl) as unknown as Record<string, unknown>} />
+      <LandingPage />
+    </>
+  );
 }

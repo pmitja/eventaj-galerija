@@ -171,13 +171,17 @@ Vsak nov dogodek dobi glavno QR dostopno točko. QR sliki sta na `/qr/{publicCod
 
 Trenutna produkcijska aplikacija je na `https://galerija.eventaj.si`, ki je kot
 Cloudflare Custom Domain vezana na glavni Worker. Tudi
-`https://www.galerija.eventaj.si` je Custom Domain istega Workerja in se s
-trajnim `308` preusmeri na kanonično domeno, pri čemer ohrani pot ter query
-parametre. HTTPS se zaključi na Cloudflare robu; preusmeritve glede protokola se
+`https://www.galerija.eventaj.si` je Custom Domain istega Workerja. Aplikacijske
+poti se s trajnim `308` preusmerijo na kanonično poddomeno, preseljene
+marketinške poti pa z enim `301` neposredno na glavno domeno. Pot in query
+parametri se ohranijo. HTTPS se zaključi na Cloudflare robu; preusmeritve glede protokola se
 ne izvajajo v Next.js middleware, ker OpenNext notranji zahtevi ne ohrani
 zanesljivega zunanjega protokola. Glavni Worker uporablja EU D1/R2 bindinge,
 retention Worker pa ni javno dostopen in se zažene vsak dan ob 02:17 UTC.
-Obstoječa stran `eventaj.si` na Vercelu ostaja nespremenjena.
+Slovenske prodajne in vsebinske strani so na
+`https://www.eventaj.si/qr-galerija`. Stare marketinške poti na poddomeni se
+neposredno in trajno preusmerijo na ustrezno podmapo. Naročilo, pravne strani,
+administracija, galerije gostov in QR poti ostanejo na poddomeni.
 
 Mednarodna različica je na `https://guestmosaic.com` in uporablja isti Worker,
 bazo ter hrambo. Angleščina je na korenu, nemščina, nizozemščina, španščina,

@@ -219,7 +219,7 @@ export const SEO_COPY = {
 export const SITE_DESCRIPTION = SEO_COPY.sl.description;
 
 export const PRIVATE_ROBOTS_PATHS = [
-  "/admin/", "/api/", "/display/", "/e/", "/login", "/nakup/", "/prenosi/", "/qr/", "/t/", "/demo/",
+  "/admin/", "/api/", "/display/", "/login", "/nakup/", "/prenosi/", "/qr/", "/t/", "/demo/",
 ] as const;
 
 export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
@@ -276,6 +276,31 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
         featureList: copy.featureList,
       },
     ],
+  } as const;
+}
+
+/** Product markup belongs on the product-focused home page, not every route. */
+export function productStructuredDataFor(locale: Locale, siteUrl: string) {
+  const copy = SEO_COPY[locale];
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${siteUrl}/#product`,
+    url: siteUrl,
+    name: brandName(locale),
+    description: copy.description,
+    image: `${siteUrl}${ogImage(locale)}`,
+    ...(locale === "sl"
+      ? { brand: { "@id": EVENTAJ_ORGANIZATION_ID } }
+      : { brand: { "@id": GUEST_MOSAIC_BRAND_ID } }),
+    offers: {
+      "@type": "Offer",
+      price: "35.00",
+      priceCurrency: "EUR",
+      url: `${siteUrl}${orderPath(locale)}`,
+      availability: "https://schema.org/InStock",
+      seller: { "@id": EVENTAJ_ORGANIZATION_ID },
+    },
   } as const;
 }
 

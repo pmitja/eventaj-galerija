@@ -94,6 +94,11 @@ export function demoEventPath(locale: Locale): string {
   return localized(locale, "/e/ana-in-marko", "/e/anna-and-mark");
 }
 
+/** Canonical marketing home. Slovenian sales content lives on the main brand site. */
+export function marketingHomeHref(locale: Locale): string {
+  return locale === "sl" ? "https://www.eventaj.si/qr-galerija" : localePathPrefix(locale) || "/";
+}
+
 export function eventUseCasePath(locale: Locale, slovenianSlug: string): string {
   const englishSlug = USE_CASE_SLUGS[slovenianSlug as SlovenianUseCaseSlug] ?? slovenianSlug;
   return localized(locale, `/za-dogodke/${slovenianSlug}`, `/for-events/${englishSlug}`);

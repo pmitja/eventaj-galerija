@@ -8,7 +8,8 @@ Največja tveganja so zlonamerni ali množični uploadi, dostop do zasebnih gale
 
 ### Javni dostop
 
-- nepredvidljivi javni ID-ji in `noindex` privzeto;
+- nepredvidljivi javni ID-ji ter `noindex` in `noimageindex` privzeto; galerijske
+  poti niso blokirane v `robots.txt`, ker mora iskalnik navodili lahko prebrati;
 - rate limit po dogodku, seji in privacy-safe omrežnem signalu;
 - bot/spam zaščita stopnjevano: brez trenja za normalen promet, challenge ob anomaliji;
 - geslo galerije kot močan hash, nikoli plaintext;
