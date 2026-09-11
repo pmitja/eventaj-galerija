@@ -409,6 +409,7 @@ export const en = {
       shareText: "See the photos from {event}.",
       demoEventName: "Anna & Mark",
       backToSite: "Back to the Guest Mosaic website",
+      backToTop: "Back to top",
       sharing: "Opening sharing options",
       share: "Share gallery",
       welcome:

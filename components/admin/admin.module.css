@@ -228,6 +228,7 @@
 .panelTop h2 { margin: 0 0 4px; font-size: 15px; }
 .panelTop p { margin: 0; color: #94888e; font-size: 11px; }
 .filterBar { min-height: 65px; display: flex; align-items: center; gap: 9px; padding: 11px 20px; border-bottom: 1px solid #f0edef; background: #fcfbfc; }
+.eventsFilters { flex-wrap: wrap; }
 .filterSearch { width: min(310px, 38%); min-height: 40px; display: flex; align-items: center; gap: 9px; padding: 0 11px; border: 1px solid #e7e1e4; border-radius: 10px; background: #fff; color: #978c91; }
 .filterSearch:focus-within, .selectControl:focus-within { border-color: #e6a3bb; box-shadow: 0 0 0 3px rgba(217,31,99,.08); }
 .filterSearch input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #34262c; font: inherit; font-size: 11.5px; }

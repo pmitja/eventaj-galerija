@@ -201,6 +201,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const [voiceMessageCount, setVoiceMessageCount] = useState(0);
   const [galleryTab, setGalleryTab] = useState<"photos" | "voice">("photos");
   const [voiceRecorderOpen, setVoiceRecorderOpen] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   const localDemoMedia = useLocalDemoMedia();
   const localDemoPhotos = localDemoMedia
     .filter((item) => item.kind !== "voice")
@@ -228,6 +229,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   const voiceTabActive = voiceTabVisible && galleryTab === "voice";
   const hasMorePhotos = visiblePhotoCount < photos.length;
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const galleryHeadingRef = useRef<HTMLDivElement | null>(null);
   const showMorePhotos = useCallback(() => setVisiblePhotoCount((count) => count + PHOTO_PAGE_SIZE), [setVisiblePhotoCount]);
   const { mounted: lightboxMounted, closing: lightboxClosing } = useDialogTransition(selectedPhoto !== null, 220);
   const { mounted: commentsMounted, closing: commentsClosing } = useDialogTransition(commentsVisible);
@@ -246,6 +248,16 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, [hasMorePhotos, showMorePhotos, visiblePhotoCount]);
+
+  useEffect(() => {
+    const heading = galleryHeadingRef.current;
+    if (!heading || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowScrollToTop(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    observer.observe(heading);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (isDemoEvent) return;
@@ -381,6 +393,11 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
   function movePhoto(index: number) {
     setCommentsOpen(false);
     setSelectedPhoto(index);
+  }
+
+  function scrollToTop() {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
   }
 
   function saveFaceSearchResult(mediaIds: string[]) {
@@ -545,7 +562,7 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
             <svg className={cn(roundStrokeIcon, "w-6 flex-none")} viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
           </a>
         ) : null}
-        <div className="flex items-end justify-between gap-4 px-1.5 pb-[22px] md:px-0">
+        <div ref={galleryHeadingRef} className="flex items-end justify-between gap-4 px-1.5 pb-[22px] md:px-0">
           <div>
             <p className="m-0 text-[11px] font-extrabold tracking-[.14em] text-[#9f1d52] uppercase">{voiceTabActive ? t.voiceEyebrow : t.photosEyebrow}</p>
             <h2 className="mt-[5px] mb-0 font-[Georgia,'Times_New_Roman',serif] text-[29px]/[1.05] font-normal tracking-[-.03em] md:text-[38px]" id="gallery-title">{voiceTabActive ? t.voiceHeading : faceFilterActive ? t.myPhotosHeading : t.photosHeading}</h2>
@@ -610,13 +627,11 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         <div className="grid grid-cols-2 gap-1 min-[768px]:grid-cols-3 min-[768px]:gap-2 min-[1100px]:grid-cols-4" data-featured-layout={photos.length >= 5}>
           {photos.slice(0, visiblePhotoCount).map((photo, index) => {
             const position = index + 1;
-            const squareOnMobile = position % 3 === 2 || position % 3 === 0;
             const featured = photos.length >= 5 && position % 5 === 1;
             return (
             <article
               className={cn(
-                "relative overflow-hidden bg-[#eee8e4] [contain-intrinsic-size:180px_208px] [content-visibility:auto] min-[768px]:aspect-square min-[768px]:rounded",
-                squareOnMobile ? "aspect-square" : "aspect-[1/1.16]",
+                "relative aspect-square overflow-hidden bg-[#eee8e4] [contain-intrinsic-size:180px_180px] [content-visibility:auto] min-[768px]:rounded",
                 featured && "min-[1100px]:row-span-2 min-[1100px]:aspect-auto",
               )}
               key={photo.key}
@@ -652,6 +667,18 @@ export function GuestGallery({ eventSlug = "ana-in-marko" }: { eventSlug?: strin
         </>}
         <p className="mx-auto mt-6 flex max-w-[420px] items-center justify-center gap-2 text-center text-[12px]/[1.45] text-[#89777e]"><svg className="w-[18px] flex-none fill-none stroke-current [stroke-width:1.7]" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" /></svg>{t.privacy}</p>
       </section>
+
+      {showScrollToTop && selectedPhoto === null ? (
+        <button
+          className="fixed right-4 bottom-[max(20px,env(safe-area-inset-bottom))] z-30 grid size-12 cursor-pointer place-items-center rounded-full border border-white/25 bg-[#6f1239] text-white shadow-[0_10px_28px_rgba(63,13,37,.28)] transition-[background,transform] duration-200 hover:-translate-y-0.5 hover:bg-[#55102e] active:translate-y-0 motion-reduce:transition-none md:right-6 md:size-13"
+          type="button"
+          onClick={scrollToTop}
+          aria-label={t.backToTop}
+          title={t.backToTop}
+        >
+          <svg className={cn(roundStrokeIcon, "size-5")} viewBox="0 0 24 24" aria-hidden="true"><path d="m5 15 7-7 7 7" /></svg>
+        </button>
+      ) : null}
 
       {lightboxMounted && photos.length ? (
         <div className={cn("fixed inset-0 z-40 bg-[rgba(18,10,13,.97)] animate-[dialog-backdrop-in_.22s_ease_both] motion-reduce:animate-none", lightboxClosing && "pointer-events-none animate-[dialog-backdrop-out_.2s_ease_both]")} role="dialog" aria-modal="true" aria-label={t.lightboxLabel} onClick={() => setSelectedPhoto(null)}>

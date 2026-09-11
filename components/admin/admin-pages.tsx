@@ -10,7 +10,7 @@ import { listAccessPoints } from "@/lib/repositories/access-points";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { AccessPointsPanel } from "./access-points-panel";
 import { presentCustomerStatus, presentEventStatus, formatRelativeTime, percentage, scaleChart } from "@/lib/domain/admin-dashboard";
-import { adminGalleryQuerySchema } from "@/lib/validation/admin";
+import { adminEventsQuerySchema, adminGalleryQuerySchema } from "@/lib/validation/admin";
 import { findOwnedSlideshow } from "@/lib/repositories/slideshows";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasAiBestPhotosEntitlement } from "@/lib/repositories/entitlements";
@@ -23,6 +23,8 @@ import { findLatestOwnedQualityBackfill } from "@/lib/repositories/quality-backf
 import { EventCommentsToggle } from "./event-comments-toggle";
 import { GalleryLinkBar } from "./gallery-link-bar";
 import { listAdminVoiceMessages } from "@/lib/repositories/voice-messages";
+import { filterAdminEvents } from "@/lib/domain/admin-events";
+import { EventsFilterBar } from "./events-filter-bar";
 
 const mediaItems = [
   ["IMG_4821.jpg", "rose", "pred 4 min"], ["IMG_4818.jpg", "violet", "pred 7 min"],
@@ -48,11 +50,13 @@ function FilterBar({ gallery = false }: { gallery?: boolean }) {
   );
 }
 
-export async function EventsPage() {
+export async function EventsPage({ query = {} }: { query?: Record<string, string | string[] | undefined> } = {}) {
   const context = await getAuthContext();
   if (!context) return null;
-  const storedEvents = await listAdminEventSummaries(context.organizationId);
-  const displayedEvents = storedEvents.map((event, index) => ({
+  const parsedQuery = adminEventsQuerySchema.safeParse(query);
+  const filters = parsedQuery.success ? parsedQuery.data : adminEventsQuerySchema.parse({});
+  const storedEvents = await listAdminEventSummaries(context.organizationId, null);
+  const displayedEvents = filterAdminEvents(storedEvents, filters).map((event, index) => ({
     id: event.id,
     name: event.name,
     location: event.location ?? "Brez lokacije",
@@ -70,10 +74,11 @@ export async function EventsPage() {
   return <main className={styles.main}>
     <PageHeader eyebrow="UPRAVLJANJE" title="Dogodki" description="Ustvari, pripravi in spremljaj vse dogodke na enem mestu." action={<Link className={styles.primaryAction} href="/admin/events/new"><Icon name="plus" size={19} /> Nov dogodek</Link>} />
     <section className={styles.miniMetricGrid} aria-label="Povzetek dogodkov"><article><span className={styles.green}><Icon name="calendar" size={19} /></span><div><strong>{activeCount}</strong><small>aktivnih dogodkov</small></div></article><article><span className={styles.rose}><Icon name="clock" size={19} /></span><div><strong>{upcomingCount}</strong><small>prihajajočih dogodkov</small></div></article><article><span className={styles.violet}><Icon name="image" size={19} /></span><div><strong>{storedEvents.length}</strong><small>vseh dogodkov</small></div></article></section>
-    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Vsi dogodki</h2><p>{storedEvents.length} dogodkov v delovnem prostoru</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Prikaz seznama" className={styles.viewActive}><Icon name="chart" size={17} /></button><button type="button" aria-label="Prikaz kartic"><Icon name="image" size={17} /></button></div></div><FilterBar />
+    <section className={styles.panel}><div className={styles.panelTop}><div><h2>Vsi dogodki</h2><p>{storedEvents.length} dogodkov v delovnem prostoru</p></div><div className={styles.viewSwitch}><button type="button" aria-label="Prikaz seznama" className={styles.viewActive}><Icon name="chart" size={17} /></button><button type="button" aria-label="Prikaz kartic"><Icon name="image" size={17} /></button></div></div><EventsFilterBar key={JSON.stringify(filters)} filters={filters} />
+      {!parsedQuery.success ? <p className={styles.emptyState} role="alert">Neveljavni filtri. Prikazani so vsi dogodki; ponovno izberi filtre.</p> : null}
       <div className={styles.tableWrap}><table className={`${styles.dataTable} ${styles.eventsTable}`}><thead><tr><th>Dogodek</th><th>Datum</th><th>Status</th><th>Galerija</th><th>Obiski</th><th>Komentarji</th><th><span className={styles.srOnly}>Dejanja</span></th></tr></thead><tbody>{displayedEvents.map((event) => <tr key={event.id}><td data-label="Dogodek"><div className={styles.tableIdentity}><span className={`${styles.miniVisual} ${styles[event.accent]}`} /><div><strong>{event.name}</strong><small>{event.location}</small></div></div></td><td data-label="Datum">{event.date}</td><td data-label="Status"><span className={`${styles.statusBadge} ${styles[event.statusTone]}`}><i />{event.status}</span></td><td data-label="Galerija">{event.photos} fotografij</td><td data-label="Obiski">{event.guests}</td><td data-label="Komentarji"><EventCommentsToggle eventId={event.id} eventName={event.name} initialEnabled={event.commentsEnabled} /></td><td><Link className={styles.tableAction} href={event.href} aria-label={`Odpri ${event.name}`}><Icon name="chevron" size={18} /></Link></td></tr>)}</tbody></table></div>
-      {displayedEvents.length === 0 ? <p>Dogodkov še ni. Ustvari prvega z gumbom zgoraj.</p> : null}
-      <div className={styles.pagination}><span>{displayedEvents.length} dogodkov</span></div>
+      {displayedEvents.length === 0 ? <p className={styles.emptyState}>{storedEvents.length === 0 ? "Dogodkov še ni. Ustvari prvega z gumbom zgoraj." : "Noben dogodek ne ustreza izbranim filtrom. Spremeni ali počisti filtre."}</p> : null}
+      <div className={styles.pagination}><span>{displayedEvents.length} od {storedEvents.length} dogodkov</span></div>
     </section>
   </main>;
 }

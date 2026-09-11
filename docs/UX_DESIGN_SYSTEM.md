@@ -51,7 +51,10 @@ Prvi viewport vsebuje naziv dogodka, kratek pozdrav in en dominantni CTA »Dodaj
 
 ## Galerija
 
-- Mobile: 2 stolpca z razmerji stranic iz metapodatkov; desktop: prilagodljiva masonry mreža.
+- Mobile: 2 stolpca enako visokih kvadratnih predogledov z `cover` obrezovanjem;
+  desktop: prilagodljiva mreža. Celotna fotografija ostane vidna v lightboxu.
+- Ko uporabnik odrola mimo naslova galerije, se prikaže plavajoči gumb za vrnitev
+  na vrh strani. Premik je gladek, razen kadar uporabnik zahteva zmanjšano gibanje.
 - Virtualizacija ali postopno nalaganje pri večjih galerijah.
 - Lightbox podpira swipe, tipke, escape, fokus trap in reduced motion.
 - Video nikoli ne autoplaya z zvokom.
@@ -68,6 +71,12 @@ Prvi viewport vsebuje naziv dogodka, kratek pozdrav in en dominantni CTA »Dodaj
 
 ## Dashboard
 
+- Seznam dogodkov omogoča skupno iskanje po nazivu ali lokaciji, filter statusa
+  oziroma prihajajočih dogodkov, mesečno obdobje in sortiranje po datumu ali imenu.
+  Mesečne meje sledijo časovnemu pasu dogodka. Izbira v spustnem seznamu se
+  uveljavi takoj, iskanje pa z Enter ali gumbom »Filtriraj«. Filtri ostanejo v
+  URL-ju; »Počisti« obnovi celoten seznam. Povzetki vedno štejejo celoten delovni
+  prostor, število pod tabelo pa prikazane dogodke glede na skupno število.
 - Navigacija po jasnih področjih: Pregled, Galerija, Moderacija, QR/NFC, Nastavitve.
 - Statusi imajo besedilo + ikono + barvo.
 - Destruktivne akcije niso v bližini primarnih dejanj in zahtevajo potrditev z opisom posledice.

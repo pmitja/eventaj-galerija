@@ -222,7 +222,7 @@ export async function getAdminAnalyticsData(organizationId: string) {
   };
 }
 
-export async function listAdminEventSummaries(organizationId: string, limit = 100): Promise<AdminEventSummary[]> {
+export async function listAdminEventSummaries(organizationId: string, limit: number | null = 100): Promise<AdminEventSummary[]> {
   const { DB } = getCloudflareEnv();
   const result = await DB.prepare(
     `SELECT e.id, e.public_slug, e.name, e.location, e.starts_at, e.timezone, e.status, e.comments_enabled,
@@ -230,8 +230,8 @@ export async function listAdminEventSummaries(organizationId: string, limit = 10
       (SELECT COUNT(*) FROM media_files m WHERE m.event_id = e.id AND m.status = 'ready') AS photo_count,
       (SELECT COUNT(*) FROM visits v WHERE v.event_id = e.id) AS visit_count
      FROM events e WHERE e.organization_id = ?
-     ORDER BY e.starts_at DESC LIMIT ?`,
-  ).bind(organizationId, limit).all<AdminEventSummary>();
+     ORDER BY e.starts_at DESC, e.id ASC LIMIT ?`,
+  ).bind(organizationId, limit ?? -1).all<AdminEventSummary>();
   return result.results;
 }
 

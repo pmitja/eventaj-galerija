@@ -405,6 +405,7 @@ export const de: Dictionary = {
       shareText: "Sieh dir die Fotos von {event} an.",
       demoEventName: "Anna & Mark",
       backToSite: "Zurück zur Website von Guest Mosaic",
+      backToTop: "Nach oben",
       sharing: "Teilen-Optionen werden geöffnet",
       share: "Galerie teilen",
       welcome:

@@ -404,6 +404,7 @@ export const sl: Dictionary = {
       shareText: "Oglej si fotografije dogodka {event}.",
       demoEventName: "Ana & Marko",
       backToSite: "Nazaj na predstavitveno stran Galerije Eventaj",
+      backToTop: "Nazaj na vrh",
       sharing: "Odpiram možnosti deljenja",
       share: "Deli galerijo",
       welcome:
