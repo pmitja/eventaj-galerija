@@ -11,7 +11,7 @@ const QR_FILENAME = /^([A-Za-z0-9_-]{20,64})\.(svg|png)$/;
 export async function GET(request: Request, { params }: { params: Promise<{ filename: string }> }) {
   const env = getCloudflareEnv();
   const locale = localeFromRequest(request, env.PUBLIC_APP_URL_EN);
-  const notFoundMessage = locale === "en" ? "The QR code does not exist" : "QR koda ne obstaja";
+  const notFoundMessage = (locale === "en" || locale === "en-us") ? "The QR code does not exist" : "QR koda ne obstaja";
   const { filename } = await params;
   const match = QR_FILENAME.exec(filename);
   if (!match || !publicAccessPointCodeSchema.safeParse(match[1]).success) {

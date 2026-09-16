@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { Locale } from "@/lib/i18n/locale";
 
 export const DEMO_EVENT_SLUG = "ana-in-marko";
@@ -51,7 +52,7 @@ export const demoEventPhotos = [
   },
 ] as const;
 
-const DEMO_COMMENT_BODIES: Record<Locale, Readonly<Record<string, string>>> = {
+const DEMO_COMMENT_BODIES: Record<Locale, Readonly<Record<string, string>>> = withEnglishUS({
   sl: {},
   en: {
     "demo-comment-1": "What a beautiful moment! You two are glowing.",
@@ -101,7 +102,7 @@ const DEMO_COMMENT_BODIES: Record<Locale, Readonly<Record<string, string>>> = {
     "demo-comment-5": "Cette danse était si belle.",
     "demo-comment-6": "Quelle ambiance sur la piste de danse !",
   },
-};
+});
 
 export function demoEventPhotosFor(locale: Locale) {
   const translatedBodies = DEMO_COMMENT_BODIES[locale];

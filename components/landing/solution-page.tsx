@@ -1,3 +1,5 @@
+import { comparisonPath, COMPARISON_LABELS } from "@/lib/comparisons/routes";
+import { LockKeyhole } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { SolutionPageLocale } from "@/lib/i18n/routes";
@@ -20,7 +22,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getSolutionPage, type SolutionPageContent } from "./solution-pages";
 import { LocalUploadDemo } from "./local-upload-demo";
 import { QrPlacement } from "./qr-placement";
-import { SocialProof } from "./social-proof";
+import { EventTrustBand } from "./event-trust-band";
 import { weddingConversionCopy } from "./wedding-conversion-copy";
 
 export function SolutionPage({
@@ -45,13 +47,13 @@ export function SolutionPage({
           languageLocales={SOLUTION_PAGE_LOCALES}
         />
 
-        <section className="use-case-hero">
+        <section className="use-case-hero" id="main-content" tabIndex={-1}>
           <div className="use-case-hero__inner shell">
             <div className="use-case-hero__copy">
               <Link className="use-case-breadcrumb" href={home}>
                 {SITE_NAME} <span aria-hidden="true">/</span> {page.navTitle}
               </Link>
-              <div className="eyebrow"><span />{page.eyebrow}</div>
+              <p className="use-case-eyebrow">{page.eyebrow}</p>
               <h1>{page.title}</h1>
               <p>{page.description}</p>
               <div className="hero-buttons">
@@ -61,9 +63,6 @@ export function SolutionPage({
                 <Link className="button button--secondary" href={page.id === "wedding-qr" ? "#guest-upload-demo" : demoEventPath(locale)}>
                   {page.secondaryCta}
                 </Link>
-              </div>
-              <div className="use-case-trust">
-                {page.trust.map((item) => <span key={item}>{item}</span>)}
               </div>
             </div>
 
@@ -75,6 +74,8 @@ export function SolutionPage({
                   fill
                   sizes="(max-width: 767px) 330px, 520px"
                   priority
+                  loading="eager"
+                  fetchPriority="high"
                 />
               </div>
               <div className="use-case-app-mobile">
@@ -93,15 +94,19 @@ export function SolutionPage({
           </div>
         </section>
 
-        <SocialProof locale={locale} />
+        <EventTrustBand items={page.trust} />
 
         {page.id === "wedding-qr" ? <WeddingGuestDemo locale={locale} /> : null}
 
         <HowItWorks locale={locale} />
 
-        <QrPlacement locale={locale} tone="plain" />
+        <SolutionBenefits page={page} />
+
+        {page.id === "wedding-qr" ? <QrPlacement locale={locale} tone="plain" /> : null}
 
         {page.id === "wedding-qr" ? <WeddingOffer locale={locale} /> : null}
+
+        <SolutionClarity page={page} />
 
         {page.id === "wedding-qr" ? <WeddingComparison locale={locale} /> : <Showcase locale={locale} />}
 
@@ -111,7 +116,7 @@ export function SolutionPage({
               <span className="section-pill">{page.faqPill}</span>
               <h2>{page.faqHeading}</h2>
             </div>
-            <p className="faq-privacy-note"><span aria-hidden="true">🔒</span> {t.faq.privacyNote}</p>
+            <p className="faq-privacy-note"><LockKeyhole aria-hidden="true" size={17} /> {t.faq.privacyNote}</p>
             <div className="faq-list">
               {page.faq.map(([question, answer]) => (
                 <details key={question}>
@@ -144,6 +149,46 @@ export function SolutionPage({
 
         <Footer locale={locale} />
       </main>
+  );
+}
+
+function SolutionBenefits({ page }: { page: SolutionPageContent }) {
+  return (
+    <section className="section use-case-benefits solution-benefits">
+      <div className="shell">
+        <div className="section-heading solution-benefits__heading">
+          <h2>{page.benefitsHeading}</h2>
+          <p>{page.benefitsIntro}</p>
+        </div>
+        <div className="use-case-benefit-grid">
+          {page.benefits.map((benefit, index) => (
+            <article className="use-case-benefit-card solution-benefit-card" key={benefit.title}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h3>{benefit.title}</h3>
+                <p>{benefit.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SolutionClarity({ page }: { page: SolutionPageContent }) {
+  return (
+    <section className="section-muted use-case-scenarios solution-clarity">
+      <div className="shell use-case-scenarios__inner">
+        <div>
+          <h2>{page.clarityHeading}</h2>
+          <p>{page.clarityText}</p>
+        </div>
+        <ul>
+          {page.clarityItems.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </div>
+    </section>
   );
 }
 
@@ -198,6 +243,7 @@ function WeddingComparison({ locale }: { locale: SolutionPageLocale }) {
             <span className="section-pill">{copy.comparisonPill}</span>
             <h2>{copy.comparisonHeading}</h2>
             <p>{copy.comparisonText}</p>
+            <Link className="button button--secondary" href={comparisonPath(locale)}>{COMPARISON_LABELS[locale]} →</Link>
           </div>
           <div className="wedding-comparison__table" role="table" aria-label={copy.comparisonHeading}>
             <div className="wedding-comparison__row wedding-comparison__head" role="row">

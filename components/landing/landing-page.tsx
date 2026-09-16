@@ -17,7 +17,7 @@ export async function LandingPage() {
   const locale = await getRequestLocale();
   const alternateOrigin = appUrlForLocale(getPublicAppUrls(), locale === "sl" ? "en" : "sl");
   return (
-      <main className="landing-page">
+      <main className="landing-page" id="top">
         <AnimationController />
         <Header locale={locale} alternateOrigin={alternateOrigin} />
         <Hero locale={locale} />

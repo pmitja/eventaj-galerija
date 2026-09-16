@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import Image from "next/image";
 import type { Locale } from "@/lib/i18n/locale";
 import { localizedMarketingScreenshot } from "@/lib/i18n/marketing-assets";
@@ -92,9 +93,9 @@ function CheckIcon() {
   );
 }
 
-const SHOWCASE_ROWS: Record<Locale, ShowcaseRow[]> = {
+const SHOWCASE_ROWS: Record<Locale, ShowcaseRow[]> = withEnglishUS({
   sl: rowsSl, en: rowsEn, de: rowsDe, nl: rowsNl, es: rowsEs, it: rowsIt, fr: rowsFr,
-};
+});
 
 export function Showcase({ locale = "sl" }: { locale?: Locale }) {
   const rows = SHOWCASE_ROWS[locale] ?? rowsEn;

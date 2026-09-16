@@ -535,6 +535,6 @@ export const es: Dictionary = {
   socialProof: {
     label: "Para quién es",
     line:
-      "Creado para parejas que también quieren los momentos espontáneos que su fotógrafo no puede captar.",
+      "Para anfitriones que quieren reunir en un solo lugar los momentos espontáneos de sus invitados.",
   },
 };

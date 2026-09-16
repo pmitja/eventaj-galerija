@@ -1,3 +1,4 @@
+import { billingCurrency } from "@/lib/domain/billing";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import { createAccessPointRecord } from "@/lib/domain/access-points";
 import { checkoutTotalCents, videoUploadPolicy } from "@/lib/domain/billing";
@@ -77,12 +78,12 @@ export async function createCheckoutOrder(
        comments_enabled, ai_best_photos, face_collections, video_unlimited, legal_terms_version,
        amount_cents, currency, locale, marketing_consent, marketing_consent_version,
        meta_fbp, meta_fbc, meta_client_ip, meta_client_user_agent, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EUR', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
   ).bind(
     id, null, null, input.ownerEmail.split("@")[0], input.ownerEmail, null,
     input.ownerEmail.split("@")[0], placeholderName, null, placeholderStart, placeholderEnd,
     "UTC", 1, 0, 0,
-    0, CURRENT_TERMS_VERSION, amount, locale,
+    0, CURRENT_TERMS_VERSION, amount, billingCurrency(locale), locale,
     attribution ? 1 : 0, attribution?.consentVersion ?? null, attribution?.fbp ?? null,
     attribution?.fbc ?? null, attribution?.clientIp ?? null, attribution?.clientUserAgent ?? null,
     now, now,
@@ -113,7 +114,7 @@ export async function createCheckoutOrder(
           sourceUrl: new URL(orderPath(locale), root).toString(),
           email: input.ownerEmail,
           amountCents: amount,
-          currency: "EUR",
+          currency: billingCurrency(locale),
           orderId: id,
           fbp: attribution.fbp,
           fbc: attribution.fbc,

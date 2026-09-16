@@ -79,3 +79,14 @@ loči kanonično domeno oziroma locale.
 
 Migracija je aditivna in povratno združljiva: starejša aplikacija dodatni polji
 ignorira, novi aplikaciji pa privzeta vrednost `sl` ohrani dosedanje vedenje.
+
+## English regional pricing, 2026-09-16
+
+English (UK) keeps locale `en` and existing root URLs, with GBP pricing.
+English (US) uses `en-us` and `/en-us`, with USD pricing. Numeric prices
+remain unchanged: 35 per event, 15 for AI Best Photos or unlimited videos,
+and 5 for face search. All other markets keep EUR. This applies to copy,
+structured data, checkout line items, persisted orders and analytics.
+Existing orders retain their original currency. Migration 0030 widens locale
+constraints additively without rebuilding parent tables or deleting children.
+Deploy the migration before the application; old code cannot serve US locales.

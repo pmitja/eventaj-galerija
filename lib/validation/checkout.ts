@@ -5,7 +5,7 @@ import { isSupportedTimeZone, zonedLocalDateTimeToIso } from "@/lib/datetime/tim
 const timeZoneSchema = z.string().trim().min(1).max(64).refine(isSupportedTimeZone, "Invalid IANA time zone");
 
 export function checkoutFormSchemaFor(locale: Locale) {
-  const en = locale === "en";
+  const en = (locale === "en" || locale === "en-us");
   const localDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, en ? "Choose a date" : "Izberi datum");
   const localTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, en ? "Choose a time" : "Izberi čas");
   return z.object({

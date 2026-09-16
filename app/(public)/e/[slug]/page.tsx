@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
   const event = await findPublicEvent(slug);
   const title = event?.name ?? brandName(locale);
   const description = event
-    ? [locale === "en" ? "Event" : "Dogodek", event.location, event.name].filter(Boolean).join(" | ")
-    : locale === "en" ? "Add photos and videos from the event." : "Dodaj fotografije in videe z dogodka.";
+    ? [(locale === "en" || locale === "en-us") ? "Event" : "Dogodek", event.location, event.name].filter(Boolean).join(" | ")
+    : (locale === "en" || locale === "en-us") ? "Add photos and videos from the event." : "Dodaj fotografije in videe z dogodka.";
   return {
     title,
     description,

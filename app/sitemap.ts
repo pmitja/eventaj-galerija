@@ -1,3 +1,4 @@
+import { COMPARISON_IDS, COMPARISON_UPDATED, comparisonAlternates, comparisonPath } from "@/lib/comparisons/routes";
 import type { MetadataRoute } from "next";
 import { eventUseCasesFor } from "@/components/landing/use-cases";
 import { absoluteUrl, SEO_LAST_UPDATED } from "@/lib/seo";
@@ -84,6 +85,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           entry(eventUseCasePath(locale, slug), SEO_LAST_UPDATED, "monthly", 0.8),
         ),
       ...solutionEntries,
+      ...[undefined, ...COMPARISON_IDS].map(id => entry(
+        comparisonPath(locale, id), COMPARISON_UPDATED, "monthly", 0.8, comparisonAlternates(env, id),
+      )),
       entry(termsPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
       entry(privacyPath(locale), LEGAL_LAST_UPDATED, "monthly", 0.3),
     ];

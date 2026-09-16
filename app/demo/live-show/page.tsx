@@ -6,7 +6,7 @@ import { demoEventPath } from "@/lib/i18n/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: `Demo Live Show — ${locale === "sl" ? DEMO_EVENT_NAME : "Anna & Mark"}`, description: locale === "en" ? "An interactive Guest Mosaic live display with sample photos." : "Interaktivni prikaz Guest Mosaic v živo z vzorčnimi fotografijami.", robots: { index: false, follow: false } };
+  return { title: `Demo Live Show — ${locale === "sl" ? DEMO_EVENT_NAME : "Anna & Mark"}`, description: (locale === "en" || locale === "en-us") ? "An interactive Guest Mosaic live display with sample photos." : "Interaktivni prikaz Guest Mosaic v živo z vzorčnimi fotografijami.", robots: { index: false, follow: false } };
 }
 
 export default async function DemoLiveShowPage() {

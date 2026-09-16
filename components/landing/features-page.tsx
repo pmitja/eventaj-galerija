@@ -19,7 +19,7 @@ function FeaturesHero({ locale }: { locale: Locale }) {
   const t = getDictionary(locale);
   const home = localizedMarketingPath("/", locale);
   return (
-    <section className="features-hero" id="top">
+    <section className="features-hero" id="main-content" tabIndex={-1}>
       <div className="features-hero-inner shell">
         <Link className="use-case-breadcrumb" href={home}>
           {brandName(locale)} <span aria-hidden="true">/</span> {t.nav.features}
@@ -55,7 +55,7 @@ export async function FeaturesPage() {
   const pricingHref = `${localizedMarketingPath("/", locale)}#${t.anchors.pricing}`;
 
   return (
-    <main className="landing-page features-page">
+    <main className="landing-page features-page" id="top">
       <AnimationController />
       <Header locale={locale} alternateOrigin={alternateOrigin} />
       <FeaturesHero locale={locale} />

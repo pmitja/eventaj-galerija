@@ -532,8 +532,8 @@ export const sl: Dictionary = {
     ],
   },
   socialProof: {
-    label: "Zakaj pari izberejo Eventaj",
+    label: "Komu je Eventaj namenjen",
     line:
-      "Ustvarjeno za pare, ki si želijo tudi iskrene trenutke, ki jih fotograf ne ujame.",
+      "Ustvarjeno za organizatorje, ki želijo zbrati spontane trenutke svojih gostov.",
   },
 };

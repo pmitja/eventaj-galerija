@@ -14,6 +14,7 @@ type SlovenianUseCaseSlug = keyof typeof USE_CASE_SLUGS;
 export const SOLUTION_PAGE_PATHS = {
   "wedding-qr": {
     en: "/wedding-qr-code-for-photos",
+    "en-us": "/en-us/wedding-qr-code-for-photos",
     de: "/de/hochzeitsfotos-per-qr-code",
     nl: "/nl/trouwfotos-verzamelen-qr-code",
     es: "/es/codigo-qr-fotos-boda",
@@ -22,6 +23,7 @@ export const SOLUTION_PAGE_PATHS = {
   },
   "no-app-sharing": {
     en: "/share-event-photos-without-an-app",
+    "en-us": "/en-us/share-event-photos-without-an-app",
     de: "/de/eventfotos-ohne-app-teilen",
     nl: "/nl/fotos-delen-zonder-app",
     es: "/es/compartir-fotos-evento-sin-app",
@@ -30,6 +32,7 @@ export const SOLUTION_PAGE_PATHS = {
   },
   "event-qr-gallery": {
     en: "/event-photo-sharing-qr-code",
+    "en-us": "/en-us/event-photo-sharing-qr-code",
     de: "/de/qr-fotogalerie-events",
     nl: "/nl/qr-fotogalerij-evenement",
     es: "/es/codigo-qr-fotos-eventos",
@@ -40,7 +43,7 @@ export const SOLUTION_PAGE_PATHS = {
 
 export type SolutionPageId = keyof typeof SOLUTION_PAGE_PATHS;
 export type SolutionPageLocale = keyof (typeof SOLUTION_PAGE_PATHS)[SolutionPageId];
-export const SOLUTION_PAGE_LOCALES: readonly SolutionPageLocale[] = ["en", "de", "nl", "es", "it", "fr"];
+export const SOLUTION_PAGE_LOCALES: readonly SolutionPageLocale[] = ["en", "en-us", "de", "nl", "es", "it", "fr"];
 
 export function solutionPagePath(locale: Locale, id: SolutionPageId): string | null {
   if (!SOLUTION_PAGE_LOCALES.includes(locale as SolutionPageLocale)) return null;

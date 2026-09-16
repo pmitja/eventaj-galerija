@@ -5,8 +5,8 @@ import { getRequestLocale } from "@/lib/i18n/server";
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
   return {
-    title: locale === "en" ? "Anna & Mark — Gallery" : "Ana & Marko — Galerija",
-    description: locale === "en" ? "Anna and Mark's shared wedding gallery." : "Skupna galerija poroke Ane in Marka.",
+    title: (locale === "en" || locale === "en-us") ? "Anna & Mark — Gallery" : "Ana & Marko — Galerija",
+    description: (locale === "en" || locale === "en-us") ? "Anna and Mark's shared wedding gallery." : "Skupna galerija poroke Ane in Marka.",
     robots: {
       index: false,
       follow: false,

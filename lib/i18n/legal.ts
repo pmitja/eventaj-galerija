@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { Locale } from "./locale";
 
 /**
@@ -910,7 +911,7 @@ const fr: LegalCopy = {
   },
 };
 
-const LEGAL_COPY: Record<Locale, LegalCopy> = { sl, en, de, nl, es, it, fr };
+const LEGAL_COPY: Record<Locale, LegalCopy> = withEnglishUS({ sl, en, de, nl, es, it, fr });
 
 /** Latest legal-document update, used as the sitemap `lastModified`. */
 export const LEGAL_LAST_UPDATED = "2026-08-13";

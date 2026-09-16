@@ -535,6 +535,6 @@ export const nl: Dictionary = {
   socialProof: {
     label: "Voor wie dit is",
     line:
-      "Gemaakt voor stellen die ook de spontane momenten willen die hun fotograaf niet vastlegt.",
+      "Voor organisatoren die de spontane momenten van hun gasten op één plek willen verzamelen.",
   },
 };

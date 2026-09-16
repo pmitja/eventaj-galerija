@@ -131,3 +131,8 @@ Galerijska in slideshow odobritev sta ločeni polji/stroja stanj. Zavrnitev ne i
 - slideshow in real-time ekran;
 - ZIP izvoz;
 - white-label in samopostrežni onboarding organizacij.
+
+Angleški regionalni ponudbi: English (UK) na korenu Guest Mosaic uporablja GBP,
+English (US) na `/en-us` pa USD. Cena dogodka je £35 oziroma $35, dodatka
+AI Best Photos in neomejeni videi £15 oziroma $15. Ostali jeziki ohranijo EUR.
+Migracijo `0030_english_us_locale.sql` je treba izvesti pred objavo nove kode.

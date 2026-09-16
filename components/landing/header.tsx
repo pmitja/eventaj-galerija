@@ -1,4 +1,5 @@
 "use client";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +16,16 @@ import {
 } from "@/lib/i18n/routes";
 import { LanguageSwitcher } from "./language-switcher";
 import type { EventUseCase } from "./use-cases";
+
+const SKIP_TO_CONTENT: Record<Locale, string> = withEnglishUS({
+  sl: "Preskoči na vsebino",
+  en: "Skip to content",
+  de: "Zum Inhalt springen",
+  nl: "Naar de inhoud",
+  es: "Saltar al contenido",
+  it: "Vai al contenuto",
+  fr: "Aller au contenu",
+});
 
 export function HeaderClient({
   howItWorksHref,
@@ -75,13 +86,15 @@ export function HeaderClient({
   }));
 
   return (
-    <header className="site-header">
-      <div className="header-inner shell">
-        <Link className="brand" href={`${home}#top`} aria-label={t.nav.brandLabel}>
-          <Image className="brand-logo" src={locale === "sl" ? "/logo.svg" : "/guest-mosaic-mark.webp"} alt="" width={40} height={40} />
-          <b>{t.nav.brandWord}</b>
-        </Link>
-        <nav className="desktop-nav" aria-label={t.nav.mainNavigation}>
+    <>
+      <a className="skip-link" href="#main-content">{SKIP_TO_CONTENT[locale]}</a>
+      <header className="site-header">
+        <div className="header-inner shell">
+          <Link className="brand" href={`${home}#top`} aria-label={t.nav.brandLabel}>
+            <Image className="brand-logo" src={locale === "sl" ? "/logo.svg" : "/guest-mosaic-mark.webp"} alt="" width={40} height={40} />
+            <b>{t.nav.brandWord}</b>
+          </Link>
+          <nav className="desktop-nav" aria-label={t.nav.mainNavigation}>
           <Link href={howHref}>{t.nav.howItWorks}</Link>
           <div className="nav-dropdown" ref={eventsMenuRef} onMouseEnter={() => setEventsOpen(true)} onMouseLeave={() => setEventsOpen(false)}>
             <button ref={eventsButtonRef} className="nav-dropdown__trigger" type="button" aria-expanded={eventsOpen} aria-controls="event-use-cases-menu" onClick={() => setEventsOpen((open) => !open)}>
@@ -104,16 +117,16 @@ export function HeaderClient({
           <Link href={featuresPath(locale)}>{t.nav.features}</Link>
           <Link href={`${home}#${t.anchors.pricing}`}>{t.nav.pricing}</Link>
           <Link href={`${home}#${t.anchors.faq}`}>{t.nav.faq}</Link>
-        </nav>
-        <div className="header-actions">
+          </nav>
+          <div className="header-actions">
           {locale !== "sl" ? <LanguageSwitcher locale={locale} pathname={pathname} alternateOrigin={alternateOrigin} label={t.nav.language} menuLabel={t.nav.chooseLanguage} locales={languageLocales} /> : null}
           <Link className="button button--small desktop-only" href={orderPath(locale)}>{t.nav.createEvent}</Link>
           <button className={`menu-button ${menuOpen ? "menu-button--open" : ""}`} type="button" aria-label={menuOpen ? t.nav.closeMenu : t.nav.openMenu} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen((open) => !open)}>
             <span /><span /><span />
           </button>
+          </div>
         </div>
-      </div>
-      <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`} aria-label={t.nav.mobileNavigation} aria-hidden={!menuOpen}>
+        <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "mobile-nav--open" : ""}`} aria-label={t.nav.mobileNavigation} aria-hidden={!menuOpen}>
         <Link href={howHref} onClick={closeMenu}>{t.nav.howItWorks}</Link>
         <details className="mobile-nav__events">
           <summary>{t.nav.events} <span aria-hidden="true">+</span></summary>
@@ -130,7 +143,8 @@ export function HeaderClient({
           <Link className="button button--secondary" href={demoEventPath(locale)} onClick={closeMenu}>{t.hero.ctaSecondary}</Link>
           <Link className="button" href={orderPath(locale)} onClick={closeMenu}>{t.hero.ctaPrimary}</Link>
         </div>
-      </nav>
-    </header>
+        </nav>
+      </header>
+    </>
   );
 }

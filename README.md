@@ -204,3 +204,8 @@ zasebna upravljavska povezava nato zbere naziv, datum, lokacijo in časovni pas.
 Kartični podatki vedno ostanejo na gostovanem Stripe Checkout. E-poštni worker
 po plačilu pošlje nastavitveno povezavo, po nastavitvi QR in po koncu dogodka
 24-urno povezavo do ZIP prenosa.
+
+Angleški regionalni ponudbi: English (UK) na korenu Guest Mosaic uporablja GBP,
+English (US) na `/en-us` pa USD. Cena dogodka je £35 oziroma $35, dodatka
+AI Best Photos in neomejeni videi £15 oziroma $15. Ostali jeziki ohranijo EUR.
+Migracijo `0030_english_us_locale.sql` je treba izvesti pred objavo nove kode.

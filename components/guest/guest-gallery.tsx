@@ -1,4 +1,5 @@
 "use client";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -123,7 +124,7 @@ function copyWithLegacySelection(url: string) {
 
 type ShareMessages = Record<Exclude<GalleryShareResult, "cancelled">, { message: string; tone: "success" | "error" }>;
 
-const SHARE_MESSAGES: Record<Locale, ShareMessages> = {
+const SHARE_MESSAGES: Record<Locale, ShareMessages> = withEnglishUS({
   sl: {
     shared: { message: "Galerija je bila deljena.", tone: "success" },
     copied: { message: "Povezava do galerije je kopirana.", tone: "success" },
@@ -159,7 +160,7 @@ const SHARE_MESSAGES: Record<Locale, ShareMessages> = {
     copied: { message: "Le lien vers la galerie a été copié.", tone: "success" },
     error: { message: "Le lien n'a pas pu être partagé. Copiez l'adresse depuis votre navigateur.", tone: "error" },
   },
-};
+});
 
 function shareMessages(locale: Locale): ShareMessages {
   return SHARE_MESSAGES[locale] ?? SHARE_MESSAGES.en;

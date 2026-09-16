@@ -221,7 +221,7 @@ describe("checkout rate limit", () => {
       name: "InitiateCheckout",
       eventId: expect.stringMatching(/^checkout\.initiate:/),
       amountCents: 3_500,
-      currency: "EUR",
+      currency: "GBP",
     }));
   });
 
@@ -250,4 +250,14 @@ describe("checkout rate limit", () => {
       clientUserAgent: null,
     })).resolves.toEqual({ id: expect.any(String), url: "https://checkout.stripe.test/session" });
   });
+  it("persists USD with the US locale and regional return links", async () => {
+    await createCheckoutOrder({ ownerEmail: "us@example.com", termsAccepted: true }, "en-us");
+    const insert = state.bindings.find(({ sql }) => sql.includes("INSERT INTO checkout_orders"));
+    expect(insert?.values[18]).toBe("USD");
+    expect(insert?.values[19]).toBe("en-us");
+    expect(state.createStripeCheckout).toHaveBeenCalledWith(expect.objectContaining({
+      locale: "en-us", cancelUrl: "https://gallery-en.example.test/en-us/order?preklicano=1",
+    }));
+  });
+
 });

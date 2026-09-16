@@ -30,7 +30,7 @@ export function HowItWorks({ locale = "sl", maxSteps, tone = "muted" }: { locale
   const stepVisuals = [
     { src: "/marketing/screenshots/gallery-desktop-frame.png", alt: t.devices.desktopAlt },
     { src: "/marketing/screenshots/email-qr.png", alt: t.howItWorks.qrEmailAlt },
-    { src: locale === "en" ? "/marketing/screenshots/upload-actions-mobile.png" : "/marketing/screenshots/gallery-mobile.png", alt: t.devices.mobileAlt },
+    { src: (locale === "en" || locale === "en-us") ? "/marketing/screenshots/upload-actions-mobile.png" : "/marketing/screenshots/gallery-mobile.png", alt: t.devices.mobileAlt },
     { src: "/marketing/screenshots/liveshow-desktop.png", alt: t.slideshow.visualAlt },
   ];
   return (

@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { Metadata } from "next";
 import { CalendarDays, Download, MapPin, MonitorPlay, QrCode } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -11,7 +12,7 @@ import { getRequestLocale } from "@/lib/i18n/server";
 import { withLocalePrefix } from "@/lib/i18n/locale";
 import { brandName } from "@/lib/seo";
 
-const COPY = {
+const COPY = withEnglishUS({
   sl: ["Nastavi svoj dogodek", "Plačilo je potrjeno. Dodaj tri podatke in pripravi QR kodo.", "Vse, kar potrebuješ, je ob vsakem obisku na tej strani.", "Galerija in QR", "Prenesi vse fotografije", "ZIP bo tukaj na voljo po dogodku, povezavo pa prejmeš tudi po e-pošti.", "Prenesi QR za tisk", "Plačilo potrjeno", "Tvoj dogodek", "Podatki dogodka", "Vzame manj kot minuto.", "QR koda in povezave", "Natisni QR kodo ali jo pokaži gostom na zaslonu.", "Nazaj na stran", "Upravljanje dogodka"],
   en: ["Set up your event", "Your payment is confirmed. Add three details to create your QR code.", "Everything you need is available here whenever you return.", "Gallery and QR", "Download all photos", "The ZIP will appear here after the event and will also arrive by email.", "Download QR for printing", "Payment confirmed", "Your event", "Event details", "It takes less than a minute.", "QR code and links", "Print the QR code or show it to guests on a screen.", "Back to site", "Manage event"],
   de: ["Event einrichten", "Deine Zahlung ist bestätigt. Ergänze drei Angaben, um den QR-Code zu erstellen.", "Hier findest du bei jedem Besuch alles für dein Event.", "Galerie und QR", "Alle Fotos herunterladen", "Die ZIP-Datei erscheint nach dem Event hier und wird auch per E-Mail gesendet.", "QR-Code zum Drucken herunterladen", "Zahlung bestätigt", "Dein Event", "Eventdaten", "Dauert weniger als eine Minute.", "QR-Code und Links", "Drucke den QR-Code oder zeige ihn deinen Gästen auf einem Bildschirm.", "Zurück zur Website", "Event verwalten"],
@@ -19,7 +20,7 @@ const COPY = {
   es: ["Configura tu evento", "Tu pago está confirmado. Añade tres datos para crear el código QR.", "Todo lo que necesitas estará aquí cuando vuelvas.", "Galería y QR", "Descargar todas las fotos", "El ZIP aparecerá aquí después del evento y también llegará por correo.", "Descargar QR para imprimir", "Pago confirmado", "Tu evento", "Datos del evento", "Se tarda menos de un minuto.", "Código QR y enlaces", "Imprime el código QR o muéstralo a tus invitados en una pantalla.", "Volver al sitio", "Gestionar el evento"],
   it: ["Configura il tuo evento", "Il pagamento è confermato. Aggiungi tre dati per creare il codice QR.", "Qui troverai tutto ciò che serve ogni volta che torni.", "Galleria e QR", "Scarica tutte le foto", "Il file ZIP apparirà qui dopo l’evento e arriverà anche via email.", "Scarica il QR per la stampa", "Pagamento confermato", "Il tuo evento", "Dati dell’evento", "Richiede meno di un minuto.", "Codice QR e link", "Stampa il codice QR o mostralo agli ospiti su uno schermo.", "Torna al sito", "Gestisci l’evento"],
   fr: ["Configurez votre événement", "Votre paiement est confirmé. Ajoutez trois informations pour créer le QR.", "Tout ce dont vous avez besoin restera disponible ici.", "Galerie et QR", "Télécharger toutes les photos", "Le ZIP apparaîtra ici après l’événement et sera également envoyé par e-mail.", "Télécharger le QR à imprimer", "Paiement confirmé", "Votre événement", "Informations sur l’événement", "Cela prend moins d’une minute.", "QR code et liens", "Imprimez le QR code ou affichez-le à vos invités sur un écran.", "Retour au site", "Gérer l’événement"],
-} as const;
+} as const);
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();

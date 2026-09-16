@@ -1,3 +1,5 @@
+import { billingCurrency } from "@/lib/domain/billing";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 import type { Locale } from "@/lib/i18n/locale";
 import { brandName } from "@/lib/seo";
@@ -50,18 +52,18 @@ export async function createStripeCheckout(input: {
   locale: Locale;
   successUrl: string; cancelUrl: string; customerId?: string | null;
 }): Promise<StripeCheckoutSession> {
-  const eventLabel = { sl: "dogodek", en: "event", de: "Event", nl: "evenement", es: "evento", it: "evento", fr: "événement" }[input.locale];
+  const eventLabel = withEnglishUS({ sl: "dogodek", en: "event", de: "Event", nl: "evenement", es: "evento", it: "evento", fr: "événement" })[input.locale];
   const body = new URLSearchParams({
     mode: "payment",
     success_url: input.successUrl,
     cancel_url: input.cancelUrl,
     "metadata[orderId]": input.orderId,
-    "line_items[0][price_data][currency]": "eur",
+    "line_items[0][price_data][currency]": billingCurrency(input.locale).toLowerCase(),
     "line_items[0][price_data][product_data][name]": `${brandName(input.locale)} · ${eventLabel}`,
     "line_items[0][price_data][unit_amount]": "3500",
     "line_items[0][quantity]": "1",
     "payment_intent_data[metadata][orderId]": input.orderId,
-    locale: input.locale === "en" ? "en" : "auto",
+    locale: (input.locale === "en" || input.locale === "en-us") ? "en" : "auto",
   });
   if (input.customerId) body.set("customer", input.customerId);
   else {
@@ -70,15 +72,15 @@ export async function createStripeCheckout(input: {
   }
   let lineItemIndex = 1;
   const addLineItem = (name: string, unitAmount: string) => {
-    body.set(`line_items[${lineItemIndex}][price_data][currency]`, "eur");
+    body.set(`line_items[${lineItemIndex}][price_data][currency]`, billingCurrency(input.locale).toLowerCase());
     body.set(`line_items[${lineItemIndex}][price_data][product_data][name]`, name);
     body.set(`line_items[${lineItemIndex}][price_data][unit_amount]`, unitAmount);
     body.set(`line_items[${lineItemIndex}][quantity]`, "1");
     lineItemIndex += 1;
   };
-  if (input.aiBestPhotos) addLineItem(input.locale === "en" ? "AI Best Photos · up to 3,000 photos" : "AI Best Photos · do 3.000 fotografij", "1500");
-  if (input.faceCollections) addLineItem(input.locale === "en" ? "Photo search by face" : "Iskanje fotografij po obrazu", "500");
-  if (input.videoUnlimited) addLineItem(input.locale === "en" ? "Unlimited videos · up to 60 seconds" : "Neomejeno videoposnetkov · do 60 sekund", "1500");
+  if (input.aiBestPhotos) addLineItem((input.locale === "en" || input.locale === "en-us") ? "AI Best Photos · up to 3,000 photos" : "AI Best Photos · do 3.000 fotografij", "1500");
+  if (input.faceCollections) addLineItem((input.locale === "en" || input.locale === "en-us") ? "Photo search by face" : "Iskanje fotografij po obrazu", "500");
+  if (input.videoUnlimited) addLineItem((input.locale === "en" || input.locale === "en-us") ? "Unlimited videos · up to 60 seconds" : "Neomejeno videoposnetkov · do 60 sekund", "1500");
   const session = await stripeRequest<StripeCheckoutSession>("/checkout/sessions", input.locale, { method: "POST", body });
   if (!session.url || session.amount_total !== input.amountCents) throw new Error("STRIPE_INVALID_CHECKOUT");
   return session;

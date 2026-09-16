@@ -1,3 +1,5 @@
+import { billingCurrency } from "@/lib/domain/billing";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { Locale } from "@/lib/i18n/locale";
 import { orderPath } from "@/lib/i18n/routes";
 
@@ -57,13 +59,13 @@ export function brandWordParts(locale: Locale): [string, string] {
  * shared and cached by Facebook and friends do not break.
  */
 export function ogImage(locale: Locale): string {
-  return locale === "sl" ? "/og-image.png" : `/og-image-${locale}.png`;
+  return locale === "sl" ? "/og-image.png" : `/og-image-${locale === "en-us" ? "en" : locale}.png`;
 }
 
 export const SITE_LANGUAGE = "sl-SI";
 export const SEO_LAST_UPDATED = "2026-08-04";
 
-export const SEO_COPY = {
+export const SEO_COPY = withEnglishUS({
   sl: {
     language: "sl-SI",
     openGraphLocale: "sl_SI",
@@ -214,7 +216,7 @@ export const SEO_COPY = {
       "Conservation de la galerie pendant 180 jours",
     ],
   },
-} as const;
+} as const);
 
 export const SITE_DESCRIPTION = SEO_COPY.sl.description;
 
@@ -269,8 +271,8 @@ export function siteStructuredDataFor(locale: Locale, siteUrl: string) {
         offers: {
           "@type": "Offer",
           price: "35.00",
-          priceCurrency: "EUR",
-          url: `${siteUrl}${orderPath(locale)}`,
+          priceCurrency: billingCurrency(locale),
+          url: absoluteUrl(orderPath(locale), siteUrl),
           availability: "https://schema.org/InStock",
         },
         featureList: copy.featureList,
@@ -289,15 +291,15 @@ export function productStructuredDataFor(locale: Locale, siteUrl: string) {
     url: siteUrl,
     name: brandName(locale),
     description: copy.description,
-    image: `${siteUrl}${ogImage(locale)}`,
+    image: absoluteUrl(ogImage(locale), siteUrl),
     ...(locale === "sl"
       ? { brand: { "@id": EVENTAJ_ORGANIZATION_ID } }
       : { brand: { "@id": GUEST_MOSAIC_BRAND_ID } }),
     offers: {
       "@type": "Offer",
       price: "35.00",
-      priceCurrency: "EUR",
-      url: `${siteUrl}${orderPath(locale)}`,
+      priceCurrency: billingCurrency(locale),
+      url: absoluteUrl(orderPath(locale), siteUrl),
       availability: "https://schema.org/InStock",
       seller: { "@id": EVENTAJ_ORGANIZATION_ID },
     },

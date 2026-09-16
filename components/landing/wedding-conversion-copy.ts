@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { SolutionPageLocale } from "@/lib/i18n/routes";
 
 export type WeddingConversionCopy = {
@@ -31,7 +32,7 @@ export type WeddingConversionCopy = {
   paidGoodForText: string;
 };
 
-export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversionCopy> = {
+export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversionCopy> = withEnglishUS({
   en: {
     guestViewPill: "What guests see",
     guestViewHeading: "Try the three-tap guest flow before you buy.",
@@ -224,4 +225,4 @@ export const weddingConversionCopy: Record<SolutionPageLocale, WeddingConversion
     paidGoodFor: "Choisissez Guest Mosaic si",
     paidGoodForText: "Vous voulez un QR, aucun compte invité, une galerie prête et moins de relances après le mariage.",
   },
-};
+});

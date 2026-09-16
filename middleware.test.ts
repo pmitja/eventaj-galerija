@@ -179,3 +179,11 @@ describe("canonical hostname middleware", () => {
     expect(checkout.headers.get("cdn-cache-control")).toBeNull();
   });
 });
+
+describe("US English routing", () => {
+  it.each([["/en-us", "/"], ["/en-us/order", "/naroci"], ["/en-us/api/v1/checkout", "/api/v1/checkout"]])("rewrites %s and preserves its locale", (path, internal) => {
+    const response = middleware(new NextRequest(`https://guestmosaic.com${path}`, { headers: { host: "guestmosaic.com", "x-locale": "sl" } }));
+    expect(new URL(response.headers.get("x-middleware-rewrite")!).pathname).toBe(internal);
+    expect(response.headers.get("x-middleware-request-x-locale")).toBe("en-us");
+  });
+});

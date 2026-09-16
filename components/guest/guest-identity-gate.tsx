@@ -43,7 +43,7 @@ async function persistIdentity(
     suggestions?: string[];
   }) | null;
   if (!response.ok) {
-    const error = new Error(locale === "en" ? "Your identity cannot be saved right now." : body?.title ?? "Identitete trenutno ni mogoče shraniti.");
+    const error = new Error((locale === "en" || locale === "en-us") ? "Your identity cannot be saved right now." : body?.title ?? "Identitete trenutno ni mogoče shraniti.");
     return { error, suggestions: body?.suggestions ?? [] };
   }
   return { identity: { version: 1, ...body!.guest } satisfies StoredGuestIdentity };

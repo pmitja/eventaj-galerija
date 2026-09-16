@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { Locale } from "@/lib/i18n/locale";
 
 type EmailMessage = {
@@ -38,7 +39,7 @@ function escapeHtml(value: string): string {
 }
 
 function layout(content: string, locale: Locale): string {
-  const footer = {
+  const footer = withEnglishUS({
     sl: "To je transakcijsko sporočilo za naročen dogodek. Prijava ni potrebna.",
     en: "This is a transactional message for your event order. No sign-in is required.",
     de: "Dies ist eine Transaktionsnachricht zu deiner Event-Bestellung. Keine Anmeldung erforderlich.",
@@ -46,7 +47,7 @@ function layout(content: string, locale: Locale): string {
     es: "Este es un mensaje transaccional sobre tu pedido. No es necesario iniciar sesión.",
     it: "Questo è un messaggio transazionale relativo al tuo ordine. Non è necessario accedere.",
     fr: "Ceci est un message transactionnel concernant votre commande. Aucune connexion n’est requise.",
-  }[locale];
+  })[locale];
   return `<!doctype html><html lang="${locale}"><body style="margin:0;background:#fff8fb;color:#401326;font-family:Arial,sans-serif">
   <div style="max-width:600px;margin:0 auto;padding:32px 20px">
     <div style="font-size:14px;font-weight:800;letter-spacing:.08em;color:#db2777;margin-bottom:24px">EVENTAJ GALERIJA</div>
@@ -59,7 +60,7 @@ function button(label: string, href: string): string {
   return `<a href="${escapeHtml(href)}" style="display:inline-block;background:#db2777;color:#fff;text-decoration:none;font-weight:700;padding:14px 20px;border-radius:12px">${escapeHtml(label)}</a>`;
 }
 
-const SETUP_COPY = {
+const SETUP_COPY = withEnglishUS({
   sl: ["Dokončaj nastavitev dogodka", "Plačilo je potrjeno", "Vnesi naziv, datum in lokacijo dogodka. Nato dobiš QR kodo, galerijo in Live Show.", "Nastavi dogodek"],
   en: ["Finish setting up your event", "Payment confirmed", "Add the event name, date and location. You’ll then get the QR code, gallery and live display.", "Set up event"],
   de: ["Event fertig einrichten", "Zahlung bestätigt", "Füge Name, Datum und Ort hinzu. Danach erhältst du QR-Code, Galerie und Live-Anzeige.", "Event einrichten"],
@@ -67,7 +68,7 @@ const SETUP_COPY = {
   es: ["Termina de configurar tu evento", "Pago confirmado", "Añade el nombre, la fecha y la ubicación. Después recibirás el QR, la galería y la pantalla en directo.", "Configurar evento"],
   it: ["Completa la configurazione dell’evento", "Pagamento confermato", "Aggiungi nome, data e luogo. Riceverai quindi il QR, la galleria e la modalità Live Show.", "Configura evento"],
   fr: ["Terminez la configuration de votre événement", "Paiement confirmé", "Ajoutez le nom, la date et le lieu. Vous recevrez ensuite le QR, la galerie et l’affichage en direct.", "Configurer l’événement"],
-} as const;
+} as const);
 
 export function setupDeliveryEmail(input: { deliveryId: string; recipientEmail: string; setupUrl: string; locale: Locale }): EmailMessage {
   const copy = SETUP_COPY[input.locale];
@@ -105,7 +106,7 @@ export function qrDeliveryEmail(input: QrDeliveryInput): EmailMessage {
   const locale = input.locale ?? "sl";
   const name = escapeHtml(input.recipientName);
   const event = escapeHtml(input.eventName);
-  if (locale !== "sl" && locale !== "en") {
+  if (locale !== "sl" && locale !== "en" && locale !== "en-us") {
     const copy = QR_COPY[locale];
     return {
       to: input.recipientEmail, subject: `${copy[0]} · ${input.eventName}`, idempotencyKey: `eventaj-qr-${input.deliveryId}`,
@@ -113,7 +114,7 @@ export function qrDeliveryEmail(input: QrDeliveryInput): EmailMessage {
       text: `${copy[0]}\n${input.eventName} · ${input.eventDate}\n${copy[1]}: ${input.eventUrl}\n${copy[2]}: ${input.qrDownloadUrl}\n${copy[3]}: ${input.liveshowUrl}\n\n${copy[4]}`,
     };
   }
-  if (locale === "en") {
+  if (locale === "en" || locale === "en-us") {
     return {
       to: input.recipientEmail,
       subject: `QR code for ${input.eventName}`,
@@ -174,7 +175,7 @@ const ARCHIVE_COPY = {
 
 export function archiveDeliveryEmail(input: ArchiveDeliveryInput): EmailMessage {
   const locale = input.locale ?? "sl";
-  if (locale !== "sl" && locale !== "en") {
+  if (locale !== "sl" && locale !== "en" && locale !== "en-us") {
     const copy = ARCHIVE_COPY[locale];
     return {
       to: input.recipientEmail, subject: `${copy[0]} · ${input.eventName}`, idempotencyKey: `eventaj-archive-${input.deliveryId}`,
@@ -182,7 +183,7 @@ export function archiveDeliveryEmail(input: ArchiveDeliveryInput): EmailMessage 
       text: `${copy[0]}\n${input.eventName} · ${input.mediaCount}\n${copy[1]}: ${input.downloadUrl}\n${copy[2]} ${input.expiresAtLabel}.`,
     };
   }
-  if (locale === "en") {
+  if (locale === "en" || locale === "en-us") {
     return {
       to: input.recipientEmail,
       subject: `Photos from ${input.eventName} are ready`,

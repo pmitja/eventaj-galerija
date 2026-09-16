@@ -1,3 +1,4 @@
+import { isComparisonPath } from "@/lib/comparisons/routes";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { localeFromPathname, type Locale } from "@/lib/i18n/locale";
@@ -114,6 +115,13 @@ export function middleware(request: NextRequest) {
     if (publicPath) return NextResponse.redirect(new URL(publicPath, request.url), 308);
   }
 
+
+  // Keep each comparison locale on its own physical route. Unknown slugs are
+  // handled by the route's shared Zod schema; the Slovenian host returns 404.
+  if (isComparisonPath(currentPath)) {
+    if (redirectOrigin) return NextResponse.redirect(new URL(`${currentPath}${request.nextUrl.search}`, redirectOrigin), 308);
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
   // SEO solution pages are physical App Router routes. Avoid rewriting them to
   // one shared pathname, because the route cache must remain locale-specific.

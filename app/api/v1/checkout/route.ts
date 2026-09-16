@@ -2,12 +2,15 @@ import { problem } from "@/lib/http/problem";
 import { createCheckoutOrder } from "@/lib/repositories/checkout";
 import { minimalCheckoutSchema } from "@/lib/validation/checkout";
 import { getCloudflareEnv } from "@/lib/cloudflare";
-import { localeFromRequest } from "@/lib/i18n/locale";
+import { isLocale, localeFromRequest } from "@/lib/i18n/locale";
 import { marketingAttributionFromRequest } from "@/lib/analytics/meta-attribution";
 
 export async function POST(request: Request) {
-  const env = getCloudflareEnv();
-  const locale = localeFromRequest(request, env.PUBLIC_APP_URL_EN);
+  const hostLocale = localeFromRequest(request, getCloudflareEnv().PUBLIC_APP_URL_EN);
+  // Middleware overwrites x-locale from the trusted hostname and public path
+  // before rewriting /en-us/api/... onto the shared API route.
+  const headerLocale = request.headers.get("x-locale");
+  const locale = hostLocale !== "sl" && isLocale(headerLocale) ? headerLocale : hostLocale;
   const copy = locale !== "sl" ? {
     invalid: "The order details are invalid",
     videoUnavailable: "The video add-on is currently unavailable",

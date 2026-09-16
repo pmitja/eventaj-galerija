@@ -1,4 +1,5 @@
 "use client";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
@@ -13,7 +14,7 @@ type Feature = {
   mobile: string;
 };
 
-const controls: Record<Locale, { previous: string; next: string; item: string }> = {
+const controls: Record<Locale, { previous: string; next: string; item: string }> = withEnglishUS({
   sl: { previous: "Prejšnja funkcija", next: "Naslednja funkcija", item: "Funkcija" },
   en: { previous: "Previous feature", next: "Next feature", item: "Feature" },
   de: { previous: "Vorherige Funktion", next: "Nächste Funktion", item: "Funktion" },
@@ -21,7 +22,7 @@ const controls: Record<Locale, { previous: string; next: string; item: string }>
   es: { previous: "Función anterior", next: "Función siguiente", item: "Función" },
   it: { previous: "Funzione precedente", next: "Funzione successiva", item: "Funzione" },
   fr: { previous: "Fonction précédente", next: "Fonction suivante", item: "Fonction" },
-};
+});
 
 export function FeatureCarousel({ features, locale, label }: { features: readonly Feature[]; locale: Locale; label: string }) {
   const trackRef = useRef<HTMLDivElement>(null);

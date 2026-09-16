@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { Locale } from "@/lib/i18n/locale";
 import { eventUseCaseGroupsDe, eventUseCasesDe } from "./use-cases-de";
 import { eventUseCaseGroupsNl, eventUseCasesNl } from "./use-cases-nl";
@@ -168,7 +169,7 @@ const eventUseCasesEn = [
 
 export const eventUseCaseGroupsEn = ["Private events", "Corporate events"] as const;
 
-const USE_CASES_BY_LOCALE: Record<Locale, readonly EventUseCase[]> = {
+const USE_CASES_BY_LOCALE: Record<Locale, readonly EventUseCase[]> = withEnglishUS({
   sl: eventUseCases,
   en: eventUseCasesEn,
   de: eventUseCasesDe,
@@ -176,9 +177,9 @@ const USE_CASES_BY_LOCALE: Record<Locale, readonly EventUseCase[]> = {
   es: eventUseCasesEs,
   it: eventUseCasesIt,
   fr: eventUseCasesFr,
-};
+});
 
-const USE_CASE_GROUPS_BY_LOCALE: Record<Locale, readonly string[]> = {
+const USE_CASE_GROUPS_BY_LOCALE: Record<Locale, readonly string[]> = withEnglishUS({
   sl: eventUseCaseGroups,
   en: eventUseCaseGroupsEn,
   de: eventUseCaseGroupsDe,
@@ -186,7 +187,7 @@ const USE_CASE_GROUPS_BY_LOCALE: Record<Locale, readonly string[]> = {
   es: eventUseCaseGroupsEs,
   it: eventUseCaseGroupsIt,
   fr: eventUseCaseGroupsFr,
-};
+});
 
 export function eventUseCasesFor(locale: Locale): readonly EventUseCase[] {
   return USE_CASES_BY_LOCALE[locale] ?? eventUseCasesEn;

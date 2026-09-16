@@ -1,4 +1,4 @@
-export const SUPPORTED_LOCALES = ["sl", "en", "de", "nl", "es", "it", "fr"] as const;
+export const SUPPORTED_LOCALES = ["sl", "en", "en-us", "de", "nl", "es", "it", "fr"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 /**
@@ -6,7 +6,7 @@ export type Locale = (typeof SUPPORTED_LOCALES)[number];
  * Slovenian and English keep their own domains and unprefixed paths so the
  * existing SEO and printed QR codes stay valid.
  */
-export const PREFIXED_LOCALES = ["de", "nl", "es", "it", "fr"] as const;
+export const PREFIXED_LOCALES = ["en-us", "de", "nl", "es", "it", "fr"] as const;
 export type PrefixedLocale = (typeof PREFIXED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "sl";
@@ -16,6 +16,7 @@ export const DEFAULT_PUBLIC_APP_URL_EN = "https://guestmosaic.com";
 const INTL_LOCALES = {
   sl: "sl-SI",
   en: "en-GB",
+  "en-us": "en-US",
   de: "de-DE",
   nl: "nl-NL",
   es: "es-ES",
@@ -26,6 +27,7 @@ const INTL_LOCALES = {
 const OPEN_GRAPH_LOCALES = {
   sl: "sl_SI",
   en: "en_GB",
+  "en-us": "en_US",
   de: "de_DE",
   nl: "nl_NL",
   es: "es_ES",
@@ -36,7 +38,8 @@ const OPEN_GRAPH_LOCALES = {
 /** Endonyms — a language picker should always name a language in that language. */
 export const LOCALE_LABELS = {
   sl: "Slovenščina",
-  en: "English",
+  en: "English (UK)",
+  "en-us": "English (US)",
   de: "Deutsch",
   nl: "Nederlands",
   es: "Español",
@@ -46,7 +49,8 @@ export const LOCALE_LABELS = {
 
 export const LOCALE_SHORT_LABELS = {
   sl: "SL",
-  en: "EN",
+  en: "UK",
+  "en-us": "US",
   de: "DE",
   nl: "NL",
   es: "ES",

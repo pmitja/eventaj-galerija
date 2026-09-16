@@ -1,3 +1,5 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
+import { comparisonPath, COMPARISON_LABELS } from "@/lib/comparisons/routes";
 import Link from "next/link";
 import { StickyCreateEventCta } from "./sticky-create-event-cta";
 import type { Locale } from "@/lib/i18n/locale";
@@ -33,6 +35,7 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
           </div>
           <div className="footer-column">
             <strong>{t.footer.productColumn}</strong>
+            {locale !== "sl" ? <Link href={comparisonPath(locale)}>{COMPARISON_LABELS[locale]}</Link> : null}
             <Link href={`${home}#${t.anchors.howItWorks}`}>{t.nav.howItWorks}</Link>
             <Link className="desktop-only" href={featuresPath(locale)}>{t.nav.features}</Link>
             <Link href={`${home}#${t.anchors.pricing}`}>{t.nav.pricing}</Link>
@@ -69,8 +72,8 @@ export function Footer({ locale = "sl" }: { locale?: Locale }) {
 
 function getSolutionLabel(locale: Locale, id: "wedding-qr" | "no-app-sharing") {
   const labels = {
-    "wedding-qr": { en: "Wedding photo QR", de: "QR für Hochzeitsfotos", nl: "QR voor trouwfoto’s", es: "QR para fotos de boda", it: "QR per foto di matrimonio", fr: "QR pour photos de mariage" },
-    "no-app-sharing": { en: "Share photos without an app", de: "Fotos ohne App teilen", nl: "Foto’s delen zonder app", es: "Compartir fotos sin app", it: "Condividere foto senza app", fr: "Partager sans application" },
+    "wedding-qr": withEnglishUS({ en: "Wedding photo QR", de: "QR für Hochzeitsfotos", nl: "QR voor trouwfoto’s", es: "QR para fotos de boda", it: "QR per foto di matrimonio", fr: "QR pour photos de mariage" }),
+    "no-app-sharing": withEnglishUS({ en: "Share photos without an app", de: "Fotos ohne App teilen", nl: "Foto’s delen zonder app", es: "Compartir fotos sin app", it: "Condividere foto senza app", fr: "Partager sans application" }),
   } as const;
   return locale === "sl" ? "" : labels[id][locale];
 }

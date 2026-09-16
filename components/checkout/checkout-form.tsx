@@ -1,4 +1,7 @@
 "use client";
+import { localePathPrefix } from "@/lib/i18n/locale";
+import { formatPrice } from "@/lib/domain/billing";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -6,7 +9,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, Check, Download, LoaderCircle, LockKeyhole, Mail, ScanFace, ShieldCheck, Sparkles, TriangleAlert, Video } from "lucide-react";
 import { format } from "date-fns";
-import { de as deDate, enGB, es as esDate, fr as frDate, it as itDate, nl as nlDate, sl } from "date-fns/locale";
+import { de as deDate, enGB, enUS, es as esDate, fr as frDate, it as itDate, nl as nlDate, sl } from "date-fns/locale";
 import { Alert, Separator } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -22,7 +25,7 @@ import { privacyPath, termsPath } from "@/lib/i18n/routes";
 import { brandName } from "@/lib/seo";
 import { detectedTimeZone, zonedLocalDateTimeToIso } from "@/lib/datetime/timezone";
 
-const TIME_ZONE_COPY: Record<Locale, { label: string; note: string }> = {
+const TIME_ZONE_COPY: Record<Locale, { label: string; note: string }> = withEnglishUS({
   sl: { label: "Časovni pas dogodka", note: "Datumi in ure bodo shranjeni v tem časovnem pasu." },
   en: { label: "Event time zone", note: "Event dates and times will use this time zone." },
   de: { label: "Zeitzone des Events", note: "Datum und Uhrzeit des Events verwenden diese Zeitzone." },
@@ -30,7 +33,7 @@ const TIME_ZONE_COPY: Record<Locale, { label: string; note: string }> = {
   es: { label: "Zona horaria del evento", note: "Las fechas y horas del evento usarán esta zona horaria." },
   it: { label: "Fuso orario dell’evento", note: "Le date e gli orari useranno questo fuso orario." },
   fr: { label: "Fuseau horaire de l’événement", note: "Les dates et heures utiliseront ce fuseau horaire." },
-};
+});
 
 const COMMON_TIME_ZONES = [
   "Europe/Ljubljana", "Europe/London", "Europe/Berlin", "Europe/Amsterdam",
@@ -39,7 +42,7 @@ const COMMON_TIME_ZONES = [
   "America/Denver", "America/Los_Angeles", "UTC",
 ] as const;
 
-const CHECKOUT_COPY = {
+const CHECKOUT_COPY = withEnglishUS({
   sl: {
     date: "Datum", chooseDate: "Izberi datum", required: "označuje obvezno polje",
     paymentError: "Plačila ni mogoče začeti.", deliveryTitle: "Kam pošljemo dostop?",
@@ -194,7 +197,7 @@ const CHECKOUT_COPY = {
     privacy: "Politique de confidentialité", opening: "Ouverture du paiement sécurisé …", continue: "Continuer vers le paiement",
     secure: "Le paiement est traité en toute sécurité par Stripe. Nous ne conservons aucune donnée bancaire.",
   },
-} as const;
+} as const);
 
 function dateFromValue(value: string) {
   const [year, month, day] = value.split("-").map(Number);
@@ -208,7 +211,7 @@ function valueFromDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-const DATE_FNS_LOCALES = { sl, en: enGB, de: deDate, nl: nlDate, es: esDate, it: itDate, fr: frDate };
+const DATE_FNS_LOCALES = { "en-us": enUS, sl, en: enGB, de: deDate, nl: nlDate, es: esDate, it: itDate, fr: frDate };
 
 const includedItem = "flex items-center gap-2";
 const includedIcon = "size-[15px] flex-none text-[#16a34a]";
@@ -317,7 +320,7 @@ export function CheckoutForm({
       const startsAt = zonedLocalDateTimeToIso(data.startDate, data.startTime, data.timezone);
       const endsAt = zonedLocalDateTimeToIso(data.endDate, data.endTime, data.timezone);
       if (!startsAt || !endsAt) throw new Error(TIME_ZONE_COPY[locale].note);
-      const response = await fetch("/api/v1/checkout", {
+      const response = await fetch(`${localePathPrefix(locale)}/api/v1/checkout`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -439,7 +442,7 @@ export function CheckoutForm({
             <div className="grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3">
               <div className="grid size-[42px] place-items-center rounded-xl bg-brand-soft text-brand-hover"><CalendarDays className="size-5" aria-hidden="true" /></div>
               <div className="grid gap-0.5"><strong className="text-[14px]">{brandName(locale)}</strong><span className="text-[12px] text-[#806672]">{copy.oneEvent}</span></div>
-              <b className="text-[18px] whitespace-nowrap">35 €</b>
+              <b className="text-[18px] whitespace-nowrap">{formatPrice(3500, locale)}</b>
             </div>
             <ul className="m-0 -mt-1 grid list-none gap-2 p-0 text-[12.5px] text-[#68495a]">
               <li className={includedItem}><Check className={includedIcon} strokeWidth={3} aria-hidden="true" /> {copy.unlimitedGuests}</li>
@@ -452,23 +455,23 @@ export function CheckoutForm({
             <Controller control={form.control} name="aiBestPhotos" render={({ field }) => <label className={addonRow} htmlFor="aiBestPhotos">
               <Checkbox id="aiBestPhotos" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
               <span className="grid gap-1"><strong className={addonTitle}><Sparkles className={addonIcon} aria-hidden="true" /> AI Best Photos</strong><small className={addonNote}>{copy.aiNote}</small></span>
-              <b className={addonPrice}>+15 €</b>
+              <b className={addonPrice}>+{formatPrice(1500, locale)}</b>
             </label>} />
             {faceSearchEnabled ? <Controller control={form.control} name="faceCollections" render={({ field }) => <label className={addonRow} htmlFor="faceCollections">
               <Checkbox id="faceCollections" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
               <span className="grid gap-1"><strong className={addonTitle}><ScanFace className={addonIcon} aria-hidden="true" /> {copy.face}</strong><small className={addonNote}>{copy.faceNote}</small></span>
-              <b className={addonPrice}>+5 €</b>
+              <b className={addonPrice}>+{formatPrice(500, locale)}</b>
             </label>} /> : null}
             {videoUploadsEnabled ? <Controller control={form.control} name="videoUnlimited" render={({ field }) => <div className="grid gap-1">
               <label className={addonRow} htmlFor="videoUnlimited">
                 <Checkbox id="videoUnlimited" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
                 <span className="grid gap-1"><strong className={addonTitle}><Video className={addonIcon} aria-hidden="true" /> {copy.unlimitedVideos}</strong><small className={addonNote}>{copy.videoNote}</small></span>
-                <b className={addonPrice}>+15 €</b>
+                <b className={addonPrice}>+{formatPrice(1500, locale)}</b>
               </label>
               <Link className="ml-[33px] text-[12px]/[1.4] font-[700] text-brand-hover! underline underline-offset-2" href={termsPath(locale)} target="_blank">{copy.videoRules}</Link>
             </div>} /> : null}
             <Separator />
-            <div className="flex items-baseline justify-between"><span className="text-[14px] font-bold text-[#68495a]">{copy.total}</span><strong className="text-[30px]/none tracking-[-.03em]">{totalEuros} €</strong></div>
+            <div className="flex items-baseline justify-between"><span className="text-[14px] font-bold text-[#68495a]">{copy.total}</span><strong className="text-[30px]/none tracking-[-.03em]">{formatPrice(totalEuros * 100, locale)}</strong></div>
             <span className="-mt-3 text-right text-[11.5px] text-[#8a707c]">{copy.tax}</span>
             <Controller control={form.control} name="termsAccepted" render={({ field }) => <div>
               <label className="flex cursor-pointer items-start gap-2.5 text-[12px]/[1.5] text-[#68495a]" htmlFor="termsAccepted">

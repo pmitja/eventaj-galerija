@@ -9,7 +9,7 @@ vi.mock("@/lib/cloudflare", () => ({
   }),
 }));
 
-import { verifyStripeWebhook } from "./stripe";
+import { createStripeCheckout, verifyStripeWebhook } from "./stripe";
 
 async function signature(body: string, timestamp: number, secret = "whsec_test_secret") {
   const key = await crypto.subtle.importKey(
@@ -41,5 +41,20 @@ describe("Stripe webhook verification", () => {
     const header = await signature(body, timestamp, "whsec_test_guest_secret");
     await expect(verifyStripeWebhook(body, header, "en")).resolves.toMatchObject({ id: "evt_guest" });
     await expect(verifyStripeWebhook(body, header, "sl")).rejects.toThrow("INVALID_STRIPE_SIGNATURE");
+  });
+});
+
+describe("regional Checkout currencies", () => {
+  it.each([["en", "gbp"], ["en-us", "usd"], ["sl", "eur"]] as const)("charges all %s line items in %s", async (locale, currency) => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({
+      url: "https://checkout.stripe.test/session", amount_total: 7000, currency,
+    }));
+    try {
+      await createStripeCheckout({ orderId: "regional", email: "test@example.com", amountCents: 7000,
+        aiBestPhotos: true, faceCollections: true, videoUnlimited: true, locale,
+        successUrl: "https://guestmosaic.com/order/success", cancelUrl: "https://guestmosaic.com/order" });
+      const body = fetchMock.mock.calls[0][1]?.body as URLSearchParams;
+      for (let index = 0; index < 4; index++) expect(body.get(`line_items[${index}][price_data][currency]`)).toBe(currency);
+    } finally { fetchMock.mockRestore(); }
   });
 });

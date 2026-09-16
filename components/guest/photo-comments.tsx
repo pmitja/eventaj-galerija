@@ -19,7 +19,7 @@ export type MediaComment = {
 
 async function responseMessage(response: Response, fallback: string, locale: Locale = "sl"): Promise<string> {
   const body = await response.json().catch(() => null) as { title?: string; detail?: string } | null;
-  return locale === "en" ? fallback : body?.detail ?? body?.title ?? fallback;
+  return (locale === "en" || locale === "en-us") ? fallback : body?.detail ?? body?.title ?? fallback;
 }
 
 const panelClass =

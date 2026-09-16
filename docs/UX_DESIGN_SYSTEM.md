@@ -181,3 +181,50 @@ da je produkt omejen na poroke.
   metadata razlikujeta po hostnameu, ta cache pa hostnamea ne vključi v ključ.
   Statične datoteke ostanejo predpomnjene prek Cloudflare Assets.
 - Cilji ostajajo mobile p75 LCP < 2,5 s, INP < 200 ms, CLS < 0,1 in TTFB < 800 ms.
+
+### Primerjalne prodajne strani
+
+- Guest Mosaic ima pregled `/compare` ter primerjave z WhatsApp, Google Drive,
+  Google Photos, GUESTPIX, Kululu in WedUploader. Vseh sedem strani ima EN,
+  DE, NL, ES, IT in FR različico; glej ADR-019.
+- Zaporedje je uvod s ceno in CTA → izbira glede na potrebe → primerjalna
+  tabela → razlaga posebnosti → lokalni demo → ponudba s postopkom po plačilu
+  in omejitvami → FAQ → druge primerjave → viri → zaključni CTA v footerju.
+- Primarni CTA odpre lokalizirano naročilo; sekundarni obstoječi demo. Na
+  mobilnem obstoječi plavajoči CTA izgine, ko je odprt dialog za piškotke.
+- Tabela na telefonu kaže vsako lastnost nad obema jasno poimenovanima
+  možnostma. Barva ne nadomešča besedilnih razlik; stran horizontalno ne drsi.
+- Kljukica označuje jasno prisotno zmožnost, križec pa jasno manjkajočo zmožnost
+  ali obvezen račun gosta. Cena, hramba in pravila dostopa ostanejo brez ikone,
+  ker jih ni pošteno skrčiti na pozitivno ali negativno oceno. Besedilo je vedno
+  prisotno ob ikoni, zato pomen ni odvisen samo od barve.
+- Viri, primerjani paket in datum preverjanja so vidni. Guest Mosaic je jasno
+  naveden kot založnik. Nepotrjene cene ostanejo brez številke. Ni izmišljenih
+  ocen, obljub o prihranku, časovnih pritiskov ali konkurenčnih screenshotov.
+- Copy vključuje relevantne iskalne teme v naslovih in dejanskih odgovorih.
+  Vsaka alternativa ima lastno razlago in vprašanje. Slovenske prodajne strani
+  se ne podvajajo. Uporabljamo obstoječe posnetke aplikacije.
+
+#### Oblikovna revizija primerjav (2026-09-11)
+
+- Ohranimo dejanske marketing tokene (`--accent: #e11d48`, Inter, 12 px gumbi)
+  in obstoječi header/footer. Nova vizualna identiteta ni del revizije.
+- Hierarhija: naslov in razlog za izbiro → polni nakupni gumb s ceno → obrobljen
+  demo gumb → primerjave. Oba gumba imata najmanj 52 px višine in vidni fokus.
+- Pregled je seznam šestih vrstic: ponudnik, kratek lokaliziran povzetek,
+  obrobljen gumb za primerjavo. Na telefonu se elementi zložijo v vrstnem redu
+  branja. Ni monogramov in šestih enakih okrasnih kartic.
+- Posnetek prikazuje dejansko demo aplikacijo s komentarji v izvornem razmerju
+  stranic. Ni nagnjenega telefona, dodatnega okvirja naprave ali cenovne oznake
+  prek slike. Lokalni simulator ostaja pravi obstoječi upload v navadni plošči.
+- Razmiki sekcij so 64 px na namizju in 40 px na telefonu, razmiki znotraj
+  skupin pa 12–28 px. Ponudba in koraki nastavitve tvorijo skupen razdelek;
+  ločen podvojen zaključni CTA je odstranjen.
+- Viri so združeni po ponudniku v semantičnem `details`. Datum preverjanja in
+  avtorstvo ostaneta vidna; povezave se odprejo tudi s tipkovnico.
+- FAQ uporablja prilagojen shadcn/Radix accordion v enem stolpcu neposredno pod
+  naslovom. Odprta je lahko ena postavka; stanje, fokus in tipkovnica sledijo
+  dostopnemu Radix vzorcu.
+- Hero se ob vstopu enkrat umirjeno sestavi, nadaljnji vsebinski sklopi pa se
+  razkrijejo ob prihodu v viewport. Animirata se samo `transform` in `opacity`;
+  pri `prefers-reduced-motion` so vse samodejne in accordion animacije izključene.

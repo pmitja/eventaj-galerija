@@ -1,4 +1,5 @@
 "use client";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
@@ -11,7 +12,7 @@ import {
   saveTrackingConsent,
 } from "@/lib/client/tracking-consent";
 
-const copy = {
+const copy = withEnglishUS({
   sl: {
     title: "Vaša zasebnost, vaša izbira",
     description: "Nujne tehnologije omogočajo delovanje strani. Z vašim dovoljenjem uporabljamo LiveSession za izboljšanje izkušnje in Meta Pixel za merjenje oglasov.",
@@ -131,7 +132,7 @@ const copy = {
     marketingDescription: "Meta Pixel et Conversions API mesurent les visites, débuts de paiement et achats issus des publicités.",
     privacy: "Lire la Politique de confidentialité",
   },
-} as const satisfies Record<Locale, Record<string, string>>;
+} as const) satisfies Record<Locale, Record<string, string>>;
 
 const buttonBase = "min-h-11 cursor-pointer rounded-xl px-4 py-2.5 text-sm font-extrabold transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9f1d52]";
 const categoryClass = "flex items-start justify-between gap-4 rounded-xl border border-[#eadde3] bg-[#fffafb] p-3.5";

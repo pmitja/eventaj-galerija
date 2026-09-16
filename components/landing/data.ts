@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 export const howSteps = [
   {
     n: "1",
@@ -90,7 +91,7 @@ export const faqs = [
   ["Kaj vključuje AI Best Photos?", "Za 15 € na dogodek dodatek tehnično razvrsti kakovost in zazna dvojnike pri največ 3.000 fotografijah. Večje količine pripravimo po meri."],
 ] as const;
 
-const LOCALE_DATA = {
+const LOCALE_DATA = withEnglishUS({
   sl: { howSteps, features, plans, addOns, faqs },
   en: { howSteps: howStepsEn, features: featuresEn, plans: plansEn, addOns: addOnsEn, faqs: faqsEn },
   de: { howSteps: howStepsDe, features: featuresDe, plans: plansDe, addOns: addOnsDe, faqs: faqsDe },
@@ -98,7 +99,7 @@ const LOCALE_DATA = {
   es: { howSteps: howStepsEs, features: featuresEs, plans: plansEs, addOns: addOnsEs, faqs: faqsEs },
   it: { howSteps: howStepsIt, features: featuresIt, plans: plansIt, addOns: addOnsIt, faqs: faqsIt },
   fr: { howSteps: howStepsFr, features: featuresFr, plans: plansFr, addOns: addOnsFr, faqs: faqsFr },
-} as const;
+} as const);
 
 export function landingData(locale: Locale) {
   return LOCALE_DATA[locale] ?? LOCALE_DATA.en;

@@ -1,4 +1,5 @@
 "use client";
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 
 import { useState } from "react";
 import { LoaderCircle } from "lucide-react";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 
-const COPY = {
+const COPY = withEnglishUS({
   sl: ["Naziv dogodka", "Datum dogodka", "Lokacija (neobvezno)", "Časovni pas", "Shrani in pripravi QR", "Shranjujemo…", "Podatkov ni bilo mogoče shraniti."],
   en: ["Event name", "Event date", "Location (optional)", "Time zone", "Save and create QR", "Saving…", "We couldn’t save the event."],
   de: ["Eventname", "Eventdatum", "Ort (optional)", "Zeitzone", "Speichern und QR erstellen", "Wird gespeichert…", "Das Event konnte nicht gespeichert werden."],
@@ -16,7 +17,7 @@ const COPY = {
   es: ["Nombre del evento", "Fecha del evento", "Ubicación (opcional)", "Zona horaria", "Guardar y crear QR", "Guardando…", "No se pudo guardar el evento."],
   it: ["Nome dell’evento", "Data dell’evento", "Luogo (facoltativo)", "Fuso orario", "Salva e crea il QR", "Salvataggio…", "Impossibile salvare l’evento."],
   fr: ["Nom de l’événement", "Date de l’événement", "Lieu (facultatif)", "Fuseau horaire", "Enregistrer et créer le QR", "Enregistrement…", "Impossible d’enregistrer l’événement."],
-} as const;
+} as const);
 
 export function EventSetupForm({ token, defaults }: { token: string; defaults: { name: string; location: string; date: string; timezone: string } }) {
   const locale = useLocale(); const copy = COPY[locale];

@@ -117,7 +117,7 @@ async function responseError(response: Response, fallback: string, locale: Local
   if (body?.code === "VIDEO_FAIR_USE_LIMIT") {
     return new Error(getDictionary(locale).guest.upload.videoFairUseLimitReached);
   }
-  return new Error(locale === "en" ? fallback : body?.detail || body?.title || fallback);
+  return new Error((locale === "en" || locale === "en-us") ? fallback : body?.detail || body?.title || fallback);
 }
 
 export function EventUpload({
@@ -401,7 +401,7 @@ export function EventUpload({
   return (
     <section className={cardShell} id="dodaj" aria-labelledby="upload-title" aria-busy={isUploading}>
       <div className="text-center">
-        <span className={cardEyebrow}>{t.eyebrow}</span>
+        {localOnly ? null : <span className={cardEyebrow}>{t.eyebrow}</span>}
         <h2 className={cardTitle} id="upload-title">{t.title}</h2>
         <p className={cardText}>{videoUploadsEnabled ? t.subtitleWithVideo : t.subtitlePhotosOnly}</p>
       </div>
@@ -437,7 +437,7 @@ export function EventUpload({
       {items.length === 0 ? (
         <div className="grid gap-2.5 md:grid-cols-[1.7fr_1fr]">
           <button className="flex min-h-[148px] cursor-pointer flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-[#eeb9d0] bg-[#fff7fa] p-5 text-[#2c1821] [font-family:inherit] transition-[border-color,background] duration-200 hover:border-[#9f1d52] hover:bg-[#fff0f6] motion-reduce:transition-none" type="button" onClick={() => galleryInputRef.current?.click()}>
-            <span className="mb-2.5 grid size-[50px] place-items-center rounded-2xl bg-[#9f1d52] text-white shadow-[0_7px_18px_rgba(199,31,103,.2)]"><ImageIcon className="size-[25px]" /></span>
+            <span className="mb-2.5 grid size-[50px] place-items-center rounded-2xl bg-[#9f1d52] text-white shadow-sm"><ImageIcon className="size-[25px]" /></span>
             <strong className="text-[17px]">{t.chooseFromPhone}</strong>
             <small className="mt-1 text-[12px] text-[#705f66]">{t.chooseFromPhoneHint}</small>
           </button>
@@ -534,7 +534,7 @@ export function EventUpload({
         </>
       )}
 
-      <p className="mx-1 mt-3.5 mb-0 text-center text-[10.5px]/[1.45] text-[#8d7180]">
+      <p className="mx-1 mt-3.5 mb-0 text-center text-[12px]/[1.5] text-[#705f66]">
         {localOnly
           ? t.localOnlyNote
           : isUploading

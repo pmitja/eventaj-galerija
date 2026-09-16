@@ -36,7 +36,7 @@ export function Hero({ locale = "sl" }: { locale?: Locale }) {
   ] as const;
 
   return (
-    <section className="hero" id="top">
+    <section className="hero" id="main-content" tabIndex={-1}>
       <div className="hero-copy shell">
         <div className="eyebrow">
           <span />

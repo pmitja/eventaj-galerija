@@ -1,3 +1,6 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
+import { COMPARISON_IDS, COMPARISON_LABELS, comparisonPath } from "@/lib/comparisons/routes";
+import { COMPARISONS } from "@/lib/comparisons/facts";
 import { eventUseCasesFor } from "@/components/landing/use-cases";
 import { getSolutionPage } from "@/components/landing/solution-pages";
 import { localePathPrefix, withLocalePrefix, type Locale } from "@/lib/i18n/locale";
@@ -67,7 +70,7 @@ function marketingUrl(locale: Locale, siteUrl: string, path: string): string {
   return `${EVENTAJ_MARKETING_ORIGIN}/qr-galerija${path}`;
 }
 
-const LLMS_COPY: Record<Locale, LlmsCopy> = {
+const LLMS_COPY: Record<Locale, LlmsCopy> = withEnglishUS({
   sl: {
     languageName: "slovenščina",
     intro: `${SL_SITE_NAME} je spletna storitev za organizatorje dogodkov. Gostje prek QR kode v mobilnem brskalniku dodajo fotografije brez namestitve aplikacije in brez uporabniškega računa. Javno oglaševana cena je 35 EUR za en dogodek, brez naročnine in z neomejenim številom gostov.`,
@@ -502,7 +505,7 @@ const LLMS_COPY: Record<Locale, LlmsCopy> = {
     useCaseScenarios: "Occasions typiques",
     useCaseHighlights: "Bénéfices clés",
   },
-};
+});
 
 /**
  * `siteUrl` is the bare origin: every path here already carries its own locale
@@ -545,6 +548,7 @@ ${copy.intro}
 - [${getDictionary(locale).nav.features}](${marketingUrl(locale, siteUrl, featuresPath(locale))}): ${getDictionary(locale).featuresPage.metaDescription}
 - [${copy.fullDescriptionTitle}](${siteUrl}${withLocalePrefix(locale, "/llms-full.txt")}): ${copy.fullDescriptionDescription}
 ${solutionLinks ? `\n${solutionLinks}` : ""}
+${locale === "sl" ? "" : `- [${COMPARISON_LABELS[locale]}](${siteUrl}${comparisonPath(locale)})\n${COMPARISON_IDS.map(id => `- [Guest Mosaic vs ${COMPARISONS[id].name}](${siteUrl}${comparisonPath(locale, id)})`).join("\n")}`}
 
 ## ${copy.eventTypes}
 
@@ -630,6 +634,7 @@ ${useCaseDetails}
 - ${siteUrl}${orderPath(locale)}
 - ${siteUrl}${featuresPath(locale)}
 ${solutionUrls.map((path) => `- ${siteUrl}${path}`).join("\n")}
+${locale === "sl" ? "" : [undefined, ...COMPARISON_IDS].map(id => `- ${siteUrl}${comparisonPath(locale, id)}`).join("\n")}
 ${useCases.map((item) => `- ${siteUrl}${eventUseCaseMarketingPath(locale, item.slug)}`).join("\n")}
 `;
 }

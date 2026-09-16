@@ -1,3 +1,5 @@
+import { intlLocale, type Locale } from "@/lib/i18n/locale";
+
 export const EVENT_PRICE_CENTS = 3_500;
 export const AI_BEST_PHOTOS_PRICE_CENTS = 1_500;
 export const AI_BEST_PHOTOS_LIMIT = 3_000;
@@ -24,4 +26,15 @@ export function checkoutTotalCents(aiBestPhotos: boolean, faceCollections = fals
     + (aiBestPhotos ? AI_BEST_PHOTOS_PRICE_CENTS : 0)
     + (faceCollections ? FACE_COLLECTIONS_PRICE_CENTS : 0)
     + (videoUnlimited ? VIDEO_UNLIMITED_PRICE_CENTS : 0);
+}
+
+export function billingCurrency(locale: Locale): "EUR" | "GBP" | "USD" {
+  return locale === "en-us" ? "USD" : locale === "en" ? "GBP" : "EUR";
+}
+
+export function formatPrice(cents: number, locale: Locale): string {
+  return new Intl.NumberFormat(intlLocale(locale), {
+    style: "currency", currency: billingCurrency(locale), maximumFractionDigits: 2,
+    minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
+  }).format(cents / 100);
 }

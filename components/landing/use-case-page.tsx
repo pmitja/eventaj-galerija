@@ -1,8 +1,9 @@
+import { LockKeyhole } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimationController } from "./animation-controller";
 import { QrPlacement } from "./qr-placement";
-import { SocialProof } from "./social-proof";
+import { EventTrustBand } from "./event-trust-band";
 import { HowItWorks, Slideshow } from "./content-sections";
 import { Footer } from "./footer";
 import { Header } from "./header-hero";
@@ -52,19 +53,16 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
     <main className="landing-page use-case-page" id="top">
       <AnimationController />
       <Header howItWorksHref={`#${t.anchors.howItWorks}`} locale={locale} alternateOrigin={alternateOrigin} />
-      <section className="use-case-hero">
+      <section className="use-case-hero" id="main-content" tabIndex={-1}>
         <div className="use-case-hero__inner shell">
           <div className="use-case-hero__copy">
             <Link className="use-case-breadcrumb" href={home}>{brandName(locale)} <span aria-hidden="true">/</span> {useCase.navTitle}</Link>
-            <div className="eyebrow"><span />{useCase.eyebrow}</div>
+            <p className="use-case-eyebrow">{useCase.eyebrow}</p>
             <h1>{useCase.title}</h1>
             <p>{useCase.description}</p>
             <div className="hero-buttons">
               <Link className="button" href={orderPath(locale)} data-sticky-cta-trigger="create-event">{t.useCasePage.ctaCreate}</Link>
               <Link className="button button--secondary" href={`#${t.anchors.howItWorks}`}>{t.nav.howItWorks}</Link>
-            </div>
-            <div className="use-case-trust">
-              {t.useCasePage.trust.map((item) => <span key={item}>{item}</span>)}
             </div>
           </div>
           <div className="use-case-hero__visual">
@@ -75,6 +73,8 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
                 fill
                 sizes="(max-width: 767px) 330px, 520px"
                 priority
+                loading="eager"
+                fetchPriority="high"
               />
             </div>
             <div className="use-case-app-mobile">
@@ -96,11 +96,11 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
         </div>
       </section>
 
-      <SocialProof locale={locale} />
+      <EventTrustBand items={t.useCasePage.trust} />
 
       <HowItWorks locale={locale} />
 
-      <QrPlacement locale={locale} tone="plain" />
+      {useCase.slug === "poroke" ? <QrPlacement locale={locale} tone="plain" /> : null}
 
       <section className="section use-case-benefits">
         <div className="shell">
@@ -142,7 +142,7 @@ export function UseCasePage({ useCase, locale = "sl", alternateOrigin }: { useCa
             <span className="section-pill">{t.useCasePage.faqPill}</span>
             <h2>{t.useCasePage.faqHeading}</h2>
           </div>
-          <p className="faq-privacy-note"><span aria-hidden="true">🔒</span> {t.faq.privacyNote}</p>
+          <p className="faq-privacy-note"><LockKeyhole aria-hidden="true" size={17} /> {t.faq.privacyNote}</p>
           <div className="faq-list">
             {useCase.faq.map(([question, answer]) => (
               <details key={question}>

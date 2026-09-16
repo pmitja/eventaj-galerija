@@ -11,10 +11,10 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
   const { token } = await params;
   const locale = await getRequestLocale();
   const slideshow = await findPublicSlideshow(await hashToken(token));
-  const title = slideshow?.event_name ?? (locale === "en" ? "Live display" : "Projekcija");
+  const title = slideshow?.event_name ?? ((locale === "en" || locale === "en-us") ? "Live display" : "Projekcija");
   const description = slideshow
-    ? [locale === "en" ? "Event" : "Dogodek", slideshow.event_location, slideshow.event_name].filter(Boolean).join(" | ")
-    : locale === "en" ? "Event live display." : "Projekcija dogodka.";
+    ? [(locale === "en" || locale === "en-us") ? "Event" : "Dogodek", slideshow.event_location, slideshow.event_name].filter(Boolean).join(" | ")
+    : (locale === "en" || locale === "en-us") ? "Event live display." : "Projekcija dogodka.";
   return {
     title,
     description,

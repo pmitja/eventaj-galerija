@@ -53,4 +53,12 @@ describe("checkout route marketing boundary", () => {
       expect.anything(),
     );
   });
+  it("keeps the middleware US locale after the API rewrite", async () => {
+    const response = await POST(new Request("https://guestmosaic.com/api/v1/checkout", {
+      method: "POST", headers: { "content-type": "application/json", "x-locale": "en-us" }, body: JSON.stringify(body),
+    }));
+    expect(response.status).toBe(201);
+    expect(state.create).toHaveBeenCalledWith(body, "en-us", expect.anything());
+  });
+
 });

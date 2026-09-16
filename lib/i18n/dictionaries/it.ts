@@ -535,6 +535,6 @@ export const it: Dictionary = {
   socialProof: {
     label: "Per chi è pensato",
     line:
-      "Creato per le coppie che vogliono anche i momenti spontanei che il fotografo non può catturare.",
+      "Per chi organizza e vuole raccogliere in un unico posto i momenti spontanei dei propri ospiti.",
   },
 };

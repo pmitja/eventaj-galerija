@@ -51,17 +51,18 @@ describe("public SEO discovery", () => {
     const entries = await sitemap();
     const urls = entries.map((entry) => entry.url);
 
-    expect(urls).toHaveLength(PAGES_PER_LOCALE);
-    expect(urls).toContain(SITE_URL);
+    // ADR-018 moved Slovenian marketing to the main Eventaj domain.
+    expect(urls).toHaveLength(3);
+    expect(urls).not.toContain(SITE_URL);
     expect(urls).toContain(`${SITE_URL}/naroci`);
-    expect(urls).toContain(`${SITE_URL}/funkcije`);
+    expect(urls).not.toContain(`${SITE_URL}/funkcije`);
     expect(urls).toContain(`${SITE_URL}/pogoji-uporabe`);
     expect(urls).toContain(`${SITE_URL}/zasebnost`);
     expect(urls).not.toContain(`${SITE_URL}/admin`);
     expect(urls).not.toContain(`${SITE_URL}/e/ana-in-marko`);
 
     for (const useCase of eventUseCases) {
-      expect(urls).toContain(`${SITE_URL}/za-dogodke/${useCase.slug}`);
+      expect(urls).not.toContain(`${SITE_URL}/za-dogodke/${useCase.slug}`);
     }
   });
 
@@ -69,10 +70,10 @@ describe("public SEO discovery", () => {
     const entries = await withLocale("en", sitemap);
     const urls = entries.map((entry) => entry.url);
 
-    // en + de, nl, es, it, fr
+    // en + en-us, de, nl, es, it, fr
     // Every international locale has the base routes minus the consolidated
     // wedding use-case, plus three focused solution pages.
-    expect(urls).toHaveLength((PAGES_PER_LOCALE - 1 + 3) * 6);
+    expect(urls).toHaveLength((PAGES_PER_LOCALE - 1 + 3 + 7) * 7);
     expect(urls).toContain(ENGLISH_SITE_URL);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/de`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/fr/order`);
@@ -87,6 +88,7 @@ describe("public SEO discovery", () => {
     const wedding = entries.find((entry) => entry.url === `${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`);
     expect(wedding?.alternates?.languages).toEqual({
       "en-GB": `${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`,
+      "en-US": `${ENGLISH_SITE_URL}/en-us/wedding-qr-code-for-photos`,
       "de-DE": `${ENGLISH_SITE_URL}/de/hochzeitsfotos-per-qr-code`,
       "nl-NL": `${ENGLISH_SITE_URL}/nl/trouwfotos-verzamelen-qr-code`,
       "es-ES": `${ENGLISH_SITE_URL}/es/codigo-qr-fotos-boda`,
@@ -133,7 +135,7 @@ describe("public SEO discovery", () => {
     expect(full).toContain("trenutno nima objavljenih preverjenih ocen strank");
 
     for (const useCase of eventUseCases) {
-      expect(concise).toContain(`${SITE_URL}/za-dogodke/${useCase.slug}`);
+      expect(concise).toContain(`https://www.eventaj.si/qr-galerija/za-dogodke/${useCase.slug}`);
     }
   });
 
@@ -171,10 +173,10 @@ describe("public SEO discovery", () => {
     expect(JSON.stringify(internationalGraph)).toContain(`\"email\":\"${GUEST_MOSAIC_SUPPORT_EMAIL}\"`);
   });
 
-  it("gives every locale its own share card", () => {
+  it("uses a translated share card, shared by English regions", () => {
     const cards = SUPPORTED_LOCALES.map(ogImage);
 
-    expect(new Set(cards).size).toBe(SUPPORTED_LOCALES.length);
+    expect(new Set(cards).size).toBe(SUPPORTED_LOCALES.length - 1);
     expect(ogImage("sl")).toBe("/og-image.png");
     for (const card of cards) {
       expect(existsSync(join(process.cwd(), "public", card))).toBe(true);
@@ -197,7 +199,7 @@ describe("public SEO discovery", () => {
       offers: {
         "@type": "Offer",
         price: "35.00",
-        priceCurrency: "EUR",
+        priceCurrency: "GBP",
         url: `${ENGLISH_SITE_URL}/order`,
       },
     });

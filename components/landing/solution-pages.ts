@@ -1,3 +1,4 @@
+import { withEnglishUS } from "@/lib/i18n/english-regions";
 import type { SolutionPageId, SolutionPageLocale } from "@/lib/i18n/routes";
 import { romanceSolutionPages } from "./solution-pages-romance";
 
@@ -29,7 +30,7 @@ export type SolutionPageContent = {
   relatedLink: string;
 };
 
-const content: Record<SolutionPageLocale, Record<SolutionPageId, SolutionPageContent>> = {
+const content: Record<SolutionPageLocale, Record<SolutionPageId, SolutionPageContent>> = withEnglishUS({
   en: {
     "wedding-qr": {
       id: "wedding-qr",
@@ -355,7 +356,7 @@ const content: Record<SolutionPageLocale, Record<SolutionPageId, SolutionPageCon
     },
   },
   ...romanceSolutionPages,
-};
+});
 
 export function getSolutionPage(id: SolutionPageId, locale: SolutionPageLocale): SolutionPageContent {
   return content[locale][id];

@@ -539,7 +539,7 @@ export const en = {
   socialProof: {
     label: "Who this is for",
     line:
-      "Built for couples who want the candid moments their photographer can't capture.",
+      "Built for hosts who want to gather the candid moments their guests capture.",
   },
 };
 
