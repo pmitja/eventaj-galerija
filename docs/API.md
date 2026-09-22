@@ -7,7 +7,9 @@
 - Uspešno ustvarjanje: `201`; asinhrono sprejeto delo: `202`; brez vsebine: `204`.
 - Napake uporabljajo Problem Details (`application/problem+json`) z `type`, `title`, `status`, `code`, `detail`, `requestId` in opcijskimi `fieldErrors`.
 - Mutacije sprejmejo `Idempotency-Key`, kjer lahko pride do ponovitve.
-- Seznami uporabljajo cursor pagination, ne offseta.
+- Seznami uporabljajo cursor pagination, ne offseta. Izjema je javni seznam
+  medijev galerije, ki za periodično osveževanje vrne vse dovoljene metapodatke
+  brez skupne omejitve po [ADR-020](decisions/ADR-020-complete-public-gallery-list.md).
 - Zunanji API je različiciran; interne Server Actions niso javna pogodba.
 
 ## Checkout in provisioning

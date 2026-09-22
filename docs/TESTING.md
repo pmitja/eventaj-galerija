@@ -102,3 +102,15 @@ Coverage odstotek ni samostojen cilj. Kritična pravila upload, auth, tenancy, m
 - nedosegljiva Queue ob zagonu označi job kot neuspešen in ne ustvari lažnega napredka.
 - javni seznam, neposredna dostava slike in slideshow dovolijo samo efektivni kategoriji `best` in `good`;
 - `duplicate`, `blurry`, `low_quality` in `NULL` ostanejo administratorsko vidni, javno pa niso dostavljeni.
+
+## Celoten seznam galerije
+
+`lib/repositories/public-gallery.integration.test.ts` izvede dejansko SQL
+poizvedbo v SQLite nad 259 fotografijami in preveri vseh 234 dovoljenih
+rezultatov, filtre zasebnosti ter izolacijo dogodkov.
+
+Po zagonu lokalnega `pnpm dev --port 3010` ukaz
+`node scripts/check-gallery-count.mjs` preveri postopni prikaz vseh 234
+fotografij, zadnjo fotografijo v povečanem pogledu in tipkovnico pri širinah
+375, 768, 1024 in 1440 px. Ta brskalniški test uporablja simulirane API odgovore;
+omejitev dejanske poizvedbe pokriva zgornji integracijski test.

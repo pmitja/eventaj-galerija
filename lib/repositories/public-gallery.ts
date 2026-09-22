@@ -17,7 +17,7 @@ export async function listPublicGalleryMedia(eventId: string): Promise<PublicGal
      FROM media_files m
      WHERE m.event_id = ? AND m.status = 'ready' AND m.gallery_state = 'visible' AND m.publication_consent = 1
        AND (m.kind = 'video' OR COALESCE(m.quality_override, m.quality_category) IN ('best', 'good'))
-     ORDER BY m.uploaded_at DESC LIMIT 100`,
+     ORDER BY m.uploaded_at DESC, m.public_id DESC`,
   ).bind(eventId).all<PublicGalleryMediaRow>();
   return result.results;
 }
