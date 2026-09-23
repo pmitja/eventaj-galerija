@@ -3,9 +3,7 @@ import type { Metadata } from "next";
 import { CalendarDays, Download, MapPin, MonitorPlay, QrCode } from "lucide-react";
 import { notFound } from "next/navigation";
 import { EventSetupForm } from "@/components/checkout/event-setup-form";
-import { CheckoutBrandBar } from "@/components/checkout/checkout-brand-bar";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { checkoutEyebrowClass, checkoutHeadingClass, checkoutHeadingTextClass, checkoutHeadingTitleClass, checkoutPageClass, checkoutShellClass } from "@/components/checkout/checkout-styles";
+import { CheckoutHeader } from "@/components/site/order-page";
 import { findManagedEvent } from "@/lib/repositories/checkout";
 import { managementTokenSchema } from "@/lib/validation/checkout";
 import { getRequestLocale } from "@/lib/i18n/server";
@@ -27,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: `${COPY[locale][14]} | ${brandName(locale)}`, robots: { index: false, follow: false, nocache: true } };
 }
 
-const metaChipClass = "inline-flex items-center gap-1.5 rounded-full border border-[#eee0e6] bg-white/70 px-3 py-1.5 text-[13px] font-semibold text-plum-muted";
+const metaChipClass = "inline-flex items-center gap-1.5 rounded-full border border-gm-line bg-gm-paper px-3 py-1.5 text-[13px] font-semibold text-gm-muted";
 
 function formatEventDate(startsAt: string | null, timezone: string, locale: string): string | null {
   if (!startsAt) return null;
@@ -47,24 +45,29 @@ export default async function ManageEventPage({ params }: { params: Promise<{ to
   const liveshow = event.slideshowToken ? withLocalePrefix(locale, `/display/${encodeURIComponent(event.slideshowToken)}`) : null;
   const qrImage = `/qr/${encodeURIComponent(event.publicCode)}.png`;
   const eventDate = ready ? formatEventDate(event.startsAt, event.timezone, locale) : null;
-  return <main className={checkoutPageClass}><div className={checkoutShellClass}>
-    <CheckoutBrandBar locale={locale} back={copy[13]} />
-    <header className={checkoutHeadingClass}>
-      <p className={checkoutEyebrowClass}>{ready ? copy[8] : copy[7]}</p>
-      <h1 className={checkoutHeadingTitleClass}>{ready ? event.name : copy[0]}</h1>
-      <span className={checkoutHeadingTextClass}>{ready ? copy[2] : copy[1]}</span>
-      {ready && (eventDate || event.location) ? <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-        {eventDate ? <span className={metaChipClass}><CalendarDays className="size-[15px] text-brand" aria-hidden="true" />{eventDate}</span> : null}
-        {event.location ? <span className={metaChipClass}><MapPin className="size-[15px] text-brand" aria-hidden="true" />{event.location}</span> : null}
+  const primaryLink = "flex min-h-[56px] items-center justify-center gap-2 rounded-full bg-gm-accent px-5 text-[16px] font-semibold text-white! shadow-[0_10px_24px_rgba(168,69,58,.28)] hover:bg-gm-accent-dark hover:text-white!";
+  const secondaryLink = "flex min-h-[56px] items-center justify-center gap-2 rounded-full border border-gm-line-strong bg-gm-paper px-5 text-[16px] font-semibold text-gm-ink! hover:border-gm-ink";
+  return <div className="gm"><CheckoutHeader locale={locale} /><main id="main" className="px-[clamp(16px,4vw,48px)] pt-[clamp(40px,5vw,72px)] pb-[clamp(72px,9vw,120px)]"><div className="mx-auto max-w-[760px]">
+    <header className="mb-8 flex animate-gm-up flex-col items-center gap-4 text-center">
+      <p className="text-[12px] font-semibold tracking-[.16em] text-gm-accent uppercase">{ready ? copy[8] : copy[7]}</p>
+      <h1 className="font-serif text-[clamp(36px,5vw,60px)] leading-[1.08] font-normal tracking-[-0.02em] text-balance">{ready ? event.name : copy[0]}</h1>
+      <span className="max-w-[560px] text-[18px] leading-[1.55] text-gm-muted">{ready ? copy[2] : copy[1]}</span>
+      {ready && (eventDate || event.location) ? <div className="flex flex-wrap items-center justify-center gap-2">
+        {eventDate ? <span className={metaChipClass}><CalendarDays className="size-[15px] text-gm-accent" aria-hidden="true" />{eventDate}</span> : null}
+        {event.location ? <span className={metaChipClass}><MapPin className="size-[15px] text-gm-accent" aria-hidden="true" />{event.location}</span> : null}
       </div> : null}
     </header>
-    <Card className="mx-auto max-w-[680px] shadow-[0_18px_48px_rgba(79,18,47,.09)]"><CardHeader><CardTitle>{ready ? copy[11] : copy[9]}</CardTitle><CardDescription>{ready ? copy[12] : copy[10]}</CardDescription></CardHeader><CardContent>
+    <section className="mx-auto flex max-w-[680px] flex-col gap-[22px] rounded-[26px] border border-gm-line bg-gm-paper p-[clamp(20px,3vw,32px)] shadow-[0_30px_60px_rgba(40,30,20,.08)]">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[20px] font-semibold">{ready ? copy[11] : copy[9]}</h2>
+        <p className="text-[15px] leading-[1.5] text-gm-muted">{ready ? copy[12] : copy[10]}</p>
+      </div>
       {!ready ? <EventSetupForm token={parsed.data} defaults={{ name: "", location: "", date: "", timezone: event.timezone }} /> : <div className="grid gap-3 sm:grid-cols-2">
-        <div className="sm:col-span-2 grid justify-items-center gap-3 rounded-2xl bg-[#fffbfd] p-5"><img className="h-auto w-full max-w-[260px]" src={qrImage} width={260} height={260} alt="QR code" /><a className="font-bold text-brand! underline" href={`${qrImage}?download=1`}>{copy[6]}</a></div>
-        <a className="flex min-h-[54px] items-center justify-center gap-2 rounded-xl bg-brand px-4 font-bold text-white!" href={gallery}><QrCode className="size-5" />{copy[3]}</a>
-        {liveshow ? <a className="flex min-h-[54px] items-center justify-center gap-2 rounded-xl border border-[#eccdd9] px-4 font-bold text-brand!" href={liveshow}><MonitorPlay className="size-5" />Live Show</a> : null}
-        {event.exportStatus === "ready" ? <a className="sm:col-span-2 flex min-h-[54px] items-center justify-center gap-2 rounded-xl border border-[#eccdd9] px-4 font-bold text-brand!" href={`/api/v1/manage/${encodeURIComponent(parsed.data)}/download`}><Download className="size-5" />{copy[4]}</a> : <div className="sm:col-span-2 flex items-center gap-3 rounded-xl bg-[#fffbfd] p-4 text-sm text-plum-muted"><Download className="size-5" /><span><strong className="block text-plum">{copy[4]}</strong>{copy[5]}</span></div>}
+        <div className="grid justify-items-center gap-3 rounded-[20px] border border-gm-line bg-white p-5 sm:col-span-2"><img className="h-auto w-full max-w-[260px]" src={qrImage} width={260} height={260} alt="QR code" /><a className="font-semibold text-gm-accent! underline! underline-offset-[3px]" href={`${qrImage}?download=1`}>{copy[6]}</a></div>
+        <a className={primaryLink} href={gallery}><QrCode className="size-5" aria-hidden="true" />{copy[3]}</a>
+        {liveshow ? <a className={secondaryLink} href={liveshow}><MonitorPlay className="size-5" aria-hidden="true" />Live Show</a> : null}
+        {event.exportStatus === "ready" ? <a className={`${secondaryLink} sm:col-span-2`} href={`/api/v1/manage/${encodeURIComponent(parsed.data)}/download`}><Download className="size-5" aria-hidden="true" />{copy[4]}</a> : <div className="flex items-center gap-3 rounded-2xl bg-gm-bg p-4 text-[14px] text-gm-muted sm:col-span-2"><Download className="size-5 flex-none" aria-hidden="true" /><span><strong className="block text-gm-ink">{copy[4]}</strong>{copy[5]}</span></div>}
       </div>}
-    </CardContent></Card>
-  </div></main>;
+    </section>
+  </div></main></div>;
 }

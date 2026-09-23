@@ -70,3 +70,16 @@ export function canonicalUrl(
 ): string {
   return absoluteFor(env, locale, pathname);
 }
+
+/**
+ * hreflang map for pages that exist only on the Guest Mosaic domain (pricing,
+ * FAQ). Slovenian sales content lives on eventaj.si, so it is left out.
+ */
+export function internationalLanguageAlternates(
+  env: { PUBLIC_APP_URL: string; PUBLIC_APP_URL_EN: string },
+  pathname: string,
+): Record<string, string> {
+  const alternates = languageAlternates(env, pathname);
+  delete alternates[intlLocale("sl")];
+  return alternates;
+}

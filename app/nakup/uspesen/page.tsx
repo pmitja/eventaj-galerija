@@ -5,8 +5,7 @@ import { Check, Download, Mail, MonitorPlay, QrCode } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { fulfillCheckout } from "@/lib/repositories/checkout";
 import { checkoutSessionIdSchema } from "@/lib/validation/checkout";
-import { checkoutEyebrowClass, checkoutHeadingClass, checkoutHeadingTextClass, checkoutHeadingTitleClass, checkoutPageClass, checkoutShellClass } from "@/components/checkout/checkout-styles";
-import { CheckoutBrandBar } from "@/components/checkout/checkout-brand-bar";
+import { CheckoutHeader } from "@/components/site/order-page";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { checkoutSuccessPath, orderPath } from "@/lib/i18n/routes";
 import { withLocalePrefix } from "@/lib/i18n/locale";
@@ -51,12 +50,11 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   const liveshowUrl = null;
   if (ready && galleryUrl) redirect(galleryUrl);
 
-  return <main className={checkoutPageClass}><div className={checkoutShellClass}>
-    <CheckoutBrandBar locale={locale} />
-    <header className={checkoutHeadingClass}>
-      <p className={checkoutEyebrowClass}>{ready ? copy[1] : copy[2]}</p>
-      <h1 className={checkoutHeadingTitleClass}>{ready ? copy[3] : copy[4]}</h1>
-      <span className={checkoutHeadingTextClass}>{ready ? copy[5] : copy[6]}</span>
+  return <div className="gm"><CheckoutHeader locale={locale} /><main id="main" className="px-[clamp(16px,4vw,48px)] pt-[clamp(48px,6vw,88px)] pb-[clamp(72px,9vw,120px)]"><div className="mx-auto max-w-[760px]">
+    <header className="flex animate-gm-up flex-col items-center gap-4 text-center">
+      <p className="text-[12px] font-semibold tracking-[.16em] text-gm-accent uppercase">{ready ? copy[1] : copy[2]}</p>
+      <h1 className="font-serif text-[clamp(36px,5vw,60px)] leading-[1.08] font-normal tracking-[-0.02em] text-balance">{ready ? copy[3] : copy[4]}</h1>
+      <span className="max-w-[560px] text-[18px] leading-[1.55] text-gm-muted">{ready ? copy[5] : copy[6]}</span>
     </header>
     {ready ? <Card className="mx-auto mt-8 max-w-[650px] text-center shadow-[0_18px_48px_rgba(79,18,47,.09)]"><CardContent>
       <div className="mx-auto mb-[18px] grid size-[58px] place-items-center rounded-full bg-[#dcfce7] text-[#15803d]"><Check className="size-7" aria-hidden="true" /></div>
@@ -70,6 +68,6 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
       </div>
       {eventId ? <p className="m-0 mb-[18px] rounded-[14px] border border-dashed border-[#eccdd9] bg-[#fffbfd] px-4 py-3 text-[13px]/[1.5] text-plum-muted"><strong className="block text-[12px] font-bold tracking-[.04em] text-[#4f122f] uppercase">{copy[13]}</strong><code className="text-[14px] break-all text-[#9d174d]">{eventId}</code>{copy[14]}</p> : null}
       <p className="m-0 text-[13px]/[1.55] text-plum-muted">{copy[15]}</p>
-    </CardContent></Card> : <Link className="mx-auto mt-6 grid min-h-[54px] w-full max-w-[420px] place-items-center rounded-xl bg-brand text-[16px] font-[750] text-white! no-underline hover:bg-brand-hover" href={parsed.success ? `${checkoutSuccessPath(locale)}?session_id=${encodeURIComponent(parsed.data)}` : orderPath(locale)}>{copy[16]}</Link>}
-  </div></main>;
+    </CardContent></Card> : <Link className="mx-auto mt-8 grid min-h-[58px] w-full max-w-[420px] place-items-center rounded-full bg-gm-accent text-[17px] font-semibold text-white! shadow-[0_10px_24px_rgba(168,69,58,.28)] hover:bg-gm-accent-dark hover:text-white!" href={parsed.success ? `${checkoutSuccessPath(locale)}?session_id=${encodeURIComponent(parsed.data)}` : orderPath(locale)}>{copy[16]}</Link>}
+  </div></main></div>;
 }

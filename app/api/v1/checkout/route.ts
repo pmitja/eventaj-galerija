@@ -32,6 +32,9 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return problem(422, "INVALID_CHECKOUT", copy.invalid, parsed.error.issues[0]?.message);
   }
+  if (parsed.data.videoUnlimited && String(getCloudflareEnv().VIDEO_UPLOAD_ENABLED) !== "true") {
+    return problem(422, "VIDEO_ADDON_UNAVAILABLE", copy.videoUnavailable);
+  }
   try {
     const attribution = marketingAttributionFromRequest(request, locale);
     const checkout = await createCheckoutOrder(parsed.data, locale, attribution);

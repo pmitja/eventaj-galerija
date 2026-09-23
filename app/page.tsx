@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LandingPage } from "@/components/landing/landing-page";
+import { HomePage } from "@/components/site/home-page";
 import { JsonLd } from "@/components/seo/json-ld";
 import { siteUrlForLocale } from "@/lib/i18n/locale";
 import { SEO_COPY, ogImage, productStructuredDataFor } from "@/lib/seo";
@@ -37,7 +37,7 @@ export default async function Home() {
   return (
     <>
       <JsonLd data={productStructuredDataFor(locale, siteUrl) as unknown as Record<string, unknown>} />
-      <LandingPage />
+      <HomePage locale={locale} />
     </>
   );
 }

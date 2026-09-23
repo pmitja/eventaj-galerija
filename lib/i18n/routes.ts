@@ -97,6 +97,24 @@ export function demoEventPath(locale: Locale): string {
   return localized(locale, "/e/ana-in-marko", "/e/anna-and-mark");
 }
 
+/**
+ * Pricing and FAQ pages exist only on the Guest Mosaic domain (and its
+ * prefixed languages); Slovenian sales content lives on eventaj.si.
+ */
+export function pricingPath(locale: Locale): string {
+  return locale === "sl" ? `${marketingHomeHref(locale)}#cenik` : withLocalePrefix(locale, "/pricing");
+}
+
+export function faqPath(locale: Locale): string {
+  return locale === "sl" ? `${marketingHomeHref(locale)}#pogosta-vprasanja` : withLocalePrefix(locale, "/faq");
+}
+
+/** Section anchor on the marketing home (how-it-works, demo, placement, ...). */
+export function homeSectionHref(locale: Locale, anchor: string): string {
+  const home = marketingHomeHref(locale);
+  return `${home}#${anchor}`;
+}
+
 /** Canonical marketing home. Slovenian sales content lives on the main brand site. */
 export function marketingHomeHref(locale: Locale): string {
   return locale === "sl" ? "https://www.eventaj.si/qr-galerija" : localePathPrefix(locale) || "/";

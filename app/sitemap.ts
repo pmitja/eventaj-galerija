@@ -3,14 +3,16 @@ import type { MetadataRoute } from "next";
 import { eventUseCasesFor } from "@/components/landing/use-cases";
 import { absoluteUrl, SEO_LAST_UPDATED } from "@/lib/seo";
 import { LEGAL_LAST_UPDATED } from "@/lib/i18n/legal";
-import { languageAlternates, solutionLanguageAlternates } from "@/lib/i18n/alternates";
+import { internationalLanguageAlternates, languageAlternates, solutionLanguageAlternates } from "@/lib/i18n/alternates";
 import { getPublicAppUrls, getRequestLocale } from "@/lib/i18n/server";
 import { PREFIXED_LOCALES, appUrlForLocale, localePathPrefix, type Locale } from "@/lib/i18n/locale";
 import {
   SOLUTION_PAGE_LOCALES,
   SOLUTION_PAGE_PATHS,
   eventUseCasePath,
+  faqPath,
   featuresPath,
+  pricingPath,
   orderPath,
   privacyPath,
   solutionPagePath,
@@ -79,6 +81,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entry(localePathPrefix(locale) || "/", SEO_LAST_UPDATED, "weekly", 1),
       entry(orderPath(locale), SEO_LAST_UPDATED, "monthly", 0.8),
       entry(featuresPath(locale), SEO_LAST_UPDATED, "monthly", 0.8),
+      entry(pricingPath(locale), SEO_LAST_UPDATED, "monthly", 0.8, internationalLanguageAlternates(env, "/pricing")),
+      entry(faqPath(locale), SEO_LAST_UPDATED, "monthly", 0.7, internationalLanguageAlternates(env, "/faq")),
       ...eventUseCasesFor(locale)
         .filter(({ slug }) => slug !== "poroke")
         .map(({ slug }) =>

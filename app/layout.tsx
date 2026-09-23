@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Hanken_Grotesk, Inter, Libre_Caslon_Text } from "next/font/google";
 import { JsonLd } from "@/components/seo/json-ld";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
 import { LiveSession } from "@/components/analytics/live-session";
@@ -16,6 +16,22 @@ const inter = Inter({
   subsets: ["latin", "latin-ext"],
   display: "swap",
   variable: "--font-inter",
+});
+
+/** Marketing redesign: Hanken Grotesk for UI copy, Libre Caslon Text for display headings. */
+const hanken = Hanken_Grotesk({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-hanken",
+});
+
+const caslon = Libre_Caslon_Text({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-caslon",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -74,7 +90,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const siteUrl = siteUrlForLocale(getPublicAppUrls(), locale);
   return (
     <html lang={intlLocale(locale)}>
-      <body className={inter.variable}>
+      <body className={`${inter.variable} ${hanken.variable} ${caslon.variable}`}>
         <JsonLd data={siteStructuredDataFor(locale, siteUrl) as unknown as Record<string, unknown>} />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
         <LiveSession />

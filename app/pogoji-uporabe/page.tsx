@@ -38,5 +38,5 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function TermsPage() {
   const locale = await getRequestLocale();
-  return <LegalDocumentPage locale={locale} document={getLegalCopy(locale).terms} />;
+  return <LegalDocumentPage locale={locale} kind="terms" document={getLegalCopy(locale).terms} />;
 }

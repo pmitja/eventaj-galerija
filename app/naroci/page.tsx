@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { MinimalCheckoutForm } from "@/components/checkout/minimal-checkout-form";
-import { CheckoutBrandBar } from "@/components/checkout/checkout-brand-bar";
+import { OrderPage } from "@/components/site/order-page";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { orderPath } from "@/lib/i18n/routes";
 import { getPublicAppUrls } from "@/lib/i18n/server";
 import { canonicalUrl, languageAlternates } from "@/lib/i18n/alternates";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { checkoutEyebrowClass, checkoutHeadingClass, checkoutHeadingTextClass, checkoutHeadingTitleClass, checkoutPageClass, checkoutShellClass } from "@/components/checkout/checkout-styles";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
@@ -26,16 +25,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = "force-dynamic";
 
-export default async function OrderPage() {
+export default async function OrderRoute({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const locale = await getRequestLocale();
   const t = getDictionary(locale).order;
-  return <main className={checkoutPageClass}><div className={checkoutShellClass}>
-    <CheckoutBrandBar locale={locale} back={t.back} />
-    <header className={checkoutHeadingClass}>
-      <p className={checkoutEyebrowClass}>{t.eyebrow}</p>
-      <h1 className={checkoutHeadingTitleClass}>{t.title}</h1>
-      <span className={checkoutHeadingTextClass}>{t.intro}</span>
-    </header>
-    <MinimalCheckoutForm />
-  </div></main>;
+  const params = await searchParams;
+  return (
+    <OrderPage
+      locale={locale}
+      title={t.title}
+      intro={t.intro}
+      cancelled={params.preklicano === "1"}
+      videoAddOnAvailable={String(getCloudflareEnv().VIDEO_UPLOAD_ENABLED) === "true"}
+    />
+  );
 }

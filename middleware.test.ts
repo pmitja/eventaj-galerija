@@ -76,6 +76,18 @@ describe("canonical hostname middleware", () => {
     );
   });
 
+  it.each(["/pricing", "/faq"])("sends the Guest Mosaic-only page %s on the Slovenian host to eventaj.si", (path) => {
+    const response = middleware(new NextRequest(`https://galerija.eventaj.si${path}`));
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe("https://www.eventaj.si/qr-galerija");
+  });
+
+  it("serves prefixed pricing and FAQ pages from the shared English route", () => {
+    expect(middleware(new NextRequest("https://guestmosaic.com/de/pricing")).headers.get("x-middleware-rewrite")).toBe("https://guestmosaic.com/pricing");
+    expect(middleware(new NextRequest("https://guestmosaic.com/faq")).headers.get("location")).toBeNull();
+  });
+
   it.each([
     "/naroci",
     "/pogoji-uporabe",

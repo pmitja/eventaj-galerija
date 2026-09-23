@@ -38,5 +38,5 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PrivacyPage() {
   const locale = await getRequestLocale();
-  return <LegalDocumentPage locale={locale} document={getLegalCopy(locale).privacy} />;
+  return <LegalDocumentPage locale={locale} kind="privacy" document={getLegalCopy(locale).privacy} />;
 }

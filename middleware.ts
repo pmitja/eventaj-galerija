@@ -37,6 +37,7 @@ function movedSlovenianMarketingPath(pathname: string): string | undefined {
   if (pathname === "/") return "/qr-galerija";
   if (pathname === "/funkcije") return "/qr-galerija/funkcije";
   if (pathname.startsWith("/za-dogodke/")) return `/qr-galerija${pathname}`;
+  if (pathname === "/pricing" || pathname === "/faq") return "/qr-galerija";
   return undefined;
 }
 
@@ -54,6 +55,8 @@ function withMarketingCache(response: NextResponse, request: NextRequest): NextR
   const internalPath = slovenianRoutePath(request.nextUrl.pathname);
   const cacheable = internalPath === "/"
     || internalPath === "/funkcije"
+    || internalPath === "/pricing"
+    || internalPath === "/faq"
     || internalPath.startsWith("/za-dogodke/")
     || internalPath.startsWith("/solutions/");
   if (!cacheable) return response;

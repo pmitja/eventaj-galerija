@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { SolutionPage } from "./solution-page";
+import { EventLanding } from "@/components/site/event-landing";
+import { solutionLandingData } from "@/components/site/event-landing-data";
 import { getSolutionPage } from "./solution-pages";
 import { JsonLd } from "@/components/seo/json-ld";
 import { solutionLanguageAlternates } from "@/lib/i18n/alternates";
@@ -73,7 +74,7 @@ export function SolutionRoute({ locale, id }: { locale: SolutionPageLocale; id: 
   return (
     <>
       <JsonLd data={structuredData} />
-      <SolutionPage page={page} locale={locale} />
+      <EventLanding locale={locale} data={solutionLandingData(locale, id)} />
     </>
   );
 }

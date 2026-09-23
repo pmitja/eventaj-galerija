@@ -41,6 +41,9 @@ export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 export const minimalCheckoutSchema = z.object({
   ownerEmail: z.email().transform((value) => value.toLowerCase()),
   termsAccepted: z.boolean().refine((value) => value, "Accept the terms to continue"),
+  /** Optional €15 add-ons chosen on the order page; both default to off. */
+  aiBestPhotos: z.boolean().optional().default(false),
+  videoUnlimited: z.boolean().optional().default(false),
 });
 
 export type MinimalCheckoutValues = z.infer<typeof minimalCheckoutSchema>;

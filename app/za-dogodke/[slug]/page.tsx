@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { UseCasePage } from "@/components/landing/use-case-page";
+import { EventLanding } from "@/components/site/event-landing";
+import { landingDataForUseCase } from "@/components/site/event-landing-data";
 import { JsonLd } from "@/components/seo/json-ld";
 import { eventUseCases, getEventUseCase } from "@/components/landing/use-cases";
 import { absoluteUrl, brandName, ogImage } from "@/lib/seo";
@@ -97,7 +98,7 @@ export default async function EventUseCaseRoute({ params }: PageProps) {
   return (
     <>
       <JsonLd data={structuredData} />
-      <UseCasePage useCase={useCase} locale={locale} alternateOrigin={appUrlForLocale(env, locale === "sl" ? "en" : "sl")} />
+      <EventLanding locale={locale} data={landingDataForUseCase(locale, useCase)} />
     </>
   );
 }

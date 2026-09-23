@@ -43,8 +43,8 @@ async function withLocale<T>(locale: Locale, run: () => Promise<T>): Promise<T> 
   return run();
 }
 
-/** Home, order, features and the two legal documents, plus the use-case pages. */
-const PAGES_PER_LOCALE = eventUseCases.length + 5;
+/** Home, order, features, pricing, FAQ and the two legal documents, plus the use-case pages. */
+const PAGES_PER_LOCALE = eventUseCases.length + 7;
 
 describe("public SEO discovery", () => {
   it("lists only canonical marketing pages in the sitemap", async () => {
@@ -79,6 +79,11 @@ describe("public SEO discovery", () => {
     expect(urls).toContain(`${ENGLISH_SITE_URL}/fr/order`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/features`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/de/features`);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/pricing`);
+    expect(urls).toContain(`${ENGLISH_SITE_URL}/de/faq`);
+    const pricing = entries.find((entry) => entry.url === `${ENGLISH_SITE_URL}/pricing`);
+    expect(pricing?.alternates?.languages).not.toHaveProperty("sl-SI");
+    expect(pricing?.alternates?.languages).toHaveProperty("de-DE", `${ENGLISH_SITE_URL}/de/pricing`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/es/privacy`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/wedding-qr-code-for-photos`);
     expect(urls).toContain(`${ENGLISH_SITE_URL}/de/hochzeitsfotos-per-qr-code`);

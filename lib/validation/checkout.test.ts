@@ -22,6 +22,12 @@ describe("checkout validation", () => {
     expect(minimalCheckoutSchema.safeParse({ ownerEmail: "guest@example.com", termsAccepted: false }).success).toBe(false);
   });
 
+  it("defaults the order-page add-ons to off and rejects non-boolean values", () => {
+    expect(minimalCheckoutSchema.parse({ ownerEmail: "guest@example.com", termsAccepted: true })).toMatchObject({ aiBestPhotos: false, videoUnlimited: false });
+    expect(minimalCheckoutSchema.parse({ ownerEmail: "guest@example.com", termsAccepted: true, aiBestPhotos: true })).toMatchObject({ aiBestPhotos: true, videoUnlimited: false });
+    expect(minimalCheckoutSchema.safeParse({ ownerEmail: "guest@example.com", termsAccepted: true, videoUnlimited: "yes" }).success).toBe(false);
+  });
+
   it("validates the post-payment event setup independently", () => {
     expect(eventSetupSchema.safeParse({ eventName: "Anna & Mark", eventDate: "2026-09-12", eventLocation: "Dublin", timezone: "Europe/Dublin" }).success).toBe(true);
     expect(eventSetupSchema.safeParse({ eventName: "A", eventDate: "12/09/2026", timezone: "Europe/Dublin" }).success).toBe(false);

@@ -15,7 +15,7 @@ import { sendMetaConversion } from "@/lib/analytics/meta-conversions";
 import type { eventSetupSchema } from "@/lib/validation/checkout";
 import { zonedLocalDateTimeToIso } from "@/lib/datetime/timezone";
 
-type CheckoutInput = z.infer<typeof minimalCheckoutSchema> & Record<string, unknown>;
+type CheckoutInput = z.input<typeof minimalCheckoutSchema> & Record<string, unknown>;
 
 export type CheckoutOrder = {
   id: string;
@@ -67,7 +67,9 @@ export async function createCheckoutOrder(
 
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  const amount = checkoutTotalCents(false, false, false);
+  const aiBestPhotos = input.aiBestPhotos === true;
+  const videoUnlimited = input.videoUnlimited === true;
+  const amount = checkoutTotalCents(aiBestPhotos, false, videoUnlimited);
   const placeholderStart = now;
   const placeholderEnd = new Date(Date.now() + 36 * 60 * 60_000).toISOString();
   const placeholderName = locale === "sl" ? "Moj dogodek" : "My event";
@@ -82,8 +84,8 @@ export async function createCheckoutOrder(
   ).bind(
     id, null, null, input.ownerEmail.split("@")[0], input.ownerEmail, null,
     input.ownerEmail.split("@")[0], placeholderName, null, placeholderStart, placeholderEnd,
-    "UTC", 1, 0, 0,
-    0, CURRENT_TERMS_VERSION, amount, billingCurrency(locale), locale,
+    "UTC", 1, aiBestPhotos ? 1 : 0, 0,
+    videoUnlimited ? 1 : 0, CURRENT_TERMS_VERSION, amount, billingCurrency(locale), locale,
     attribution ? 1 : 0, attribution?.consentVersion ?? null, attribution?.fbp ?? null,
     attribution?.fbc ?? null, attribution?.clientIp ?? null, attribution?.clientUserAgent ?? null,
     now, now,
@@ -95,9 +97,9 @@ export async function createCheckoutOrder(
       orderId: id,
       email: input.ownerEmail,
       amountCents: amount,
-      aiBestPhotos: false,
+      aiBestPhotos,
       faceCollections: false,
-      videoUnlimited: false,
+      videoUnlimited,
       locale,
       successUrl: `${root}${checkoutSuccessPath(locale)}?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${root}${orderPath(locale)}?preklicano=1`,
